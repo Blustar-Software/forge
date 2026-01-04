@@ -9,6 +9,7 @@
 - `swift build`: builds the executable.
 - `swift run forge`: runs the CLI and starts (or resumes) the challenge flow.
 - `swift run forge reset`: clears `workspace/.progress` and deletes generated `workspace/challenge*.swift` files.
+- `scripts/check.sh`: runs the automated checks (`swift test`).
 
 ## Coding Style & Naming Conventions
 - Use Swift’s standard formatting with 4-space indentation and a line length that keeps code readable.
@@ -17,9 +18,9 @@
 - No formatter or linter is configured; keep changes consistent with existing style.
 
 ## Testing Guidelines
-- No automated tests or test target are configured in `Package.swift`.
+- SwiftPM tests live in `Tests/forgeTests/` and run with `swift test`.
 - Manual verification is done by running the CLI and editing files in `workspace/` until output matches expected values.
-- If adding tests, consider adding a SwiftPM test target and name tests `SomethingTests` with `testX()` methods.
+- Name test classes `SomethingTests` and test methods `testX()` to match SwiftPM defaults.
 
 ## Commit & Pull Request Guidelines
 - This directory is not a Git repository, so commit conventions cannot be derived from history.

@@ -31,18 +31,6 @@ func clearScreen() {
     print("\u{001B}[H")
 }
 
-struct Challenge {
-    let number: Int
-    let title: String
-    let description: String
-    let starterCode: String
-    let expectedOutput: String
-
-    var filename: String {
-        return "challenge\(number).swift"
-    }
-}
-
 func setupWorkspace() {
     let fileManager = FileManager.default
     let workspacePath = "workspace"
@@ -53,8 +41,12 @@ func setupWorkspace() {
     }
 }
 
-func getCurrentProgress() -> Int {
-    let progressFile = "workspace/.progress"
+func progressFilePath(workspacePath: String) -> String {
+    return "\(workspacePath)/.progress"
+}
+
+func getCurrentProgress(workspacePath: String = "workspace") -> Int {
+    let progressFile = progressFilePath(workspacePath: workspacePath)
 
     if let content = try? String(contentsOfFile: progressFile, encoding: .utf8),
         let progress = Int(content.trimmingCharacters(in: .whitespacesAndNewlines))
@@ -65,23 +57,23 @@ func getCurrentProgress() -> Int {
     return 1  // Start at challenge 1
 }
 
-func saveProgress(_ challengeNumber: Int) {
-    let progressFile = "workspace/.progress"
+func saveProgress(_ challengeNumber: Int, workspacePath: String = "workspace") {
+    let progressFile = progressFilePath(workspacePath: workspacePath)
     try? String(challengeNumber).write(toFile: progressFile, atomically: true, encoding: .utf8)
 }
 
-func resetProgress() {
-    let progressFile = "workspace/.progress"
+func resetProgress(workspacePath: String = "workspace") {
+    let progressFile = progressFilePath(workspacePath: workspacePath)
     let fileManager = FileManager.default
     
     // Delete progress file
     try? fileManager.removeItem(atPath: progressFile)
     
     // Delete all challenge files
-    if let files = try? fileManager.contentsOfDirectory(atPath: "workspace") {
+    if let files = try? fileManager.contentsOfDirectory(atPath: workspacePath) {
         for file in files {
             if file.hasPrefix("challenge") && file.hasSuffix(".swift") {
-                try? fileManager.removeItem(atPath: "workspace/\(file)")
+                try? fileManager.removeItem(atPath: "\(workspacePath)/\(file)")
             }
         }
     }
@@ -134,6 +126,12 @@ func compileAndRun(file: String) -> String? {
     }
 }
 
+func isExpectedOutput(_ output: String, expected: String) -> Bool {
+    let normalizedOutput = output.trimmingCharacters(in: .whitespacesAndNewlines)
+    let normalizedExpected = expected.trimmingCharacters(in: .whitespacesAndNewlines)
+    return normalizedOutput == normalizedExpected
+}
+
 func validateChallenge(_ challenge: Challenge, challenges: [Challenge]) -> Bool {
     let workspacePath = "workspace/\(challenge.filename)"
 
@@ -145,7 +143,7 @@ func validateChallenge(_ challenge: Challenge, challenges: [Challenge]) -> Bool 
     // Show what the code printed
     print("Output: \(output)\n")
 
-    if output == challenge.expectedOutput {
+    if isExpectedOutput(output, expected: challenge.expectedOutput) {
         print("✓ Challenge Complete! Well done.\n")
 
         // Save progress to next challenge
@@ -180,12 +178,34 @@ func runChallenges(_ challenges: [Challenge], startingAt: Int) {
             guard
                 let currentModified = try? fileManager.attributesOfItem(atPath: workspacePath)[
                     .modificationDate]
-                    as? Date
+                as? Date
             else {
                 continue
             }
 
             if currentModified != lastModified {
+                // Debounce to avoid validating mid-write (common with editors that save via temp files).
+                var stableCount = 0
+                var lastSeen = currentModified
+                while stableCount < 2 {
+                    usleep(200_000)
+                    guard
+                        let modified = try? fileManager.attributesOfItem(atPath: workspacePath)[
+                            .modificationDate]
+                        as? Date
+                    else {
+                        stableCount = 0
+                        continue
+                    }
+
+                    if modified == lastSeen {
+                        stableCount += 1
+                    } else {
+                        lastSeen = modified
+                        stableCount = 0
+                    }
+                }
+
                 lastModified = currentModified
                 print("\n--- Testing your code... ---\n")
 
@@ -216,82 +236,7 @@ struct Forge {
             // Don't return - continue to run challenges
         }
         
-        // Define all challenges
-        let challenges = [
-            Challenge(
-                number: 1,
-                title: "Hello, Forge",
-                description: "Print \"Hello, Forge\" to the console",
-                starterCode: """
-                    // TODO: Create a function called greet()
-                    func greet() {
-                        // Your code here
-                    }
-
-                    // TODO: Call the function
-                    """,
-                expectedOutput: "Hello, Forge"
-            ),
-            Challenge(
-                number: 2,
-                title: "Variables",
-                description: "Create a variable and print it",
-                starterCode: """
-                    // TODO: Create a variable called 'message' with the text "Learning Swift"
-
-                    // TODO: Print that variable
-                    """,
-                expectedOutput: "Learning Swift"
-            ),
-            Challenge(
-                number: 3,
-                title: "Basic Math",
-                description: "Perform arithmetic and print the result",
-                starterCode: """
-                    // TODO: Create a variable 'result' that holds the sum of 25 and 17
-
-                    // TODO: Print the result
-                    """,
-                expectedOutput: "42"
-            ),
-            Challenge(
-                number: 4,
-                title: "String Interpolation",
-                description: "Combine text and variables in a print statement",
-                starterCode: """
-                    // Create a variable with a number
-                    let score = 100
-
-                    // TODO: Print "Your score is 100" using string interpolation
-                    // Hint: Use \\(variableName) inside a string
-                    """,
-                expectedOutput: "Your score is 100"
-            ),
-            Challenge(
-                number: 5,
-                title: "Function Parameters",
-                description: "Create a function that takes a parameter",
-                starterCode: """
-                    // TODO: Create a function called 'greet' that takes a 'name' parameter
-                    // and prints "Hello, " followed by that name
-
-                    // TODO: Call the function with "Forge"
-                    """,
-                expectedOutput: "Hello, Forge"
-            ),
-            Challenge(
-                number: 6,
-                title: "Return Values",
-                description: "Create a function that returns a value",
-                starterCode: """
-                    // TODO: Create a function called 'double' that takes an Int parameter
-                    // and returns that number multiplied by 2
-
-                    // TODO: Call the function with 21 and print the result
-                    """,
-                expectedOutput: "42"
-            ),
-        ]
+        let challenges = makeChallenges()
 
         setupWorkspace()
 
