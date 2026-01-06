@@ -2,6 +2,11 @@
 
 import Foundation
 
+enum Step {
+    case challenge(Challenge)
+    case project(Project)
+}
+
 func displayWelcome() {
     print(
         """
@@ -69,10 +74,10 @@ func resetProgress(workspacePath: String = "workspace") {
     // Delete progress file
     try? fileManager.removeItem(atPath: progressFile)
     
-    // Delete all challenge files
+    // Delete all challenge and project files
     if let files = try? fileManager.contentsOfDirectory(atPath: workspacePath) {
         for file in files {
-            if file.hasPrefix("challenge") && file.hasSuffix(".swift") {
+            if (file.hasPrefix("challenge") || file.hasPrefix("project_")) && file.hasSuffix(".swift") {
                 try? fileManager.removeItem(atPath: "\(workspacePath)/\(file)")
             }
         }
@@ -85,12 +90,7 @@ func loadChallenge(_ challenge: Challenge) {
     let workspacePath = "workspace/\(challenge.filename)"
 
     // Write challenge file
-    let content = """
-        // Challenge \(challenge.number): \(challenge.title)
-        // \(challenge.description)
-
-        \(challenge.starterCode)
-        """
+    let content = "\(challenge.starterCode)\n"
 
     try? content.write(toFile: workspacePath, atomically: true, encoding: .utf8)
 
@@ -132,7 +132,7 @@ func isExpectedOutput(_ output: String, expected: String) -> Bool {
     return normalizedOutput == normalizedExpected
 }
 
-func validateChallenge(_ challenge: Challenge, challenges: [Challenge]) -> Bool {
+func validateChallenge(_ challenge: Challenge, nextStepIndex: Int) -> Bool {
     let workspacePath = "workspace/\(challenge.filename)"
 
     guard let output = compileAndRun(file: workspacePath) else {
@@ -146,9 +146,8 @@ func validateChallenge(_ challenge: Challenge, challenges: [Challenge]) -> Bool 
     if isExpectedOutput(output, expected: challenge.expectedOutput) {
         print("✓ Challenge Complete! Well done.\n")
 
-        // Save progress to next challenge
-        let nextChallengeNum = challenge.number + 1
-        saveProgress(nextChallengeNum)
+        // Save progress to next step
+        saveProgress(nextStepIndex)
 
         return true
     } else {
@@ -158,72 +157,239 @@ func validateChallenge(_ challenge: Challenge, challenges: [Challenge]) -> Bool 
     }
 }
 
-func runChallenges(_ challenges: [Challenge], startingAt: Int) {
+func runSteps(_ steps: [Step], startingAt: Int) {
     var currentIndex = startingAt - 1
 
-    while currentIndex < challenges.count {
-        let challenge = challenges[currentIndex]
-        loadChallenge(challenge)
+    while currentIndex < steps.count {
+        let step = steps[currentIndex]
 
-        let workspacePath = "workspace/\(challenge.filename)"
-        let fileManager = FileManager.default
-        var lastModified =
-            try? fileManager.attributesOfItem(atPath: workspacePath)[.modificationDate] as? Date
+        switch step {
+        case .challenge(let challenge):
+            loadChallenge(challenge)
 
-        // Watch for changes
-        var challengeComplete = false
-        while !challengeComplete {
-            usleep(500_000)  // Check every 0.5 seconds
+            let workspacePath = "workspace/\(challenge.filename)"
+            let fileManager = FileManager.default
+            var lastModified =
+                try? fileManager.attributesOfItem(atPath: workspacePath)[.modificationDate] as? Date
 
-            guard
-                let currentModified = try? fileManager.attributesOfItem(atPath: workspacePath)[
-                    .modificationDate]
-                as? Date
-            else {
-                continue
-            }
+            var challengeComplete = false
+            while !challengeComplete {
+                usleep(500_000)
 
-            if currentModified != lastModified {
-                // Debounce to avoid validating mid-write (common with editors that save via temp files).
-                var stableCount = 0
-                var lastSeen = currentModified
-                while stableCount < 2 {
-                    usleep(200_000)
-                    guard
-                        let modified = try? fileManager.attributesOfItem(atPath: workspacePath)[
-                            .modificationDate]
-                        as? Date
-                    else {
-                        stableCount = 0
-                        continue
-                    }
-
-                    if modified == lastSeen {
-                        stableCount += 1
-                    } else {
-                        lastSeen = modified
-                        stableCount = 0
-                    }
+                guard
+                    let currentModified = try? fileManager.attributesOfItem(atPath: workspacePath)[
+                        .modificationDate]
+                    as? Date
+                else {
+                    continue
                 }
 
-                lastModified = currentModified
-                print("\n--- Testing your code... ---\n")
+                if currentModified != lastModified {
+                    var stableCount = 0
+                    var lastSeen = currentModified
+                    while stableCount < 2 {
+                        usleep(200_000)
+                        guard
+                            let modified = try? fileManager.attributesOfItem(atPath: workspacePath)[
+                                .modificationDate]
+                            as? Date
+                        else {
+                            stableCount = 0
+                            continue
+                        }
 
-                if validateChallenge(challenge, challenges: challenges) {
-                    challengeComplete = true
-                    currentIndex += 1
-
-                    if currentIndex < challenges.count {
-                        sleep(2)  // Brief pause before next challenge
-                        print("→ Moving to next challenge...\n")
+                        if modified == lastSeen {
+                            stableCount += 1
+                        } else {
+                            lastSeen = modified
+                            stableCount = 0
+                        }
                     }
+
+                    lastModified = currentModified
+                    print("\n--- Testing your code... ---\n")
+
+                    let nextStepIndex = currentIndex + 2
+                    if validateChallenge(challenge, nextStepIndex: nextStepIndex) {
+                        challengeComplete = true
+                        currentIndex += 1
+
+                        if currentIndex < steps.count {
+                            sleep(2)
+                            print(nextStepPrompt(for: steps[currentIndex]))
+                        } else {
+                            saveProgress(999)
+                            print("🎉 You've completed everything!")
+                            print("Run 'swift run forge reset' to start over.\n")
+                        }
+                    }
+                }
+            }
+        case .project(let project):
+            if runProject(project) {
+                currentIndex += 1
+                if currentIndex < steps.count {
+                    sleep(2)
+                    saveProgress(currentIndex + 1)
+                    print(project.completionTitle)
+                    print("\(project.completionMessage)\n")
+                    print(nextStepPrompt(for: steps[currentIndex]))
+                } else {
+                    sleep(2)
+                    saveProgress(999)
+                    print(project.completionTitle)
+                    print("\(project.completionMessage)\n")
+                    print("🎉 You've completed everything!")
+                    print("Run 'swift run forge reset' to start over.\n")
                 }
             }
         }
     }
+}
 
-    print("🎉 You've completed all challenges! You're a Swift master.\n")
-    print("Run 'swift run forge reset' to start over.\n")
+func loadProject(_ project: Project) {
+    let workspacePath = "workspace/\(project.filename)"
+
+    try? project.starterCode.write(toFile: workspacePath, atomically: true, encoding: .utf8)
+
+    print(
+        """
+
+        🛠️ Project: \(project.title)
+        └─ \(project.description)
+
+        Edit: \(workspacePath)
+
+        This project is checked against expected outputs. Build something that works!
+        Watching for changes...
+        """)
+}
+
+func validateProject(_ project: Project) -> Bool {
+    let workspacePath = "workspace/\(project.filename)"
+
+    guard let output = compileAndRun(file: workspacePath) else {
+        print("✗ Compilation failed. Check your code.")
+        return false
+    }
+
+    // Show what the code printed
+    print("Output: \(output)\n")
+    
+    // Parse output lines
+    let outputLines = output.components(separatedBy: "\n")
+    
+    // Check if all test cases pass
+    guard outputLines.count == project.testCases.count else {
+        print("✗ Expected \(project.testCases.count) outputs, got \(outputLines.count)")
+        return false
+    }
+    
+    var allPassed = true
+    for (index, testCase) in project.testCases.enumerated() {
+        let expected = testCase.expectedOutput.trimmingCharacters(in: .whitespacesAndNewlines)
+        let actual = outputLines[index].trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if actual != expected {
+            print("✗ Test \(index + 1) failed: expected \(expected), got \(actual)")
+            allPassed = false
+        }
+    }
+    
+    if allPassed {
+        print("✓ Project Complete! Excellent work.\n")
+        return true
+    } else {
+        print("✗ Some tests failed. Keep working!")
+        return false
+    }
+}
+
+func firstProject(forPass pass: Int, in projects: [Project]) -> Project? {
+    return projects.first { $0.pass == pass }
+}
+
+func makeSteps(core1Challenges: [Challenge], core2Challenges: [Challenge], projects: [Project]) -> [Step] {
+    var steps: [Step] = []
+    steps.append(contentsOf: core1Challenges.map { Step.challenge($0) })
+    if let core1Project = firstProject(forPass: 1, in: projects) {
+        steps.append(.project(core1Project))
+    }
+    steps.append(contentsOf: core2Challenges.map { Step.challenge($0) })
+    if let core2Project = firstProject(forPass: 2, in: projects) {
+        steps.append(.project(core2Project))
+    }
+    return steps
+}
+
+func nextStepPrompt(for step: Step) -> String {
+    switch step {
+    case .challenge:
+        return "→ Moving to next challenge...\n"
+    case .project:
+        return "→ Time for your project...\n"
+    }
+}
+
+func runProject(_ project: Project) -> Bool {
+    loadProject(project)
+    
+    let workspacePath = "workspace/\(project.filename)"
+    let fileManager = FileManager.default
+    var lastModified = try? fileManager.attributesOfItem(atPath: workspacePath)[.modificationDate] as? Date
+    
+    while true {
+        usleep(500_000)
+        
+        guard
+            let currentModified = try? fileManager.attributesOfItem(atPath: workspacePath)[.modificationDate] as? Date
+        else {
+            continue
+        }
+        
+        if currentModified != lastModified {
+            // Debounce
+            var stableCount = 0
+            var lastSeen = currentModified
+            while stableCount < 2 {
+                usleep(200_000)
+                guard
+                    let modified = try? fileManager.attributesOfItem(atPath: workspacePath)[.modificationDate] as? Date
+                else {
+                    stableCount = 0
+                    continue
+                }
+                
+                if modified == lastSeen {
+                    stableCount += 1
+                } else {
+                    lastSeen = modified
+                    stableCount = 0
+                }
+            }
+            
+            lastModified = currentModified
+            print("\n--- Testing your project... ---\n")
+            
+            if validateProject(project) {
+                sleep(2)
+                return true
+            }
+        }
+    }
+}
+
+func normalizedProgress(_ rawProgress: Int, stepsCount: Int, legacyChallengeCount: Int) -> Int {
+    if rawProgress == 999 {
+        return stepsCount + 1
+    }
+    if rawProgress <= legacyChallengeCount + 1 {
+        return rawProgress
+    }
+    if rawProgress > stepsCount {
+        return stepsCount + 1
+    }
+    return rawProgress
 }
 
 @main
@@ -236,11 +402,23 @@ struct Forge {
             // Don't return - continue to run challenges
         }
         
-        let challenges = makeChallenges()
+        let core1Challenges = makeCore1Challenges()
+        let core2Challenges = makeCore2Challenges()
+        let projects = makeProjects()
+        let steps = makeSteps(
+            core1Challenges: core1Challenges,
+            core2Challenges: core2Challenges,
+            projects: projects
+        )
 
         setupWorkspace()
 
         let currentProgress = getCurrentProgress()
+        let startIndex = normalizedProgress(
+            currentProgress,
+            stepsCount: steps.count,
+            legacyChallengeCount: core1Challenges.count
+        )
 
         // Show welcome only on first run
         if currentProgress == 1 {
@@ -251,12 +429,11 @@ struct Forge {
         clearScreen()
         print("Let's forge something great.\n")
 
-        guard currentProgress <= challenges.count else {
-            print("🎉 You've completed all challenges!")
+        if startIndex <= steps.count {
+            runSteps(steps, startingAt: startIndex)
+        } else {
+            print("🎉 You've completed everything!")
             print("Run 'swift run forge reset' to start over.\n")
-            return
         }
-
-        runChallenges(challenges, startingAt: currentProgress)
     }
 }

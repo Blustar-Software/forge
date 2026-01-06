@@ -3,6 +3,7 @@
 ## Project Structure & Module Organization
 - `Package.swift` defines a single Swift Package Manager executable target named `forge`.
 - `Sources/forge/forge.swift` contains the CLI entry point and all challenge logic.
+- `Sources/forge/Challenges.swift` defines `Challenge` data and the curriculum (currently 1–35).
 - `workspace/` holds generated challenge files (`challenge1.swift`, etc.) and the `.progress` marker used to resume.
 
 ## Build, Test, and Development Commands

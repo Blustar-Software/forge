@@ -1,0 +1,192 @@
+# Overview
+## I. Core
+### Core 1
+First pass over fundamentals; low-intensity + brief.
+### Core 2
+Second pass; higher intensity, more reps, more integration.
+### Core 3
+Final pass over fundamentals; exhaustive coverage + highest integration.
+
+### Core Projects
+A. Simple project  
+B. Intermediate project  
+C. Final, complex project  
+
+Progression: complete at least one project per pass. Optional: repeat or randomize for variety. Final project is open-ended but must demonstrate mastery of concepts.
+
+## II. Mantle
+Intermediate-level subject matter with the same 3-pass structure and project gating.
+
+## III. Crust
+Advanced/professional subject matter with the same 3-pass structure.
+
+---
+
+# Curriculum
+
+## CORE — Fundamental Building Blocks  
+Outcome: write, debug, and reason about basic Swift code confidently.
+
+### Core 1 (First Pass — Gentle Introduction)
+**Basic Syntax & Types**
+- `var`/`let`, basic types, type inference
+- Comments, printing, strings + interpolation
+
+**Basic Operations**
+- Arithmetic, comparison, logical ops
+- Compound assignment
+
+**Functions Basics**
+- Define/call, params, returns, naming
+
+### Core 2 (Second Pass — Building Skills)
+**Control Flow**
+- `if`/`else`, ternary, `switch`, simple pattern matching
+
+**Loops**
+- `for-in`, `while`, `repeat-while`, `break`/`continue`
+- Ranges
+
+**Collections**
+- Arrays, dictionaries, sets
+- Iteration patterns
+
+**Optionals Intro**
+- `?`, `if let`, `guard let`, `??`, avoiding `!`
+
+### Core 3 (Third Pass — Mastery)
+**Functions Advanced**
+- External/internal labels, defaults, variadics, `inout`, nested
+
+**Closures**
+- Syntax, trailing closures, capture, shorthand args
+
+**Higher-Order Functions**
+- `map`, `filter`, `reduce`, `compactMap`, `flatMap`
+
+**Types**
+- Tuples, typealiases, enums (cases, raw values, associated values)
+
+**Error Handling Basics**
+- `Error`, `throws`, `do/try/catch`, `try?`
+
+**Light I/O & CLI**
+- `readLine`, command-line args, simple file read/write
+
+**Testing Foundations**
+- XCTest basics, assertions, test naming
+
+---
+
+## MANTLE — Building Real Programs  
+Outcome: structure code with custom types, protocols, and safer architecture.
+
+### Mantle 1 (First Pass)
+**Structs**
+- Properties, methods, initializers, `self`, mutating, value semantics
+
+**Classes**
+- Reference semantics, init/deinit, when to use
+
+**Properties Deep Dive**
+- Stored/computed, observers, lazy, static/class
+
+### Mantle 2 (Second Pass)
+**Protocols**
+- Requirements, conformance, inheritance, composition, types as protocols
+
+**Extensions**
+- Adding behavior, default implementations, organization
+
+**Error Handling (Advanced)**
+- Propagation, custom error types, `try!`/`try?` tradeoffs
+
+**Access Control**
+- `private` -> `open`, usage guidance
+
+### Mantle 3 (Third Pass — Integration)
+**Protocol-Oriented Programming**
+- Default implementations, conditional conformance, composition
+
+**Generics Fundamentals**
+- Generic functions/types, constraints, associated types, where clauses
+
+**Advanced Optionals & Types**
+- Optional chaining, IUOs, type casting, `Any`/`AnyObject`, `Result`
+
+**Memory Management**
+- ARC, strong/weak/unowned, retain cycles, capture lists
+
+**Enums Advanced**
+- `indirect`, methods, computed props, advanced matching
+
+---
+
+## CRUST — Advanced & Professional  
+Outcome: build production-grade systems and reason about performance and architecture.
+
+### Crust 1 (First Pass)
+**Modern Concurrency**
+- `async`/`await`, tasks, structured concurrency, async sequences
+
+**Actors**
+- Isolation, `MainActor`, `Sendable`, data race prevention
+
+**Property Wrappers**
+- Built-ins, custom wrappers, projected values
+
+**Advanced Collections**
+- Lazy eval, custom sequences/collections, protocols
+
+**Key Paths**
+- Syntax, observation, operations
+
+### Crust 2 (Second Pass)
+**Advanced Generics**
+- Type erasure, existentials vs generics, opaque types, primary associated types
+
+**Performance Optimization**
+- CoW, value performance, profiling, memory layout
+
+**Advanced Language Features**
+- Custom operators, subscripts, dynamic member lookup/callable, result builders
+
+**Macros (Using)**
+- Apply macros, understand generated code
+
+**Package Management**
+- SwiftPM, dependencies, modules, target types
+
+### Crust 3 (Third Pass — Mastery)
+**Advanced Language Features**
+- Macros (creating), reflection, metadata, witness tables
+
+**Professional Patterns**
+- MVVM/MVC, DI, coordinators, repositories, protocol mocking
+
+**Testing (Advanced)**
+- TDD, async testing, stubs/mocks, UI testing concepts
+
+**Advanced Topics**
+- Unsafe Swift, C/Obj-C interop, LLDB, diagnostics
+
+**Real-World Skills**
+- Logging, analytics, docs, Git workflows, OSS contributions
+
+---
+
+## Project Topics (Examples)
+### Core
+- Simple: calculator, temperature converter, quiz
+- Intermediate: todo manager, word game, data analyzer
+- Complex: text adventure, algorithm visualizer
+
+### Mantle
+- Simple: contact manager, protocol-based shape drawer
+- Intermediate: JSON parser, generic data structure
+- Complex: multi-module CLI, plugin system
+
+### Crust
+- Simple: async network client, custom property wrapper
+- Intermediate: concurrent task scheduler, config DSL
+- Complex: mini web framework, macro package, perf-optimized library
