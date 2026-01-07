@@ -309,7 +309,12 @@ func firstProject(forPass pass: Int, in projects: [Project]) -> Project? {
     return projects.first { $0.pass == pass }
 }
 
-func makeSteps(core1Challenges: [Challenge], core2Challenges: [Challenge], projects: [Project]) -> [Step] {
+func makeSteps(
+    core1Challenges: [Challenge],
+    core2Challenges: [Challenge],
+    core3Challenges: [Challenge],
+    projects: [Project]
+) -> [Step] {
     var steps: [Step] = []
     steps.append(contentsOf: core1Challenges.map { Step.challenge($0) })
     if let core1Project = firstProject(forPass: 1, in: projects) {
@@ -318,6 +323,10 @@ func makeSteps(core1Challenges: [Challenge], core2Challenges: [Challenge], proje
     steps.append(contentsOf: core2Challenges.map { Step.challenge($0) })
     if let core2Project = firstProject(forPass: 2, in: projects) {
         steps.append(.project(core2Project))
+    }
+    steps.append(contentsOf: core3Challenges.map { Step.challenge($0) })
+    if let core3Project = firstProject(forPass: 3, in: projects) {
+        steps.append(.project(core3Project))
     }
     return steps
 }
@@ -404,10 +413,12 @@ struct Forge {
         
         let core1Challenges = makeCore1Challenges()
         let core2Challenges = makeCore2Challenges()
+        let core3Challenges = makeCore3Challenges()
         let projects = makeProjects()
         let steps = makeSteps(
             core1Challenges: core1Challenges,
             core2Challenges: core2Challenges,
+            core3Challenges: core3Challenges,
             projects: projects
         )
 

@@ -584,6 +584,341 @@ func makeCore2Challenges() -> [Challenge] {
     ]
 }
 
+func makeCore3Challenges() -> [Challenge] {
+    return [
+        Challenge(
+            number: 36,
+            title: "External & Internal Labels",
+            description: "Design clear APIs with distinct labels",
+            starterCode: """
+                // Challenge 36: External & Internal Labels
+                // Create a function with different external and internal labels.
+
+                // TODO: Create a function called forgeHeat that uses:
+                // external label: at
+                // internal label: temperature
+                // It should print "Heat: <temperature>"
+
+                // TODO: Call the function with 1500
+                """,
+            expectedOutput: "Heat: 1500"
+        ),
+        Challenge(
+            number: 37,
+            title: "Default Parameters",
+            description: "Use default values to simplify calls",
+            starterCode: """
+                // Challenge 37: Default Parameters
+                // Add a default intensity parameter.
+
+                // TODO: Create a function strike that takes:
+                // - a metal (String)
+                // - an intensity (Int) defaulting to 1
+                // Print "Striking <metal> with intensity <intensity>"
+
+                // TODO: Call strike with "Iron"
+                // TODO: Call strike with "Gold" and intensity 3
+                """,
+            expectedOutput: "Striking Iron with intensity 1\nStriking Gold with intensity 3"
+        ),
+        Challenge(
+            number: 38,
+            title: "Variadics",
+            description: "Accept any number of values",
+            starterCode: """
+                // Challenge 38: Variadics
+                // Accept multiple temperatures.
+
+                // TODO: Create a function averageTemp that takes any number of Ints
+                // and prints the average (integer division)
+
+                // TODO: Call averageTemp with 1000, 1200, 1400
+                """,
+            expectedOutput: "1200"
+        ),
+        Challenge(
+            number: 39,
+            title: "inout Parameters",
+            description: "Mutate a value passed into a function",
+            starterCode: """
+                // Challenge 39: inout Parameters
+                // Simulate tool wear.
+
+                // TODO: Create a function wear that subtracts 1 from a passed-in Int
+                // Use inout
+
+                // TODO: Create a variable durability = 5
+                // TODO: Call wear on durability
+                // TODO: Print durability
+                """,
+            expectedOutput: "4"
+        ),
+        Challenge(
+            number: 40,
+            title: "Nested Functions",
+            description: "Use helper functions inside functions",
+            starterCode: """
+                // Challenge 40: Nested Functions
+                // Validate before processing.
+
+                // TODO: Create a function process that:
+                // - defines a nested function isValid(_:) returning Bool
+                // - prints "OK" if valid, otherwise "Invalid"
+
+                // Valid = value >= 0
+
+                // TODO: Call process with -1
+                """,
+            expectedOutput: "Invalid"
+        ),
+        Challenge(
+            number: 41,
+            title: "Closure Syntax",
+            description: "Convert to shorthand closure syntax",
+            starterCode: """
+                // Challenge 41: Closure Syntax
+                // Convert to shorthand closure syntax.
+
+                let temps = [1200, 1500, 1600]
+
+                // TODO: Use map to convert each temp to a string like "<temp> deg"
+                // Use the shortest closure syntax possible
+
+                // TODO: Print the resulting array
+                """,
+            expectedOutput: "[\"1200 deg\", \"1500 deg\", \"1600 deg\"]"
+        ),
+        Challenge(
+            number: 42,
+            title: "Capturing Values",
+            description: "Understand closure capture behavior",
+            starterCode: """
+                // Challenge 42: Capturing Values
+                // Create a counter function.
+
+                // TODO: Create a function makeCounter that returns a closure
+                // The closure should increment and print an internal count
+
+                // TODO: Create a counter and call it three times
+                """,
+            expectedOutput: "1\n2\n3"
+        ),
+        Challenge(
+            number: 43,
+            title: "Trailing Closures",
+            description: "Use trailing closure syntax",
+            starterCode: """
+                // Challenge 43: Trailing Closures
+                // Use a closure to transform values.
+
+                func transform(_ value: Int, using closure: (Int) -> Int) {
+                    print(closure(value))
+                }
+
+                // TODO: Call transform with 5 using trailing closure syntax
+                // Multiply the value by 3
+                """,
+            expectedOutput: "15"
+        ),
+        Challenge(
+            number: 44,
+            title: "map/filter/reduce",
+            description: "Combine higher-order functions",
+            starterCode: """
+                // Challenge 44: map/filter/reduce
+                // Process forge temperatures.
+
+                let temps = [1000, 1500, 1600, 1400]
+
+                // TODO: Filter temps >= 1500
+                // TODO: Map them to Fahrenheit (C × 9/5 + 32)
+                // TODO: Reduce to a total
+                // TODO: Print the total
+                """,
+            expectedOutput: "5644"
+        ),
+        Challenge(
+            number: 45,
+            title: "compactMap",
+            description: "Remove nil values safely",
+            starterCode: """
+                // Challenge 45: compactMap
+                // Clean up optional readings.
+
+                let readings: [Int?] = [1200, nil, 1500, nil, 1600]
+
+                // TODO: Use compactMap to remove nils
+                // TODO: Print the cleaned array
+                """,
+            expectedOutput: "[1200, 1500, 1600]"
+        ),
+        Challenge(
+            number: 46,
+            title: "flatMap",
+            description: "Flatten nested arrays",
+            starterCode: """
+                // Challenge 46: flatMap
+                // Flatten batches.
+
+                let batches = [[1, 2], [3], [4, 5]]
+
+                // TODO: Flatten using flatMap
+                // TODO: Print the result
+                """,
+            expectedOutput: "[1, 2, 3, 4, 5]"
+        ),
+        Challenge(
+            number: 47,
+            title: "typealias",
+            description: "Improve readability with type aliases",
+            starterCode: """
+                // Challenge 47: typealias
+                // Create a readable alias.
+
+                // TODO: Create a typealias ForgeReading = (temp: Int, time: Int)
+                // TODO: Create a reading and print its temp
+                """,
+            expectedOutput: "1200"
+        ),
+        Challenge(
+            number: 48,
+            title: "Enums with Raw Values",
+            description: "Represent simple categories",
+            starterCode: """
+                // Challenge 48: Enums with Raw Values
+                // Represent metals.
+
+                // TODO: Create an enum Metal: String with cases iron, gold
+                // TODO: Print Metal.iron.rawValue
+                """,
+            expectedOutput: "iron"
+        ),
+        Challenge(
+            number: 49,
+            title: "Enums with Associated Values",
+            description: "Represent structured events",
+            starterCode: """
+                // Challenge 49: Enums with Associated Values
+                // Represent forge events.
+
+                // TODO: Create an enum Event with:
+                // - temperature(Int)
+                // - error(String)
+
+                // TODO: Create one of each and print something based on the case
+                // Use a switch to print:
+                // - "Temp: 1500" for temperature(1500)
+                // - "Error: Overheat" for error("Overheat")
+                """,
+            expectedOutput: "Temp: 1500\nError: Overheat"
+        ),
+        Challenge(
+            number: 50,
+            title: "Throwing Functions",
+            description: "Introduce error throwing",
+            starterCode: """
+                // Challenge 50: Throwing Functions
+                // Validate temperature.
+
+                // TODO: Create an enum TempError: Error with case outOfRange
+                // TODO: Create a function checkTemp that throws if temp < 0
+                // TODO: Call it with -1 using do/try/catch
+                """,
+            expectedOutput: "Error"
+        ),
+        Challenge(
+            number: 51,
+            title: "try?",
+            description: "Convert errors into optionals",
+            starterCode: """
+                // Challenge 51: try?
+                // Use try? to simplify error handling.
+
+                // TODO: Reuse checkTemp from previous challenge
+                // TODO: Call it with -1 using try?
+                // TODO: Print the result (should be nil)
+                """,
+            expectedOutput: "nil"
+        ),
+        Challenge(
+            number: 52,
+            title: "Simulated Input",
+            description: "Use a provided input value",
+            starterCode: """
+                // Challenge 52: readLine
+                // Simulate a value from the user.
+
+                let input = "Iron"
+
+                // TODO: Print "You entered <metal>" using input
+                """,
+            expectedOutput: "You entered Iron"
+        ),
+        Challenge(
+            number: 53,
+            title: "Simulated Arguments",
+            description: "Read from a provided args array",
+            starterCode: """
+                // Challenge 53: Command-Line Arguments
+                // Read arguments.
+
+                let args = ["forge", "Iron"]
+
+                // TODO: Print the first argument after the program name, or "No args"
+                """,
+            expectedOutput: "Iron"
+        ),
+        Challenge(
+            number: 54,
+            title: "Simulated File Read",
+            description: "Process provided file contents",
+            starterCode: """
+                // Challenge 54: File Read
+                // Read a file of temperatures.
+
+                let fileContents = """
+                1200
+                1500
+                1600
+                """
+
+                // TODO: Print the number of characters in fileContents
+                """,
+            expectedOutput: "15"
+        ),
+        Challenge(
+            number: 55,
+            title: "Simulated Test",
+            description: "Check a condition and report result",
+            starterCode: """
+                // Challenge 55: XCTest
+                // Write a basic test case.
+
+                // TODO: If 2 + 2 == 4, print "Test passed"
+                """,
+            expectedOutput: "Test passed"
+        ),
+        Challenge(
+            number: 56,
+            title: "Integration Challenge",
+            description: "Combine Core 3 concepts",
+            starterCode: """
+                // Challenge 56: Integration Challenge
+                // Process forge logs with advanced tools.
+
+                let lines = ["1200", "x", "1500", "1600", "bad", "1400"]
+
+                // TODO: Convert each line to an Int? using Int()
+                // TODO: Use compactMap to remove nils
+                // TODO: Use filter to keep temps >= 1500
+                // TODO: Use reduce to compute total
+                // TODO: Print the total
+                """,
+            expectedOutput: "3100"
+        ),
+    ]
+}
+
 func makeProjects() -> [Project] {
     return [
         Project(
@@ -663,6 +998,63 @@ func makeProjects() -> [Project] {
             ],
             completionTitle: "🏗️ Core 2, Pass 2 Complete!",
             completionMessage: "Control flow and collections are now in your toolkit."
+        ),
+        Project(
+            id: "core3a",
+            pass: 3,
+            title: "Forge Log Interpreter",
+            description: "Build a full data-processing pipeline for forge logs",
+            starterCode: """
+                // Core 3 Project A: Forge Log Interpreter
+                // Build a full data-processing pipeline for forge logs.
+                //
+                // Requirements:
+                // - Function name: interpretForgeLogs
+                // - Takes [String] log lines
+                // - Uses an enum with associated values to represent events
+                // - Uses a throwing parser function
+                // - Uses higher-order functions to transform data
+                // - Returns a tuple:
+                //   (validCount: Int, averageTemp: Int, overheatEvents: Int, errors: [String])
+                //
+                // Parsing rules:
+                // - Valid lines are either "TEMP <int>" or "ERROR <message>"
+                // - TEMP lines with non-integer values should be ignored
+                // - Malformed lines should be handled safely (no crash)
+                // - If there are no valid temps, averageTemp should be 0
+                //
+                // Example input:
+                // ["TEMP 1400", "TEMP 1600", "ERROR Overheated", "TEMP abc", "TEMP 1500"]
+                //
+                // Expected behavior:
+                // - Valid temps: 1400, 1600, 1500
+                // - Invalid temp ("abc") should be ignored
+                // - Errors: ["Overheated"]
+                // - validCount = 3
+                // - averageTemp = 1500
+                // - overheatEvents = 2
+                //
+                // TODO: Define the ForgeEvent enum
+                // TODO: Write a throwing parseLine(_:) function
+                // TODO: Write interpretForgeLogs(lines:) using map/filter/reduce
+                // TODO: Return the summary tuple
+                //
+                // Test code (don't modify):
+                let logs = ["TEMP 1400", "TEMP 1600", "ERROR Overheated", "TEMP abc", "TEMP 1500"]
+                let report = interpretForgeLogs(lines: logs)
+                print("Valid: \\(report.validCount)")
+                print("Average: \\(report.averageTemp)")
+                print("Overheats: \\(report.overheatEvents)")
+                print("Errors: \\(report.errors)")
+                """,
+            testCases: [
+                (input: "valid", expectedOutput: "Valid: 3"),
+                (input: "average", expectedOutput: "Average: 1500"),
+                (input: "overheat", expectedOutput: "Overheats: 2"),
+                (input: "errors", expectedOutput: "Errors: [\"Overheated\"]"),
+            ],
+            completionTitle: "🧠 Core 3, Pass 3 Complete!",
+            completionMessage: "Advanced Swift tools are now in your hands."
         ),
     ]
 }
