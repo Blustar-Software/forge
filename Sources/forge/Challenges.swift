@@ -876,11 +876,7 @@ func makeCore3Challenges() -> [Challenge] {
                 // Challenge 54: File Read
                 // Read a file of temperatures.
 
-                let fileContents = """
-                1200
-                1500
-                1600
-                """
+                let fileContents = "1200\n1500\n1600\n"
 
                 // TODO: Print the number of characters in fileContents
                 """,

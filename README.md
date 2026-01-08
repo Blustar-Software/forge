@@ -23,6 +23,19 @@ swift run forge
 swift run forge reset
 ```
 
+## Jump to a challenge or project
+You can set `workspace/.progress` manually to jump ahead.
+
+- Challenge number: use `challenge:<number>` (e.g., `challenge:36`).
+- Project id: use `project:<id>` or just `<id>` (case-insensitive).
+
+Examples:
+```
+challenge:36
+project:core3a
+core2a
+```
+
 ## Build
 ```sh
 swift build

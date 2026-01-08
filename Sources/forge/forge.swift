@@ -7,6 +7,13 @@ enum Step {
     case project(Project)
 }
 
+enum ProgressTarget {
+    case challenge(Int)
+    case step(Int)
+    case project(String)
+    case completed
+}
+
 func displayWelcome() {
     print(
         """
@@ -50,16 +57,16 @@ func progressFilePath(workspacePath: String) -> String {
     return "\(workspacePath)/.progress"
 }
 
-func getCurrentProgress(workspacePath: String = "workspace") -> Int {
+func getProgressToken(workspacePath: String = "workspace") -> String? {
     let progressFile = progressFilePath(workspacePath: workspacePath)
 
     if let content = try? String(contentsOfFile: progressFile, encoding: .utf8),
-        let progress = Int(content.trimmingCharacters(in: .whitespacesAndNewlines))
+        !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     {
-        return progress
+        return content.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    return 1  // Start at challenge 1
+    return nil
 }
 
 func saveProgress(_ challengeNumber: Int, workspacePath: String = "workspace") {
@@ -215,8 +222,11 @@ func runSteps(_ steps: [Step], startingAt: Int) {
                         currentIndex += 1
 
                         if currentIndex < steps.count {
-                            sleep(2)
                             print(nextStepPrompt(for: steps[currentIndex]))
+                            if case .challenge = steps[currentIndex] {
+                                sleep(2)
+                                clearScreen()
+                            }
                         } else {
                             saveProgress(999)
                             print("🎉 You've completed everything!")
@@ -229,11 +239,14 @@ func runSteps(_ steps: [Step], startingAt: Int) {
             if runProject(project) {
                 currentIndex += 1
                 if currentIndex < steps.count {
-                    sleep(2)
                     saveProgress(currentIndex + 1)
                     print(project.completionTitle)
                     print("\(project.completionMessage)\n")
                     print(nextStepPrompt(for: steps[currentIndex]))
+                    if case .project = steps[currentIndex] {
+                        sleep(2)
+                        clearScreen()
+                    }
                 } else {
                     sleep(2)
                     saveProgress(999)
@@ -388,17 +401,79 @@ func runProject(_ project: Project) -> Bool {
     }
 }
 
-func normalizedProgress(_ rawProgress: Int, stepsCount: Int, legacyChallengeCount: Int) -> Int {
+func normalizedStepIndex(_ rawProgress: Int, stepsCount: Int) -> Int {
     if rawProgress == 999 {
         return stepsCount + 1
     }
-    if rawProgress <= legacyChallengeCount + 1 {
-        return rawProgress
+    if rawProgress <= 0 {
+        return 1
     }
     if rawProgress > stepsCount {
         return stepsCount + 1
     }
     return rawProgress
+}
+
+func parseProgressTarget(_ token: String, projects: [Project]) -> ProgressTarget {
+    let trimmed = token.trimmingCharacters(in: .whitespacesAndNewlines)
+    if trimmed == "999" {
+        return .completed
+    }
+    let lowered = trimmed.lowercased()
+    if lowered.hasPrefix("challenge:") {
+        let value = String(trimmed.dropFirst("challenge:".count))
+        if let number = Int(value.trimmingCharacters(in: .whitespacesAndNewlines)) {
+            return .challenge(number)
+        }
+    }
+    if lowered.hasPrefix("project:") {
+        let projectId = String(trimmed.dropFirst("project:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
+        return .project(projectId.lowercased())
+    }
+    if let number = Int(trimmed) {
+        return .step(number)
+    }
+    let projectIdRaw = trimmed
+    let projectId = projectIdRaw.lowercased()
+    if projects.contains(where: { $0.id.lowercased() == projectId }) {
+        return .project(projectId)
+    }
+    return .step(1)
+}
+
+func challengeStepIndexMap(for steps: [Step]) -> [Int: Int] {
+    var map: [Int: Int] = [:]
+    for (index, step) in steps.enumerated() {
+        if case .challenge(let challenge) = step {
+            map[challenge.number] = index + 1
+        }
+    }
+    return map
+}
+
+func projectStepIndexMap(for steps: [Step]) -> [String: Int] {
+    var map: [String: Int] = [:]
+    for (index, step) in steps.enumerated() {
+        if case .project(let project) = step {
+            map[project.id] = index + 1
+        }
+    }
+    return map
+}
+
+func stepIndexForChallenge(
+    _ challengeNumber: Int,
+    challengeStepIndex: [Int: Int],
+    maxChallengeNumber: Int,
+    stepsCount: Int
+) -> Int {
+    if challengeNumber <= 0 {
+        return 1
+    }
+    if challengeNumber > maxChallengeNumber {
+        return stepsCount + 1
+    }
+    return challengeStepIndex[challengeNumber] ?? 1
 }
 
 @main
@@ -421,18 +496,33 @@ struct Forge {
             core3Challenges: core3Challenges,
             projects: projects
         )
+        let challengeIndexMap = challengeStepIndexMap(for: steps)
+        let projectIndexMap = projectStepIndexMap(for: steps)
+        let maxChallengeNumber = max(core1Challenges.count + core2Challenges.count + core3Challenges.count, 1)
 
         setupWorkspace()
 
-        let currentProgress = getCurrentProgress()
-        let startIndex = normalizedProgress(
-            currentProgress,
-            stepsCount: steps.count,
-            legacyChallengeCount: core1Challenges.count
-        )
+        let progressToken = getProgressToken() ?? "1"
+        let progressTarget = parseProgressTarget(progressToken, projects: projects)
+        let startIndex: Int
+        switch progressTarget {
+        case .completed:
+            startIndex = steps.count + 1
+        case .project(let projectId):
+            startIndex = projectIndexMap[projectId] ?? 1
+        case .challenge(let number):
+            startIndex = stepIndexForChallenge(
+                number,
+                challengeStepIndex: challengeIndexMap,
+                maxChallengeNumber: maxChallengeNumber,
+                stepsCount: steps.count
+            )
+        case .step(let rawProgress):
+            startIndex = normalizedStepIndex(rawProgress, stepsCount: steps.count)
+        }
 
         // Show welcome only on first run
-        if currentProgress == 1 {
+        if startIndex == 1 {
             clearScreen()
             displayWelcome()
         }
