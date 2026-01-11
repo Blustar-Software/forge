@@ -69,6 +69,16 @@ func getProgressToken(workspacePath: String = "workspace") -> String? {
     return nil
 }
 
+func getCurrentProgress(workspacePath: String = "workspace") -> Int {
+    guard let token = getProgressToken(workspacePath: workspacePath),
+        let value = Int(token.trimmingCharacters(in: .whitespacesAndNewlines))
+    else {
+        return 1
+    }
+
+    return value
+}
+
 func saveProgress(_ challengeNumber: Int, workspacePath: String = "workspace") {
     let progressFile = progressFilePath(workspacePath: workspacePath)
     try? String(challengeNumber).write(toFile: progressFile, atomically: true, encoding: .utf8)
@@ -109,7 +119,8 @@ func loadChallenge(_ challenge: Challenge) {
 
         Edit: \(workspacePath)
 
-        Watching for changes...
+        Press Enter to check your work.
+        Type 'h' for a hint or 's' for the solution.
         """)
 }
 
@@ -173,65 +184,57 @@ func runSteps(_ steps: [Step], startingAt: Int) {
         switch step {
         case .challenge(let challenge):
             loadChallenge(challenge)
-
-            let workspacePath = "workspace/\(challenge.filename)"
-            let fileManager = FileManager.default
-            var lastModified =
-                try? fileManager.attributesOfItem(atPath: workspacePath)[.modificationDate] as? Date
-
+            var hintIndex = 0
             var challengeComplete = false
             while !challengeComplete {
-                usleep(500_000)
+                print("> ", terminator: "")
+                let input = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
 
-                guard
-                    let currentModified = try? fileManager.attributesOfItem(atPath: workspacePath)[
-                        .modificationDate]
-                    as? Date
-                else {
+                if input == "h" {
+                    if challenge.hints.isEmpty {
+                        print("No hints available yet.\n")
+                    } else if hintIndex < challenge.hints.count {
+                        print("Hint \(hintIndex + 1)/\(challenge.hints.count):")
+                        print("\(challenge.hints[hintIndex])\n")
+                        hintIndex += 1
+                    } else {
+                        print("No more hints.\n")
+                    }
                     continue
                 }
 
-                if currentModified != lastModified {
-                    var stableCount = 0
-                    var lastSeen = currentModified
-                    while stableCount < 2 {
-                        usleep(200_000)
-                        guard
-                            let modified = try? fileManager.attributesOfItem(atPath: workspacePath)[
-                                .modificationDate]
-                            as? Date
-                        else {
-                            stableCount = 0
-                            continue
-                        }
-
-                        if modified == lastSeen {
-                            stableCount += 1
-                        } else {
-                            lastSeen = modified
-                            stableCount = 0
-                        }
+                if input == "s" {
+                    let solution = challenge.solution.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if solution.isEmpty {
+                        print("Solution not available yet.\n")
+                    } else {
+                        print("Solution:\n\(solution)\n")
                     }
+                    continue
+                }
 
-                    lastModified = currentModified
-                    print("\n--- Testing your code... ---\n")
+                if !input.isEmpty {
+                    print("Unknown command. Press Enter to check, 'h' for hint, 's' for solution.\n")
+                    continue
+                }
 
-                    let nextStepIndex = currentIndex + 2
-                    if validateChallenge(challenge, nextStepIndex: nextStepIndex) {
-                        challengeComplete = true
-                        currentIndex += 1
+                print("\n--- Testing your code... ---\n")
 
-                        if currentIndex < steps.count {
-                            print(nextStepPrompt(for: steps[currentIndex]))
-                            if case .challenge = steps[currentIndex] {
-                                sleep(2)
-                                clearScreen()
-                            }
-                        } else {
-                            saveProgress(999)
-                            print("🎉 You've completed everything!")
-                            print("Run 'swift run forge reset' to start over.\n")
+                let nextStepIndex = currentIndex + 2
+                if validateChallenge(challenge, nextStepIndex: nextStepIndex) {
+                    challengeComplete = true
+                    currentIndex += 1
+
+                    if currentIndex < steps.count {
+                        print(nextStepPrompt(for: steps[currentIndex]))
+                        if case .challenge = steps[currentIndex] {
+                            sleep(2)
+                            clearScreen()
                         }
+                    } else {
+                        saveProgress(999)
+                        print("🎉 You've completed everything!")
+                        print("Run 'swift run forge reset' to start over.\n")
                     }
                 }
             }
@@ -274,7 +277,8 @@ func loadProject(_ project: Project) {
         Edit: \(workspacePath)
 
         This project is checked against expected outputs. Build something that works!
-        Watching for changes...
+        Press Enter to check your work.
+        Type 'h' for a hint or 's' for the solution.
         """)
 }
 
@@ -355,48 +359,45 @@ func nextStepPrompt(for step: Step) -> String {
 
 func runProject(_ project: Project) -> Bool {
     loadProject(project)
-    
-    let workspacePath = "workspace/\(project.filename)"
-    let fileManager = FileManager.default
-    var lastModified = try? fileManager.attributesOfItem(atPath: workspacePath)[.modificationDate] as? Date
-    
+
+    var hintIndex = 0
     while true {
-        usleep(500_000)
-        
-        guard
-            let currentModified = try? fileManager.attributesOfItem(atPath: workspacePath)[.modificationDate] as? Date
-        else {
+        print("> ", terminator: "")
+        let input = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
+
+        if input == "h" {
+            if project.hints.isEmpty {
+                print("No hints available yet.\n")
+            } else if hintIndex < project.hints.count {
+                print("Hint \(hintIndex + 1)/\(project.hints.count):")
+                print("\(project.hints[hintIndex])\n")
+                hintIndex += 1
+            } else {
+                print("No more hints.\n")
+            }
             continue
         }
-        
-        if currentModified != lastModified {
-            // Debounce
-            var stableCount = 0
-            var lastSeen = currentModified
-            while stableCount < 2 {
-                usleep(200_000)
-                guard
-                    let modified = try? fileManager.attributesOfItem(atPath: workspacePath)[.modificationDate] as? Date
-                else {
-                    stableCount = 0
-                    continue
-                }
-                
-                if modified == lastSeen {
-                    stableCount += 1
-                } else {
-                    lastSeen = modified
-                    stableCount = 0
-                }
+
+        if input == "s" {
+            let solution = project.solution.trimmingCharacters(in: .whitespacesAndNewlines)
+            if solution.isEmpty {
+                print("Solution not available yet.\n")
+            } else {
+                print("Solution:\n\(solution)\n")
             }
-            
-            lastModified = currentModified
-            print("\n--- Testing your project... ---\n")
-            
-            if validateProject(project) {
-                sleep(2)
-                return true
-            }
+            continue
+        }
+
+        if !input.isEmpty {
+            print("Unknown command. Press Enter to check, 'h' for hint, 's' for solution.\n")
+            continue
+        }
+
+        print("\n--- Testing your project... ---\n")
+
+        if validateProject(project) {
+            sleep(2)
+            return true
         }
     }
 }
