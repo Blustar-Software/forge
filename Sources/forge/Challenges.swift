@@ -1,5 +1,26 @@
 import Foundation
 
+enum ChallengeTopic: String {
+    case general
+    case conditionals
+    case loops
+    case optionals
+    case collections
+    case functions
+    case strings
+    case structs
+}
+
+enum ChallengeTier: String {
+    case core
+    case extra
+}
+
+enum ProjectTier: String {
+    case core
+    case extra
+}
+
 // Centralized challenge definitions for the CLI flow.
 struct Challenge {
     let number: Int
@@ -9,6 +30,9 @@ struct Challenge {
     let expectedOutput: String
     let hints: [String]
     let solution: String
+    let manualCheck: Bool
+    let topic: ChallengeTopic
+    let tier: ChallengeTier
 
     init(
         number: Int,
@@ -17,7 +41,10 @@ struct Challenge {
         starterCode: String,
         expectedOutput: String,
         hints: [String] = [],
-        solution: String = ""
+        solution: String = "",
+        manualCheck: Bool = false,
+        topic: ChallengeTopic = .general,
+        tier: ChallengeTier = .core
     ) {
         self.number = number
         self.title = title
@@ -26,6 +53,9 @@ struct Challenge {
         self.expectedOutput = expectedOutput
         self.hints = hints
         self.solution = solution
+        self.manualCheck = manualCheck
+        self.topic = topic
+        self.tier = tier
     }
 
     var filename: String {
@@ -44,6 +74,7 @@ struct Project {
     let completionMessage: String
     let hints: [String]
     let solution: String
+    let tier: ProjectTier
 
     init(
         id: String,
@@ -55,7 +86,8 @@ struct Project {
         completionTitle: String,
         completionMessage: String,
         hints: [String] = [],
-        solution: String = ""
+        solution: String = "",
+        tier: ProjectTier = .core
     ) {
         self.id = id
         self.pass = pass
@@ -67,6 +99,7 @@ struct Project {
         self.completionMessage = completionMessage
         self.hints = hints
         self.solution = solution
+        self.tier = tier
     }
 
     var filename: String {
@@ -93,11 +126,7 @@ func makeCore1Challenges() -> [Challenge] {
                 """,
             expectedOutput: "Hello, Forge",
             hints: [
-                #"""
-func greet() {
-    print("Hello, Forge")
-}
-"""#,
+                "Write greet() to print \"Hello, Forge\", then call it.",
             ],
             solution: #"""
 func greet() {
@@ -105,7 +134,9 @@ func greet() {
 }
 
 greet()
-"""#
+"""#,
+            topic: .general,
+
         ),
         Challenge(
             number: 2,
@@ -143,7 +174,9 @@ print("Hello, Forge")
 I'm learning Swift with Forge. */
 
 print("Comments complete")
-"""#
+"""#,
+            topic: .general,
+
         ),
         Challenge(
             number: 3,
@@ -165,7 +198,9 @@ print("Comments complete")
             solution: """
 let forgeTemperature = 1500
 print(forgeTemperature)
-"""
+""",
+            topic: .general,
+
         ),
         Challenge(
             number: 4,
@@ -200,7 +235,9 @@ print(hammerWeight)
 
 hammerWeight = 12
 print(hammerWeight)
-"""
+""",
+            topic: .general,
+
         ),
         Challenge(
             number: 5,
@@ -229,7 +266,9 @@ let temperature: Double = 1500.5
 
 print(metalCount)
 print(temperature)
-"""
+""",
+            topic: .general,
+
         ),
         Challenge(
             number: 6,
@@ -258,7 +297,9 @@ let forgeName = "Forge"
 
 print(ingotCount)
 print(forgeName)
-"""#
+"""#,
+            topic: .general,
+
         ),
         Challenge(
             number: 7,
@@ -279,13 +320,7 @@ print(forgeName)
                 """,
             expectedOutput: "26\n14\n120\n3\n2",
             hints: [
-                """
-print(a + b)
-print(a - b)
-print(a * b)
-print(a / b)
-print(a % b)
-""",
+                "Use print(a + b), then repeat with -, *, /, and %.",
             ],
             solution: """
 print(a + b)
@@ -293,7 +328,9 @@ print(a - b)
 print(a * b)
 print(a / b)
 print(a % b)
-"""
+""",
+            topic: .general,
+
         ),
         Challenge(
             number: 8,
@@ -341,7 +378,9 @@ print(heat)
 
 heat /= 3
 print(heat)
-"""
+""",
+            topic: .general,
+
         ),
         Challenge(
             number: 9,
@@ -367,7 +406,9 @@ let statusWord = "Ready"
 let message = forgeWord + " " + statusWord
 
 print(message)
-"""#
+"""#,
+            topic: .strings,
+
         ),
         Challenge(
             number: 10,
@@ -385,13 +426,15 @@ print(message)
             hints: [
                 #"""
 let forgeLevel = 3
-print("Forge level: \(forgeLevel)")
+// Interpolate like: "Forge level: \(forgeLevel)"
 """#,
             ],
             solution: #"""
 let forgeLevel = 3
 print("Forge level: \(forgeLevel)")
-"""#
+"""#,
+            topic: .strings,
+
         ),
         Challenge(
             number: 11,
@@ -409,13 +452,15 @@ print("Forge level: \(forgeLevel)")
             hints: [
                 """
 let isHeated: Bool = true
-print(isHeated)
+// Print the value
 """,
             ],
             solution: """
 let isHeated: Bool = true
 print(isHeated)
-"""
+""",
+            topic: .conditionals,
+
         ),
         Challenge(
             number: 12,
@@ -437,14 +482,7 @@ print(isHeated)
                 """,
             expectedOutput: "false\ntrue\ntrue\nfalse\ntrue\ntrue",
             hints: [
-                """
-print(a == b)
-print(a != b)
-print(a < b)
-print(a > b)
-print(a <= b)
-print(b >= a)
-""",
+                "Use print with ==, !=, <, >, <=, and >= comparisons.",
             ],
             solution: """
 print(a == b)
@@ -453,7 +491,9 @@ print(a < b)
 print(a > b)
 print(a <= b)
 print(b >= a)
-"""
+""",
+            topic: .conditionals,
+
         ),
         Challenge(
             number: 13,
@@ -492,7 +532,9 @@ let notReady = !ready
 print(ready)
 print(partialReady)
 print(notReady)
-"""
+""",
+            topic: .conditionals,
+
         ),
         Challenge(
             number: 14,
@@ -522,7 +564,9 @@ func announce(_ message: String) {
 }
 
 announce("Forge")
-"""#
+"""#,
+            topic: .functions,
+
         ),
         Challenge(
             number: 15,
@@ -552,7 +596,9 @@ func mix(metal: String, weight: Int) {
 }
 
 mix(metal: "Iron", weight: 3)
-"""#
+"""#,
+            topic: .functions,
+
         ),
         Challenge(
             number: 16,
@@ -587,7 +633,9 @@ func addHeat(_ value: Int) -> Int {
 
 let result = addHeat(1300)
 print(result)
-"""
+""",
+            topic: .functions,
+
         ),
         Challenge(
             number: 17,
@@ -625,15 +673,17 @@ func totalHits(_ hits: Int) -> Int {
 
 let result = totalHits(hammerHits)
 print("Total hits: \(result)")
-"""#
+"""#,
+            topic: .general,
+
         ),
         Challenge(
             number: 18,
             title: "Integration Challenge 2",
-            description: "Use everything from Pass 1 in a slightly larger task",
+            description: "Core 1 capstone: combine the essentials in one task",
             starterCode: """
                 // Challenge 18: Integration Challenge 2
-                // Combine constants, variables, math, functions, and comparisons
+                // Core 1 capstone: combine constants, variables, math, functions, and comparisons
 
                 // TODO: Create a constant 'metal' with the value 'Iron'
                 // TODO: Create a variable 'temperature' with the value 1200
@@ -679,7 +729,9 @@ func isReady(metal: String, temperature: Int) -> Bool {
 
 let ready = isReady(metal: metal, temperature: temperature)
 print("\(metal) ready: \(ready)")
-"""#
+"""#,
+            topic: .general,
+
         ),
     ]
 }
@@ -702,15 +754,7 @@ func makeCore2Challenges() -> [Challenge] {
                 """,
             expectedOutput: "Warm",
             hints: [
-                #"""
-if heatLevel >= 3 {
-    print("Hot")
-} else if heatLevel == 2 {
-    print("Warm")
-} else {
-    print("Cold")
-}
-"""#,
+                "Use if / else if / else to cover >= 3, == 2, and the default.",
             ],
             solution: #"""
 if heatLevel >= 3 {
@@ -720,7 +764,9 @@ if heatLevel >= 3 {
 } else {
     print("Cold")
 }
-"""#
+"""#,
+            topic: .conditionals,
+
         ),
         Challenge(
             number: 20,
@@ -743,7 +789,9 @@ if heatLevel >= 3 {
             solution: #"""
 let status = heatLevel >= 3 ? "Hot" : "Warm"
 print(status)
-"""#
+"""#,
+            topic: .conditionals,
+
         ),
         Challenge(
             number: 21,
@@ -759,16 +807,7 @@ print(status)
                 """,
             expectedOutput: "Forgeable",
             hints: [
-                #"""
-switch metal {
-case "Iron":
-    print("Forgeable")
-case "Gold":
-    print("Soft")
-default:
-    print("Unknown")
-}
-"""#,
+                "Use a switch on metal with cases for \"Iron\", \"Gold\", and default.",
             ],
             solution: #"""
 switch metal {
@@ -779,7 +818,9 @@ case "Gold":
 default:
     print("Unknown")
 }
-"""#
+"""#,
+            topic: .conditionals,
+
         ),
         Challenge(
             number: 22,
@@ -798,16 +839,7 @@ default:
                 """,
             expectedOutput: "Working",
             hints: [
-                #"""
-switch temperature {
-case 0...1199:
-    print("Too cold")
-case 1200...1499:
-    print("Working")
-default:
-    print("Overheated")
-}
-"""#,
+                "Use a switch with range patterns for 0...1199 and 1200...1499, then default.",
             ],
             solution: #"""
 switch temperature {
@@ -818,7 +850,9 @@ case 1200...1499:
 default:
     print("Overheated")
 }
-"""#
+"""#,
+            topic: .conditionals,
+
         ),
         Challenge(
             number: 23,
@@ -835,19 +869,16 @@ default:
                 """,
             expectedOutput: "15",
             hints: [
-                """
-for i in 1...5 {
-    total += i
-}
-print(total)
-""",
+                "Loop with for i in 1...5 and add each i to total, then print.",
             ],
             solution: """
 for i in 1...5 {
     total += i
 }
 print(total)
-"""
+""",
+            topic: .loops,
+
         ),
         Challenge(
             number: 24,
@@ -863,19 +894,16 @@ print(total)
                 """,
             expectedOutput: "3\n2\n1",
             hints: [
-                """
-while count > 0 {
-    print(count)
-    count -= 1
-}
-""",
+                "Use while count > 0, print count, then decrement inside the loop.",
             ],
             solution: """
 while count > 0 {
     print(count)
     count -= 1
 }
-"""
+""",
+            topic: .loops,
+
         ),
         Challenge(
             number: 25,
@@ -892,13 +920,7 @@ while count > 0 {
                 """,
             expectedOutput: "1",
             hints: [
-                """
-repeat {
-    value += 1
-} while value < 1
-
-print(value)
-""",
+                "Use repeat { value += 1 } while value < 1, then print.",
             ],
             solution: """
 repeat {
@@ -906,7 +928,9 @@ repeat {
 } while value < 1
 
 print(value)
-"""
+""",
+            topic: .loops,
+
         ),
         Challenge(
             number: 26,
@@ -941,7 +965,9 @@ for i in 1...5 {
     }
     print(i)
 }
-"""
+""",
+            topic: .loops,
+
         ),
         Challenge(
             number: 27,
@@ -956,14 +982,7 @@ for i in 1...5 {
                 """,
             expectedOutput: "1\n2\n3\n1\n2",
             hints: [
-                """
-for i in 1...3 {
-    print(i)
-}
-for i in 1..<3 {
-    print(i)
-}
-""",
+                "Use for-in with 1...3 (closed) and 1..<3 (half-open).",
             ],
             solution: """
 for i in 1...3 {
@@ -972,7 +991,9 @@ for i in 1...3 {
 for i in 1..<3 {
     print(i)
 }
-"""
+""",
+            topic: .loops,
+
         ),
         Challenge(
             number: 28,
@@ -987,15 +1008,14 @@ for i in 1..<3 {
                 """,
             expectedOutput: "[1, 2, 3]",
             hints: [
-                """
-let ingots = [1, 2, 3]
-print(ingots)
-""",
+                "Arrays use brackets: let ingots = [1, 2, 3]. Then print it.",
             ],
             solution: """
 let ingots = [1, 2, 3]
 print(ingots)
-"""
+""",
+            topic: .collections,
+
         ),
         Challenge(
             number: 29,
@@ -1018,7 +1038,9 @@ print(ingots)
             solution: """
 ingots.append(4)
 print(ingots.count)
-"""
+""",
+            topic: .collections,
+
         ),
         Challenge(
             number: 30,
@@ -1048,72 +1070,76 @@ for weight in weights {
     total += weight
 }
 print(total)
-"""
+""",
+            topic: .loops,
+
         ),
         Challenge(
             number: 31,
-            title: "Array Metrics",
-            description: "Practice the logic for the Core 2 project",
+            title: "Metrics Practice",
+            description: "Practice loop-based stats on a small data set",
             starterCode: """
-                // Challenge 31: Array Metrics
-                // Practice the logic you will need for the project
+                // Challenge 31: Metrics Practice
+                // Practice min/max/average counting in a loop.
 
-                let temps = [1200, 1500, 1600, 1400]
+                let weights = [3, 5, 7, 4]
 
-                // TODO: Find the minimum value (start with temps[0] and update)
-                // TODO: Find the maximum value (start with temps[0] and update)
-                // TODO: Compute the average (sum then divide by temps.count)
-                // TODO: Count values >= 1500
+                // TODO: Find the minimum value (start with weights[0] and update)
+                // TODO: Find the maximum value (start with weights[0] and update)
+                // TODO: Compute the average (sum then divide by weights.count)
+                // TODO: Count values >= 5
                 // TODO: Print results as:
-                // "Min: 1200"
-                // "Max: 1600"
-                // "Average: 1425"
-                // "Overheat: 2"
+                // "Min: 3"
+                // "Max: 7"
+                // "Average: 4"
+                // "Heavy: 2"
                 """,
-            expectedOutput: "Min: 1200\nMax: 1600\nAverage: 1425\nOverheat: 2",
+            expectedOutput: "Min: 3\nMax: 7\nAverage: 4\nHeavy: 2",
             hints: [
                 """
-var minTemp = temps[0]
-var maxTemp = temps[0]
+var minWeight = weights[0]
+var maxWeight = weights[0]
 var sum = 0
-var overheat = 0
+var heavyCount = 0
 """,
                 """
-for temp in temps {
-    if temp < minTemp { minTemp = temp }
-    if temp > maxTemp { maxTemp = temp }
-    sum += temp
-    if temp >= 1500 { overheat += 1 }
+for weight in weights {
+    if weight < minWeight { minWeight = weight }
+    if weight > maxWeight { maxWeight = weight }
+    sum += weight
+    if weight >= 5 { heavyCount += 1 }
 }
 """,
-                "let average = sum / temps.count",
+                "let average = sum / weights.count",
                 #"""
-print("Min: \(minTemp)")
-print("Max: \(maxTemp)")
+print("Min: \(minWeight)")
+print("Max: \(maxWeight)")
 print("Average: \(average)")
-print("Overheat: \(overheat)")
+print("Heavy: \(heavyCount)")
 """#,
             ],
             solution: #"""
-var minTemp = temps[0]
-var maxTemp = temps[0]
+var minWeight = weights[0]
+var maxWeight = weights[0]
 var sum = 0
-var overheat = 0
+var heavyCount = 0
 
-for temp in temps {
-    if temp < minTemp { minTemp = temp }
-    if temp > maxTemp { maxTemp = temp }
-    sum += temp
-    if temp >= 1500 { overheat += 1 }
+for weight in weights {
+    if weight < minWeight { minWeight = weight }
+    if weight > maxWeight { maxWeight = weight }
+    sum += weight
+    if weight >= 5 { heavyCount += 1 }
 }
 
-let average = sum / temps.count
+let average = sum / weights.count
 
-print("Min: \(minTemp)")
-print("Max: \(maxTemp)")
+print("Min: \(minWeight)")
+print("Max: \(maxWeight)")
 print("Average: \(average)")
-print("Overheat: \(overheat)")
-"""#
+print("Heavy: \(heavyCount)")
+"""#,
+            topic: .loops,
+
         ),
         Challenge(
             number: 32,
@@ -1134,13 +1160,7 @@ print("Overheat: \(overheat)")
                 """,
             expectedOutput: "4\nfalse\n1\n2\n2",
             hints: [
-                """
-print(ingots.count)
-print(ingots.isEmpty)
-print(ingots.first ?? 0)
-print(inventory.count)
-print(inventory.keys.count)
-""",
+                "Use count, isEmpty, first ?? default, and keys.count on the collections.",
             ],
             solution: """
 print(ingots.count)
@@ -1148,7 +1168,9 @@ print(ingots.isEmpty)
 print(ingots.first ?? 0)
 print(inventory.count)
 print(inventory.keys.count)
-"""
+""",
+            topic: .collections,
+
         ),
         Challenge(
             number: 33,
@@ -1165,15 +1187,14 @@ print(inventory.keys.count)
                 """,
             expectedOutput: "3",
             hints: [
-                #"""
-let count = inventory["Iron", default: 0]
-print(count)
-"""#,
+                #"Use inventory["Iron", default: 0] to safely read a value."#,
             ],
             solution: #"""
 let count = inventory["Iron", default: 0]
 print(count)
-"""#
+"""#,
+            topic: .collections,
+
         ),
         Challenge(
             number: 34,
@@ -1190,15 +1211,14 @@ print(count)
                 """,
             expectedOutput: "3",
             hints: [
-                """
-let unique = Set(batch)
-print(unique.count)
-""",
+                "Wrap the array in Set(...) and print the count.",
             ],
             solution: """
 let unique = Set(batch)
 print(unique.count)
-"""
+""",
+            topic: .collections,
+
         ),
         Challenge(
             number: 35,
@@ -1220,13 +1240,7 @@ print(unique.count)
                 """,
             expectedOutput: "1200\n1600\nMin: 1200\nMax: 1600\nAverage: 1425",
             hints: [
-                #"""
-print(temps.0)
-print(temps.1)
-print("Min: \(report.min)")
-print("Max: \(report.max)")
-print("Average: \(report.average)")
-"""#,
+                "Access tuples with temps.0/temps.1 and named values like report.min.",
             ],
             solution: #"""
 print(temps.0)
@@ -1234,7 +1248,9 @@ print(temps.1)
 print("Min: \(report.min)")
 print("Max: \(report.max)")
 print("Average: \(report.average)")
-"""#
+"""#,
+            topic: .general,
+
         ),
         Challenge(
             number: 36,
@@ -1251,13 +1267,7 @@ print("Average: \(report.average)")
                 """,
             expectedOutput: "1200",
             hints: [
-                #"""
-if let level = heatLevel {
-    print(level)
-} else {
-    print("No heat")
-}
-"""#,
+                "Use if let to unwrap heatLevel and handle the else case.",
             ],
             solution: #"""
 if let level = heatLevel {
@@ -1265,7 +1275,9 @@ if let level = heatLevel {
 } else {
     print("No heat")
 }
-"""#
+"""#,
+            topic: .optionals,
+
         ),
         Challenge(
             number: 37,
@@ -1283,17 +1295,15 @@ if let level = heatLevel {
                 """,
             expectedOutput: "Forge works Iron",
             hints: [
-                #"""
-if let smithName = smithName, let metal = metal {
-    print("\(smithName) works \(metal)")
-}
-"""#,
+                "Use a single if let to unwrap both values before printing.",
             ],
             solution: #"""
 if let smithName = smithName, let metal = metal {
     print("\(smithName) works \(metal)")
 }
-"""#
+"""#,
+            topic: .optionals,
+
         ),
         Challenge(
             number: 38,
@@ -1334,7 +1344,9 @@ func printHeat(_ value: Int?) {
 }
 
 printHeat(nil)
-"""#
+"""#,
+            topic: .optionals,
+
         ),
         Challenge(
             number: 39,
@@ -1351,15 +1363,14 @@ printHeat(nil)
                 """,
             expectedOutput: "Level 1",
             hints: [
-                #"""
-let level = optionalLevel ?? 1
-print("Level \(level)")
-"""#,
+                "Use ?? to default optionalLevel to 1, then print the level.",
             ],
             solution: #"""
 let level = optionalLevel ?? 1
 print("Level \(level)")
-"""#
+"""#,
+            topic: .optionals,
+
         ),
     ]
 }
@@ -1368,10 +1379,127 @@ func makeCore3Challenges() -> [Challenge] {
     return [
         Challenge(
             number: 40,
+            title: "String Methods",
+            description: "Inspect and transform strings",
+            starterCode: """
+                // Challenge 40: String Methods
+                // Use basic string properties and methods.
+
+                let phrase = "Forge Ready"
+
+                // TODO: Print phrase.count
+                // TODO: Print phrase.lowercased()
+                // TODO: Print phrase.contains("Ready")
+                """,
+            expectedOutput: "11\nforge ready\ntrue",
+            hints: [
+                "Use phrase.count, phrase.lowercased(), and phrase.contains(\"Ready\").",
+            ],
+            solution: """
+print(phrase.count)
+print(phrase.lowercased())
+print(phrase.contains(\"Ready\"))
+""",
+            topic: .strings
+        ),
+        Challenge(
+            number: 41,
+            title: "Dictionary Iteration",
+            description: "Loop through key-value pairs",
+            starterCode: """
+                // Challenge 41: Dictionary Iteration
+                // Print inventory items in a stable order.
+
+                let inventory = ["Iron": 3, "Gold": 1]
+
+                // TODO: Loop over keys in sorted order
+                // TODO: Print "<metal>: <count>" for each item
+                """,
+            expectedOutput: "Gold: 1\nIron: 3",
+            hints: [
+                "Use inventory.keys.sorted() and read inventory[key] inside the loop.",
+            ],
+            solution: """
+for key in inventory.keys.sorted() {
+    if let count = inventory[key] {
+        print(\"\\(key): \\(count)\")
+    }
+}
+""",
+            topic: .collections
+        ),
+        Challenge(
+            number: 42,
+            title: "Tuple Returns",
+            description: "Return multiple values from a function",
+            starterCode: """
+                // Challenge 42: Tuple Returns
+                // Return min and max from a function.
+
+                let temps = [3, 5, 2, 6]
+
+                // TODO: Write a function minMax(_:) that returns (min: Int, max: Int)
+                // TODO: Call it and print:
+                // "Min: 2"
+                // "Max: 6"
+                """,
+            expectedOutput: "Min: 2\nMax: 6",
+            hints: [
+                "Start min and max with temps[0], update in a loop, then return a named tuple.",
+            ],
+            solution: """
+func minMax(_ values: [Int]) -> (min: Int, max: Int) {
+    var minValue = values[0]
+    var maxValue = values[0]
+
+    for value in values {
+        if value < minValue { minValue = value }
+        if value > maxValue { maxValue = value }
+    }
+
+    return (min: minValue, max: maxValue)
+}
+
+let report = minMax(temps)
+print(\"Min: \\(report.min)\")
+print(\"Max: \\(report.max)\")
+""",
+            topic: .functions
+        ),
+        Challenge(
+            number: 43,
+            title: "Struct Basics",
+            description: "Define and use a simple struct",
+            starterCode: """
+                // Challenge 43: Struct Basics
+                // Create a tool and update its durability.
+
+                struct Tool {
+                    let name: String
+                    var durability: Int
+                }
+
+                var tool = Tool(name: "Hammer", durability: 5)
+
+                // TODO: Reduce durability by 1
+                // TODO: Print "Hammer durability: 4"
+                """,
+            expectedOutput: "Hammer durability: 4",
+            hints: [
+                "Use tool.durability -= 1, then print the name and durability.",
+            ],
+            solution: """
+tool.durability -= 1
+print(\"\\(tool.name) durability: \\(tool.durability)\")
+""",
+            topic: .structs
+        ),
+        Challenge(
+            number: 44,
             title: "External & Internal Labels",
             description: "Design clear APIs with distinct labels",
             starterCode: """
-                // Challenge 40: External & Internal Labels
+                // Challenge 44: External & Internal Labels
                 // Create a function with different external and internal labels.
 
                 // TODO: Create a function 'called' 'forgeHeat' that uses:
@@ -1396,14 +1524,16 @@ func forgeHeat(at temperature: Int) {
 }
 
 forgeHeat(at: 1500)
-"""#
+"""#,
+            topic: .functions,
+
         ),
         Challenge(
-            number: 41,
+            number: 45,
             title: "Void Argument Labels",
             description: "Omit external labels when needed",
             starterCode: """
-                // Challenge 41: Void Argument Labels
+                // Challenge 45: Void Argument Labels
                 // Use _ to omit the external label.
 
                 // TODO: Create a function 'announce' that takes _ metal: String
@@ -1426,14 +1556,16 @@ func announce(_ metal: String) {
 }
 
 announce("Iron")
-"""#
+"""#,
+            topic: .functions,
+
         ),
         Challenge(
-            number: 42,
+            number: 46,
             title: "Default Parameters",
             description: "Use default values to simplify calls",
             starterCode: """
-                // Challenge 42: Default Parameters
+                // Challenge 46: Default Parameters
                 // Add a default intensity parameter.
 
                 // TODO: Create a function 'strike' that takes:
@@ -1463,14 +1595,16 @@ func strike(_ metal: String, intensity: Int = 1) {
 
 strike("Iron")
 strike("Gold", intensity: 3)
-"""#
+"""#,
+            topic: .functions,
+
         ),
         Challenge(
-            number: 43,
+            number: 47,
             title: "Variadics",
             description: "Accept any number of values",
             starterCode: """
-                // Challenge 43: Variadics
+                // Challenge 47: Variadics
                 // Accept multiple temperatures.
 
                 // TODO: Create a function 'averageTemp' that takes any number of Ints
@@ -1504,14 +1638,16 @@ func averageTemp(_ temps: Int...) {
 }
 
 averageTemp(1000, 1200, 1400)
-"""
+""",
+            topic: .functions,
+
         ),
         Challenge(
-            number: 44,
+            number: 48,
             title: "inout Parameters",
             description: "Mutate a value passed into a function",
             starterCode: """
-                // Challenge 44: inout Parameters
+                // Challenge 48: inout Parameters
                 // Simulate tool wear.
 
                 // TODO: Create a function 'wear' that subtracts 1 from a passed-in Int
@@ -1541,14 +1677,16 @@ func wear(_ durability: inout Int) {
 var durability = 5
 wear(&durability)
 print(durability)
-"""
+""",
+            topic: .functions,
+
         ),
         Challenge(
-            number: 45,
+            number: 49,
             title: "Nested Functions",
             description: "Use helper functions inside functions",
             starterCode: """
-                // Challenge 45: Nested Functions
+                // Challenge 49: Nested Functions
                 // Validate before processing.
 
                 // TODO: Create a function 'process' that takes an Int parameter
@@ -1587,14 +1725,16 @@ func process(_ value: Int) {
 }
 
 process(-1)
-"""#
+"""#,
+            topic: .functions,
+
         ),
         Challenge(
-            number: 46,
+            number: 50,
             title: "Closure Basics",
             description: "Create and call a closure",
             starterCode: """
-                // Challenge 46: Closure Basics
+                // Challenge 50: Closure Basics
                 // Store a closure in a constant.
 
                 // TODO: Create a closure called strike that prints "Strike"
@@ -1615,14 +1755,16 @@ let strike = { () -> Void in
 }
 
 strike()
-"""#
+"""#,
+            topic: .functions,
+
         ),
         Challenge(
-            number: 47,
+            number: 51,
             title: "Closure Parameters",
             description: "Pass values into a closure",
             starterCode: """
-                // Challenge 47: Closure Parameters
+                // Challenge 51: Closure Parameters
                 // Create a closure that transforms a value.
 
                 // TODO: Create a closure called doubleHeat that takes an Int
@@ -1644,14 +1786,16 @@ let doubleHeat = { (value: Int) -> Int in
 }
 
 print(doubleHeat(750))
-"""
+""",
+            topic: .functions,
+
         ),
         Challenge(
-            number: 48,
+            number: 52,
             title: "Implicit Return in Closures",
             description: "Omit the return keyword in a single-expression closure",
             starterCode: """
-                // Challenge 48: Implicit Return in Closures
+                // Challenge 52: Implicit Return in Closures
                 // Use an explicit signature, but omit return.
 
                 // TODO: Create a closure called 'doubleHeat' that takes an Int
@@ -1673,14 +1817,16 @@ let doubleHeat = { (value: Int) -> Int in
 }
 
 print(doubleHeat(600))
-"""
+""",
+            topic: .functions,
+
         ),
         Challenge(
-            number: 49,
+            number: 53,
             title: "Inferred Closure Types",
             description: "Let Swift infer parameter and return types",
             starterCode: """
-                // Challenge 49: Inferred Closure Types
+                // Challenge 53: Inferred Closure Types
                 // Remove explicit types when they can be inferred.
 
                 // TODO: Create a closure called 'doubleHeat' using inferred types
@@ -1702,14 +1848,16 @@ let doubleHeat = { value in
 }
 
 print(doubleHeat(750))
-"""
+""",
+            topic: .functions,
+
         ),
         Challenge(
-            number: 50,
+            number: 54,
             title: "Shorthand Closure Syntax I",
             description: "Use $0 in an assigned closure",
             starterCode: """
-                // Challenge 50: Shorthand Closure Syntax I
+                // Challenge 54: Shorthand Closure Syntax I
                 // Use $0 in a closure stored in a constant.
 
                 // TODO: Create a closure called 'doubleHeat' using $0
@@ -1718,22 +1866,21 @@ print(doubleHeat(750))
                 """,
             expectedOutput: "1400",
             hints: [
-                """
-let doubleHeat = { $0 * 2 }
-print(doubleHeat(700))
-""",
+                "Use a closure with $0 to multiply by 2, then call it.",
             ],
             solution: """
 let doubleHeat = { $0 * 2 }
 print(doubleHeat(700))
-"""
+""",
+            topic: .functions,
+
         ),
         Challenge(
-            number: 51,
+            number: 55,
             title: "Annotated Closure Assignment",
             description: "Bind a closure to a typed constant",
             starterCode: """
-                // Challenge 51: Annotated Closure Assignment
+                // Challenge 55: Annotated Closure Assignment
                 // Use a closure with an explicit type annotation.
 
                 // TODO: Create a constant 'doubleHeat' with type (Int) -> Int
@@ -1742,22 +1889,21 @@ print(doubleHeat(700))
                 """,
             expectedOutput: "1800",
             hints: [
-                """
-let doubleHeat: (Int) -> Int = { $0 * 2 }
-print(doubleHeat(900))
-""",
+                "Add a type annotation: let doubleHeat: (Int) -> Int = { $0 * 2 }.",
             ],
             solution: """
 let doubleHeat: (Int) -> Int = { $0 * 2 }
 print(doubleHeat(900))
-"""
+""",
+            topic: .functions,
+
         ),
         Challenge(
-            number: 52,
+            number: 56,
             title: "Closure Arguments",
             description: "Call a function with a closure argument",
             starterCode: """
-                // Challenge 52: Closure Arguments
+                // Challenge 56: Closure Arguments
                 // Call a function that takes a closure.
 
                 func transform(_ value: Int, using closure: (Int) -> Int) {
@@ -1769,24 +1915,22 @@ print(doubleHeat(900))
                 """,
             expectedOutput: "15",
             hints: [
-                """
-transform(5, using: { (value: Int) -> Int in
-    return value * 3
-})
-""",
+                "Call transform(5, using:) with a closure that multiplies by 3.",
             ],
             solution: """
 transform(5, using: { (value: Int) -> Int in
     return value * 3
 })
-"""
+""",
+            topic: .functions,
+
         ),
         Challenge(
-            number: 53,
+            number: 57,
             title: "Trailing Closures",
             description: "Use trailing closure syntax",
             starterCode: """
-                // Challenge 53: Trailing Closures
+                // Challenge 57: Trailing Closures
                 // Use a closure to transform values.
 
                 func transform(_ value: Int, using closure: (Int) -> Int) {
@@ -1798,24 +1942,22 @@ transform(5, using: { (value: Int) -> Int in
                 """,
             expectedOutput: "15",
             hints: [
-                """
-transform(5) { (value: Int) -> Int in
-    return value * 3
-}
-""",
+                "Use trailing closure syntax with transform(5) { ... }.",
             ],
             solution: """
 transform(5) { (value: Int) -> Int in
     return value * 3
 }
-"""
+""",
+            topic: .functions,
+
         ),
         Challenge(
-            number: 54,
+            number: 58,
             title: "Inferred Trailing Closures",
             description: "Drop types and return when they can be inferred",
             starterCode: """
-                // Challenge 54: Inferred Trailing Closures
+                // Challenge 58: Inferred Trailing Closures
                 // Let Swift infer types in a trailing closure.
 
                 func transform(_ value: Int, using closure: (Int) -> Int) {
@@ -1828,24 +1970,22 @@ transform(5) { (value: Int) -> Int in
                 """,
             expectedOutput: "24",
             hints: [
-                """
-transform(6) { value in
-    return value * 4
-}
-""",
+                "Use transform(6) with a trailing closure that multiplies by 4.",
             ],
             solution: """
 transform(6) { value in
     return value * 4
 }
-"""
+""",
+            topic: .functions,
+
         ),
         Challenge(
-            number: 55,
+            number: 59,
             title: "Shorthand Closure Syntax II",
             description: "Use $0 for compact closures",
             starterCode: """
-                // Challenge 55: Shorthand Closure Syntax II
+                // Challenge 59: Shorthand Closure Syntax II
                 // Use $0 to shorten a closure.
 
                 func apply(_ value: Int, using closure: (Int) -> Int) {
@@ -1858,15 +1998,17 @@ transform(6) { value in
             hints: [
                 "apply(4) { $0 + 6 }",
             ],
-            solution: "apply(4) { $0 + 6 }"
+            solution: "apply(4) { $0 + 6 }",
+            topic: .functions,
+
         ),
 
         Challenge(
-            number: 56,
+            number: 60,
             title: "Capturing Values",
             description: "Understand closure capture behavior",
             starterCode: """
-                // Challenge 56: Capturing Values
+                // Challenge 60: Capturing Values
                 // Create a counter function.
 
                 // TODO: Create a function 'makeCounter' that returns a closure
@@ -1905,14 +2047,16 @@ let counter = makeCounter()
 counter()
 counter()
 counter()
-"""
+""",
+            topic: .functions,
+
         ),
         Challenge(
-            number: 57,
+            number: 61,
             title: "map",
             description: "Transform values with map",
             starterCode: """
-                // Challenge 57: map
+                // Challenge 61: map
                 // Transform forge temperatures into strings.
 
                 let temps = [1200, 1500, 1600]
@@ -1922,22 +2066,21 @@ counter()
                 """,
             expectedOutput: #"["T1200", "T1500", "T1600"]"#,
             hints: [
-                #"""
-let labels = temps.map { "T\($0)" }
-print(labels)
-"""#,
+                "Use map to turn each temp into a string prefixed with \"T\".",
             ],
             solution: #"""
 let labels = temps.map { "T\($0)" }
 print(labels)
-"""#
+"""#,
+            topic: .collections,
+
         ),
         Challenge(
-            number: 58,
+            number: 62,
             title: "filter",
             description: "Select values with filter",
             starterCode: """
-                // Challenge 58: filter
+                // Challenge 62: filter
                 // Keep only hot temperatures.
 
                 let temps = [1000, 1500, 1600, 1400]
@@ -1947,22 +2090,21 @@ print(labels)
                 """,
             expectedOutput: "[1500, 1600]",
             hints: [
-                """
-let hot = temps.filter { $0 >= 1500 }
-print(hot)
-""",
+                "Filter temps with a condition like $0 >= 1500, then print.",
             ],
             solution: """
 let hot = temps.filter { $0 >= 1500 }
 print(hot)
-"""
+""",
+            topic: .collections,
+
         ),
         Challenge(
-            number: 59,
+            number: 63,
             title: "reduce",
             description: "Combine values with reduce",
             starterCode: """
-                // Challenge 59: reduce
+                // Challenge 63: reduce
                 // Sum forge temperatures.
 
                 let temps = [1000, 1200, 1400]
@@ -1972,26 +2114,23 @@ print(hot)
                 """,
             expectedOutput: "3600",
             hints: [
-                """
-let total = temps.reduce(0) { partial, temp in
-    partial + temp
-}
-print(total)
-""",
+                "Use reduce starting at 0 to add all temps together.",
             ],
             solution: """
 let total = temps.reduce(0) { partial, temp in
     partial + temp
 }
 print(total)
-"""
+""",
+            topic: .collections,
+
         ),
         Challenge(
-            number: 60,
+            number: 64,
             title: "min/max",
             description: "Find smallest and largest values",
             starterCode: """
-                // Challenge 60: min/max
+                // Challenge 64: min/max
                 // Find the smallest and largest temperatures.
 
                 let temps = [1200, 1500, 1600, 1400]
@@ -2002,27 +2141,24 @@ print(total)
                 """,
             expectedOutput: "1200\n1600",
             hints: [
-                """
-let minTemp = temps.min() ?? 0
-let maxTemp = temps.max() ?? 0
-print(minTemp)
-print(maxTemp)
-""",
+                "Use temps.min() ?? 0 and temps.max() ?? 0, then print both.",
             ],
             solution: """
 let minTemp = temps.min() ?? 0
 let maxTemp = temps.max() ?? 0
 print(minTemp)
 print(maxTemp)
-"""
+""",
+            topic: .collections,
+
         ),
 
         Challenge(
-            number: 61,
+            number: 65,
             title: "compactMap",
             description: "Remove nil values safely",
             starterCode: """
-                // Challenge 61: compactMap
+                // Challenge 65: compactMap
                 // Clean up optional readings.
 
                 let readings: [Int?] = [1200, nil, 1500, nil, 1600]
@@ -2032,22 +2168,21 @@ print(maxTemp)
                 """,
             expectedOutput: "[1200, 1500, 1600]",
             hints: [
-                """
-let cleaned = readings.compactMap { $0 }
-print(cleaned)
-""",
+                "Use compactMap to drop nils, then print the result.",
             ],
             solution: """
 let cleaned = readings.compactMap { $0 }
 print(cleaned)
-"""
+""",
+            topic: .collections,
+
         ),
         Challenge(
-            number: 62,
+            number: 66,
             title: "flatMap",
             description: "Flatten nested arrays",
             starterCode: """
-                // Challenge 62: flatMap
+                // Challenge 66: flatMap
                 // Flatten batches.
 
                 let batches = [[1, 2], [3], [4, 5]]
@@ -2057,24 +2192,23 @@ print(cleaned)
                 """,
             expectedOutput: "[1, 2, 3, 4, 5]",
             hints: [
-                """
-let flat = batches.flatMap { $0 }
-print(flat)
-""",
+                "Use flatMap to flatten the nested arrays, then print.",
             ],
             solution: """
 let flat = batches.flatMap { $0 }
 print(flat)
-"""
+""",
+            topic: .collections,
+
         ),
 
 
         Challenge(
-            number: 63,
+            number: 67,
             title: "typealias",
             description: "Improve readability with type aliases",
             starterCode: """
-                // Challenge 63: typealias
+                // Challenge 67: typealias
                 // Create a readable alias.
 
                 // TODO: Create a typealias ForgeReading = (temp: Int, time: Int)
@@ -2083,25 +2217,23 @@ print(flat)
                 """,
             expectedOutput: "1200",
             hints: [
-                """
-typealias ForgeReading = (temp: Int, time: Int)
-let reading: ForgeReading = (temp: 1200, time: 1)
-print(reading.temp)
-""",
+                "Create typealias ForgeReading = (temp: Int, time: Int), then read reading.temp.",
             ],
             solution: """
 typealias ForgeReading = (temp: Int, time: Int)
 let reading: ForgeReading = (temp: 1200, time: 1)
 print(reading.temp)
-"""
+""",
+            topic: .general,
+
         ),
 
         Challenge(
-            number: 64,
+            number: 68,
             title: "Enums",
             description: "Represent a set of cases",
             starterCode: """
-                // Challenge 64: Enums
+                // Challenge 68: Enums
                 // Represent forge metals.
 
                 // TODO: Create an enum Metal with cases iron and gold
@@ -2139,14 +2271,16 @@ case .iron:
 case .gold:
     print("gold")
 }
-"""#
+"""#,
+            topic: .general,
+
         ),
         Challenge(
-            number: 65,
+            number: 69,
             title: "Enums with Raw Values",
             description: "Represent simple categories",
             starterCode: """
-                // Challenge 65: Enums with Raw Values
+                // Challenge 69: Enums with Raw Values
                 // Represent metals.
 
                 // TODO: Create an enum Metal: String with cases iron, gold
@@ -2169,14 +2303,16 @@ enum Metal: String {
 }
 
 print(Metal.iron.rawValue)
-"""
+""",
+            topic: .general,
+
         ),
         Challenge(
-            number: 66,
+            number: 70,
             title: "Enums with Associated Values",
             description: "Represent structured events",
             starterCode: """
-                // Challenge 66: Enums with Associated Values
+                // Challenge 70: Enums with Associated Values
                 // Represent forge events.
 
                 // TODO: Create an enum 'Event' with:
@@ -2239,14 +2375,16 @@ case .temperature(let value):
 case .error(let message):
     print("Error: \(message)")
 }
-"""#
+"""#,
+            topic: .general,
+
         ),
         Challenge(
-            number: 67,
+            number: 71,
             title: "Enum Pattern Matching",
             description: "Match and extract associated values",
             starterCode: """
-                // Challenge 67: Enum Pattern Matching
+                // Challenge 71: Enum Pattern Matching
                 // Use a switch with a where clause.
 
                 enum Event {
@@ -2257,20 +2395,12 @@ case .error(let message):
                 let event = Event.temperature(1600)
 
                 // TODO: Use switch to print 'Overheated' when temp >= 1500
-                // Otherwise print "Normal"
+                // Print "Normal" for other temperature events
+                // Print "Error" for error events
                 """,
             expectedOutput: "Overheated",
             hints: [
-                #"""
-switch event {
-case .temperature(let temp) where temp >= 1500:
-    print("Overheated")
-case .temperature:
-    print("Normal")
-case .error:
-    print("Normal")
-}
-"""#,
+                "Use a switch with a where clause on .temperature(let temp).",
             ],
             solution: #"""
 switch event {
@@ -2279,16 +2409,18 @@ case .temperature(let temp) where temp >= 1500:
 case .temperature:
     print("Normal")
 case .error:
-    print("Normal")
+    print("Error")
 }
-"""#
+"""#,
+            topic: .conditionals,
+
         ),
         Challenge(
-            number: 68,
+            number: 72,
             title: "Throwing Functions",
             description: "Introduce error throwing",
             starterCode: """
-                // Challenge 68: Throwing Functions
+                // Challenge 72: Throwing Functions
                 // Validate temperature.
 
                 // TODO: Create an enum TempError: Error with case outOfRange
@@ -2334,17 +2466,20 @@ func checkTemp(_ temp: Int) throws {
 } catch {
     print("Error")
 }
-"""#
+"""#,
+            topic: .functions,
+
         ),
         Challenge(
-            number: 69,
+            number: 73,
             title: "try?",
             description: "Convert errors into optionals",
             starterCode: """
-                // Challenge 69: try?
+                // Challenge 73: try?
                 // Use try? to simplify error handling.
 
                 // TODO: Reuse checkTemp from the previous challenge
+                // TODO: Make checkTemp return the temperature if valid
                 // TODO: Call it with -1 using try?
                 // TODO: Print the result (should be nil)
                 """,
@@ -2356,10 +2491,12 @@ enum TempError: Error {
 }
 """,
                 """
-func checkTemp(_ temp: Int) throws {
+func checkTemp(_ temp: Int) throws -> Int {
     if temp < 0 {
         throw TempError.outOfRange
     }
+
+    return temp
 }
 """,
                 """
@@ -2372,129 +2509,188 @@ enum TempError: Error {
     case outOfRange
 }
 
-func checkTemp(_ temp: Int) throws {
+func checkTemp(_ temp: Int) throws -> Int {
     if temp < 0 {
         throw TempError.outOfRange
     }
+
+    return temp
 }
 
 let result = try? checkTemp(-1)
 print(result as Any)
-"""
-        ),
-        Challenge(
-            number: 70,
-            title: "Simulated Input",
-            description: "Use a provided input value",
-            starterCode: """
-                // Challenge 70: readLine
-                // Simulate a value from the user.
+""",
+            topic: .functions,
 
-                let input = "Iron"
-
-                // TODO: Create a message "You entered <metal>"
-                // TODO: Print the message
-                """,
-            expectedOutput: "You entered Iron",
-            hints: [
-                #"""
-let message = "You entered \(input)"
-print(message)
-"""#,
-            ],
-            solution: #"""
-let message = "You entered \(input)"
-print(message)
-"""#
-        ),
-        Challenge(
-            number: 71,
-            title: "Simulated Arguments",
-            description: "Read from a provided args array",
-            starterCode: """
-                // Challenge 71: Command-Line Arguments
-                // Read arguments.
-
-                let args = ["forge", "Iron"]
-
-                // TODO: If args has at least 2 items, print args[1]
-                // Otherwise print "No args"
-                """,
-            expectedOutput: "Iron",
-            hints: [
-                #"""
-if args.count >= 2 {
-    print(args[1])
-} else {
-    print("No args")
-}
-"""#,
-            ],
-            solution: #"""
-if args.count >= 2 {
-    print(args[1])
-} else {
-    print("No args")
-}
-"""#
-        ),
-        Challenge(
-            number: 72,
-            title: "Simulated File Read",
-            description: "Process provided file contents",
-            starterCode: """
-                // Challenge 72: File Read
-                // Read a file of temperatures.
-
-                let fileContents = "1200\n1500\n1600\n"
-
-                // TODO: Split fileContents into lines
-                // TODO: Print the number of lines
-                """,
-            expectedOutput: "3",
-            hints: [
-                #"""
-let lines = fileContents.split(separator: "
-")
-print(lines.count)
-"""#,
-            ],
-            solution: #"""
-let lines = fileContents.split(separator: "
-")
-print(lines.count)
-"""#
-        ),
-        Challenge(
-            number: 73,
-            title: "Simulated Test",
-            description: "Check a condition and report result",
-            starterCode: """
-                // Challenge 73: XCTest
-                // Write a basic test case.
-
-                // TODO: If 2 + 2 == 4, print "Test passed"
-                """,
-            expectedOutput: "Test passed",
-            hints: [
-                #"""
-if 2 + 2 == 4 {
-    print("Test passed")
-}
-"""#,
-            ],
-            solution: #"""
-if 2 + 2 == 4 {
-    print("Test passed")
-}
-"""#
         ),
         Challenge(
             number: 74,
+            title: "ReadLine Input",
+            description: "Read from standard input",
+            starterCode: """
+                // Challenge 74: readLine
+                // Read a value from standard input.
+                //
+                // Run from repo root: swift workspace/challenge74.swift
+                // Then type a metal and press Enter.
+
+                // TODO: Prompt the user to type something
+                // TODO: Read a line from input
+                // TODO: If input exists, print "You entered <input>"
+                // TODO: Otherwise print "No input"
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                #"""
+print("Enter a metal: ", terminator: "")
+if let input = readLine() {
+    let message = "You entered \(input)"
+    print(message)
+} else {
+    print("No input")
+}
+"""#,
+            ],
+            solution: #"""
+print("Enter a metal: ", terminator: "")
+if let input = readLine() {
+    let message = "You entered \(input)"
+    print(message)
+} else {
+    print("No input")
+}
+"""#,
+            manualCheck: true,
+            topic: .general,
+
+        ),
+        Challenge(
+            number: 75,
+            title: "Command-Line Arguments",
+            description: "Read from CommandLine.arguments",
+            starterCode: """
+                // Challenge 75: Command-Line Arguments
+                // Read arguments.
+                //
+                // Run from repo root: swift workspace/challenge75.swift Iron
+
+                let args = CommandLine.arguments
+
+                // TODO: If args has at least 2 items, print args[1]
+                // Otherwise print "No args"
+                //
+                // Note: This prints only the first argument after the script name.
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                #"""
+if args.count >= 2 {
+    print(args[1])
+} else {
+    print("No args")
+}
+"""#,
+            ],
+            solution: #"""
+if args.count >= 2 {
+    print(args[1])
+} else {
+    print("No args")
+}
+"""#,
+            manualCheck: true,
+            topic: .general,
+
+        ),
+        Challenge(
+            number: 76,
+            title: "File Read",
+            description: "Read from a file on disk",
+            starterCode: """
+                // Challenge 76: File Read
+                // Read a file of temperatures.
+                //
+                // Create workspace/temperatures.txt:
+                // 1) From repo root, run: printf "1200\\n1500\\n1600\\n" > workspace/temperatures.txt
+                // 2) Or create the file manually with these lines:
+                //    1200
+                //    1500
+                //    1600
+                //
+                // Run from repo root: swift workspace/challenge76.swift
+                //
+                // Note: This requires Foundation for String(contentsOfFile:).
+
+                import Foundation
+
+                let path = "workspace/temperatures.txt"
+
+                // TODO: Read the file contents from path
+                // TODO: Split the contents into lines
+                // TODO: Print the number of lines
+                //
+                // Expected output: 3
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                #"""
+if let fileContents = try? String(contentsOfFile: path, encoding: .utf8) {
+    let lines = fileContents.split(separator: "\n")
+    print(lines.count)
+} else {
+    print("Missing file")
+}
+"""#,
+            ],
+            solution: #"""
+import Foundation
+
+if let fileContents = try? String(contentsOfFile: path, encoding: .utf8) {
+    let lines = fileContents.split(separator: "\n")
+    print(lines.count)
+} else {
+    print("Missing file")
+}
+"""#,
+            manualCheck: true,
+            topic: .general,
+
+        ),
+        Challenge(
+            number: 77,
+            title: "Basic Test",
+            description: "Check a condition and report result",
+            starterCode: """
+                // Challenge 77: Basic Test
+                // Write a basic test case.
+                //
+                // Run from repo root: swift workspace/challenge77.swift
+
+                // TODO: If 2 + 2 == 4, print "Test passed"
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                #"""
+if 2 + 2 == 4 {
+    print("Test passed")
+}
+"""#,
+            ],
+            solution: #"""
+if 2 + 2 == 4 {
+    print("Test passed")
+}
+"""#,
+            manualCheck: true,
+            topic: .general,
+
+        ),
+        Challenge(
+            number: 78,
             title: "Integration Challenge",
             description: "Combine Core 3 concepts",
             starterCode: """
-                // Challenge 74: Integration Challenge
+                // Challenge 78: Integration Challenge
                 // Process forge logs with advanced tools.
 
                 let lines = ["1200", "x", "1500", "1600", "bad", "1400"]
@@ -2507,13 +2703,7 @@ if 2 + 2 == 4 {
                 """,
             expectedOutput: "3100",
             hints: [
-                """
-let values = lines.map { Int($0) }
-let temps = values.compactMap { $0 }
-let hotTemps = temps.filter { $0 >= 1500 }
-let total = hotTemps.reduce(0) { $0 + $1 }
-print(total)
-""",
+                "Use map → compactMap → filter → reduce in that order, then print the total.",
             ],
             solution: """
 let values = lines.map { Int($0) }
@@ -2521,7 +2711,296 @@ let temps = values.compactMap { $0 }
 let hotTemps = temps.filter { $0 >= 1500 }
 let total = hotTemps.reduce(0) { $0 + $1 }
 print(total)
-"""
+""",
+            topic: .general,
+
+        ),
+        Challenge(
+            number: 79,
+            title: "Safety Check",
+            description: "Combine conditions with &&",
+            starterCode: """
+                // Challenge 79: Safety Check
+                // Use && to require two conditions.
+
+                let heatLevel = 3
+                let hasVentilation = true
+
+                // TODO: If heatLevel >= 3 AND hasVentilation, print "Safe"
+                // Otherwise print "Unsafe"
+                """,
+            expectedOutput: "Safe",
+            hints: [
+                "Use if heatLevel >= 3 && hasVentilation { ... } else { ... }.",
+            ],
+            solution: """
+if heatLevel >= 3 && hasVentilation {
+    print("Safe")
+} else {
+    print("Unsafe")
+}
+""",
+            topic: .conditionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 80,
+            title: "Heat Levels",
+            description: "Use if/else if/else with ranges",
+            starterCode: """
+                // Challenge 80: Heat Levels
+                // Categorize a value using if/else if/else.
+
+                let heatLevel = 1
+
+                // TODO: If heatLevel == 0, print "Off"
+                // TODO: Else if heatLevel <= 2, print "Warm"
+                // TODO: Else print "Hot"
+                """,
+            expectedOutput: "Warm",
+            hints: [
+                "Use if heatLevel == 0, then else if heatLevel <= 2, else.",
+            ],
+            solution: """
+if heatLevel == 0 {
+    print("Off")
+} else if heatLevel <= 2 {
+    print("Warm")
+} else {
+    print("Hot")
+}
+""",
+            topic: .conditionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 81,
+            title: "Count Multiples",
+            description: "Count matches in a loop",
+            starterCode: """
+                // Challenge 81: Count Multiples
+                // Count numbers divisible by 3.
+
+                let numbers = [1, 2, 3, 4, 5, 6]
+                var count = 0
+
+                // TODO: Loop through numbers
+                // TODO: If a number is divisible by 3, increment count
+                // TODO: Print count
+                """,
+            expectedOutput: "2",
+            hints: [
+                "Use number % 3 == 0 to test divisibility.",
+            ],
+            solution: """
+for number in numbers {
+    if number % 3 == 0 {
+        count += 1
+    }
+}
+
+print(count)
+""",
+            topic: .loops,
+            tier: .extra
+        ),
+        Challenge(
+            number: 82,
+            title: "Running Total",
+            description: "Break when a total reaches a limit",
+            starterCode: """
+                // Challenge 82: Running Total
+                // Add values until the total reaches a limit.
+
+                let temps = [900, 1000, 1200, 1500]
+                var total = 0
+
+                // TODO: Loop through temps and add to total
+                // TODO: If total >= 2500, break
+                // TODO: Print total
+                """,
+            expectedOutput: "3100",
+            hints: [
+                "Update total inside the loop, then check if total >= 2500 to break.",
+            ],
+            solution: """
+for temp in temps {
+    total += temp
+    if total >= 2500 {
+        break
+    }
+}
+
+print(total)
+""",
+            topic: .loops,
+            tier: .extra
+        ),
+        Challenge(
+            number: 83,
+            title: "Optional Conversion",
+            description: "Convert a string to an Int safely",
+            starterCode: """
+                // Challenge 83: Optional Conversion
+                // Use if let with Int().
+
+                let input = "1500"
+
+                // TODO: Convert input to an Int using if let
+                // TODO: Print "Temp: <value>"
+                // TODO: Otherwise print "Invalid"
+                """,
+            expectedOutput: "Temp: 1500",
+            hints: [
+                "Use if let temp = Int(input) { ... } else { ... }.",
+            ],
+            solution: """
+if let temp = Int(input) {
+    print("Temp: \\(temp)")
+} else {
+    print("Invalid")
+}
+""",
+            topic: .optionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 84,
+            title: "Guard Conversion",
+            description: "Use guard let for early exit",
+            starterCode: """
+                // Challenge 84: Guard Conversion
+                // Use guard let to unwrap and convert.
+
+                func readTemp(_ value: String?) {
+                    // TODO: Use guard let to unwrap value and convert to Int
+                    // Print "Invalid" if conversion fails
+                    // Otherwise print "Temp: <value>"
+                }
+
+                // TODO: Call readTemp with "abc"
+                """,
+            expectedOutput: "Invalid",
+            hints: [
+                "Use guard let value = value, let temp = Int(value) else { print(\"Invalid\"); return }.",
+            ],
+            solution: """
+func readTemp(_ value: String?) {
+    guard let value = value, let temp = Int(value) else {
+        print("Invalid")
+        return
+    }
+    print("Temp: \\(temp)")
+}
+
+readTemp("abc")
+""",
+            topic: .optionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 85,
+            title: "Inventory Update",
+            description: "Update a dictionary value",
+            starterCode: """
+                // Challenge 85: Inventory Update
+                // Increment a dictionary value.
+
+                var inventory = ["Iron": 1]
+
+                // TODO: Increase the count for "Iron" by 1
+                // TODO: Print the new count
+                """,
+            expectedOutput: "2",
+            hints: [
+                "Use inventory[\"Iron\", default: 0] += 1, then print the value.",
+            ],
+            solution: """
+inventory["Iron", default: 0] += 1
+print(inventory["Iron", default: 0])
+""",
+            topic: .collections,
+            tier: .extra
+        ),
+        Challenge(
+            number: 86,
+            title: "Remove from Array",
+            description: "Remove an element by index",
+            starterCode: """
+                // Challenge 86: Remove from Array
+                // Remove one item and print the result.
+
+                var metals = ["Iron", "Gold", "Copper"]
+
+                // TODO: Remove "Gold"
+                // TODO: Print metals
+                """,
+            expectedOutput: #"["Iron", "Copper"]"#,
+            hints: [
+                "Use metals.remove(at: 1), then print metals.",
+            ],
+            solution: """
+metals.remove(at: 1)
+print(metals)
+""",
+            topic: .collections,
+            tier: .extra
+        ),
+        Challenge(
+            number: 87,
+            title: "Boolean Return",
+            description: "Return true or false from a function",
+            starterCode: """
+                // Challenge 87: Boolean Return
+                // Return a Bool from a function.
+
+                // TODO: Create a function isOverheated(temp:) -> Bool
+                // Return true when temp >= 1500
+                // TODO: Call it with 1600 and print the result
+                """,
+            expectedOutput: "true",
+            hints: [
+                "Return temp >= 1500, then print isOverheated(temp: 1600).",
+            ],
+            solution: """
+func isOverheated(temp: Int) -> Bool {
+    return temp >= 1500
+}
+
+print(isOverheated(temp: 1600))
+""",
+            topic: .functions,
+            tier: .extra
+        ),
+        Challenge(
+            number: 88,
+            title: "Helper Function",
+            description: "Call one function from another",
+            starterCode: """
+                // Challenge 88: Helper Function
+                // Use a helper to build a message.
+
+                // TODO: Create a function label(temp:) -> String returning "T<temp>"
+                // TODO: Create a function printLabel(for:) that prints label(temp:)
+                // TODO: Call printLabel with 1200
+                """,
+            expectedOutput: "T1200",
+            hints: [
+                "Have printLabel(for:) call label(temp:) and print the result.",
+            ],
+            solution: """
+func label(temp: Int) -> String {
+    return "T\\(temp)"
+}
+
+func printLabel(for temp: Int) {
+    print(label(temp: temp))
+}
+
+printLabel(for: 1200)
+""",
+            topic: .functions,
+            tier: .extra
         ),
     ]
 }
@@ -2560,7 +3039,7 @@ func makeProjects() -> [Project] {
                 (input: "100", expectedOutput: "212"),
                 (input: "37", expectedOutput: "98"),  // Accepting Int version
             ],
-            completionTitle: "🎆 Core 1, Pass 1 Complete!",
+            completionTitle: "🎆 Core 1 Complete!",
             completionMessage: "You've mastered the fundamentals. Well done.",
             hints: [
                 """
@@ -2573,7 +3052,110 @@ func celsiusToFahrenheit(celsius: Int) -> Int {
 func celsiusToFahrenheit(celsius: Int) -> Int {
     return (celsius * 9) / 5 + 32
 }
-"""
+""",
+            tier: .core
+        ),
+        Project(
+            id: "core1b",
+            pass: 1,
+            title: "Forge Checklist",
+            description: "Combine variables, functions, and comparisons",
+            starterCode: #"""
+                // Core 1 Project B: Forge Checklist
+                // Build a basic readiness check.
+                //
+                // Requirements:
+                // - Create constants for metal and target temperature
+                // - Write a function isReady(metal:temperature:) -> Bool
+                // - Print three lines:
+                //   "Metal: <metal>"
+                //   "Target: <temperature>"
+                //   "Ready: <true/false>"
+                //
+                // TODO: Write your readiness logic
+
+                // Test code (don't modify):
+                let metal = "Iron"
+                let target = 1500
+                let ready = isReady(metal: metal, temperature: target)
+                print("Metal: \(metal)")
+                print("Target: \(target)")
+                print("Ready: \(ready)")
+                """#,
+            testCases: [
+                (input: "metal", expectedOutput: "Metal: Iron"),
+                (input: "target", expectedOutput: "Target: 1500"),
+                (input: "ready", expectedOutput: "Ready: true"),
+            ],
+            completionTitle: "✨ Core 1 Extra Project Complete!",
+            completionMessage: "Nice work reinforcing the basics.",
+            hints: [
+                """
+func isReady(metal: String, temperature: Int) -> Bool {
+    if metal == "Iron" {
+        return temperature >= 1400
+    }
+    return temperature >= 1200
+}
+""",
+            ],
+            solution: """
+func isReady(metal: String, temperature: Int) -> Bool {
+    if metal == "Iron" {
+        return temperature >= 1400
+    }
+    return temperature >= 1200
+}
+""",
+            tier: .extra
+        ),
+        Project(
+            id: "core1c",
+            pass: 1,
+            title: "Ingot Calculator",
+            description: "Use arithmetic and a helper function",
+            starterCode: #"""
+                // Core 1 Project C: Ingot Calculator
+                // Calculate a total from simple inputs.
+                //
+                // Requirements:
+                // - Create a function totalIngots(base:batches:) -> Int
+                // - Return base + (batches * 2)
+                // - Print:
+                //   "Base: 4"
+                //   "Batches: 3"
+                //   "Total: 10"
+                //
+                // TODO: Write totalIngots
+
+                // Test code (don't modify):
+                let base = 4
+                let batches = 3
+                let total = totalIngots(base: base, batches: batches)
+                print("Base: \(base)")
+                print("Batches: \(batches)")
+                print("Total: \(total)")
+                """#,
+            testCases: [
+                (input: "base", expectedOutput: "Base: 4"),
+                (input: "batches", expectedOutput: "Batches: 3"),
+                (input: "total", expectedOutput: "Total: 10"),
+            ],
+            completionTitle: "✨ Core 1 Extra Project Complete!",
+            completionMessage: "You’re getting fast with core syntax.",
+            hints: [
+                """
+func totalIngots(base: Int, batches: Int) -> Int {
+    return base + (batches * 2)
+}
+""",
+            ],
+            solution: """
+func totalIngots(base: Int, batches: Int) -> Int {
+    return base + (batches * 2)
+}
+""",
+            tier: .extra
         ),
         Project(
             id: "core2a",
@@ -2616,7 +3198,7 @@ func celsiusToFahrenheit(celsius: Int) -> Int {
                 (input: "average", expectedOutput: "Average: 1425"),
                 (input: "overheat", expectedOutput: "Overheat: 2"),
             ],
-            completionTitle: "🏗️ Core 2, Pass 2 Complete!",
+            completionTitle: "🏗️ Core 2 Complete!",
             completionMessage: "Control flow and collections are now in your toolkit.",
             hints: [
                 """
@@ -2657,7 +3239,132 @@ func analyzeTemperatures(temperatures: [Int]) -> (min: Int, max: Int, average: I
     let average = sum / temperatures.count
     return (min: minTemp, max: maxTemp, average: average, overheatCount: overheat)
 }
-"""
+""",
+            tier: .core
+        ),
+        Project(
+            id: "core2b",
+            pass: 2,
+            title: "Inventory Audit",
+            description: "Loop through a dictionary and summarize counts",
+            starterCode: #"""
+                // Core 2 Project B: Inventory Audit
+                // Summarize inventory levels.
+                //
+                // Requirements:
+                // - Function name: auditInventory
+                // - Takes [String: Int] inventory
+                // - Returns (total: Int, empty: Int)
+                // - Loop through items to compute total count
+                // - Count how many items are empty (count == 0)
+                // - Print:
+                //   "Total: 3"
+                //   "Empty: 1"
+                //
+                // TODO: Write auditInventory
+
+                // Test code (don't modify):
+                let inventory = ["Iron": 2, "Gold": 1, "Copper": 0]
+                let report = auditInventory(inventory)
+                print("Total: \(report.total)")
+                print("Empty: \(report.empty)")
+                """#,
+            testCases: [
+                (input: "total", expectedOutput: "Total: 3"),
+                (input: "empty", expectedOutput: "Empty: 1"),
+            ],
+            completionTitle: "✨ Core 2 Extra Project Complete!",
+            completionMessage: "Solid work with loops and dictionaries.",
+            hints: [
+                """
+func auditInventory(_ inventory: [String: Int]) -> (total: Int, empty: Int) {
+    var total = 0
+    var empty = 0
+    for (_, count) in inventory {
+        total += count
+        if count == 0 { empty += 1 }
+    }
+    return (total: total, empty: empty)
+}
+""",
+            ],
+            solution: """
+func auditInventory(_ inventory: [String: Int]) -> (total: Int, empty: Int) {
+    var total = 0
+    var empty = 0
+    for (_, count) in inventory {
+        total += count
+        if count == 0 { empty += 1 }
+    }
+    return (total: total, empty: empty)
+}
+""",
+            tier: .extra
+        ),
+        Project(
+            id: "core2c",
+            pass: 2,
+            title: "Optional Readings",
+            description: "Unwrap optionals and compute an average",
+            starterCode: #"""
+                // Core 2 Project C: Optional Readings
+                // Compute metrics from optional values.
+                //
+                // Requirements:
+                // - Function name: summarizeReadings
+                // - Takes [Int?] readings
+                // - Returns (count: Int, average: Int)
+                // - Use if let to unwrap readings
+                // - Count valid readings and compute average
+                // - Print:
+                //   "Valid: 3"
+                //   "Average: 1433"
+                //
+                // TODO: Write summarizeReadings
+
+                // Test code (don't modify):
+                let readings: [Int?] = [1200, nil, 1500, 1600]
+                let report = summarizeReadings(readings)
+                print("Valid: \(report.count)")
+                print("Average: \(report.average)")
+                """#,
+            testCases: [
+                (input: "valid", expectedOutput: "Valid: 3"),
+                (input: "average", expectedOutput: "Average: 1433"),
+            ],
+            completionTitle: "✨ Core 2 Extra Project Complete!",
+            completionMessage: "Nice job handling optionals.",
+            hints: [
+                """
+func summarizeReadings(_ readings: [Int?]) -> (count: Int, average: Int) {
+    var count = 0
+    var total = 0
+    for reading in readings {
+        if let value = reading {
+            count += 1
+            total += value
+        }
+    }
+    let average = count == 0 ? 0 : total / count
+    return (count: count, average: average)
+}
+""",
+            ],
+            solution: """
+func summarizeReadings(_ readings: [Int?]) -> (count: Int, average: Int) {
+    var count = 0
+    var total = 0
+    for reading in readings {
+        if let value = reading {
+            count += 1
+            total += value
+        }
+    }
+    let average = count == 0 ? 0 : total / count
+    return (count: count, average: average)
+}
+""",
+            tier: .extra
         ),
         Project(
             id: "core3a",
@@ -2723,9 +3430,9 @@ func analyzeTemperatures(temperatures: [Int]) -> (min: Int, max: Int, average: I
                 (input: "valid", expectedOutput: "Valid: 3"),
                 (input: "average", expectedOutput: "Average: 1500"),
                 (input: "overheat", expectedOutput: "Overheats: 2"),
-                (input: "errors", expectedOutput: "Errors: [\\\"Overheated\\\"]"),
+                (input: "errors", expectedOutput: "Errors: [\"Overheated\"]"),
             ],
-            completionTitle: "🧠 Core 3, Pass 3 Complete!",
+            completionTitle: "🧠 Core 3 Complete!",
             completionMessage: "Advanced Swift tools are now in your hands.",
             hints: [
                 """
@@ -2823,7 +3530,135 @@ func interpretForgeLogs(lines: [String]) -> (validCount: Int, averageTemp: Int, 
     let overheat = temps.filter { $0 >= 1500 }.count
     return (validCount: temps.count, averageTemp: average, overheatEvents: overheat, errors: errors)
 }
-"""#
+"""#,
+            tier: .core
+        ),
+        Project(
+            id: "core3b",
+            pass: 3,
+            title: "Temperature Pipeline",
+            description: "Use higher-order functions to compute a summary",
+            starterCode: #"""
+                // Core 3 Project B: Temperature Pipeline
+                // Transform and summarize temperature data.
+                //
+                // Requirements:
+                // - Function name: summarizeTemps
+                // - Takes [Int] temps
+                // - Map: add 100 to each temp
+                // - Filter: keep temps >= 1500
+                // - Reduce: total the filtered temps
+                // - Return (count: Int, total: Int)
+                //
+                // TODO: Write summarizeTemps
+
+                // Test code (don't modify):
+                let temps = [1200, 1500, 1600, 1400]
+                let report = summarizeTemps(temps)
+                print("Count: \(report.count)")
+                print("Total: \(report.total)")
+                """#,
+            testCases: [
+                (input: "count", expectedOutput: "Count: 3"),
+                (input: "total", expectedOutput: "Total: 4800"),
+            ],
+            completionTitle: "✨ Core 3 Extra Project Complete!",
+            completionMessage: "Great work with functional tools.",
+            hints: [
+                "Use map, filter, and reduce; return (count: filtered.count, total: total).",
+            ],
+            solution: """
+func summarizeTemps(_ temps: [Int]) -> (count: Int, total: Int) {
+    let adjusted = temps.map { $0 + 100 }
+    let hot = adjusted.filter { $0 >= 1500 }
+    let total = hot.reduce(0, +)
+    return (count: hot.count, total: total)
+}
+""",
+            tier: .extra
+        ),
+        Project(
+            id: "core3c",
+            pass: 3,
+            title: "Event Router",
+            description: "Parse lines into events with errors",
+            starterCode: #"""
+                // Core 3 Project C: Event Router
+                // Parse events and summarize results.
+                //
+                // Requirements:
+                // - Define Event enum with .temperature(Int) and .error(String)
+                // - Write parseLine(_:) that throws on malformed lines
+                // - Use compactMap with try? to skip malformed lines
+                // - Count valid temps (>= 0), find max temp, collect errors
+                // - If no temps, max temp should be 0
+                //
+                // TODO: Implement interpretEvents(lines:)
+
+                // Test code (don't modify):
+                let lines = ["TEMP 1400", "ERROR Jam", "TEMP -1", "BAD"]
+                let report = interpretEvents(lines: lines)
+                print("Temps: \(report.tempCount)")
+                print("Max: \(report.maxTemp)")
+                print("Errors: \(report.errorCount)")
+                """#,
+            testCases: [
+                (input: "temps", expectedOutput: "Temps: 1"),
+                (input: "max", expectedOutput: "Max: 1400"),
+                (input: "errors", expectedOutput: "Errors: 1"),
+            ],
+            completionTitle: "✨ Core 3 Extra Project Complete!",
+            completionMessage: "Enums and errors are clicking.",
+            hints: [
+                "Use try? parseLine in compactMap, then switch to separate temps and errors.",
+            ],
+            solution: """
+enum Event {
+    case temperature(Int)
+    case error(String)
+}
+
+enum ParseError: Error {
+    case malformed
+}
+
+func parseLine(_ line: String) throws -> Event {
+    let parts = line.split(separator: " ")
+    guard parts.count >= 2 else {
+        throw ParseError.malformed
+    }
+    let tag = parts[0]
+    let rest = parts.dropFirst().joined(separator: " ")
+    if tag == "TEMP", let value = Int(rest) {
+        return .temperature(value)
+    }
+    if tag == "ERROR" {
+        return .error(rest)
+    }
+    throw ParseError.malformed
+}
+
+func interpretEvents(lines: [String]) -> (tempCount: Int, maxTemp: Int, errorCount: Int) {
+    let events = lines.compactMap { try? parseLine($0) }
+    var temps: [Int] = []
+    var errorCount = 0
+
+    for event in events {
+        switch event {
+        case .temperature(let value):
+            if value >= 0 {
+                temps.append(value)
+            }
+        case .error:
+            errorCount += 1
+        }
+    }
+
+    let maxTemp = temps.max() ?? 0
+    return (tempCount: temps.count, maxTemp: maxTemp, errorCount: errorCount)
+}
+""",
+            tier: .extra
         ),
     ]
 }

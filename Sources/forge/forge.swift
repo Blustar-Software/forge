@@ -43,13 +43,20 @@ func clearScreen() {
     print("\u{001B}[H")
 }
 
-func setupWorkspace() {
+func setupWorkspace(at workspacePath: String = "workspace") {
     let fileManager = FileManager.default
-    let workspacePath = "workspace"
 
     // Create workspace directory if it doesn't exist
     if !fileManager.fileExists(atPath: workspacePath) {
         try? fileManager.createDirectory(atPath: workspacePath, withIntermediateDirectories: true)
+    }
+}
+
+func clearWorkspaceContents(at workspacePath: String) {
+    if let files = try? FileManager.default.contentsOfDirectory(atPath: workspacePath) {
+        for file in files {
+            try? FileManager.default.removeItem(atPath: "\(workspacePath)/\(file)")
+        }
     }
 }
 
@@ -103,13 +110,17 @@ func resetProgress(workspacePath: String = "workspace") {
     print("✓ Progress reset! Starting from Challenge 1.\n")
 }
 
-func loadChallenge(_ challenge: Challenge) {
-    let workspacePath = "workspace/\(challenge.filename)"
+func loadChallenge(_ challenge: Challenge, workspacePath: String = "workspace") {
+    let filePath = "\(workspacePath)/\(challenge.filename)"
 
     // Write challenge file
     let content = "\(challenge.starterCode)\n"
 
-    try? content.write(toFile: workspacePath, atomically: true, encoding: .utf8)
+    try? content.write(toFile: filePath, atomically: true, encoding: .utf8)
+
+    let checkMessage = challenge.manualCheck
+        ? "Manual check: run 'swift \(filePath)' yourself, then press Enter to mark complete."
+        : "Press Enter to check your work."
 
     print(
         """
@@ -117,9 +128,9 @@ func loadChallenge(_ challenge: Challenge) {
         Challenge \(challenge.number): \(challenge.title)
         └─ \(challenge.description)
 
-        Edit: \(workspacePath)
+        Edit: \(filePath)
 
-        Press Enter to check your work.
+        \(checkMessage)
         Type 'h' for a hint or 's' for the solution.
         """)
 }
@@ -150,10 +161,17 @@ func isExpectedOutput(_ output: String, expected: String) -> Bool {
     return normalizedOutput == normalizedExpected
 }
 
-func validateChallenge(_ challenge: Challenge, nextStepIndex: Int) -> Bool {
-    let workspacePath = "workspace/\(challenge.filename)"
+func validateChallenge(_ challenge: Challenge, nextStepIndex: Int, workspacePath: String = "workspace") -> Bool {
+    let filePath = "\(workspacePath)/\(challenge.filename)"
 
-    guard let output = compileAndRun(file: workspacePath) else {
+    if challenge.manualCheck {
+        print("Manual check: forge does not auto-validate this challenge.")
+        saveProgress(nextStepIndex)
+        print("✓ Challenge marked complete.\n")
+        return true
+    }
+
+    guard let output = compileAndRun(file: filePath) else {
         print("✗ Compilation failed. Check your code.")
         return false
     }
@@ -218,7 +236,11 @@ func runSteps(_ steps: [Step], startingAt: Int) {
                     continue
                 }
 
-                print("\n--- Testing your code... ---\n")
+                if challenge.manualCheck {
+                    print("\n--- Manual check ---\n")
+                } else {
+                    print("\n--- Testing your code... ---\n")
+                }
 
                 let nextStepIndex = currentIndex + 2
                 if validateChallenge(challenge, nextStepIndex: nextStepIndex) {
@@ -263,10 +285,10 @@ func runSteps(_ steps: [Step], startingAt: Int) {
     }
 }
 
-func loadProject(_ project: Project) {
-    let workspacePath = "workspace/\(project.filename)"
+func loadProject(_ project: Project, workspacePath: String = "workspace") -> String {
+    let filePath = "\(workspacePath)/\(project.filename)"
 
-    try? project.starterCode.write(toFile: workspacePath, atomically: true, encoding: .utf8)
+    try? project.starterCode.write(toFile: filePath, atomically: true, encoding: .utf8)
 
     print(
         """
@@ -274,18 +296,19 @@ func loadProject(_ project: Project) {
         🛠️ Project: \(project.title)
         └─ \(project.description)
 
-        Edit: \(workspacePath)
+        Edit: \(filePath)
 
         This project is checked against expected outputs. Build something that works!
         Press Enter to check your work.
         Type 'h' for a hint or 's' for the solution.
         """)
+    return filePath
 }
 
-func validateProject(_ project: Project) -> Bool {
-    let workspacePath = "workspace/\(project.filename)"
+func validateProject(_ project: Project, workspacePath: String = "workspace") -> Bool {
+    let filePath = "\(workspacePath)/\(project.filename)"
 
-    guard let output = compileAndRun(file: workspacePath) else {
+    guard let output = compileAndRun(file: filePath) else {
         print("✗ Compilation failed. Check your code.")
         return false
     }
@@ -323,7 +346,7 @@ func validateProject(_ project: Project) -> Bool {
 }
 
 func firstProject(forPass pass: Int, in projects: [Project]) -> Project? {
-    return projects.first { $0.pass == pass }
+    return projects.first { $0.pass == pass && $0.tier == .core }
 }
 
 func makeSteps(
@@ -332,16 +355,20 @@ func makeSteps(
     core3Challenges: [Challenge],
     projects: [Project]
 ) -> [Step] {
+    let core1Only = core1Challenges.filter { $0.tier == .core }
+    let core2Only = core2Challenges.filter { $0.tier == .core }
+    let core3Only = core3Challenges.filter { $0.tier == .core }
+
     var steps: [Step] = []
-    steps.append(contentsOf: core1Challenges.map { Step.challenge($0) })
+    steps.append(contentsOf: core1Only.map { Step.challenge($0) })
     if let core1Project = firstProject(forPass: 1, in: projects) {
         steps.append(.project(core1Project))
     }
-    steps.append(contentsOf: core2Challenges.map { Step.challenge($0) })
+    steps.append(contentsOf: core2Only.map { Step.challenge($0) })
     if let core2Project = firstProject(forPass: 2, in: projects) {
         steps.append(.project(core2Project))
     }
-    steps.append(contentsOf: core3Challenges.map { Step.challenge($0) })
+    steps.append(contentsOf: core3Only.map { Step.challenge($0) })
     if let core3Project = firstProject(forPass: 3, in: projects) {
         steps.append(.project(core3Project))
     }
@@ -357,8 +384,117 @@ func nextStepPrompt(for step: Step) -> String {
     }
 }
 
-func runProject(_ project: Project) -> Bool {
-    loadProject(project)
+func parseRandomArguments(_ args: [String]) -> (count: Int, topic: ChallengeTopic?, tier: ChallengeTier?) {
+    var count = 5
+    var topic: ChallengeTopic?
+    var tier: ChallengeTier?
+
+    for value in args {
+        if let number = Int(value) {
+            count = max(number, 1)
+            continue
+        }
+        let lowered = value.lowercased()
+        if let parsedTopic = ChallengeTopic(rawValue: lowered) {
+            topic = parsedTopic
+            continue
+        }
+        if let parsedTier = ChallengeTier(rawValue: lowered) {
+            tier = parsedTier
+        }
+    }
+
+    return (count, topic, tier)
+}
+
+func runPracticeChallenges(_ challenges: [Challenge], workspacePath: String) {
+    var completedFiles: [String] = []
+
+    for (index, challenge) in challenges.enumerated() {
+        loadChallenge(challenge, workspacePath: workspacePath)
+        var hintIndex = 0
+        var challengeComplete = false
+
+        while !challengeComplete {
+            print("> ", terminator: "")
+            let input = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
+
+            if input == "h" {
+                if challenge.hints.isEmpty {
+                    print("No hints available yet.\n")
+                } else if hintIndex < challenge.hints.count {
+                    print("Hint \(hintIndex + 1)/\(challenge.hints.count):")
+                    print("\(challenge.hints[hintIndex])\n")
+                    hintIndex += 1
+                } else {
+                    print("No more hints.\n")
+                }
+                continue
+            }
+
+            if input == "s" {
+                let solution = challenge.solution.trimmingCharacters(in: .whitespacesAndNewlines)
+                if solution.isEmpty {
+                    print("Solution not available yet.\n")
+                } else {
+                    print("Solution:\n\(solution)\n")
+                }
+                continue
+            }
+
+            if !input.isEmpty {
+                print("Unknown command. Press Enter to check, 'h' for hint, 's' for solution.\n")
+                continue
+            }
+
+            if challenge.manualCheck {
+                print("\n--- Manual check ---\n")
+                print("Manual check: forge does not auto-validate this challenge.")
+                print("✓ Challenge marked complete.\n")
+                completedFiles.append("\(workspacePath)/\(challenge.filename)")
+                challengeComplete = true
+            } else {
+                print("\n--- Testing your code... ---\n")
+                guard let output = compileAndRun(file: "\(workspacePath)/\(challenge.filename)") else {
+                    print("✗ Compilation failed. Check your code.")
+                    continue
+                }
+
+                print("Output: \(output)\n")
+
+                if isExpectedOutput(output, expected: challenge.expectedOutput) {
+                    print("✓ Challenge Complete! Well done.\n")
+                    completedFiles.append("\(workspacePath)/\(challenge.filename)")
+                    challengeComplete = true
+                } else {
+                    print("✗ Output doesn't match.")
+                    print("Expected: \(challenge.expectedOutput)")
+                }
+            }
+        }
+
+        if index < challenges.count - 1 {
+            print("Press Enter for the next random challenge.")
+            _ = readLine()
+            clearScreen()
+        }
+    }
+
+    print("✅ Random set complete!")
+    print("Press Enter to finish.\n")
+    _ = readLine()
+    for filePath in completedFiles {
+        try? FileManager.default.removeItem(atPath: filePath)
+    }
+    if let files = try? FileManager.default.contentsOfDirectory(atPath: workspacePath) {
+        for file in files {
+            try? FileManager.default.removeItem(atPath: "\(workspacePath)/\(file)")
+        }
+    }
+}
+
+func runProject(_ project: Project, workspacePath: String = "workspace") -> Bool {
+    _ = loadProject(project, workspacePath: workspacePath)
 
     var hintIndex = 0
     while true {
@@ -395,7 +531,7 @@ func runProject(_ project: Project) -> Bool {
 
         print("\n--- Testing your project... ---\n")
 
-        if validateProject(project) {
+        if validateProject(project, workspacePath: workspacePath) {
             sleep(2)
             return true
         }
@@ -480,17 +616,77 @@ func stepIndexForChallenge(
 @main
 struct Forge {
     static func main() {
+        let practiceWorkspace = "workspace_random"
+        let projectWorkspace = "workspace_projects"
+
         // Check for reset command
         if CommandLine.arguments.count > 1 && CommandLine.arguments[1] == "reset" {
             setupWorkspace()
             resetProgress()
             // Don't return - continue to run challenges
         }
-        
+
         let core1Challenges = makeCore1Challenges()
         let core2Challenges = makeCore2Challenges()
         let core3Challenges = makeCore3Challenges()
         let projects = makeProjects()
+
+        if CommandLine.arguments.count > 1 && CommandLine.arguments[1] == "random" {
+            setupWorkspace(at: practiceWorkspace)
+            setupWorkspace(at: projectWorkspace)
+            clearWorkspaceContents(at: practiceWorkspace)
+            clearWorkspaceContents(at: projectWorkspace)
+            let args = Array(CommandLine.arguments.dropFirst(2))
+            let (count, topic, tier) = parseRandomArguments(args)
+            var pool = core1Challenges + core2Challenges + core3Challenges
+
+            if let topic = topic {
+                pool = pool.filter { $0.topic == topic }
+            }
+            if let tier = tier {
+                pool = pool.filter { $0.tier == tier }
+            }
+
+            if pool.isEmpty {
+                print("No challenges match those filters.")
+                return
+            }
+
+            let selectionCount = min(count, pool.count)
+            let selection = Array(pool.shuffled().prefix(selectionCount))
+            clearScreen()
+            print("Random mode: \(selectionCount) challenge(s).")
+            print("Workspace: \(practiceWorkspace)\n")
+            runPracticeChallenges(selection, workspacePath: practiceWorkspace)
+            return
+        }
+
+        if CommandLine.arguments.count > 1 && CommandLine.arguments[1] == "project" {
+            setupWorkspace(at: projectWorkspace)
+            setupWorkspace(at: practiceWorkspace)
+            clearWorkspaceContents(at: projectWorkspace)
+            clearWorkspaceContents(at: practiceWorkspace)
+            guard CommandLine.arguments.count > 2 else {
+                print("Usage: swift run forge project <id>")
+                return
+            }
+            let projectId = CommandLine.arguments[2].lowercased()
+            guard let project = projects.first(where: { $0.id.lowercased() == projectId }) else {
+                print("Unknown project id: \(projectId)")
+                return
+            }
+            clearScreen()
+            print("Project mode: \(project.title)")
+            print("Workspace: \(projectWorkspace)\n")
+            let completed = runProject(project, workspacePath: projectWorkspace)
+            print("Press Enter to finish.\n")
+            _ = readLine()
+            if completed {
+                try? FileManager.default.removeItem(atPath: "\(projectWorkspace)/\(project.filename)")
+            }
+            return
+        }
+
         let steps = makeSteps(
             core1Challenges: core1Challenges,
             core2Challenges: core2Challenges,
@@ -499,9 +695,19 @@ struct Forge {
         )
         let challengeIndexMap = challengeStepIndexMap(for: steps)
         let projectIndexMap = projectStepIndexMap(for: steps)
-        let maxChallengeNumber = max(core1Challenges.count + core2Challenges.count + core3Challenges.count, 1)
+        let maxChallengeNumber = max(
+            steps.compactMap { step in
+                if case .challenge(let challenge) = step { return challenge.number }
+                return nil
+            }.max() ?? 1,
+            1
+        )
 
         setupWorkspace()
+        setupWorkspace(at: practiceWorkspace)
+        setupWorkspace(at: projectWorkspace)
+        clearWorkspaceContents(at: practiceWorkspace)
+        clearWorkspaceContents(at: projectWorkspace)
 
         let progressToken = getProgressToken() ?? "1"
         let progressTarget = parseProgressTarget(progressToken, projects: projects)

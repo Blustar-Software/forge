@@ -38,3 +38,13 @@
 
 ## 2026-01-10 (Structs Placement)
 - Removed the Structs challenge from Core 3 to align with the Mantle roadmap section.
+
+## 2026-01-11 (Random Practice + Extras)
+- Added challenge topics/tiers to support future random/adaptive modes.
+- Introduced extra fundamentals challenges (conditionals, loops, optionals, collections, functions) for practice variety.
+- Added new Core 3 fundamentals coverage (string methods, dictionary iteration, tuple returns, struct basics) and extended total challenges to 1–88.
+- Added a random practice mode in the CLI (`swift run forge random`) with optional count/topic/tier filters.
+
+## 2026-01-11 (Extra Projects)
+- Added extra projects for each core level (core1b/core1c, core2b/core2c, core3b/core3c) with tier metadata.
+- Kept extra projects out of the default flow; they are accessible via `project:<id>` progress tokens.
