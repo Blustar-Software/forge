@@ -6,7 +6,7 @@ Forge is a beginner-friendly Swift CLI that serves interactive coding challenges
 ```sh
 swift run forge
 ```
-Edit the generated file in `workspace/`, then press Enter to check. Use `h` for a hint and `s` for a solution.
+Edit the generated file in `workspace/`, then press Enter to check. Use `h` for a hint, `c` for a cheatsheet, and `s` for a solution.
 
 ## How it works
 - Generates a challenge file in `workspace/` and waits for you to press Enter to check.
@@ -24,7 +24,7 @@ Edit the generated file in `workspace/`, then press Enter to check. Use `h` for 
 ```sh
 swift run forge
 ```
-When prompted, press Enter to check your work. Type `h` for a hint or `s` for a solution (challenges and projects).
+When prompted, press Enter to check your work. Type `h` for a hint, `c` for a cheatsheet, or `s` for a solution (challenges and projects).
 
 ## Reset your progress
 ```sh

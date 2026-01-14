@@ -32,7 +32,7 @@
 ## Configuration Notes
 - Progress is stored in `workspace/.progress`; deleting it resets the starting challenge.
 - Challenge files are generated and overwritten by the CLI; avoid committing edited challenge files unless intentional.
-- During challenges/projects, press Enter to check your work; use `h` for hints and `s` for solutions.
+- During challenges/projects, press Enter to check your work; use `h` for hints, `c` for cheatsheets, and `s` for solutions.
 - You can set `workspace/.progress` to jump to a specific challenge or project:
   - Challenge number: `challenge:36` starts at Challenge 36.
   - Project id: `project:core2a` or `core3a` (case-insensitive).

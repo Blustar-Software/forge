@@ -8,6 +8,7 @@
 - SwiftPM tests exist in `Tests/forgeTests/forgeTests.swift`, plus a check script at `scripts/check.sh`.
 - Docs updated: `README.md` includes run/reset + learning overview; `AGENTS.md` includes structure + commands; `ROADMAP.md` added.
 - Challenges and projects now support stored hints and solutions.
+- Cheatsheets are available via `c`, with shared topic blocks and project-specific blocks.
 
 ## Recent Changes
 - Rebuilt Core 1 to explicitly cover type inference and make arithmetic, compound assignment, comparison, and logical operators exhaustive.
@@ -37,6 +38,7 @@
 - Updated hints for challenges 1–30 to per-block guidance and regenerated hints for challenges 31–88 and projects from solution blocks.
 - Added challenge topics/tiers plus a `random` mode for practice sets; extras are tagged for variety.
 - Added extra projects per core level (core1b/core1c, core2b/core2c, core3b/core3c) and kept them out of the default flow.
+- Rewrote Core 1–3 challenge hints and Core 1–3 project hints to adhere to the hint rules.
 
 ## Notes
 - Core 2 project `core2a` requires tuple usage; tuples are now taught in Core 2.

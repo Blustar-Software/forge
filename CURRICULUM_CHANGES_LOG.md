@@ -48,3 +48,8 @@
 ## 2026-01-11 (Extra Projects)
 - Added extra projects for each core level (core1b/core1c, core2b/core2c, core3b/core3c) with tier metadata.
 - Kept extra projects out of the default flow; they are accessible via `project:<id>` progress tokens.
+
+## 2026-01-12 (Hints + Cheatsheets)
+- Added a cheatsheet command (`c`) and attached cheatsheets to challenges and projects.
+- Created shared topic cheatsheets and project-specific cheatsheets.
+- Rewrote Core 1–3 challenge hints and Core 1–3 project hints to follow the hint rules.

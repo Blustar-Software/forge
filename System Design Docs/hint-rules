@@ -1,0 +1,8 @@
+1. Each hint corresponds to a TODO step.
+2. A hint must stop short of a direct solution to the challenge topic (no full code or exact output lines).
+3. If the only possible hint for a given step would violate rule #2, omit the hint for that step.
+4. Hints may explain concepts or point to relevant APIs/examples without mirroring the solution structure.
+5. A hint cannot resemble the challenge instructions or the full solution.
+6. Example (good vs bad):
+   - Good: "Use if let to unwrap the optional before printing."
+   - Bad: "if let value = input { print(value) }"

@@ -131,7 +131,7 @@ func loadChallenge(_ challenge: Challenge, workspacePath: String = "workspace") 
         Edit: \(filePath)
 
         \(checkMessage)
-        Type 'h' for a hint or 's' for the solution.
+        Type 'h' for a hint, 'c' for a cheatsheet, or 's' for the solution.
         """)
 }
 
@@ -221,6 +221,16 @@ func runSteps(_ steps: [Step], startingAt: Int) {
                     continue
                 }
 
+                if input == "c" {
+                    let cheatsheet = challenge.cheatsheet.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if cheatsheet.isEmpty {
+                        print("Cheatsheet not available yet.\n")
+                    } else {
+                        print("Cheatsheet:\n\(cheatsheet)\n")
+                    }
+                    continue
+                }
+
                 if input == "s" {
                     let solution = challenge.solution.trimmingCharacters(in: .whitespacesAndNewlines)
                     if solution.isEmpty {
@@ -232,7 +242,7 @@ func runSteps(_ steps: [Step], startingAt: Int) {
                 }
 
                 if !input.isEmpty {
-                    print("Unknown command. Press Enter to check, 'h' for hint, 's' for solution.\n")
+                    print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 's' for solution.\n")
                     continue
                 }
 
@@ -248,9 +258,12 @@ func runSteps(_ steps: [Step], startingAt: Int) {
                     currentIndex += 1
 
                     if currentIndex < steps.count {
-                        print(nextStepPrompt(for: steps[currentIndex]))
+                        let prompt = nextStepPrompt(for: steps[currentIndex])
+                        if !prompt.isEmpty {
+                            print(prompt)
+                        }
                         if case .challenge = steps[currentIndex] {
-                            sleep(2)
+                            waitForEnterToContinue()
                             clearScreen()
                         }
                     } else {
@@ -267,9 +280,16 @@ func runSteps(_ steps: [Step], startingAt: Int) {
                     saveProgress(currentIndex + 1)
                     print(project.completionTitle)
                     print("\(project.completionMessage)\n")
-                    print(nextStepPrompt(for: steps[currentIndex]))
+                    let prompt = nextStepPrompt(for: steps[currentIndex])
+                    if !prompt.isEmpty {
+                        print(prompt)
+                    }
                     if case .project = steps[currentIndex] {
                         sleep(2)
+                        clearScreen()
+                    }
+                    if case .challenge = steps[currentIndex] {
+                        waitForEnterToContinue()
                         clearScreen()
                     }
                 } else {
@@ -300,7 +320,7 @@ func loadProject(_ project: Project, workspacePath: String = "workspace") -> Str
 
         This project is checked against expected outputs. Build something that works!
         Press Enter to check your work.
-        Type 'h' for a hint or 's' for the solution.
+        Type 'h' for a hint, 'c' for a cheatsheet, or 's' for the solution.
         """)
     return filePath
 }
@@ -378,10 +398,15 @@ func makeSteps(
 func nextStepPrompt(for step: Step) -> String {
     switch step {
     case .challenge:
-        return "→ Moving to next challenge...\n"
+        return ""
     case .project:
         return "→ Time for your project...\n"
     }
+}
+
+func waitForEnterToContinue() {
+    print("Press Enter to continue.")
+    _ = readLine()
 }
 
 func parseRandomArguments(_ args: [String]) -> (count: Int, topic: ChallengeTopic?, tier: ChallengeTier?) {
@@ -432,6 +457,16 @@ func runPracticeChallenges(_ challenges: [Challenge], workspacePath: String) {
                 continue
             }
 
+            if input == "c" {
+                let cheatsheet = challenge.cheatsheet.trimmingCharacters(in: .whitespacesAndNewlines)
+                if cheatsheet.isEmpty {
+                    print("Cheatsheet not available yet.\n")
+                } else {
+                    print("Cheatsheet:\n\(cheatsheet)\n")
+                }
+                continue
+            }
+
             if input == "s" {
                 let solution = challenge.solution.trimmingCharacters(in: .whitespacesAndNewlines)
                 if solution.isEmpty {
@@ -443,7 +478,7 @@ func runPracticeChallenges(_ challenges: [Challenge], workspacePath: String) {
             }
 
             if !input.isEmpty {
-                print("Unknown command. Press Enter to check, 'h' for hint, 's' for solution.\n")
+                print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 's' for solution.\n")
                 continue
             }
 
@@ -514,6 +549,16 @@ func runProject(_ project: Project, workspacePath: String = "workspace") -> Bool
             continue
         }
 
+        if input == "c" {
+            let cheatsheet = project.cheatsheet.trimmingCharacters(in: .whitespacesAndNewlines)
+            if cheatsheet.isEmpty {
+                print("Cheatsheet not available yet.\n")
+            } else {
+                print("Cheatsheet:\n\(cheatsheet)\n")
+            }
+            continue
+        }
+
         if input == "s" {
             let solution = project.solution.trimmingCharacters(in: .whitespacesAndNewlines)
             if solution.isEmpty {
@@ -525,7 +570,7 @@ func runProject(_ project: Project, workspacePath: String = "workspace") -> Bool
         }
 
         if !input.isEmpty {
-            print("Unknown command. Press Enter to check, 'h' for hint, 's' for solution.\n")
+            print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 's' for solution.\n")
             continue
         }
 
