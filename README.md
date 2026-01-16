@@ -12,7 +12,7 @@ Edit the generated file in `workspace/`, then press Enter to check. Use `h` for 
 - Generates a challenge file in `workspace/` and waits for you to press Enter to check.
 - Runs your edited Swift file and compares its output to the expected answer.
 - Tracks progress in `workspace/.progress` so you can resume later.
-- Current curriculum includes Challenges 1–120 in `Sources/forge/Challenges.swift`.
+- Current curriculum includes Challenges 1–171 in `Sources/forge/Challenges.swift`.
 
 ## What you’ll learn
 - Early challenges cover comments, constants, variables, and basic math.
@@ -48,8 +48,8 @@ core2a
 - Some challenges (real CLI/file I/O) require you to run the generated file yourself and verify the output manually. Forge will label these as manual checks; press Enter after you run them to mark complete.
 
 ## Projects
-- Core projects in the default flow: `core1a`, `core2a`, `core3a`.
-- Extra projects (not in the default flow): `core1b`, `core1c`, `core2b`, `core2c`, `core3b`, `core3c`.
+- Core projects in the default flow: `core1a`, `core2a`, `core3a`, `mantle1a`, `mantle2a`, `mantle3a`.
+- Extra projects (not in the default flow): `core1b`, `core1c`, `core2b`, `core2c`, `core3b`, `core3c`, `mantle1b`, `mantle1c`, `mantle2b`, `mantle2c`, `mantle3b`, `mantle3c`.
 - To jump directly to a project, set `workspace/.progress` to `project:<id>` (case-insensitive).
 
 ## Random mode

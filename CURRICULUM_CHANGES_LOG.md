@@ -65,3 +65,34 @@
 ## 2026-01-13 (Strings, Comparisons, Ranges Extras)
 - Added 12 extra challenges for strings, comparison operators, and ranges practice.
 - Expanded total challenges to 1–120.
+
+## 2026-01-13 (Mantle Challenge Stubs)
+- Added Mantle challenge stubs (121–153) with placeholder manual-check outputs.
+- Added cheatsheets for classes, properties, protocols, extensions, access control, generics, and memory.
+- Expanded total challenges to 1–153.
+
+## 2026-01-13 (Mantle Wiring)
+- Wired Mantle challenges into the main CLI flow and random mode.
+
+## 2026-01-13 (Mantle 1 Implemented)
+- Implemented Mantle 1 challenges (121–134) with expected output, hints, and solutions.
+
+## 2026-01-13 (Mantle 2 Implemented)
+- Implemented Mantle 2 challenges (135–144) with expected output, hints, and solutions.
+
+## 2026-01-13 (Mantle 3 Implemented)
+- Implemented Mantle 3 challenges (145–153) with expected output, hints, and solutions.
+
+## 2026-01-13 (Mantle Projects)
+- Added Mantle core projects: mantle1a, mantle2a, mantle3a.
+- Wired Mantle projects into the main flow after Mantle challenges.
+
+## 2026-01-13 (Mantle Project Gating)
+- Interleaved Mantle challenges with pass-level projects (121–134 → mantle1a, 135–144 → mantle2a, 145–153 → mantle3a).
+
+## 2026-01-13 (Mantle Extra Projects)
+- Added Mantle extra projects: mantle1b, mantle1c, mantle2b, mantle2c, mantle3b, mantle3c.
+
+## 2026-01-13 (Mantle Extra Challenges)
+- Added 18 Mantle extra challenges (154–171) spanning structs/properties, protocols/extensions/errors, and generics/ARC.
+- Expanded total challenges to 1–171.

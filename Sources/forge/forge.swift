@@ -373,11 +373,16 @@ func makeSteps(
     core1Challenges: [Challenge],
     core2Challenges: [Challenge],
     core3Challenges: [Challenge],
+    mantleChallenges: [Challenge],
     projects: [Project]
 ) -> [Step] {
     let core1Only = core1Challenges.filter { $0.tier == .core }
     let core2Only = core2Challenges.filter { $0.tier == .core }
     let core3Only = core3Challenges.filter { $0.tier == .core }
+    let mantleOnly = mantleChallenges.filter { $0.tier == .core }
+    let mantle1Only = mantleOnly.filter { $0.number >= 121 && $0.number <= 134 }
+    let mantle2Only = mantleOnly.filter { $0.number >= 135 && $0.number <= 144 }
+    let mantle3Only = mantleOnly.filter { $0.number >= 145 && $0.number <= 153 }
 
     var steps: [Step] = []
     steps.append(contentsOf: core1Only.map { Step.challenge($0) })
@@ -391,6 +396,18 @@ func makeSteps(
     steps.append(contentsOf: core3Only.map { Step.challenge($0) })
     if let core3Project = firstProject(forPass: 3, in: projects) {
         steps.append(.project(core3Project))
+    }
+    steps.append(contentsOf: mantle1Only.map { Step.challenge($0) })
+    if let mantle1Project = firstProject(forPass: 4, in: projects) {
+        steps.append(.project(mantle1Project))
+    }
+    steps.append(contentsOf: mantle2Only.map { Step.challenge($0) })
+    if let mantle2Project = firstProject(forPass: 5, in: projects) {
+        steps.append(.project(mantle2Project))
+    }
+    steps.append(contentsOf: mantle3Only.map { Step.challenge($0) })
+    if let mantle3Project = firstProject(forPass: 6, in: projects) {
+        steps.append(.project(mantle3Project))
     }
     return steps
 }
@@ -674,6 +691,7 @@ struct Forge {
         let core1Challenges = makeCore1Challenges()
         let core2Challenges = makeCore2Challenges()
         let core3Challenges = makeCore3Challenges()
+        let mantleChallenges = makeMantleChallenges()
         let projects = makeProjects()
 
         if CommandLine.arguments.count > 1 && CommandLine.arguments[1] == "random" {
@@ -683,7 +701,7 @@ struct Forge {
             clearWorkspaceContents(at: projectWorkspace)
             let args = Array(CommandLine.arguments.dropFirst(2))
             let (count, topic, tier) = parseRandomArguments(args)
-            var pool = core1Challenges + core2Challenges + core3Challenges
+            var pool = core1Challenges + core2Challenges + core3Challenges + mantleChallenges
 
             if let topic = topic {
                 pool = pool.filter { $0.topic == topic }
@@ -736,6 +754,7 @@ struct Forge {
             core1Challenges: core1Challenges,
             core2Challenges: core2Challenges,
             core3Challenges: core3Challenges,
+            mantleChallenges: mantleChallenges,
             projects: projects
         )
         let challengeIndexMap = challengeStepIndexMap(for: steps)

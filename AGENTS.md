@@ -3,7 +3,7 @@
 ## Project Structure & Module Organization
 - `Package.swift` defines a single Swift Package Manager executable target named `forge`.
 - `Sources/forge/forge.swift` contains the CLI entry point and all challenge logic.
-- `Sources/forge/Challenges.swift` defines `Challenge` data and the curriculum (currently 1–120).
+- `Sources/forge/Challenges.swift` defines `Challenge` data and the curriculum (currently 1–171).
 - `workspace/` holds generated challenge files (`challenge1.swift`, etc.) and the `.progress` marker used to resume.
   - Core 3 includes a stepped closure sequence from full syntax to shorthand.
 
@@ -41,8 +41,8 @@ Manual-check challenges
 - Some challenges (real CLI/file I/O) require running the generated file manually and verifying output yourself. Forge labels these as manual checks; press Enter after you run them to mark complete.
 
 Projects
-- Core projects in the default flow: `core1a`, `core2a`, `core3a`.
-- Extra projects (not in the default flow): `core1b`, `core1c`, `core2b`, `core2c`, `core3b`, `core3c`.
+- Core projects in the default flow: `core1a`, `core2a`, `core3a`, `mantle1a`, `mantle2a`, `mantle3a`.
+- Extra projects (not in the default flow): `core1b`, `core1c`, `core2b`, `core2c`, `core3b`, `core3c`, `mantle1b`, `mantle1c`, `mantle2b`, `mantle2c`, `mantle3b`, `mantle3c`.
 - To jump directly to a project, set `workspace/.progress` to `project:<id>` (case-insensitive).
 
 Random mode

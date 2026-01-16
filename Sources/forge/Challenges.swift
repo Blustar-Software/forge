@@ -212,6 +212,56 @@ Structs
 - var instance required to mutate properties
 """
 
+let cheatsheetClasses = """
+Classes
+- class Name { var property: Type }
+- Classes are reference types
+- deinit runs when an instance is released
+"""
+
+let cheatsheetProperties = """
+Properties
+- Stored properties hold values
+- Computed properties use get/set
+- willSet/didSet observe changes
+- lazy defers initialization
+- static creates type-level members
+"""
+
+let cheatsheetProtocols = """
+Protocols
+- Define required properties and methods
+- Types conform by implementing requirements
+- Protocols can be used as types
+"""
+
+let cheatsheetExtensions = """
+Extensions
+- Add methods or computed properties to existing types
+- Protocol extensions can provide defaults
+"""
+
+let cheatsheetAccessControl = """
+Access Control
+- private limits access to the enclosing scope
+- internal is the default (module-wide)
+- public/open expose APIs outside the module
+"""
+
+let cheatsheetGenerics = """
+Generics
+- Use <T> to make functions and types reusable
+- Constraints limit T to specific protocols
+- where adds extra requirements
+"""
+
+let cheatsheetMemory = """
+Memory
+- strong references keep instances alive
+- weak breaks reference cycles
+- Use [weak self] in closures to avoid leaks
+"""
+
 let cheatsheetFunctions = """
 Functions
 - func name(label param: Type) -> ReturnType { ... }
@@ -379,6 +429,63 @@ Project Cheatsheet: Event Router
 - switch handles enum cases
 - Associated values can be extracted with let
 - Aggregates update inside loops
+"""
+
+let cheatsheetProjectMantle1a = """
+Project Cheatsheet: Forge Inventory Model
+- Structs model data with stored properties
+- Computed properties derive values
+- Methods bundle behavior
+"""
+
+let cheatsheetProjectMantle2a = """
+Project Cheatsheet: Component Inspector
+- Protocols define shared requirements
+- Extensions add default behavior
+- Access control scopes API surface
+"""
+
+let cheatsheetProjectMantle3a = """
+Project Cheatsheet: Task Manager
+- Generics make reusable containers
+- Protocol extensions add shared behavior
+- weak references prevent cycles
+"""
+
+let cheatsheetProjectMantle1b = """
+Project Cheatsheet: Shift Tracker
+- Mutating methods update struct state
+- Computed properties derive totals
+"""
+
+let cheatsheetProjectMantle1c = """
+Project Cheatsheet: Shared Controller
+- Classes are reference types
+- Updates are shared across references
+"""
+
+let cheatsheetProjectMantle2b = """
+Project Cheatsheet: Inspection Line
+- Protocol composition combines requirements
+- Extensions can add shared formatting
+"""
+
+let cheatsheetProjectMantle2c = """
+Project Cheatsheet: Safe Heater
+- Throwing functions signal failures
+- do/try/catch handles errors
+"""
+
+let cheatsheetProjectMantle3b = """
+Project Cheatsheet: Generic Stack
+- Generics allow reusable containers
+- Mutating methods update stored arrays
+"""
+
+let cheatsheetProjectMantle3c = """
+Project Cheatsheet: Constraint Report
+- where clauses add constraints
+- Protocol extensions add shared behavior
 """
 
 func makeCore1Challenges() -> [Challenge] {
@@ -1698,33 +1805,27 @@ for key in inventory.keys.sorted() {
         ),
         Challenge(
             number: 43,
-            title: "Struct Basics",
-            description: "Define and use a simple struct",
+            title: "String Prefix & Suffix",
+            description: "Check string prefixes and suffixes",
             starterCode: """
-                // Challenge 43: Struct Basics
-                // Create a tool and update its durability.
+                // Challenge 43: String Prefix & Suffix
+                // Check the start and end of a string.
 
-                struct Tool {
-                    let name: String
-                    var durability: Int
-                }
+                let code = "Forge-01"
 
-                var tool = Tool(name: "Hammer", durability: 5)
-
-                // TODO: Reduce durability by 1
-                // TODO: Print "Hammer durability: 4"
+                // TODO: Print whether 'code' has prefix "Forge"
+                // TODO: Print whether 'code' has suffix "01"
                 """,
-            expectedOutput: "Hammer durability: 4",
+            expectedOutput: "true\ntrue",
             hints: [
-                "Use dot syntax to decrease tool.durability by 1.",
-                "Use tool.name and tool.durability in the print statement.",
+                "hasPrefix and hasSuffix return Bool values.",
             ],
-            cheatsheet: cheatsheetStructs,
+            cheatsheet: cheatsheetStrings,
             solution: """
-tool.durability -= 1
-print(\"\\(tool.name) durability: \\(tool.durability)\")
+print(code.hasPrefix("Forge"))
+print(code.hasSuffix("01"))
 """,
-            topic: .structs
+            topic: .strings
         ),
         Challenge(
             number: 44,
@@ -2623,7 +2724,7 @@ func checkTemp(_ temp: Int) throws {
             expectedOutput: "nil",
             hints: [
                 "try? converts a thrown error into nil.",
-                "Printing an optional directly will show nil when absent.",
+                "String(describing:) prints nil for missing values.",
             ],
             cheatsheet: cheatsheetErrors,
             solution: """
@@ -2640,7 +2741,7 @@ func checkTemp(_ temp: Int) throws -> Int {
 }
 
 let result = try? checkTemp(-1)
-print(result as Any)
+print(String(describing: result))
 """,
             topic: .functions,
 
@@ -3973,6 +4074,1718 @@ for index in 0..<metals.count {
     ]
 }
 
+func makeMantleChallenges() -> [Challenge] {
+    return [
+        Challenge(
+            number: 121,
+            title: "Struct Basics",
+            description: "Define a struct and create an instance",
+            starterCode: """
+                // Challenge 121: Struct Basics
+                // Define a struct and create an instance.
+
+                // TODO: Create a struct named 'ForgeItem' with a 'name' property
+                // TODO: Create an instance named 'item' with name "Iron"
+                // TODO: Print 'item.name'
+                """,
+            expectedOutput: "Iron",
+            hints: [
+                "Define a struct with a stored property, then create and print it.",
+            ],
+            cheatsheet: cheatsheetStructs,
+            solution: """
+struct ForgeItem {
+    var name: String
+}
+
+let item = ForgeItem(name: "Iron")
+print(item.name)
+"""
+        ),
+        Challenge(
+            number: 122,
+            title: "Stored Properties",
+            description: "Read and update stored properties",
+            starterCode: """
+                // Challenge 122: Stored Properties
+                // Read and update stored properties.
+
+                struct Furnace {
+                    var heat: Int
+                }
+
+                var furnace = Furnace(heat: 1200)
+
+                // TODO: Update 'furnace.heat' to 1500
+                // TODO: Print 'furnace.heat'
+                """,
+            expectedOutput: "1500",
+            hints: [
+                "Stored properties can be updated on a var instance.",
+            ],
+            cheatsheet: cheatsheetStructs,
+            solution: """
+furnace.heat = 1500
+print(furnace.heat)
+"""
+        ),
+        Challenge(
+            number: 123,
+            title: "Methods + self",
+            description: "Add a method that uses self",
+            starterCode: """
+                // Challenge 123: Methods + self
+                // Add a method that reads state.
+
+                struct Hammer {
+                    var strikes: Int
+                    // TODO: Add a method 'summary()' that returns "Strikes: <value>"
+                }
+
+                var hammer = Hammer(strikes: 0)
+                // TODO: Print 'hammer.summary()'
+                """,
+            expectedOutput: "Strikes: 0",
+            hints: [
+                "Use self to build the return string from the property.",
+            ],
+            cheatsheet: cheatsheetStructs,
+            solution: """
+struct Hammer {
+    var strikes: Int
+
+    func summary() -> String {
+        return "Strikes: \\(strikes)"
+    }
+}
+
+var hammer = Hammer(strikes: 0)
+print(hammer.summary())
+"""
+        ),
+        Challenge(
+            number: 124,
+            title: "Custom Init",
+            description: "Write a custom initializer",
+            starterCode: """
+                // Challenge 124: Custom Init
+                // Create a custom initializer.
+
+                struct Ingot {
+                    var metal: String
+                    var weight: Int
+                    // TODO: Add init(metal:) that sets 'weight' to 1
+                }
+
+                // TODO: Create an Ingot with metal "Copper"
+                // TODO: Print the metal and weight on separate lines
+                """,
+            expectedOutput: "Copper\n1",
+            hints: [
+                "Custom initializers can set default values.",
+            ],
+            cheatsheet: cheatsheetStructs,
+            solution: """
+struct Ingot {
+    var metal: String
+    var weight: Int
+
+    init(metal: String) {
+        self.metal = metal
+        self.weight = 1
+    }
+}
+
+let ingot = Ingot(metal: "Copper")
+print(ingot.metal)
+print(ingot.weight)
+"""
+        ),
+        Challenge(
+            number: 125,
+            title: "Mutating Method",
+            description: "Use mutating to update struct state",
+            starterCode: """
+                // Challenge 125: Mutating Method
+                // Use mutating for state changes.
+
+                struct Crucible {
+                    var level: Int
+                    // TODO: Add mutating func 'raise' that increments 'level'
+                }
+
+                var crucible = Crucible(level: 1)
+                // TODO: Call 'raise()' twice
+                // TODO: Print 'crucible.level'
+                """,
+            expectedOutput: "3",
+            hints: [
+                "Use mutating when a struct method changes properties.",
+            ],
+            cheatsheet: cheatsheetStructs,
+            solution: """
+struct Crucible {
+    var level: Int
+
+    mutating func raise() {
+        level += 1
+    }
+}
+
+var crucible = Crucible(level: 1)
+crucible.raise()
+crucible.raise()
+print(crucible.level)
+"""
+        ),
+        Challenge(
+            number: 126,
+            title: "Value Semantics",
+            description: "Show independent copies of a struct",
+            starterCode: """
+                // Challenge 126: Value Semantics
+                // Show that structs are copied on assignment.
+
+                struct Mold {
+                    var size: Int
+                }
+
+                let original = Mold(size: 1)
+                var copy = original
+
+                // TODO: Change 'copy.size' to 2
+                // TODO: Print 'original.size' and 'copy.size' on separate lines
+                """,
+            expectedOutput: "1\n2",
+            hints: [
+                "Changing a copy does not affect the original.",
+            ],
+            cheatsheet: cheatsheetStructs,
+            solution: """
+struct Mold {
+    var size: Int
+}
+
+let original = Mold(size: 1)
+var copy = original
+copy.size = 2
+
+print(original.size)
+print(copy.size)
+"""
+        ),
+        Challenge(
+            number: 127,
+            title: "Class Basics",
+            description: "Define and instantiate a class",
+            starterCode: """
+                // Challenge 127: Class Basics
+                // Define and instantiate a class.
+
+                class Anvil {
+                    var weight: Int
+                    init(weight: Int) {
+                        self.weight = weight
+                    }
+                }
+
+                // TODO: Create an Anvil with weight 10
+                // TODO: Print the weight
+                """,
+            expectedOutput: "10",
+            hints: [
+                "Classes need an initializer if they have stored properties.",
+            ],
+            cheatsheet: cheatsheetClasses,
+            solution: """
+let anvil = Anvil(weight: 10)
+print(anvil.weight)
+"""
+        ),
+        Challenge(
+            number: 128,
+            title: "Reference Semantics",
+            description: "Show shared state in classes",
+            starterCode: """
+                // Challenge 128: Reference Semantics
+                // Show that classes share references.
+
+                class Bellows {
+                    var power: Int
+                    init(power: Int) {
+                        self.power = power
+                    }
+                }
+
+                let primary = Bellows(power: 1)
+                let secondary = primary
+
+                // TODO: Set 'secondary.power' to 3
+                // TODO: Print 'primary.power'
+                """,
+            expectedOutput: "3",
+            hints: [
+                "Changing a reference affects all references to the same instance.",
+            ],
+            cheatsheet: cheatsheetClasses,
+            solution: """
+secondary.power = 3
+print(primary.power)
+"""
+        ),
+        Challenge(
+            number: 129,
+            title: "Deinit",
+            description: "Observe deinitialization",
+            starterCode: """
+                // Challenge 129: Deinit
+                // Add a deinit message.
+
+                class Torch {
+                    let id: Int
+                    init(id: Int) {
+                        self.id = id
+                    }
+                    // TODO: Add deinit that prints "Torch <id> released"
+                }
+
+                // TODO: Create an optional Torch, then set it to nil
+                """,
+            expectedOutput: "Torch 1 released",
+            hints: [
+                "deinit runs when the last strong reference is released.",
+            ],
+            cheatsheet: cheatsheetClasses,
+            solution: """
+class Torch {
+    let id: Int
+    init(id: Int) {
+        self.id = id
+    }
+
+    deinit {
+        print("Torch \\(id) released")
+    }
+}
+
+var torch: Torch? = Torch(id: 1)
+torch = nil
+"""
+        ),
+        Challenge(
+            number: 130,
+            title: "Struct vs Class",
+            description: "Choose the right type",
+            starterCode: """
+                // Challenge 130: Struct vs Class
+                // Decide which type fits the scenario.
+
+                // TODO: Create a struct for a simple 'Tag' (value type)
+                // TODO: Create a class for a shared 'ForgeController' (reference type)
+                // TODO: Print one property from each
+                """,
+            expectedOutput: "Batch-A\nOnline",
+            hints: [
+                "Use a struct for independent values and a class for shared state.",
+            ],
+            cheatsheet: cheatsheetClasses,
+            solution: """
+struct Tag {
+    var label: String
+}
+
+class ForgeController {
+    var status: String
+    init(status: String) {
+        self.status = status
+    }
+}
+
+let tag = Tag(label: "Batch-A")
+let controller = ForgeController(status: "Online")
+print(tag.label)
+print(controller.status)
+"""
+        ),
+        Challenge(
+            number: 131,
+            title: "Computed Property",
+            description: "Add a computed property",
+            starterCode: """
+                // Challenge 131: Computed Property
+                // Use get/set on a computed property.
+
+                struct Press {
+                    var force: Int
+                    // TODO: Add computed property 'doubleForce' with get/set
+                }
+
+                var press = Press(force: 2)
+                // TODO: Set 'press.doubleForce' to 10
+                // TODO: Print 'press.force'
+                """,
+            expectedOutput: "5",
+            hints: [
+                "Computed properties can translate values in get/set.",
+            ],
+            cheatsheet: cheatsheetProperties,
+            solution: """
+struct Press {
+    var force: Int
+
+    var doubleForce: Int {
+        get { force * 2 }
+        set { force = newValue / 2 }
+    }
+}
+
+var press = Press(force: 2)
+press.doubleForce = 10
+print(press.force)
+"""
+        ),
+        Challenge(
+            number: 132,
+            title: "Property Observers",
+            description: "Use willSet and didSet",
+            starterCode: """
+                // Challenge 132: Property Observers
+                // Observe changes with willSet/didSet.
+
+                struct Gauge {
+                    var pressure: Int {
+                        // TODO: Add willSet/didSet prints
+                    }
+                }
+
+                var gauge = Gauge(pressure: 1)
+                // TODO: Change 'gauge.pressure' to 2
+                """,
+            expectedOutput: "Will set to 2\nDid set from 1",
+            hints: [
+                "Observers can print before and after changes.",
+            ],
+            cheatsheet: cheatsheetProperties,
+            solution: """
+struct Gauge {
+    var pressure: Int {
+        willSet {
+            print("Will set to \\(newValue)")
+        }
+        didSet {
+            print("Did set from \\(oldValue)")
+        }
+    }
+}
+
+var gauge = Gauge(pressure: 1)
+gauge.pressure = 2
+"""
+        ),
+        Challenge(
+            number: 133,
+            title: "Lazy Property",
+            description: "Initialize a property lazily",
+            starterCode: """
+                // Challenge 133: Lazy Property
+                // Use lazy to defer creation.
+
+                struct ForgeReport {
+                    var id: Int
+                    // TODO: Add lazy var 'summary' that returns "Report <id>"
+                }
+
+                var report = ForgeReport(id: 1)
+                // TODO: Print 'report.summary'
+                """,
+            expectedOutput: "Report 1",
+            hints: [
+                "Lazy properties are created the first time they are accessed.",
+            ],
+            cheatsheet: cheatsheetProperties,
+            solution: """
+struct ForgeReport {
+    var id: Int
+    lazy var summary: String = "Report \\(id)"
+}
+
+var report = ForgeReport(id: 1)
+print(report.summary)
+"""
+        ),
+        Challenge(
+            number: 134,
+            title: "Static vs Instance",
+            description: "Use static properties",
+            starterCode: """
+                // Challenge 134: Static vs Instance
+                // Use a static property.
+
+                struct Shift {
+                    static let maxHours = 8
+                    var hours: Int
+                }
+
+                let shift = Shift(hours: 6)
+                // TODO: Print 'Shift.maxHours'
+                // TODO: Print 'shift.hours'
+                """,
+            expectedOutput: "8\n6",
+            hints: [
+                "Static properties live on the type, not the instance.",
+            ],
+            cheatsheet: cheatsheetProperties,
+            solution: """
+print(Shift.maxHours)
+print(shift.hours)
+"""
+        ),
+        Challenge(
+            number: 135,
+            title: "Protocol Definition",
+            description: "Define a protocol",
+            starterCode: """
+                // Challenge 135: Protocol Definition
+                // Define a protocol with requirements.
+
+                // TODO: Create a protocol 'Inspectable' with a read-only 'status' String
+                // TODO: Print "Inspectable ready"
+                """,
+            expectedOutput: "Inspectable ready",
+            hints: [
+                "Protocols define required properties or methods.",
+            ],
+            cheatsheet: cheatsheetProtocols,
+            solution: """
+protocol Inspectable {
+    var status: String { get }
+}
+
+print("Inspectable ready")
+"""
+        ),
+        Challenge(
+            number: 136,
+            title: "Conformance",
+            description: "Adopt a protocol in a struct",
+            starterCode: """
+                // Challenge 136: Conformance
+                // Make a struct conform to a protocol.
+
+                protocol Inspectable {
+                    var status: String { get }
+                }
+
+                // TODO: Create a struct 'Furnace' that conforms to Inspectable
+                // TODO: Print its status
+                """,
+            expectedOutput: "Ready",
+            hints: [
+                "Provide the required property to conform.",
+            ],
+            cheatsheet: cheatsheetProtocols,
+            solution: """
+struct Furnace: Inspectable {
+    let status: String
+}
+
+let furnace = Furnace(status: "Ready")
+print(furnace.status)
+"""
+        ),
+        Challenge(
+            number: 137,
+            title: "Protocol as Type",
+            description: "Use a protocol as a parameter type",
+            starterCode: """
+                // Challenge 137: Protocol as Type
+                // Use a protocol in a function signature.
+
+                protocol HeatSource {
+                    var heat: Int { get }
+                }
+
+                struct Burner: HeatSource {
+                    let heat: Int
+                }
+
+                // TODO: Write a function 'reportHeat(source:)' that prints 'source.heat'
+                // TODO: Call it with a Burner
+                """,
+            expectedOutput: "1200",
+            hints: [
+                "Protocol types let you accept any conforming type.",
+            ],
+            cheatsheet: cheatsheetProtocols,
+            solution: """
+func reportHeat(source: HeatSource) {
+    print(source.heat)
+}
+
+let burner = Burner(heat: 1200)
+reportHeat(source: burner)
+"""
+        ),
+        Challenge(
+            number: 138,
+            title: "Protocol Composition",
+            description: "Use A & B in a parameter",
+            starterCode: """
+                // Challenge 138: Protocol Composition
+                // Use multiple protocol requirements.
+
+                protocol Fueling {
+                    var fuel: Int { get }
+                }
+
+                protocol Venting {
+                    var airflow: Int { get }
+                }
+
+                struct Vent: Fueling, Venting {
+                    let fuel: Int
+                    let airflow: Int
+                }
+
+                // TODO: Write a function 'report(_:)' that accepts Fueling & Venting
+                // TODO: Print fuel and airflow on separate lines
+                """,
+            expectedOutput: "2\n3",
+            hints: [
+                "Use protocol composition to require both capabilities.",
+            ],
+            cheatsheet: cheatsheetProtocols,
+            solution: """
+func report(_ source: Fueling & Venting) {
+    print(source.fuel)
+    print(source.airflow)
+}
+
+let vent = Vent(fuel: 2, airflow: 3)
+report(vent)
+"""
+        ),
+        Challenge(
+            number: 139,
+            title: "Protocol Inheritance",
+            description: "Refine a protocol",
+            starterCode: """
+                // Challenge 139: Protocol Inheritance
+                // Inherit requirements from another protocol.
+
+                protocol Component {
+                    var id: String { get }
+                }
+
+                // TODO: Create protocol 'InspectableComponent' inheriting Component with 'status'
+                // TODO: Create a type that conforms and print its status
+                """,
+            expectedOutput: "OK",
+            hints: [
+                "Protocol inheritance adds requirements on top of another protocol.",
+            ],
+            cheatsheet: cheatsheetProtocols,
+            solution: """
+protocol InspectableComponent: Component {
+    var status: String { get }
+}
+
+struct Sensor: InspectableComponent {
+    let id: String
+    let status: String
+}
+
+let sensor = Sensor(id: "S1", status: "OK")
+print(sensor.status)
+"""
+        ),
+        Challenge(
+            number: 140,
+            title: "Extensions",
+            description: "Add methods with an extension",
+            starterCode: """
+                // Challenge 140: Extensions
+                // Add behavior using an extension.
+
+                struct Ingot {
+                    let weight: Int
+                }
+
+                // TODO: Add an extension that adds a method 'label()' -> String
+                // TODO: Create an Ingot and print its label
+                """,
+            expectedOutput: "Ingot 5",
+            hints: [
+                "Extensions can add computed properties and methods.",
+            ],
+            cheatsheet: cheatsheetExtensions,
+            solution: """
+extension Ingot {
+    func label() -> String {
+        return "Ingot \\(weight)"
+    }
+}
+
+let ingot = Ingot(weight: 5)
+print(ingot.label())
+"""
+        ),
+        Challenge(
+            number: 141,
+            title: "Default Implementations",
+            description: "Add default behavior with a protocol extension",
+            starterCode: """
+                // Challenge 141: Default Implementations
+                // Provide default behavior with a protocol extension.
+
+                protocol Reportable {
+                    var message: String { get }
+                }
+
+                // TODO: Add a default method 'printReport()' in a protocol extension
+                // TODO: Conform a struct and call 'printReport()'
+                """,
+            expectedOutput: "Report ready",
+            hints: [
+                "Use a protocol extension to add a default method.",
+            ],
+            cheatsheet: cheatsheetExtensions,
+            solution: """
+extension Reportable {
+    func printReport() {
+        print(message)
+    }
+}
+
+struct Report: Reportable {
+    let message: String
+}
+
+let report = Report(message: "Report ready")
+report.printReport()
+"""
+        ),
+        Challenge(
+            number: 142,
+            title: "Access Control 1",
+            description: "Use private and internal",
+            starterCode: """
+                // Challenge 142: Access Control 1
+                // Add private and internal members.
+
+                struct Vault {
+                    private var code: Int
+                    // TODO: Add an internal init(code:)
+                }
+                
+                // TODO: Create a Vault and print "Vault ready"
+                """,
+            expectedOutput: "Vault ready",
+            hints: [
+                "private limits access to the type; internal is the default.",
+            ],
+            cheatsheet: cheatsheetAccessControl,
+            solution: """
+struct Vault {
+    private var code: Int
+
+    init(code: Int) {
+        self.code = code
+    }
+}
+
+let _ = Vault(code: 1234)
+print("Vault ready")
+"""
+        ),
+        Challenge(
+            number: 143,
+            title: "Access Control 2",
+            description: "Use public and open",
+            starterCode: """
+                // Challenge 143: Access Control 2
+                // Mark APIs public/open in a library.
+
+                // TODO: Add a public struct 'Ledger'
+                // TODO: Add an open class 'Controller'
+                // TODO: Create instances and print "Ledger" then "Controller"
+                """,
+            expectedOutput: "Ledger\nController",
+            hints: [
+                "public exposes types outside the module; open allows subclassing.",
+            ],
+            cheatsheet: cheatsheetAccessControl,
+            solution: """
+public struct Ledger {}
+
+open class Controller {}
+
+let _ = Ledger()
+let _ = Controller()
+print("Ledger")
+print("Controller")
+"""
+        ),
+        Challenge(
+            number: 144,
+            title: "Error Integration",
+            description: "Use errors in a protocol-based API",
+            starterCode: """
+                // Challenge 144: Error Integration
+                // Use errors in an API surface.
+
+                enum FurnaceError: Error {
+                    case tooCold
+                }
+
+                protocol Heatable {
+                    func heat(to level: Int) throws
+                }
+
+                // TODO: Create a type that conforms and throws on low values
+                // TODO: Call it with a low value and print "Too cold" in catch
+                """,
+            expectedOutput: "Too cold",
+            hints: [
+                "Throw errors when constraints are not met.",
+            ],
+            cheatsheet: cheatsheetErrors,
+            solution: """
+struct Furnace: Heatable {
+    func heat(to level: Int) throws {
+        if level < 1000 {
+            throw FurnaceError.tooCold
+        }
+    }
+}
+
+do {
+    try Furnace().heat(to: 900)
+} catch {
+    print("Too cold")
+}
+"""
+        ),
+        Challenge(
+            number: 145,
+            title: "Generic Function",
+            description: "Write a generic function",
+            starterCode: """
+                // Challenge 145: Generic Function
+                // Create a generic helper.
+
+                // TODO: Write a generic function 'swapPair' that returns a tuple (B, A)
+                // TODO: Call it with "Iron" and 3, then print the tuple
+                """,
+            expectedOutput: "(3, \"Iron\")",
+            hints: [
+                "Generics let you reuse logic across types.",
+            ],
+            cheatsheet: cheatsheetGenerics,
+            solution: """
+func swapPair<A, B>(_ first: A, _ second: B) -> (B, A) {
+    return (second, first)
+}
+
+print(swapPair("Iron", 3))
+"""
+        ),
+        Challenge(
+            number: 146,
+            title: "Generic Type",
+            description: "Define a generic container",
+            starterCode: """
+                // Challenge 146: Generic Type
+                // Build a simple generic container.
+
+                // TODO: Create a generic struct 'Box<T>' with a value: T
+                // TODO: Create a Box of Int with value 7 and print the value
+                """,
+            expectedOutput: "7",
+            hints: [
+                "Generic types store values of any type parameter.",
+            ],
+            cheatsheet: cheatsheetGenerics,
+            solution: """
+struct Box<T> {
+    let value: T
+}
+
+let box = Box(value: 7)
+print(box.value)
+"""
+        ),
+        Challenge(
+            number: 147,
+            title: "Type Constraints",
+            description: "Add a constraint to a generic",
+            starterCode: """
+                // Challenge 147: Type Constraints
+                // Constrain a generic to Comparable.
+
+                // TODO: Write a generic function 'maxValue' that takes two T: Comparable
+                // TODO: Call it with 3 and 5, then print the result
+                """,
+            expectedOutput: "5",
+            hints: [
+                "Constraints allow you to use protocol requirements on T.",
+            ],
+            cheatsheet: cheatsheetGenerics,
+            solution: """
+func maxValue<T: Comparable>(_ first: T, _ second: T) -> T {
+    return first >= second ? first : second
+}
+
+print(maxValue(3, 5))
+"""
+        ),
+        Challenge(
+            number: 148,
+            title: "Associated Types",
+            description: "Use associatedtype in a protocol",
+            starterCode: """
+                // Challenge 148: Associated Types
+                // Define a protocol with an associated type.
+
+                // TODO: Create a protocol 'Storage' with associatedtype 'Item' and var items: [Item]
+                // TODO: Create a struct that conforms with String items and print its count
+                """,
+            expectedOutput: "2",
+            hints: [
+                "associatedtype lets protocols describe generic placeholders.",
+            ],
+            cheatsheet: cheatsheetGenerics,
+            solution: """
+protocol Storage {
+    associatedtype Item
+    var items: [Item] { get }
+}
+
+struct StringStorage: Storage {
+    let items: [String]
+}
+
+let storage = StringStorage(items: ["Iron", "Gold"])
+print(storage.items.count)
+"""
+        ),
+        Challenge(
+            number: 149,
+            title: "Where Clauses",
+            description: "Add a where clause to constrain generics",
+            starterCode: """
+                // Challenge 149: Where Clauses
+                // Constrain an extension with where.
+
+                // TODO: Extend Array where Element: Equatable and add a method 'allEqual()'
+                // TODO: Call it with [2, 2, 2] and print the result
+                """,
+            expectedOutput: "true",
+            hints: [
+                "where adds extra constraints for a generic extension.",
+            ],
+            cheatsheet: cheatsheetGenerics,
+            solution: """
+extension Array where Element: Equatable {
+    func allEqual() -> Bool {
+        guard let first = first else { return true }
+        return allSatisfy { $0 == first }
+    }
+}
+
+print([2, 2, 2].allEqual())
+"""
+        ),
+        Challenge(
+            number: 150,
+            title: "Constrained Extension",
+            description: "Add shared behavior with constraints",
+            starterCode: """
+                // Challenge 150: Constrained Extension
+                // Add shared behavior with constraints.
+
+                protocol Describable {
+                    var name: String { get }
+                }
+
+                // TODO: Add a constrained extension for Describable where Self: Equatable
+                // TODO: Conform a struct and print its description
+                """,
+            expectedOutput: "Forge: Anvil",
+            hints: [
+                "Add the constraint in the extension signature.",
+            ],
+            cheatsheet: cheatsheetExtensions,
+            solution: """
+extension Describable where Self: Equatable {
+    func description() -> String {
+        return "Forge: \\(name)"
+    }
+}
+
+struct Tool: Describable, Equatable {
+    let name: String
+}
+
+let tool = Tool(name: "Anvil")
+print(tool.description())
+"""
+        ),
+        Challenge(
+            number: 151,
+            title: "Conditional Conformance",
+            description: "Conform generics conditionally",
+            starterCode: """
+                // Challenge 151: Conditional Conformance
+                // Add conditional conformance to a generic type.
+
+                struct Crate<T> {
+                    let items: [T]
+                }
+
+                // TODO: Make Crate conform to Equatable when T is Equatable
+                // TODO: Compare two crates of Ints and print the result
+                """,
+            expectedOutput: "true",
+            hints: [
+                "Use where clauses in the extension for conditional conformance.",
+            ],
+            cheatsheet: cheatsheetGenerics,
+            solution: """
+extension Crate: Equatable where T: Equatable {}
+
+let first = Crate(items: [1, 2])
+let second = Crate(items: [1, 2])
+print(first == second)
+"""
+        ),
+        Challenge(
+            number: 152,
+            title: "Model Layer Exercise",
+            description: "Apply protocol-oriented design",
+            starterCode: """
+                // Challenge 152: Model Layer Exercise
+                // Compose a small model layer with protocols and defaults.
+
+                // TODO: Define a protocol and a default implementation
+                // TODO: Create a conforming struct and use the default method
+                """,
+            expectedOutput: "Alloy ready",
+            hints: [
+                "Use protocols to define behavior and extensions for defaults.",
+            ],
+            cheatsheet: cheatsheetProtocols,
+            solution: """
+protocol StatusProviding {
+    var status: String { get }
+}
+
+extension StatusProviding {
+    func report() {
+        print(status)
+    }
+}
+
+struct Alloy: StatusProviding {
+    let status: String
+}
+
+let alloy = Alloy(status: "Alloy ready")
+alloy.report()
+"""
+        ),
+        Challenge(
+            number: 153,
+            title: "ARC Safety",
+            description: "Avoid reference cycles with weak",
+            starterCode: """
+                // Challenge 153: ARC Safety
+                // Use weak references to avoid cycles.
+
+                class Operator {
+                    var name: String
+                    init(name: String) {
+                        self.name = name
+                    }
+                    // TODO: Add a weak reference back to a Forge
+                }
+
+                class Forge {
+                    var operatorRef: Operator?
+                }
+                
+                // TODO: Create instances and print "Cycle avoided"
+                """,
+            expectedOutput: "Cycle avoided",
+            hints: [
+                "Weak references prevent strong reference cycles.",
+            ],
+            cheatsheet: cheatsheetMemory,
+            solution: """
+class Operator {
+    var name: String
+    weak var forge: Forge?
+
+    init(name: String) {
+        self.name = name
+    }
+}
+
+class Forge {
+    var operatorRef: Operator?
+}
+
+let forge = Forge()
+let operatorRef = Operator(name: "Ada")
+forge.operatorRef = operatorRef
+operatorRef.forge = forge
+print("Cycle avoided")
+"""
+        ),
+        Challenge(
+            number: 154,
+            title: "Struct Copy Drill",
+            description: "Show independent struct copies",
+            starterCode: """
+                // Challenge 154: Struct Copy Drill
+                // Show independent struct copies.
+
+                struct Plate {
+                    var thickness: Int
+                }
+
+                let original = Plate(thickness: 2)
+                var copy = original
+
+                // TODO: Set 'copy.thickness' to 5
+                // TODO: Print 'original.thickness' and 'copy.thickness' on separate lines
+                """,
+            expectedOutput: "2\n5",
+            hints: [
+                "Structs are copied on assignment.",
+            ],
+            cheatsheet: cheatsheetStructs,
+            solution: """
+copy.thickness = 5
+print(original.thickness)
+print(copy.thickness)
+""",
+            topic: .structs,
+            tier: .extra
+        ),
+        Challenge(
+            number: 155,
+            title: "Mutating Counter",
+            description: "Use a mutating method",
+            starterCode: """
+                // Challenge 155: Mutating Counter
+                // Update state with a mutating method.
+
+                struct Counter {
+                    var value: Int
+                    // TODO: Add mutating func 'increment' to add 1
+                }
+
+                var counter = Counter(value: 1)
+                // TODO: Call 'increment' twice
+                // TODO: Print 'counter.value'
+                """,
+            expectedOutput: "3",
+            hints: [
+                "Mutating methods can change stored properties.",
+            ],
+            cheatsheet: cheatsheetStructs,
+            solution: """
+struct Counter {
+    var value: Int
+
+    mutating func increment() {
+        value += 1
+    }
+}
+
+var counter = Counter(value: 1)
+counter.increment()
+counter.increment()
+print(counter.value)
+""",
+            topic: .structs,
+            tier: .extra
+        ),
+        Challenge(
+            number: 156,
+            title: "Computed Conversion",
+            description: "Use a computed get/set",
+            starterCode: """
+                // Challenge 156: Computed Conversion
+                // Convert between units with get/set.
+
+                struct Weight {
+                    var kg: Int
+                    // TODO: Add computed property 'pounds' using 1 kg = 2 lb
+                }
+
+                var weight = Weight(kg: 1)
+                // TODO: Set 'weight.pounds' to 10
+                // TODO: Print 'weight.kg'
+                """,
+            expectedOutput: "5",
+            hints: [
+                "Set should convert pounds back to kg.",
+            ],
+            cheatsheet: cheatsheetProperties,
+            solution: """
+struct Weight {
+    var kg: Int
+
+    var pounds: Int {
+        get { kg * 2 }
+        set { kg = newValue / 2 }
+    }
+}
+
+var weight = Weight(kg: 1)
+weight.pounds = 10
+print(weight.kg)
+""",
+            topic: .structs,
+            tier: .extra
+        ),
+        Challenge(
+            number: 157,
+            title: "Observer Echo",
+            description: "Use property observers",
+            starterCode: """
+                // Challenge 157: Observer Echo
+                // Print before and after changes.
+
+                struct Gauge {
+                    var pressure: Int {
+                        // TODO: Add willSet/didSet to print changes
+                    }
+                }
+
+                var gauge = Gauge(pressure: 1)
+                // TODO: Set 'gauge.pressure' to 3
+                """,
+            expectedOutput: "Will set to 3\nDid set from 1",
+            hints: [
+                "Use newValue and oldValue in observers.",
+            ],
+            cheatsheet: cheatsheetProperties,
+            solution: """
+struct Gauge {
+    var pressure: Int {
+        willSet {
+            print("Will set to \\(newValue)")
+        }
+        didSet {
+            print("Did set from \\(oldValue)")
+        }
+    }
+}
+
+var gauge = Gauge(pressure: 1)
+gauge.pressure = 3
+""",
+            topic: .structs,
+            tier: .extra
+        ),
+        Challenge(
+            number: 158,
+            title: "Class Shared State",
+            description: "Share state across references",
+            starterCode: """
+                // Challenge 158: Class Shared State
+                // Show reference semantics.
+
+                class Controller {
+                    var mode: String
+                    init(mode: String) {
+                        self.mode = mode
+                    }
+                }
+
+                let primary = Controller(mode: "Idle")
+                let secondary = primary
+
+                // TODO: Set 'secondary.mode' to "Active"
+                // TODO: Print 'primary.mode'
+                """,
+            expectedOutput: "Active",
+            hints: [
+                "Classes share a single instance across references.",
+            ],
+            cheatsheet: cheatsheetClasses,
+            solution: """
+secondary.mode = "Active"
+print(primary.mode)
+""",
+            topic: .structs,
+            tier: .extra
+        ),
+        Challenge(
+            number: 159,
+            title: "Lazy Builder",
+            description: "Use a lazy property",
+            starterCode: """
+                // Challenge 159: Lazy Builder
+                // Build a lazy property.
+
+                struct Report {
+                    var id: Int
+                    // TODO: Add lazy var 'title' returning "Report <id>"
+                }
+
+                var report = Report(id: 2)
+                // TODO: Print 'report.title'
+                """,
+            expectedOutput: "Report 2",
+            hints: [
+                "Lazy properties are initialized on first access.",
+            ],
+            cheatsheet: cheatsheetProperties,
+            solution: """
+struct Report {
+    var id: Int
+    lazy var title: String = "Report \\(id)"
+}
+
+var report = Report(id: 2)
+print(report.title)
+""",
+            topic: .structs,
+            tier: .extra
+        ),
+        Challenge(
+            number: 160,
+            title: "Default Label",
+            description: "Add a protocol default method",
+            starterCode: """
+                // Challenge 160: Default Label
+                // Add a shared method with a protocol extension.
+
+                protocol Named {
+                    var name: String { get }
+                }
+
+                // TODO: Add default method label() -> String returning "Tool: <name>"
+                // TODO: Conform a struct and print its label
+                """,
+            expectedOutput: "Tool: Hammer",
+            hints: [
+                "Protocol extensions can provide default methods.",
+            ],
+            cheatsheet: cheatsheetExtensions,
+            solution: """
+extension Named {
+    func label() -> String {
+        return "Tool: \\(name)"
+    }
+}
+
+struct Tool: Named {
+    let name: String
+}
+
+print(Tool(name: "Hammer").label())
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 161,
+            title: "Protocol Parameter",
+            description: "Use a protocol as a parameter",
+            starterCode: """
+                // Challenge 161: Protocol Parameter
+                // Accept a protocol type.
+
+                protocol HeatSource {
+                    var heat: Int { get }
+                }
+
+                struct Furnace: HeatSource {
+                    let heat: Int
+                }
+
+                // TODO: Write function 'reportHeat(source:)' that prints "Heat: <value>"
+                // TODO: Call it with a Furnace(heat: 1500)
+                """,
+            expectedOutput: "Heat: 1500",
+            hints: [
+                "Use the protocol type in the function signature.",
+            ],
+            cheatsheet: cheatsheetProtocols,
+            solution: """
+func reportHeat(source: HeatSource) {
+    print("Heat: \\(source.heat)")
+}
+
+reportHeat(source: Furnace(heat: 1500))
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 162,
+            title: "Composition Drill",
+            description: "Require two protocols",
+            starterCode: """
+                // Challenge 162: Composition Drill
+                // Require two protocols in one parameter.
+
+                protocol Fueling {
+                    var fuel: Int { get }
+                }
+
+                protocol Venting {
+                    var airflow: Int { get }
+                }
+
+                struct Vent: Fueling, Venting {
+                    let fuel: Int
+                    let airflow: Int
+                }
+
+                // TODO: Write function report(_:) that accepts Fueling & Venting
+                // TODO: Print "Fuel <fuel>" and "Air <airflow>" on separate lines
+                """,
+            expectedOutput: "Fuel 2\nAir 3",
+            hints: [
+                "Use protocol composition with Fueling & Venting.",
+            ],
+            cheatsheet: cheatsheetProtocols,
+            solution: """
+func report(_ vent: Fueling & Venting) {
+    print("Fuel \\(vent.fuel)")
+    print("Air \\(vent.airflow)")
+}
+
+report(Vent(fuel: 2, airflow: 3))
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 163,
+            title: "Extension Helper",
+            description: "Add a method with an extension",
+            starterCode: """
+                // Challenge 163: Extension Helper
+                // Add a helper method to Int.
+
+                // TODO: Extend Int with a method squared() -> Int
+                // TODO: Print 5.squared()
+                """,
+            expectedOutput: "25",
+            hints: [
+                "Extensions can add methods to existing types.",
+            ],
+            cheatsheet: cheatsheetExtensions,
+            solution: """
+extension Int {
+    func squared() -> Int {
+        return self * self
+    }
+}
+
+print(5.squared())
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 164,
+            title: "Access Wrapper",
+            description: "Hide data with access control",
+            starterCode: """
+                // Challenge 164: Access Wrapper
+                // Use private storage with a public view.
+
+                struct Vault {
+                    private var code: Int
+                    // TODO: Add computed property 'masked' returning "****"
+                    // TODO: Add init(code:) to set code
+                }
+
+                // TODO: Create a Vault and print 'masked'
+                """,
+            expectedOutput: "****",
+            hints: [
+                "Expose a safe value while keeping the code private.",
+            ],
+            cheatsheet: cheatsheetAccessControl,
+            solution: """
+struct Vault {
+    private var code: Int
+
+    var masked: String {
+        return "****"
+    }
+
+    init(code: Int) {
+        self.code = code
+    }
+}
+
+let vault = Vault(code: 1234)
+print(vault.masked)
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 165,
+            title: "Error Route",
+            description: "Throw and catch an error",
+            starterCode: """
+                // Challenge 165: Error Route
+                // Throw and catch a custom error.
+
+                enum ForgeError: Error {
+                    case jam
+                }
+
+                // TODO: Write a function 'start(fuel:)' that throws when fuel == 0
+                // TODO: Call it with fuel 0 and print "Jam" in catch
+                """,
+            expectedOutput: "Jam",
+            hints: [
+                "Throw the error when the condition is met.",
+            ],
+            cheatsheet: cheatsheetErrors,
+            solution: """
+func start(fuel: Int) throws {
+    if fuel == 0 {
+        throw ForgeError.jam
+    }
+}
+
+do {
+    try start(fuel: 0)
+} catch {
+    print("Jam")
+}
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 166,
+            title: "Generic Box",
+            description: "Store any type in a box",
+            starterCode: """
+                // Challenge 166: Generic Box
+                // Create a generic container.
+
+                // TODO: Define struct Box<T> with value: T
+                // TODO: Create Box(value: "Iron") and print the value
+                """,
+            expectedOutput: "Iron",
+            hints: [
+                "Use a generic type parameter T for the stored value.",
+            ],
+            cheatsheet: cheatsheetGenerics,
+            solution: """
+struct Box<T> {
+    let value: T
+}
+
+let box = Box(value: "Iron")
+print(box.value)
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 167,
+            title: "Comparable Min",
+            description: "Use a generic constraint",
+            starterCode: """
+                // Challenge 167: Comparable Min
+                // Use Comparable constraints.
+
+                // TODO: Write minValue(_:_:) for T: Comparable
+                // TODO: Call it with 3 and 5, then print the result
+                """,
+            expectedOutput: "3",
+            hints: [
+                "Compare the two values and return the smaller.",
+            ],
+            cheatsheet: cheatsheetGenerics,
+            solution: """
+func minValue<T: Comparable>(_ first: T, _ second: T) -> T {
+    return first <= second ? first : second
+}
+
+print(minValue(3, 5))
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 168,
+            title: "Associated Storage",
+            description: "Use associated types",
+            starterCode: """
+                // Challenge 168: Associated Storage
+                // Define a protocol with an associated type.
+
+                protocol Stackable {
+                    associatedtype Item
+                    var items: [Item] { get set }
+                    // TODO: Add mutating func push(_:)
+                }
+
+                struct Stack<T>: Stackable {
+                    var items: [T]
+                    // TODO: Implement push(_:)
+                }
+
+                var stack = Stack(items: [])
+                // TODO: Push 2 and print stack.items.count
+                """,
+            expectedOutput: "1",
+            hints: [
+                "Mutating methods can append to the items array.",
+            ],
+            cheatsheet: cheatsheetGenerics,
+            solution: """
+protocol Stackable {
+    associatedtype Item
+    var items: [Item] { get set }
+    mutating func push(_ item: Item)
+}
+
+struct Stack<T>: Stackable {
+    var items: [T]
+
+    mutating func push(_ item: T) {
+        items.append(item)
+    }
+}
+
+var stack = Stack(items: [])
+stack.push(2)
+print(stack.items.count)
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 169,
+            title: "Where Clause",
+            description: "Constrain an extension",
+            starterCode: """
+                // Challenge 169: Where Clause
+                // Add a constrained extension.
+
+                // TODO: Extend Array where Element: Equatable with allSame() -> Bool
+                // TODO: Call it on [1, 1, 2] and print the result
+                """,
+            expectedOutput: "false",
+            hints: [
+                "Compare each element to the first.",
+            ],
+            cheatsheet: cheatsheetGenerics,
+            solution: """
+extension Array where Element: Equatable {
+    func allSame() -> Bool {
+        guard let first = first else { return true }
+        return allSatisfy { $0 == first }
+    }
+}
+
+print([1, 1, 2].allSame())
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 170,
+            title: "Conditional Conformance",
+            description: "Add Equatable conformance conditionally",
+            starterCode: """
+                // Challenge 170: Conditional Conformance
+                // Conform a generic type when T is Equatable.
+
+                struct Wrapper<T> {
+                    let value: T
+                }
+
+                // TODO: Make Wrapper conform to Equatable when T: Equatable
+                // TODO: Compare two Wrapper(value: "A") and print the result
+                """,
+            expectedOutput: "true",
+            hints: [
+                "Use an extension with a where clause.",
+            ],
+            cheatsheet: cheatsheetGenerics,
+            solution: """
+extension Wrapper: Equatable where T: Equatable {}
+
+let first = Wrapper(value: "A")
+let second = Wrapper(value: "A")
+print(first == second)
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 171,
+            title: "Weak Capture",
+            description: "Use weak in a closure capture list",
+            starterCode: """
+                // Challenge 171: Weak Capture
+                // Avoid strong capture cycles.
+
+                class Logger {
+                    let prefix: String
+                    init(prefix: String) {
+                        self.prefix = prefix
+                    }
+
+                    func makePrinter() -> () -> Void {
+                        // TODO: Return a closure that prints prefix using [weak self]
+                    }
+                }
+
+                let logger = Logger(prefix: "Log")
+                let printer = logger.makePrinter()
+                printer()
+                """,
+            expectedOutput: "Log",
+            hints: [
+                "Capture self weakly, then unwrap inside the closure.",
+            ],
+            cheatsheet: cheatsheetMemory,
+            solution: """
+class Logger {
+    let prefix: String
+    init(prefix: String) {
+        self.prefix = prefix
+    }
+
+    func makePrinter() -> () -> Void {
+        return { [weak self] in
+            if let self = self {
+                print(self.prefix)
+            }
+        }
+    }
+}
+
+let logger = Logger(prefix: "Log")
+let printer = logger.makePrinter()
+printer()
+""",
+            topic: .general,
+            tier: .extra
+        ),
+    ]
+}
+
 func makeProjects() -> [Project] {
     return [
         Project(
@@ -4543,6 +6356,570 @@ func interpretEvents(lines: [String]) -> (tempCount: Int, maxTemp: Int, errorCou
 
     let maxTemp = temps.max() ?? 0
     return (tempCount: temps.count, maxTemp: maxTemp, errorCount: errorCount)
+}
+""",
+            tier: .extra
+        ),
+        Project(
+            id: "mantle1a",
+            pass: 4,
+            title: "Forge Inventory Model",
+            description: "Model inventory with structs and computed properties",
+            starterCode: #"""
+                // Mantle 1 Project A: Forge Inventory Model
+                // Model inventory items and compute totals.
+                //
+                // Requirements:
+                // - Define a struct 'InventoryItem' with:
+                //   - name: String
+                //   - count: Int
+                //   - unitWeight: Int
+                // - Add a computed property totalWeight (count * unitWeight)
+                // - Add a method label() -> String that returns "<name>: <count>"
+                // - Create an array of two items:
+                //   - ("Iron", 3, 2)
+                //   - ("Copper", 2, 3)
+                // - Print:
+                //   "Iron: 3"
+                //   "Copper: 2"
+                //   "Total weight: 12"
+                //
+                // TODO: Implement InventoryItem and the reporting logic.
+
+                // Test code (don't modify):
+                let items = [
+                    InventoryItem(name: "Iron", count: 3, unitWeight: 2),
+                    InventoryItem(name: "Copper", count: 2, unitWeight: 3),
+                ]
+                for item in items {
+                    print(item.label())
+                }
+                let total = items.reduce(0) { $0 + $1.totalWeight }
+                print("Total weight: \(total)")
+                """#,
+            testCases: [
+                (input: "iron", expectedOutput: "Iron: 3"),
+                (input: "copper", expectedOutput: "Copper: 2"),
+                (input: "total", expectedOutput: "Total weight: 12"),
+            ],
+            completionTitle: "🏗️ Mantle 1 Complete!",
+            completionMessage: "You can now model real data with custom types.",
+            hints: [
+                "Use a computed property to multiply count and unitWeight.",
+                "Build label() with string interpolation.",
+            ],
+            cheatsheet: cheatsheetProjectMantle1a,
+            solution: """
+struct InventoryItem {
+    let name: String
+    let count: Int
+    let unitWeight: Int
+
+    var totalWeight: Int {
+        return count * unitWeight
+    }
+
+    func label() -> String {
+        return \"\\(name): \\(count)\"
+    }
+}
+""",
+            tier: .core
+        ),
+        Project(
+            id: "mantle1b",
+            pass: 4,
+            title: "Shift Tracker",
+            description: "Track shifts with mutating methods and computed totals",
+            starterCode: #"""
+                // Mantle 1 Project B: Shift Tracker
+                // Track worker shifts and total hours.
+                //
+                // Requirements:
+                // - Define a struct Worker with:
+                //   - name: String
+                //   - shifts: Int
+                //   - hoursPerShift: Int
+                // - Add a mutating method addShift()
+                // - Add computed property totalHours (shifts * hoursPerShift)
+                // - Create:
+                //   - Worker "Ada" with shifts 2, hoursPerShift 4
+                //   - Worker "Ben" with shifts 1, hoursPerShift 5
+                // - Call addShift() once on Ada
+                // - Print:
+                //   "Ada: 12"
+                //   "Ben: 5"
+                //   "Total: 17"
+                //
+                // TODO: Implement Worker and the reporting logic.
+
+                // Test code (don't modify):
+                var ada = Worker(name: "Ada", shifts: 2, hoursPerShift: 4)
+                let ben = Worker(name: "Ben", shifts: 1, hoursPerShift: 5)
+                ada.addShift()
+                print("\(ada.name): \(ada.totalHours)")
+                print("\(ben.name): \(ben.totalHours)")
+                print("Total: \(ada.totalHours + ben.totalHours)")
+                """#,
+            testCases: [
+                (input: "ada", expectedOutput: "Ada: 12"),
+                (input: "ben", expectedOutput: "Ben: 5"),
+                (input: "total", expectedOutput: "Total: 17"),
+            ],
+            completionTitle: "✨ Mantle 1 Extra Project Complete!",
+            completionMessage: "Great work applying mutating methods and computed properties.",
+            hints: [
+                "addShift should increase shifts by 1.",
+                "totalHours multiplies shifts by hoursPerShift.",
+            ],
+            cheatsheet: cheatsheetProjectMantle1b,
+            solution: """
+struct Worker {
+    let name: String
+    var shifts: Int
+    let hoursPerShift: Int
+
+    mutating func addShift() {
+        shifts += 1
+    }
+
+    var totalHours: Int {
+        shifts * hoursPerShift
+    }
+}
+""",
+            tier: .extra
+        ),
+        Project(
+            id: "mantle1c",
+            pass: 4,
+            title: "Shared Controller",
+            description: "Show shared state with classes",
+            starterCode: #"""
+                // Mantle 1 Project C: Shared Controller
+                // Show class reference behavior.
+                //
+                // Requirements:
+                // - Define a class Controller with a mode String
+                // - Create 'primary' with mode "Idle"
+                // - Assign 'secondary' = primary
+                // - Set secondary.mode to "Active"
+                // - Print:
+                //   "Primary: Active"
+                //   "Secondary: Active"
+                //
+                // TODO: Implement the Controller class.
+
+                // Test code (don't modify):
+                let primary = Controller(mode: "Idle")
+                let secondary = primary
+                secondary.mode = "Active"
+                print("Primary: \(primary.mode)")
+                print("Secondary: \(secondary.mode)")
+                """#,
+            testCases: [
+                (input: "primary", expectedOutput: "Primary: Active"),
+                (input: "secondary", expectedOutput: "Secondary: Active"),
+            ],
+            completionTitle: "✨ Mantle 1 Extra Project Complete!",
+            completionMessage: "Reference semantics are now clear.",
+            hints: [
+                "Classes share state across references.",
+            ],
+            cheatsheet: cheatsheetProjectMantle1c,
+            solution: """
+class Controller {
+    var mode: String
+
+    init(mode: String) {
+        self.mode = mode
+    }
+}
+""",
+            tier: .extra
+        ),
+        Project(
+            id: "mantle2a",
+            pass: 5,
+            title: "Component Inspector",
+            description: "Use protocols, extensions, and access control",
+            starterCode: #"""
+                // Mantle 2 Project A: Component Inspector
+                // Define components and print inspection reports.
+                //
+                // Requirements:
+                // - Define a protocol Inspectable with:
+                //   - id: String
+                //   - status: String
+                // - Add a default method report() -> String in a protocol extension
+                // - Create a struct 'Valve' that conforms (id: "V1", status: "OK")
+                // - Create a struct 'Sensor' that conforms (id: "S2", status: "WARN")
+                // - Print:
+                //   "V1: OK"
+                //   "S2: WARN"
+                //
+                // TODO: Implement Inspectable, the extension, and the structs.
+
+                // Test code (don't modify):
+                let items: [Inspectable] = [
+                    Valve(id: "V1", status: "OK"),
+                    Sensor(id: "S2", status: "WARN"),
+                ]
+                for item in items {
+                    print(item.report())
+                }
+                """#,
+            testCases: [
+                (input: "v1", expectedOutput: "V1: OK"),
+                (input: "s2", expectedOutput: "S2: WARN"),
+            ],
+            completionTitle: "🏗️ Mantle 2 Complete!",
+            completionMessage: "Protocols and extensions are now part of your toolkit.",
+            hints: [
+                "Use a protocol extension to format the report string.",
+                "Conform both structs to Inspectable.",
+            ],
+            cheatsheet: cheatsheetProjectMantle2a,
+            solution: """
+protocol Inspectable {
+    var id: String { get }
+    var status: String { get }
+}
+
+extension Inspectable {
+    func report() -> String {
+        return \"\\(id): \\(status)\"
+    }
+}
+
+struct Valve: Inspectable {
+    let id: String
+    let status: String
+}
+
+struct Sensor: Inspectable {
+    let id: String
+    let status: String
+}
+""",
+            tier: .core
+        ),
+        Project(
+            id: "mantle2b",
+            pass: 5,
+            title: "Inspection Line",
+            description: "Use protocol composition with shared formatting",
+            starterCode: #"""
+                // Mantle 2 Project B: Inspection Line
+                // Compose protocols and build a report.
+                //
+                // Requirements:
+                // - Define protocol Identifiable (id: String)
+                // - Define protocol Statused (status: String)
+                // - Define protocol Inspectable that inherits Identifiable and Statused
+                // - Add an extension on Inspectable with report() -> String
+                // - Create a struct Valve and Sensor that conform to Inspectable
+                // - Print:
+                //   "V1: OK"
+                //   "S2: WARN"
+                //
+                // TODO: Implement the protocols, extension, and structs.
+
+                // Test code (don't modify):
+                let valve = Valve(id: "V1", status: "OK")
+                let sensor = Sensor(id: "S2", status: "WARN")
+                print(valve.report())
+                print(sensor.report())
+                """#,
+            testCases: [
+                (input: "v1", expectedOutput: "V1: OK"),
+                (input: "s2", expectedOutput: "S2: WARN"),
+            ],
+            completionTitle: "✨ Mantle 2 Extra Project Complete!",
+            completionMessage: "Nice use of protocol composition.",
+            hints: [
+                "Inherit both protocols in Inspectable, then add report() in an extension.",
+            ],
+            cheatsheet: cheatsheetProjectMantle2b,
+            solution: """
+protocol Identifiable {
+    var id: String { get }
+}
+
+protocol Statused {
+    var status: String { get }
+}
+
+protocol Inspectable: Identifiable, Statused {}
+
+extension Inspectable {
+    func report() -> String {
+        return \"\\(id): \\(status)\"
+    }
+}
+
+struct Valve: Inspectable {
+    let id: String
+    let status: String
+}
+
+struct Sensor: Inspectable {
+    let id: String
+    let status: String
+}
+""",
+            tier: .extra
+        ),
+        Project(
+            id: "mantle2c",
+            pass: 5,
+            title: "Safe Heater",
+            description: "Throw and handle errors safely",
+            starterCode: #"""
+                // Mantle 2 Project C: Safe Heater
+                // Throw errors and handle them with do/try/catch.
+                //
+                // Requirements:
+                // - Define enum HeatError: Error with case tooCold
+                // - Define struct Heater with func heat(to:) throws
+                // - Throw tooCold if level < 1000
+                // - In test code, call with 900 and 1200
+                // - Print:
+                //   "Too cold"
+                //   "Heated"
+                //
+                // TODO: Implement HeatError and Heater.
+
+                // Test code (don't modify):
+                let heater = Heater()
+                do {
+                    try heater.heat(to: 900)
+                } catch {
+                    print("Too cold")
+                }
+                do {
+                    try heater.heat(to: 1200)
+                    print("Heated")
+                } catch {
+                    print("Too cold")
+                }
+                """#,
+            testCases: [
+                (input: "cold", expectedOutput: "Too cold"),
+                (input: "heated", expectedOutput: "Heated"),
+            ],
+            completionTitle: "✨ Mantle 2 Extra Project Complete!",
+            completionMessage: "Solid error handling practice.",
+            hints: [
+                "Throw when the temperature is below the threshold.",
+            ],
+            cheatsheet: cheatsheetProjectMantle2c,
+            solution: """
+enum HeatError: Error {
+    case tooCold
+}
+
+struct Heater {
+    func heat(to level: Int) throws {
+        if level < 1000 {
+            throw HeatError.tooCold
+        }
+    }
+}
+""",
+            tier: .extra
+        ),
+        Project(
+            id: "mantle3a",
+            pass: 6,
+            title: "Task Manager",
+            description: "Combine generics, protocol defaults, and ARC safety",
+            starterCode: #"""
+                // Mantle 3 Project A: Task Manager
+                // Build a small model with generics and safe references.
+                //
+                // Requirements:
+                // - Define a protocol Named with name: String
+                // - Add a default method label() -> String in a protocol extension
+                // - Define a generic struct Box<T> to store a value
+                // - Define a class Manager with a Worker reference
+                // - Define a class Worker with name and a weak Manager reference
+                // - Print:
+                //   "Task: Forge"
+                //   "Boxed: 5"
+                //   "Link ok"
+                //
+                // TODO: Implement the types and prints.
+
+                // Test code (don't modify):
+                let worker = Worker(name: "Forge")
+                let manager = Manager()
+                manager.worker = worker
+                worker.manager = manager
+                print(worker.label())
+
+                let boxed = Box(value: 5)
+                print("Boxed: \(boxed.value)")
+
+                print("Link ok")
+                """#,
+            testCases: [
+                (input: "task", expectedOutput: "Task: Forge"),
+                (input: "boxed", expectedOutput: "Boxed: 5"),
+                (input: "link", expectedOutput: "Link ok"),
+            ],
+            completionTitle: "🏗️ Mantle 3 Complete!",
+            completionMessage: "You can now build more structured systems in Swift.",
+            hints: [
+                "Use a protocol extension for the label.",
+                "Make the Manager reference weak on the Worker side.",
+            ],
+            cheatsheet: cheatsheetProjectMantle3a,
+            solution: """
+protocol Named {
+    var name: String { get }
+}
+
+extension Named {
+    func label() -> String {
+        return \"Task: \\(name)\"
+    }
+}
+
+struct Box<T> {
+    let value: T
+}
+
+class Manager {
+    var worker: Worker?
+}
+
+class Worker: Named {
+    let name: String
+    weak var manager: Manager?
+
+    init(name: String) {
+        self.name = name
+    }
+}
+""",
+            tier: .core
+        ),
+        Project(
+            id: "mantle3b",
+            pass: 6,
+            title: "Generic Stack",
+            description: "Build a generic stack with push/pop",
+            starterCode: #"""
+                // Mantle 3 Project B: Generic Stack
+                // Implement a basic generic stack.
+                //
+                // Requirements:
+                // - Define struct Stack<T> with items: [T]
+                // - Add mutating push(_:) and pop() -> T
+                // - Use it with Ints:
+                //   - Push 3, push 5, pop and print
+                //   - Push 7, pop and print
+                // - Output:
+                //   "5"
+                //   "7"
+                //
+                // TODO: Implement Stack.
+
+                // Test code (don't modify):
+                var stack = Stack(items: [])
+                stack.push(3)
+                stack.push(5)
+                print(stack.pop())
+                stack.push(7)
+                print(stack.pop())
+                """#,
+            testCases: [
+                (input: "first", expectedOutput: "5"),
+                (input: "second", expectedOutput: "7"),
+            ],
+            completionTitle: "✨ Mantle 3 Extra Project Complete!",
+            completionMessage: "Generics are becoming second nature.",
+            hints: [
+                "pop should remove and return the last element.",
+            ],
+            cheatsheet: cheatsheetProjectMantle3b,
+            solution: """
+struct Stack<T> {
+    var items: [T]
+
+    mutating func push(_ item: T) {
+        items.append(item)
+    }
+
+    mutating func pop() -> T {
+        return items.removeLast()
+    }
+}
+""",
+            tier: .extra
+        ),
+        Project(
+            id: "mantle3c",
+            pass: 6,
+            title: "Constraint Report",
+            description: "Combine where clauses and protocol defaults",
+            starterCode: #"""
+                // Mantle 3 Project C: Constraint Report
+                // Use generic constraints and protocol extensions.
+                //
+                // Requirements:
+                // - Define protocol Named with name: String
+                // - Add default method label() -> String returning "Boxed: <name>"
+                // - Define struct Box<T> { let value: T }
+                // - Extend Box where T: Named with method label()
+                // - Define generic function isEqual<T: Equatable>(_:_:) -> Bool
+                // - Print:
+                //   "Boxed: Steel"
+                //   "true"
+                //
+                // TODO: Implement the types and function.
+
+                // Test code (don't modify):
+                struct Alloy: Named { let name: String }
+                let boxed = Box(value: Alloy(name: "Steel"))
+                print(boxed.label())
+                print(isEqual(2, 2))
+                """#,
+            testCases: [
+                (input: "label", expectedOutput: "Boxed: Steel"),
+                (input: "equal", expectedOutput: "true"),
+            ],
+            completionTitle: "✨ Mantle 3 Extra Project Complete!",
+            completionMessage: "Great control of constraints and defaults.",
+            hints: [
+                "Use a constrained extension for Box where T: Named.",
+                "isEqual should return a Bool comparison.",
+            ],
+            cheatsheet: cheatsheetProjectMantle3c,
+            solution: """
+protocol Named {
+    var name: String { get }
+}
+
+extension Named {
+    func label() -> String {
+        return \"Boxed: \\(name)\"
+    }
+}
+
+struct Box<T> {
+    let value: T
+}
+
+extension Box where T: Named {
+    func label() -> String {
+        return value.label()
+    }
+}
+
+func isEqual<T: Equatable>(_ first: T, _ second: T) -> Bool {
+    return first == second
 }
 """,
             tier: .extra
