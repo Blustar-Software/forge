@@ -366,7 +366,7 @@ func validateProject(_ project: Project, workspacePath: String = "workspace") ->
 }
 
 func firstProject(forPass pass: Int, in projects: [Project]) -> Project? {
-    return projects.first { $0.pass == pass && $0.tier == .core }
+    return projects.first { $0.pass == pass && $0.tier == .mainline }
 }
 
 func makeSteps(
@@ -376,10 +376,10 @@ func makeSteps(
     mantleChallenges: [Challenge],
     projects: [Project]
 ) -> [Step] {
-    let core1Only = core1Challenges.filter { $0.tier == .core }
-    let core2Only = core2Challenges.filter { $0.tier == .core }
-    let core3Only = core3Challenges.filter { $0.tier == .core }
-    let mantleOnly = mantleChallenges.filter { $0.tier == .core }
+    let core1Only = core1Challenges.filter { $0.tier == .mainline }
+    let core2Only = core2Challenges.filter { $0.tier == .mainline }
+    let core3Only = core3Challenges.filter { $0.tier == .mainline }
+    let mantleOnly = mantleChallenges.filter { $0.tier == .mainline }
     let mantle1Only = mantleOnly.filter { $0.number >= 121 && $0.number <= 134 }
     let mantle2Only = mantleOnly.filter { $0.number >= 135 && $0.number <= 144 }
     let mantle3Only = mantleOnly.filter { $0.number >= 145 && $0.number <= 153 }
@@ -426,10 +426,50 @@ func waitForEnterToContinue() {
     _ = readLine()
 }
 
-func parseRandomArguments(_ args: [String]) -> (count: Int, topic: ChallengeTopic?, tier: ChallengeTier?) {
+func printRandomUsage() {
+    print("""
+    Usage: swift run forge random [count] [topic] [tier] [layer]
+
+    Topics: conditionals, loops, optionals, collections, functions, strings, structs, general
+    Tiers: mainline, extra
+    Layers: core, mantle, crust
+
+    Examples:
+      swift run forge random 8
+      swift run forge random conditionals
+      swift run forge random 6 loops extra
+      swift run forge random 10 mantle
+      swift run forge random 12 mainline
+    """)
+}
+
+func printProjectUsage() {
+    print("""
+    Usage:
+      swift run forge project <id>
+      swift run forge project --list [tier] [layer]
+      swift run forge project --random [tier] [layer]
+
+    Tiers: mainline, extra
+    Layers: core, mantle, crust
+
+    Examples:
+      swift run forge project core2b
+      swift run forge project --list
+      swift run forge project --list extra
+      swift run forge project --list mantle
+      swift run forge project --random
+      swift run forge project --random extra mantle
+    """)
+}
+
+func parseRandomArguments(
+    _ args: [String]
+) -> (count: Int, topic: ChallengeTopic?, tier: ChallengeTier?, layer: ChallengeLayer?) {
     var count = 5
     var topic: ChallengeTopic?
     var tier: ChallengeTier?
+    var layer: ChallengeLayer?
 
     for value in args {
         if let number = Int(value) {
@@ -437,16 +477,80 @@ func parseRandomArguments(_ args: [String]) -> (count: Int, topic: ChallengeTopi
             continue
         }
         let lowered = value.lowercased()
+        if lowered == "help" || lowered == "-h" || lowered == "--help" {
+            continue
+        }
         if let parsedTopic = ChallengeTopic(rawValue: lowered) {
             topic = parsedTopic
             continue
         }
         if let parsedTier = ChallengeTier(rawValue: lowered) {
             tier = parsedTier
+            continue
+        }
+        if let parsedLayer = ChallengeLayer(rawValue: lowered) {
+            layer = parsedLayer
         }
     }
 
-    return (count, topic, tier)
+    return (count, topic, tier, layer)
+}
+
+func parseProjectListArguments(_ args: [String]) -> (tier: ProjectTier?, layer: ProjectLayer?) {
+    var tier: ProjectTier?
+    var layer: ProjectLayer?
+
+    for value in args {
+        let lowered = value.lowercased()
+        if let parsedTier = ProjectTier(rawValue: lowered) {
+            tier = parsedTier
+            continue
+        }
+        if let parsedLayer = ProjectLayer(rawValue: lowered) {
+            layer = parsedLayer
+        }
+    }
+
+    return (tier, layer)
+}
+
+func parseProjectRandomArguments(_ args: [String]) -> (tier: ProjectTier?, layer: ProjectLayer?) {
+    return parseProjectListArguments(args)
+}
+
+func printProjectList(_ projects: [Project], tier: ProjectTier?, layer: ProjectLayer?) {
+    var pool = projects
+    if let tier = tier {
+        pool = pool.filter { $0.tier == tier }
+    }
+    if let layer = layer {
+        pool = pool.filter { $0.layer == layer }
+    }
+
+    if pool.isEmpty {
+        print("No projects match those filters.")
+        return
+    }
+
+    print("Projects:")
+    for project in pool {
+        print("- \(project.id): \(project.title) (\(project.tier.rawValue), \(project.layer.rawValue))")
+    }
+}
+
+func pickRandomProject(
+    _ projects: [Project],
+    tier: ProjectTier?,
+    layer: ProjectLayer?
+) -> Project? {
+    var pool = projects
+    if let tier = tier {
+        pool = pool.filter { $0.tier == tier }
+    }
+    if let layer = layer {
+        pool = pool.filter { $0.layer == layer }
+    }
+    return pool.randomElement()
 }
 
 func runPracticeChallenges(_ challenges: [Challenge], workspacePath: String) {
@@ -700,7 +804,11 @@ struct Forge {
             clearWorkspaceContents(at: practiceWorkspace)
             clearWorkspaceContents(at: projectWorkspace)
             let args = Array(CommandLine.arguments.dropFirst(2))
-            let (count, topic, tier) = parseRandomArguments(args)
+            if args.contains(where: { ["help", "-h", "--help"].contains($0.lowercased()) }) {
+                printRandomUsage()
+                return
+            }
+            let (count, topic, tier, layer) = parseRandomArguments(args)
             var pool = core1Challenges + core2Challenges + core3Challenges + mantleChallenges
 
             if let topic = topic {
@@ -708,6 +816,9 @@ struct Forge {
             }
             if let tier = tier {
                 pool = pool.filter { $0.tier == tier }
+            }
+            if let layer = layer {
+                pool = pool.filter { $0.layer == layer }
             }
 
             if pool.isEmpty {
@@ -730,12 +841,42 @@ struct Forge {
             clearWorkspaceContents(at: projectWorkspace)
             clearWorkspaceContents(at: practiceWorkspace)
             guard CommandLine.arguments.count > 2 else {
-                print("Usage: swift run forge project <id>")
+                printProjectUsage()
                 return
             }
-            let projectId = CommandLine.arguments[2].lowercased()
+            let projectCommand = CommandLine.arguments[2].lowercased()
+            if ["--help", "-h", "help"].contains(projectCommand) {
+                printProjectUsage()
+                return
+            }
+            if ["--list", "-l", "list"].contains(projectCommand) {
+                let args = Array(CommandLine.arguments.dropFirst(3))
+                let (tier, layer) = parseProjectListArguments(args)
+                printProjectList(projects, tier: tier, layer: layer)
+                return
+            }
+            if ["--random", "-r", "random"].contains(projectCommand) {
+                let args = Array(CommandLine.arguments.dropFirst(3))
+                let (tier, layer) = parseProjectRandomArguments(args)
+                guard let project = pickRandomProject(projects, tier: tier, layer: layer) else {
+                    print("No projects match those filters.")
+                    return
+                }
+                clearScreen()
+                print("Project mode: \(project.title)")
+                print("Workspace: \(projectWorkspace)\n")
+                let completed = runProject(project, workspacePath: projectWorkspace)
+                print("Press Enter to finish.\n")
+                _ = readLine()
+                if completed {
+                    try? FileManager.default.removeItem(atPath: "\(projectWorkspace)/\(project.filename)")
+                }
+                return
+            }
+            let projectId = projectCommand
             guard let project = projects.first(where: { $0.id.lowercased() == projectId }) else {
                 print("Unknown project id: \(projectId)")
+                print("Try: swift run forge project --help")
                 return
             }
             clearScreen()

@@ -12,13 +12,25 @@ enum ChallengeTopic: String {
 }
 
 enum ChallengeTier: String {
-    case core
+    case mainline
     case extra
 }
 
-enum ProjectTier: String {
+enum ChallengeLayer: String {
     case core
+    case mantle
+    case crust
+}
+
+enum ProjectTier: String {
+    case mainline
     case extra
+}
+
+enum ProjectLayer: String {
+    case core
+    case mantle
+    case crust
 }
 
 // Centralized challenge definitions for the CLI flow.
@@ -34,6 +46,7 @@ struct Challenge {
     let manualCheck: Bool
     let topic: ChallengeTopic
     let tier: ChallengeTier
+    let layer: ChallengeLayer
 
     init(
         number: Int,
@@ -46,7 +59,8 @@ struct Challenge {
         solution: String = "",
         manualCheck: Bool = false,
         topic: ChallengeTopic = .general,
-        tier: ChallengeTier = .core
+        tier: ChallengeTier = .mainline,
+        layer: ChallengeLayer = .core
     ) {
         self.number = number
         self.title = title
@@ -59,10 +73,28 @@ struct Challenge {
         self.manualCheck = manualCheck
         self.topic = topic
         self.tier = tier
+        self.layer = layer
     }
 
     var filename: String {
         return "challenge\(number).swift"
+    }
+
+    func withLayer(_ layer: ChallengeLayer) -> Challenge {
+        return Challenge(
+            number: number,
+            title: title,
+            description: description,
+            starterCode: starterCode,
+            expectedOutput: expectedOutput,
+            hints: hints,
+            cheatsheet: cheatsheet,
+            solution: solution,
+            manualCheck: manualCheck,
+            topic: topic,
+            tier: tier,
+            layer: layer
+        )
     }
 }
 
@@ -79,6 +111,7 @@ struct Project {
     let cheatsheet: String
     let solution: String
     let tier: ProjectTier
+    let layer: ProjectLayer
 
     init(
         id: String,
@@ -92,7 +125,8 @@ struct Project {
         hints: [String] = [],
         cheatsheet: String = "",
         solution: String = "",
-        tier: ProjectTier = .core
+        tier: ProjectTier = .mainline,
+        layer: ProjectLayer = .core
     ) {
         self.id = id
         self.pass = pass
@@ -106,6 +140,7 @@ struct Project {
         self.cheatsheet = cheatsheet
         self.solution = solution
         self.tier = tier
+        self.layer = layer
     }
 
     var filename: String {
@@ -4075,7 +4110,7 @@ for index in 0..<metals.count {
 }
 
 func makeMantleChallenges() -> [Challenge] {
-    return [
+    let challenges = [
         Challenge(
             number: 121,
             title: "Struct Basics",
@@ -5784,6 +5819,7 @@ printer()
             tier: .extra
         ),
     ]
+    return challenges.map { $0.withLayer(.mantle) }
 }
 
 func makeProjects() -> [Project] {
@@ -5832,7 +5868,7 @@ func celsiusToFahrenheit(celsius: Int) -> Int {
     return (celsius * 9) / 5 + 32
 }
 """,
-            tier: .core
+            tier: .mainline
         ),
         Project(
             id: "core1b",
@@ -5996,7 +6032,7 @@ func analyzeTemperatures(temperatures: [Int]) -> (min: Int, max: Int, average: I
     return (min: minTemp, max: maxTemp, average: average, overheatCount: overheat)
 }
 """,
-            tier: .core
+            tier: .mainline
         ),
         Project(
             id: "core2b",
@@ -6226,7 +6262,7 @@ func interpretForgeLogs(lines: [String]) -> (validCount: Int, averageTemp: Int, 
     return (validCount: temps.count, averageTemp: average, overheatEvents: overheat, errors: errors)
 }
 """#,
-            tier: .core
+            tier: .mainline
         ),
         Project(
             id: "core3b",
@@ -6424,7 +6460,8 @@ struct InventoryItem {
     }
 }
 """,
-            tier: .core
+            tier: .mainline,
+            layer: .mantle
         ),
         Project(
             id: "mantle1b",
@@ -6488,7 +6525,8 @@ struct Worker {
     }
 }
 """,
-            tier: .extra
+            tier: .extra,
+            layer: .mantle
         ),
         Project(
             id: "mantle1c",
@@ -6536,7 +6574,8 @@ class Controller {
     }
 }
 """,
-            tier: .extra
+            tier: .extra,
+            layer: .mantle
         ),
         Project(
             id: "mantle2a",
@@ -6602,7 +6641,8 @@ struct Sensor: Inspectable {
     let status: String
 }
 """,
-            tier: .core
+            tier: .mainline,
+            layer: .mantle
         ),
         Project(
             id: "mantle2b",
@@ -6668,7 +6708,8 @@ struct Sensor: Inspectable {
     let status: String
 }
 """,
-            tier: .extra
+            tier: .extra,
+            layer: .mantle
         ),
         Project(
             id: "mantle2c",
@@ -6727,7 +6768,8 @@ struct Heater {
     }
 }
 """,
-            tier: .extra
+            tier: .extra,
+            layer: .mantle
         ),
         Project(
             id: "mantle3a",
@@ -6803,7 +6845,8 @@ class Worker: Named {
     }
 }
 """,
-            tier: .core
+            tier: .mainline,
+            layer: .mantle
         ),
         Project(
             id: "mantle3b",
@@ -6857,7 +6900,8 @@ struct Stack<T> {
     }
 }
 """,
-            tier: .extra
+            tier: .extra,
+            layer: .mantle
         ),
         Project(
             id: "mantle3c",
@@ -6922,7 +6966,8 @@ func isEqual<T: Equatable>(_ first: T, _ second: T) -> Bool {
     return first == second
 }
 """,
-            tier: .extra
+            tier: .extra,
+            layer: .mantle
         ),
     ]
 }

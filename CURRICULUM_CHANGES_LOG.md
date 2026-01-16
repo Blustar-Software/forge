@@ -96,3 +96,7 @@
 ## 2026-01-13 (Mantle Extra Challenges)
 - Added 18 Mantle extra challenges (154–171) spanning structs/properties, protocols/extensions/errors, and generics/ARC.
 - Expanded total challenges to 1–171.
+
+## 2026-01-16 (Status)
+- Core + Mantle challenges and projects are implemented and wired into the CLI.
+- Crust layer is planned but not yet built.

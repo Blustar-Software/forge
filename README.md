@@ -55,7 +55,9 @@ core2a
 ## Random mode
 - Run `swift run forge random` to practice a random set (default 5).
 - Optional: add a count (e.g., `swift run forge random 10`).
-- Optional: filter by topic (`conditionals`, `loops`, `optionals`, `collections`, `functions`, `strings`, `structs`, `general`) or tier (`core`, `extra`).
+- Optional: filter by topic (`conditionals`, `loops`, `optionals`, `collections`, `functions`, `strings`, `structs`, `general`).
+- Optional: filter by tier (`mainline`, `extra`) and/or layer (`core`, `mantle`, `crust`).
+- Add `--help` to print the random-mode filter list.
 - Extra challenges (`tier: extra`) are intended for random practice and are not part of the main progression.
 - Random mode uses `workspace_random/` so it does not overwrite your main `workspace/`.
 - Examples:
@@ -63,12 +65,30 @@ core2a
   - `swift run forge random conditionals`
   - `swift run forge random extra`
   - `swift run forge random 6 loops extra`
-  - `swift run forge random 12 core`
+  - `swift run forge random 12 mainline`
+  - `swift run forge random 10 mantle`
+  - `swift run forge random --help`
 
 ## Project mode
 - Run `swift run forge project <id>` to launch a specific project (example: `swift run forge project core2b`).
+- Use `swift run forge project --list` to list projects; add tier/layer filters as needed.
+- Use `swift run forge project --random` to pick a random project; add tier/layer filters as needed.
+- Add `--help` to print project-mode usage and filters.
 - When the project passes, its generated file is deleted from `workspace_projects/`.
 - Project mode uses `workspace_projects/` so it does not overwrite your main `workspace/`.
+
+Project tiers: `mainline`, `extra`  
+Project layers: `core`, `mantle`, `crust`
+
+Examples:
+```
+swift run forge project --list
+swift run forge project --list extra
+swift run forge project --list mantle
+swift run forge project --random
+swift run forge project --random extra mantle
+swift run forge project --help
+```
 
 ## Build
 ```sh

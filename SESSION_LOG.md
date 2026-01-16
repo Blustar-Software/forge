@@ -9,6 +9,8 @@
 - Docs updated: `README.md` includes run/reset + learning overview; `AGENTS.md` includes structure + commands; `ROADMAP.md` added.
 - Challenges and projects now support stored hints and solutions.
 - Cheatsheets are available via `c`, with shared topic blocks and project-specific blocks.
+- Core + Mantle content are implemented; Crust content is not yet built.
+- FTS standards have not yet been applied across the curriculum or engine.
 
 ## Recent Changes
 - Rebuilt Core 1 to explicitly cover type inference and make arithmetic, compound assignment, comparison, and logical operators exhaustive.
@@ -66,7 +68,21 @@
 - Added Mantle extra challenges (154–171) across structs/properties, protocols/extensions/errors, and generics/ARC.
 - Ran `scripts/check.sh`; build and tests passed.
 - Mantle extra sequencing pass: no ordering issues found in challenges 154–171.
+- Documented the current implemented curriculum in `System Design Docs/04. Curriculum (Current).md`.
+- Added random-mode topic list to `System Design Docs/04. Curriculum (Current).md`.
+- Updated random mode filters to use tier (`mainline`/`extra`) and layer (`core`/`mantle`/`crust`).
+- Added `random --help` output with topics/tiers/layers and updated docs.
+- Renamed project tier to `mainline`/`extra` and added project layer (`core`/`mantle`/`crust`) for clarity.
+- Added `project --list` with tier/layer filters and documented project tiers/layers.
+- Added `project --random` support with tier/layer filters and documented usage.
+- Documented `project --help` usage in repo docs.
+- Added a `project --help` hint when an unknown project id is provided.
 
 ## Notes
 - Core 2 project `core2a` requires tuple usage; tuples are now taught in Core 2.
 - Test runs may require elevated permissions for SwiftPM cache access in sandboxed environments.
+
+## Road Ahead
+- Crust: add Crust challenge + project layer, then extras; run sequencing, quality, and overall assessments.
+- FTS: apply standards across content/engine and audit for robustness.
+- Extras: consider a full curriculum lesson database for deeper, self-contained learning.
