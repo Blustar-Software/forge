@@ -1,7 +1,7 @@
 # Session Log
 
 ## Current State
-- Forge is a SwiftPM CLI with challenges defined in `Sources/forge/Challenges.swift` (now 1–88).
+- Forge is a SwiftPM CLI with challenges defined in `Sources/forge/Challenges.swift` (now 1–120).
 - Challenge headers live inside each `starterCode`; the CLI no longer prepends headers when writing files.
 - Output validation trims whitespace/newlines before comparison.
 - Challenge and project checks are triggered manually by pressing Enter.
@@ -35,10 +35,13 @@
 - Removed Structs from Core 3 to align with the roadmap; renumbered subsequent challenges.
 - Ran `scripts/check.sh`; build and tests passed.
 - Rewrote all challenge and project hints to be more actionable and less redundant.
-- Updated hints for challenges 1–30 to per-block guidance and regenerated hints for challenges 31–88 and projects from solution blocks.
+- Updated hints for challenges 1–30 to per-block guidance and regenerated hints for challenges 31–120 and projects from solution blocks.
+- Moved tuple-return coverage into Core 2 (Challenge 40) and renumbered Core 3 to 41–78.
 - Added challenge topics/tiers plus a `random` mode for practice sets; extras are tagged for variety.
 - Added extra projects per core level (core1b/core1c, core2b/core2c, core3b/core3c) and kept them out of the default flow.
 - Rewrote Core 1–3 challenge hints and Core 1–3 project hints to adhere to the hint rules.
+- Expanded extra Core practice with 20 new challenges (89–108) across conditionals, loops, collections, functions, and optionals.
+- Added 12 extra challenges (109–120) for strings, comparisons, and ranges practice.
 
 ## Notes
 - Core 2 project `core2a` requires tuple usage; tuples are now taught in Core 2.

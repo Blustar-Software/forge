@@ -12,7 +12,7 @@ Edit the generated file in `workspace/`, then press Enter to check. Use `h` for 
 - Generates a challenge file in `workspace/` and waits for you to press Enter to check.
 - Runs your edited Swift file and compares its output to the expected answer.
 - Tracks progress in `workspace/.progress` so you can resume later.
-- Current curriculum includes Challenges 1–88 in `Sources/forge/Challenges.swift`.
+- Current curriculum includes Challenges 1–120 in `Sources/forge/Challenges.swift`.
 
 ## What you’ll learn
 - Early challenges cover comments, constants, variables, and basic math.

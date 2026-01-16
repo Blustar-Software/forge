@@ -806,11 +806,11 @@ print(notReady)
             ],
             cheatsheet: cheatsheetFunctionsBasics,
             solution: #"""
-func announce(_ message: String) {
+func announce(message: String) {
     print(message)
 }
 
-announce("Forge")
+announce(message: "Forge")
 """#,
             topic: .functions,
 
@@ -866,11 +866,11 @@ mix(metal: "Iron", weight: 3)
             ],
             cheatsheet: cheatsheetFunctionsBasics,
             solution: """
-func addHeat(_ value: Int) -> Int {
+func addHeat(value: Int) -> Int {
     return value + 200
 }
 
-let result = addHeat(1300)
+let result = addHeat(value: 1300)
 print(result)
 """,
             topic: .functions,
@@ -899,11 +899,11 @@ print(result)
             solution: #"""
 var hammerHits = 2
 
-func totalHits(_ hits: Int) -> Int {
+func totalHits(hits: Int) -> Int {
     return hits * 3
 }
 
-let result = totalHits(hammerHits)
+let result = totalHits(hits: hammerHits)
 print("Total hits: \(result)")
 """#,
             topic: .general,
@@ -1307,7 +1307,7 @@ print(total)
         Challenge(
             number: 31,
             title: "Metrics Practice",
-            description: "Practice loop-based stats on a small data set",
+            description: "Practice loop-based stats on a small data set (mini Core 2 Project A)",
             starterCode: """
                 // Challenge 31: Metrics Practice
                 // Practice min/max/average counting in a loop.
@@ -1476,10 +1476,51 @@ print("Average: \(report.average)")
         ),
         Challenge(
             number: 36,
+            title: "Tuple Returns",
+            description: "Return multiple values from a function (Core 2 Project A pattern)",
+            starterCode: """
+                // Challenge 36: Tuple Returns
+                // Return min and max from a function.
+
+                let temps = [3, 5, 2, 6]
+
+                // TODO: Write a function minMax(values:) that returns (min: Int, max: Int)
+                // TODO: Call it and print:
+                // "Min: 2"
+                // "Max: 6"
+                """,
+            expectedOutput: "Min: 2\nMax: 6",
+            hints: [
+                "Initialize min/max from the first element.",
+                "Update them while iterating the array.",
+                "Named tuple fields allow access by name.",
+            ],
+            cheatsheet: cheatsheetTuples,
+            solution: """
+func minMax(values: [Int]) -> (min: Int, max: Int) {
+    var minValue = values[0]
+    var maxValue = values[0]
+
+    for value in values {
+        if value < minValue { minValue = value }
+        if value > maxValue { maxValue = value }
+    }
+
+    return (min: minValue, max: maxValue)
+}
+
+let report = minMax(values: temps)
+print(\"Min: \\(report.min)\")
+print(\"Max: \\(report.max)\")
+""",
+            topic: .functions
+        ),
+        Challenge(
+            number: 37,
             title: "Optionals",
             description: "Handle missing values safely",
             starterCode: """
-                // Challenge 36: Optionals
+                // Challenge 37: Optionals
                 // Avoid force-unwrapping with !
 
                 let heatLevel: Int? = 1200
@@ -1504,11 +1545,11 @@ if let level = heatLevel {
 
         ),
         Challenge(
-            number: 37,
+            number: 38,
             title: "Optional Binding",
             description: "Unwrap optionals with if let",
             starterCode: """
-                // Challenge 37: Optional Binding
+                // Challenge 38: Optional Binding
                 // Unwrap multiple optionals
 
                 let smithName: String? = "Forge"
@@ -1532,14 +1573,14 @@ if let smithName = smithName, let metal = metal {
 
         ),
         Challenge(
-            number: 38,
+            number: 39,
             title: "Guard Let",
             description: "Exit early when data is missing",
             starterCode: """
-                // Challenge 38: Guard Let
+                // Challenge 39: Guard Let
                 // Print a heat value if it exists
 
-                func printHeat(_ value: Int?) {
+                func printHeat(value: Int?) {
                     // TODO: Use guard let to unwrap value
                     // Print "No heat" if value is nil
                     // Otherwise print the unwrapped value
@@ -1554,7 +1595,7 @@ if let smithName = smithName, let metal = metal {
             ],
             cheatsheet: cheatsheetOptionals,
             solution: #"""
-func printHeat(_ value: Int?) {
+func printHeat(value: Int?) {
     guard let value = value else {
         print("No heat")
         return
@@ -1562,17 +1603,17 @@ func printHeat(_ value: Int?) {
     print(value)
 }
 
-printHeat(nil)
+printHeat(value: nil)
 """#,
             topic: .optionals,
 
         ),
         Challenge(
-            number: 39,
+            number: 40,
             title: "Nil Coalescing",
             description: "Provide a fallback value",
             starterCode: """
-                // Challenge 39: Nil Coalescing
+                // Challenge 40: Nil Coalescing
                 // Use ?? to provide a default
 
                 let optionalLevel: Int? = nil
@@ -1599,11 +1640,11 @@ print("Level \(level)")
 func makeCore3Challenges() -> [Challenge] {
     return [
         Challenge(
-            number: 40,
+            number: 41,
             title: "String Methods",
             description: "Inspect and transform strings",
             starterCode: """
-                // Challenge 40: String Methods
+                // Challenge 41: String Methods
                 // Use basic string properties and methods.
 
                 let phrase = "Forge Ready"
@@ -1627,11 +1668,11 @@ print(phrase.contains(\"Ready\"))
             topic: .strings
         ),
         Challenge(
-            number: 41,
+            number: 42,
             title: "Dictionary Iteration",
             description: "Loop through key-value pairs",
             starterCode: """
-                // Challenge 41: Dictionary Iteration
+                // Challenge 42: Dictionary Iteration
                 // Print inventory items in a stable order.
 
                 let inventory = ["Iron": 3, "Gold": 1]
@@ -1656,47 +1697,6 @@ for key in inventory.keys.sorted() {
             topic: .collections
         ),
         Challenge(
-            number: 42,
-            title: "Tuple Returns",
-            description: "Return multiple values from a function",
-            starterCode: """
-                // Challenge 42: Tuple Returns
-                // Return min and max from a function.
-
-                let temps = [3, 5, 2, 6]
-
-                // TODO: Write a function minMax(_:) that returns (min: Int, max: Int)
-                // TODO: Call it and print:
-                // "Min: 2"
-                // "Max: 6"
-                """,
-            expectedOutput: "Min: 2\nMax: 6",
-            hints: [
-                "Initialize min/max from the first element.",
-                "Update them while iterating the array.",
-                "Named tuple fields allow access by name.",
-            ],
-            cheatsheet: cheatsheetTuples,
-            solution: """
-func minMax(_ values: [Int]) -> (min: Int, max: Int) {
-    var minValue = values[0]
-    var maxValue = values[0]
-
-    for value in values {
-        if value < minValue { minValue = value }
-        if value > maxValue { maxValue = value }
-    }
-
-    return (min: minValue, max: maxValue)
-}
-
-let report = minMax(temps)
-print(\"Min: \\(report.min)\")
-print(\"Max: \\(report.max)\")
-""",
-            topic: .functions
-        ),
-        Challenge(
             number: 43,
             title: "Struct Basics",
             description: "Define and use a simple struct",
@@ -1716,8 +1716,8 @@ print(\"Max: \\(report.max)\")
                 """,
             expectedOutput: "Hammer durability: 4",
             hints: [
-                "Struct instances are mutated through var properties.",
-                "Dot syntax reads and writes properties.",
+                "Use dot syntax to decrease tool.durability by 1.",
+                "Use tool.name and tool.durability in the print statement.",
             ],
             cheatsheet: cheatsheetStructs,
             solution: """
@@ -1768,7 +1768,7 @@ forgeHeat(at: 1500)
                 // TODO: Create a function 'announce' that takes _ metal: String
                 // and prints "Metal: <metal>"
 
-                // TODO: Call announce with 'Iron' (no label)
+                // TODO: Call announce with "Iron" (no label)
                 """,
             expectedOutput: "Metal: Iron",
             hints: [
@@ -1799,8 +1799,8 @@ announce("Iron")
                 // - an intensity (Int) defaulting to 1
                 // Print "Striking <metal> with intensity <intensity>"
 
-                // TODO: Call strike with 'Iron'
-                // TODO: Call strike with 'Gold' and intensity 3
+                // TODO: Call strike with "Iron"
+                // TODO: Call strike with "Gold" and intensity 3
                 """,
             expectedOutput: "Striking Iron with intensity 1\nStriking Gold with intensity 3",
             hints: [
@@ -2197,7 +2197,6 @@ transform(6) { value in
             topic: .functions,
 
         ),
-
         Challenge(
             number: 60,
             title: "Capturing Values",
@@ -2343,7 +2342,6 @@ print(maxTemp)
             topic: .collections,
 
         ),
-
         Challenge(
             number: 65,
             title: "compactMap",
@@ -2394,8 +2392,6 @@ print(flat)
             topic: .collections,
 
         ),
-
-
         Challenge(
             number: 67,
             title: "typealias",
@@ -2422,7 +2418,6 @@ print(reading.temp)
             topic: .general,
 
         ),
-
         Challenge(
             number: 68,
             title: "Enums",
@@ -2837,13 +2832,14 @@ print(total)
                 let heatLevel = 3
                 let hasVentilation = true
 
-                // TODO: If heatLevel >= 3 AND hasVentilation, print "Safe"
+                // TODO: If 'heatLevel' >= 3 AND 'hasVentilation', print "Safe"
                 // Otherwise print "Unsafe"
                 """,
             expectedOutput: "Safe",
             hints: [
                 "Combine the two conditions with &&.",
             ],
+            cheatsheet: cheatsheetConditionals,
             solution: """
 if heatLevel >= 3 && hasVentilation {
     print("Safe")
@@ -2864,8 +2860,8 @@ if heatLevel >= 3 && hasVentilation {
 
                 let heatLevel = 1
 
-                // TODO: If heatLevel == 0, print "Off"
-                // TODO: Else if heatLevel <= 2, print "Warm"
+                // TODO: If 'heatLevel' == 0, print "Off"
+                // TODO: Else if 'heatLevel' <= 2, print "Warm"
                 // TODO: Else print "Hot"
                 """,
             expectedOutput: "Warm",
@@ -2874,6 +2870,7 @@ if heatLevel >= 3 && hasVentilation {
                 "Check for the exact zero case first.",
                 "The final branch covers unmatched values.",
             ],
+            cheatsheet: cheatsheetConditionals,
             solution: """
 if heatLevel == 0 {
     print("Off")
@@ -2897,9 +2894,9 @@ if heatLevel == 0 {
                 let numbers = [1, 2, 3, 4, 5, 6]
                 var count = 0
 
-                // TODO: Loop through numbers
-                // TODO: If a number is divisible by 3, increment count
-                // TODO: Print count
+                // TODO: Loop through 'numbers'
+                // TODO: If a number is divisible by 3, increment 'count'
+                // TODO: Print 'count'
                 """,
             expectedOutput: "2",
             hints: [
@@ -2907,6 +2904,7 @@ if heatLevel == 0 {
                 "Increment the counter when the condition is met.",
                 "Output the counter after the loop finishes.",
             ],
+            cheatsheet: cheatsheetLoops,
             solution: """
 for number in numbers {
     if number % 3 == 0 {
@@ -2930,9 +2928,9 @@ print(count)
                 let temps = [900, 1000, 1200, 1500]
                 var total = 0
 
-                // TODO: Loop through temps and add to total
-                // TODO: If total >= 2500, break
-                // TODO: Print total
+                // TODO: Loop through 'temps' and add to 'total'
+                // TODO: If 'total' >= 2500, break
+                // TODO: Print 'total'
                 """,
             expectedOutput: "3100",
             hints: [
@@ -2940,6 +2938,7 @@ print(count)
                 "Stop early once the total reaches the threshold.",
                 "Output the final total after the loop.",
             ],
+            cheatsheet: cheatsheetLoops,
             solution: """
 for temp in temps {
     total += temp
@@ -2963,7 +2962,7 @@ print(total)
 
                 let input = "1500"
 
-                // TODO: Convert input to an Int using if let
+                // TODO: Convert 'input' to an Int using if let
                 // TODO: Print "Temp: <value>"
                 // TODO: Otherwise print "Invalid"
                 """,
@@ -2973,6 +2972,7 @@ print(total)
                 "Optional binding handles success and failure paths.",
                 "The unwrapped value can be inserted into the success message.",
             ],
+            cheatsheet: cheatsheetOptionals,
             solution: """
 if let temp = Int(input) {
     print("Temp: \\(temp)")
@@ -2992,18 +2992,19 @@ if let temp = Int(input) {
                 // Use guard let to unwrap and convert.
 
                 func readTemp(_ value: String?) {
-                    // TODO: Use guard let to unwrap value and convert to Int
+                    // TODO: Use guard let to unwrap 'value' and convert to Int
                     // Print "Invalid" if conversion fails
                     // Otherwise print "Temp: <value>"
                 }
 
-                // TODO: Call readTemp with "abc"
+                // TODO: Call 'readTemp' with "abc"
                 """,
             expectedOutput: "Invalid",
             hints: [
                 "guard let unwraps optionals and exits early on failure.",
                 "Exit early after the fallback message.",
             ],
+            cheatsheet: cheatsheetOptionals,
             solution: """
 func readTemp(_ value: String?) {
     guard let value = value, let temp = Int(value) else {
@@ -3036,6 +3037,7 @@ readTemp("abc")
                 "Dictionary subscripts can provide a default value.",
                 "Update the stored count before printing.",
             ],
+            cheatsheet: cheatsheetDictionaries,
             solution: """
 inventory["Iron", default: 0] += 1
 print(inventory["Iron", default: 0])
@@ -3054,13 +3056,14 @@ print(inventory["Iron", default: 0])
                 var metals = ["Iron", "Gold", "Copper"]
 
                 // TODO: Remove "Gold"
-                // TODO: Print metals
+                // TODO: Print 'metals'
                 """,
             expectedOutput: #"["Iron", "Copper"]"#,
             hints: [
                 "Arrays remove elements by index.",
                 "Printing shows the updated array.",
             ],
+            cheatsheet: cheatsheetArrays,
             solution: """
 metals.remove(at: 1)
 print(metals)
@@ -3076,15 +3079,16 @@ print(metals)
                 // Challenge 87: Boolean Return
                 // Return a Bool from a function.
 
-                // TODO: Create a function isOverheated(temp:) -> Bool
-                // Return true when temp >= 1500
-                // TODO: Call it with 1600 and print the result
+                // TODO: Create a function 'isOverheated(temp:)' -> Bool
+                // Return true when 'temp' >= 1500
+                // TODO: Call 'isOverheated' with 1600, then print
                 """,
             expectedOutput: "true",
             hints: [
                 "Comparisons yield Bool results.",
                 "A function call produces a value that can be shown.",
             ],
+            cheatsheet: cheatsheetFunctionsBasics,
             solution: """
 func isOverheated(temp: Int) -> Bool {
     return temp >= 1500
@@ -3103,9 +3107,9 @@ print(isOverheated(temp: 1600))
                 // Challenge 88: Helper Function
                 // Use a helper to build a message.
 
-                // TODO: Create a function label(temp:) -> String returning "T<temp>"
-                // TODO: Create a function printLabel(for:) that prints label(temp:)
-                // TODO: Call printLabel with 1200
+                // TODO: Create a function 'label(temp:)' -> String returning "T<temp>"
+                // TODO: Create a function 'printLabel(for:)' that prints 'label(temp:)'
+                // TODO: Call 'printLabel' with 1200
                 """,
             expectedOutput: "T1200",
             hints: [
@@ -3113,6 +3117,7 @@ print(isOverheated(temp: 1600))
                 "Build the label string in the helper.",
                 "Invoking the wrapper triggers the output.",
             ],
+            cheatsheet: cheatsheetFunctionsBasics,
             solution: """
 func label(temp: Int) -> String {
     return "T\\(temp)"
@@ -3125,6 +3130,844 @@ func printLabel(for temp: Int) {
 printLabel(for: 1200)
 """,
             topic: .functions,
+            tier: .extra
+        ),
+        Challenge(
+            number: 89,
+            title: "Fuel Warning",
+            description: "Branch on a Bool with if/else",
+            starterCode: """
+                // Challenge 89: Fuel Warning
+                // Use if/else with a Bool.
+
+                let hasFuel = false
+
+                // TODO: If 'hasFuel' is true, print "Fuel ready"
+                // TODO: Otherwise print "Refuel needed"
+                """,
+            expectedOutput: "Refuel needed",
+            hints: [
+                "An if/else chooses between two paths based on a Bool.",
+            ],
+            cheatsheet: cheatsheetConditionals,
+            solution: """
+if hasFuel {
+    print("Fuel ready")
+} else {
+    print("Refuel needed")
+}
+""",
+            topic: .conditionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 90,
+            title: "Override Switch",
+            description: "Combine conditions with ||",
+            starterCode: """
+                // Challenge 90: Override Switch
+                // Use || to allow either condition.
+
+                let hasFuel = false
+                let emergencyOverride = true
+
+                // TODO: If 'hasFuel' OR 'emergencyOverride', print "Ignite"
+                // TODO: Otherwise print "Hold"
+                """,
+            expectedOutput: "Ignite",
+            hints: [
+                "The || operator returns true if either side is true.",
+            ],
+            cheatsheet: cheatsheetConditionals,
+            solution: """
+if hasFuel || emergencyOverride {
+    print("Ignite")
+} else {
+    print("Hold")
+}
+""",
+            topic: .conditionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 91,
+            title: "Negation Drill",
+            description: "Use ! to invert a Bool",
+            starterCode: """
+                // Challenge 91: Negation Drill
+                // Use ! to flip a Bool condition.
+
+                let isCooling = false
+
+                // TODO: If NOT 'isCooling', print "Heating"
+                // TODO: Otherwise print "Cooling"
+                """,
+            expectedOutput: "Heating",
+            hints: [
+                "The ! operator flips a Bool from true to false (or false to true).",
+            ],
+            cheatsheet: cheatsheetConditionals,
+            solution: """
+if !isCooling {
+    print("Heating")
+} else {
+    print("Cooling")
+}
+""",
+            topic: .conditionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 92,
+            title: "Ternary Warm-up",
+            description: "Use the ternary operator",
+            starterCode: """
+                // Challenge 92: Ternary Warm-up
+                // Use ?: to choose a value.
+
+                let heatLevel = 2
+
+                // TODO: Use a ternary to set 'status' to "Hot" when 'heatLevel' >= 3, else "Warm"
+                // TODO: Print 'status'
+                """,
+            expectedOutput: "Warm",
+            hints: [
+                "Ternary format: condition ? valueIfTrue : valueIfFalse.",
+            ],
+            cheatsheet: cheatsheetConditionals,
+            solution: """
+let status = heatLevel >= 3 ? "Hot" : "Warm"
+print(status)
+""",
+            topic: .conditionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 93,
+            title: "Heat Steps",
+            description: "Loop over a range with for-in",
+            starterCode: """
+                // Challenge 93: Heat Steps
+                // Use a for-in loop over a range.
+
+                let steps = 3
+
+                // TODO: Loop from 1 to 'steps' inclusive
+                // TODO: Print "Step <n>" each time
+                """,
+            expectedOutput: "Step 1\nStep 2\nStep 3",
+            hints: [
+                "A closed range uses 1...steps.",
+                "String interpolation can include the loop value.",
+            ],
+            cheatsheet: cheatsheetLoops,
+            solution: """
+for step in 1...steps {
+    print("Step \\(step)")
+}
+""",
+            topic: .loops,
+            tier: .extra
+        ),
+        Challenge(
+            number: 94,
+            title: "Cooldown Countdown",
+            description: "Use a while loop to count down",
+            starterCode: """
+                // Challenge 94: Cooldown Countdown
+                // Use a while loop to count down.
+
+                var level = 3
+
+                // TODO: While 'level' is greater than 0, print 'level' and subtract 1
+                """,
+            expectedOutput: "3\n2\n1",
+            hints: [
+                "Update the loop variable so the loop can end.",
+            ],
+            cheatsheet: cheatsheetLoops,
+            solution: """
+while level > 0 {
+    print(level)
+    level -= 1
+}
+""",
+            topic: .loops,
+            tier: .extra
+        ),
+        Challenge(
+            number: 95,
+            title: "Repeat Ignite",
+            description: "Use repeat-while for at least one run",
+            starterCode: """
+                // Challenge 95: Repeat Ignite
+                // Use repeat-while to run at least once.
+
+                var attempts = 0
+
+                // TODO: Use repeat-while to print "Attempt <n>" twice
+                """,
+            expectedOutput: "Attempt 1\nAttempt 2",
+            hints: [
+                "Increment inside the loop before printing.",
+                "The condition should keep going until attempts reaches 2.",
+            ],
+            cheatsheet: cheatsheetLoops,
+            solution: """
+repeat {
+    attempts += 1
+    print("Attempt \\(attempts)")
+} while attempts < 2
+""",
+            topic: .loops,
+            tier: .extra
+        ),
+        Challenge(
+            number: 96,
+            title: "Skip Weak Ore",
+            description: "Use continue and break",
+            starterCode: """
+                // Challenge 96: Skip Weak Ore
+                // Use continue and break.
+
+                let strengths = [1, 2, 0, 3]
+                var processed = 0
+
+                // TODO: Loop through 'strengths'
+                // TODO: Skip values that are 0
+                // TODO: Count 'processed' values
+                // TODO: Stop after processing 2 values
+                // TODO: Print 'processed'
+                """,
+            expectedOutput: "2",
+            hints: [
+                "Use continue to skip zeros and break after two valid values.",
+            ],
+            cheatsheet: cheatsheetLoops,
+            solution: """
+for strength in strengths {
+    if strength == 0 {
+        continue
+    }
+    processed += 1
+    if processed == 2 {
+        break
+    }
+}
+
+print(processed)
+""",
+            topic: .loops,
+            tier: .extra
+        ),
+        Challenge(
+            number: 97,
+            title: "Stock Count",
+            description: "Append to an array and count it",
+            starterCode: """
+                // Challenge 97: Stock Count
+                // Use append and count.
+
+                var metals = ["Iron"]
+
+                // TODO: Append "Gold" to 'metals'
+                // TODO: Print the count of 'metals'
+                """,
+            expectedOutput: "2",
+            hints: [
+                "append adds one value to the end of an array.",
+            ],
+            cheatsheet: cheatsheetArrays,
+            solution: """
+metals.append("Gold")
+print(metals.count)
+""",
+            topic: .collections,
+            tier: .extra
+        ),
+        Challenge(
+            number: 98,
+            title: "First Ore",
+            description: "Use first with a default value",
+            starterCode: """
+                // Challenge 98: First Ore
+                // Access the first element safely.
+
+                let metals = ["Iron", "Gold"]
+
+                // TODO: Set 'firstMetal' to 'metals.first' with a default "None"
+                // TODO: Print 'firstMetal'
+                """,
+            expectedOutput: "Iron",
+            hints: [
+                "first returns an optional, so use ?? for a default.",
+            ],
+            cheatsheet: cheatsheetArrays,
+            solution: """
+let firstMetal = metals.first ?? "None"
+print(firstMetal)
+""",
+            topic: .collections,
+            tier: .extra
+        ),
+        Challenge(
+            number: 99,
+            title: "Unique Ingots",
+            description: "Insert and check a set",
+            starterCode: """
+                // Challenge 99: Unique Ingots
+                // Use a set to track unique values.
+
+                var ingots: Set<String> = ["Iron"]
+
+                // TODO: Insert "Iron" and "Gold" into 'ingots'
+                // TODO: Print whether the set contains "Gold"
+                """,
+            expectedOutput: "true",
+            hints: [
+                "Inserting a duplicate does not change a set.",
+            ],
+            cheatsheet: cheatsheetSets,
+            solution: """
+ingots.insert("Iron")
+ingots.insert("Gold")
+print(ingots.contains("Gold"))
+""",
+            topic: .collections,
+            tier: .extra
+        ),
+        Challenge(
+            number: 100,
+            title: "Fuel Ledger",
+            description: "Update dictionary values and count keys",
+            starterCode: """
+                // Challenge 100: Fuel Ledger
+                // Update values in a dictionary.
+
+                var fuel = ["Coal": 2]
+
+                // TODO: Increase 'Coal' by 1 using a default value
+                // TODO: Add "Charcoal" with a value of 0
+                // TODO: Print 'fuel.keys.count'
+                """,
+            expectedOutput: "2",
+            hints: [
+                "Use dictionary subscripts with default to increment safely.",
+            ],
+            cheatsheet: cheatsheetDictionaries,
+            solution: """
+fuel["Coal", default: 0] += 1
+fuel["Charcoal"] = 0
+print(fuel.keys.count)
+""",
+            topic: .collections,
+            tier: .extra
+        ),
+        Challenge(
+            number: 101,
+            title: "Iterate Ores",
+            description: "Build labels while iterating an array",
+            starterCode: """
+                // Challenge 101: Iterate Ores
+                // Build a new array while iterating.
+
+                let ores = ["Iron", "Gold"]
+                var labels: [String] = []
+
+                // TODO: Loop through 'ores' and append "Ore: <name>" to 'labels'
+                // TODO: Print 'labels'
+                """,
+            expectedOutput: #"["Ore: Iron", "Ore: Gold"]"#,
+            hints: [
+                "Use string interpolation to build each label.",
+            ],
+            cheatsheet: cheatsheetArrays,
+            solution: """
+for ore in ores {
+    labels.append("Ore: \\(ore)")
+}
+
+print(labels)
+""",
+            topic: .collections,
+            tier: .extra
+        ),
+        Challenge(
+            number: 102,
+            title: "Iterate Ledger",
+            description: "Sum dictionary values",
+            starterCode: """
+                // Challenge 102: Iterate Ledger
+                // Sum values in a dictionary.
+
+                let ledger = ["Iron": 2, "Gold": 1]
+                var total = 0
+
+                // TODO: Loop through 'ledger' and add each count to 'total'
+                // TODO: Print 'total'
+                """,
+            expectedOutput: "3",
+            hints: [
+                "Dictionary iteration gives key/value pairs.",
+            ],
+            cheatsheet: cheatsheetDictionaries,
+            solution: """
+for (_, count) in ledger {
+    total += count
+}
+
+print(total)
+""",
+            topic: .collections,
+            tier: .extra
+        ),
+        Challenge(
+            number: 103,
+            title: "Announce Heat",
+            description: "Define a function with one parameter",
+            starterCode: """
+                // Challenge 103: Announce Heat
+                // Define a function with one parameter.
+
+                // TODO: Create a function 'announceHeat' that takes an Int 'level'
+                // TODO: Inside, print "Heat: <level>"
+                // TODO: Call 'announceHeat' with 1500
+                """,
+            expectedOutput: "Heat: 1500",
+            hints: [
+                "Use an Int parameter and print with interpolation.",
+            ],
+            cheatsheet: cheatsheetFunctionsBasics,
+            solution: """
+func announceHeat(level: Int) {
+    print("Heat: \\(level)")
+}
+
+announceHeat(level: 1500)
+""",
+            topic: .functions,
+            tier: .extra
+        ),
+        Challenge(
+            number: 104,
+            title: "Combine Alloy",
+            description: "Define a function with two parameters",
+            starterCode: """
+                // Challenge 104: Combine Alloy
+                // Define a function with two parameters.
+
+                // TODO: Create a function 'combine' that takes 'metal' and 'additive' (String)
+                // TODO: Print "<metal> + <additive>"
+                // TODO: Call 'combine' with "Iron" and "Carbon"
+                """,
+            expectedOutput: "Iron + Carbon",
+            hints: [
+                "Use two String parameters and print them in one line.",
+            ],
+            cheatsheet: cheatsheetFunctionsBasics,
+            solution: """
+func combine(metal: String, additive: String) {
+    print("\\(metal) + \\(additive)")
+}
+
+combine(metal: "Iron", additive: "Carbon")
+""",
+            topic: .functions,
+            tier: .extra
+        ),
+        Challenge(
+            number: 105,
+            title: "Return Weight",
+            description: "Return a value from a function",
+            starterCode: """
+                // Challenge 105: Return Weight
+                // Return an Int from a function.
+
+                // TODO: Create a function 'totalWeight' that returns 'ingots' * 'weightPerIngot'
+                // TODO: Call 'totalWeight' with 3 and 5, then print
+                """,
+            expectedOutput: "15",
+            hints: [
+                "Return the computed value and print the function call.",
+            ],
+            cheatsheet: cheatsheetFunctionsBasics,
+            solution: """
+func totalWeight(ingots: Int, weightPerIngot: Int) -> Int {
+    return ingots * weightPerIngot
+}
+
+print(totalWeight(ingots: 3, weightPerIngot: 5))
+""",
+            topic: .functions,
+            tier: .extra
+        ),
+        Challenge(
+            number: 106,
+            title: "Label Maker",
+            description: "Use a function that returns a String",
+            starterCode: """
+                // Challenge 106: Label Maker
+                // Return a String from a function.
+
+                // TODO: Create a function 'makeLabel' that returns "Batch-<id>"
+                // TODO: Print 'makeLabel(id: 7)'
+                """,
+            expectedOutput: "Batch-7",
+            hints: [
+                "Return a string built with interpolation.",
+            ],
+            cheatsheet: cheatsheetFunctionsBasics,
+            solution: """
+func makeLabel(id: Int) -> String {
+    return "Batch-\\(id)"
+}
+
+print(makeLabel(id: 7))
+""",
+            topic: .functions,
+            tier: .extra
+        ),
+        Challenge(
+            number: 107,
+            title: "Coalesce Default",
+            description: "Use ?? with an optional",
+            starterCode: """
+                // Challenge 107: Coalesce Default
+                // Provide a default with ??.
+
+                let reading: Int? = nil
+
+                // TODO: Use ?? to set 'value' to 1200 if 'reading' is nil
+                // TODO: Print 'value'
+                """,
+            expectedOutput: "1200",
+            hints: [
+                "Nil coalescing picks the right-hand default when the optional is nil.",
+            ],
+            cheatsheet: cheatsheetOptionals,
+            solution: """
+let value = reading ?? 1200
+print(value)
+""",
+            topic: .optionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 108,
+            title: "Optional Bool Check",
+            description: "Unwrap an optional Bool",
+            starterCode: """
+                // Challenge 108: Optional Bool Check
+                // Use if let with an optional Bool.
+
+                let isReady: Bool? = nil
+
+                // TODO: If 'isReady' has a value, print "Ready: <value>"
+                // TODO: Otherwise print "Unknown"
+                """,
+            expectedOutput: "Unknown",
+            hints: [
+                "Use if let to unwrap and handle the else case.",
+            ],
+            cheatsheet: cheatsheetOptionals,
+            solution: """
+if let ready = isReady {
+    print("Ready: \\(ready)")
+} else {
+    print("Unknown")
+}
+""",
+            topic: .optionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 109,
+            title: "String Count",
+            description: "Use count on a String",
+            starterCode: """
+                // Challenge 109: String Count
+                // Use count on a String.
+
+                let alloyName = "Iron"
+
+                // TODO: Print 'alloyName.count'
+                """,
+            expectedOutput: "4",
+            hints: [
+                "count returns the number of characters in a String.",
+            ],
+            cheatsheet: cheatsheetStrings,
+            solution: """
+print(alloyName.count)
+""",
+            topic: .strings,
+            tier: .extra
+        ),
+        Challenge(
+            number: 110,
+            title: "String Contains",
+            description: "Check if a String contains text",
+            starterCode: """
+                // Challenge 110: String Contains
+                // Use contains to search.
+
+                let label = "Gold Ingot"
+
+                // TODO: Print whether 'label' contains "Gold"
+                """,
+            expectedOutput: "true",
+            hints: [
+                "contains returns a Bool.",
+            ],
+            cheatsheet: cheatsheetStrings,
+            solution: """
+print(label.contains("Gold"))
+""",
+            topic: .strings,
+            tier: .extra
+        ),
+        Challenge(
+            number: 111,
+            title: "Case Shift",
+            description: "Uppercase a String",
+            starterCode: """
+                // Challenge 111: Case Shift
+                // Use uppercased().
+
+                let code = "Forge"
+
+                // TODO: Print 'code.uppercased()'
+                """,
+            expectedOutput: "FORGE",
+            hints: [
+                "uppercased returns a new String.",
+            ],
+            cheatsheet: cheatsheetStrings,
+            solution: """
+print(code.uppercased())
+""",
+            topic: .strings,
+            tier: .extra
+        ),
+        Challenge(
+            number: 112,
+            title: "Prefix Check",
+            description: "Check a String prefix",
+            starterCode: """
+                // Challenge 112: Prefix Check
+                // Use hasPrefix.
+
+                let line = "TEMP 1500"
+
+                // TODO: Print whether 'line' has prefix "TEMP"
+                """,
+            expectedOutput: "true",
+            hints: [
+                "hasPrefix returns a Bool.",
+            ],
+            cheatsheet: cheatsheetStrings,
+            solution: """
+print(line.hasPrefix("TEMP"))
+""",
+            topic: .strings,
+            tier: .extra
+        ),
+        Challenge(
+            number: 113,
+            title: "Suffix Check",
+            description: "Check a String suffix",
+            starterCode: """
+                // Challenge 113: Suffix Check
+                // Use hasSuffix.
+
+                let line = "ALLOY-IRON"
+
+                // TODO: Print whether 'line' has suffix "IRON"
+                """,
+            expectedOutput: "true",
+            hints: [
+                "hasSuffix returns a Bool.",
+            ],
+            cheatsheet: cheatsheetStrings,
+            solution: """
+print(line.hasSuffix("IRON"))
+""",
+            topic: .strings,
+            tier: .extra
+        ),
+        Challenge(
+            number: 114,
+            title: "Split Words",
+            description: "Split a String and count parts",
+            starterCode: """
+                // Challenge 114: Split Words
+                // Split a String into parts.
+
+                let report = "TEMP 1500"
+
+                // TODO: Split 'report' on spaces and output the count
+                """,
+            expectedOutput: "2",
+            hints: [
+                "split returns an array of substrings.",
+            ],
+            cheatsheet: cheatsheetStrings,
+            solution: """
+let parts = report.split(separator: " ")
+print(parts.count)
+""",
+            topic: .strings,
+            tier: .extra
+        ),
+        Challenge(
+            number: 115,
+            title: "Heat Comparison",
+            description: "Use a comparison operator",
+            starterCode: """
+                // Challenge 115: Heat Comparison
+                // Compare numeric values.
+
+                let heatLevel = 1600
+
+                // TODO: Print whether 'heatLevel' >= 1500
+                """,
+            expectedOutput: "true",
+            hints: [
+                "Comparisons return Bool values.",
+            ],
+            cheatsheet: cheatsheetConditionals,
+            solution: """
+print(heatLevel >= 1500)
+""",
+            topic: .conditionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 116,
+            title: "Not Equal Check",
+            description: "Compare two Strings",
+            starterCode: """
+                // Challenge 116: Not Equal Check
+                // Use != with Strings.
+
+                let a = "Iron"
+                let b = "Gold"
+
+                // TODO: Print whether 'a' != 'b'
+                """,
+            expectedOutput: "true",
+            hints: [
+                "Strings can be compared with == and !=.",
+            ],
+            cheatsheet: cheatsheetConditionals,
+            solution: """
+print(a != b)
+""",
+            topic: .conditionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 117,
+            title: "Lower Than",
+            description: "Use < with Ints",
+            starterCode: """
+                // Challenge 117: Lower Than
+                // Use < with Ints.
+
+                let temp = 1400
+
+                // TODO: Print whether 'temp' < 1500
+                """,
+            expectedOutput: "true",
+            hints: [
+                "The < operator checks if a value is less than another.",
+            ],
+            cheatsheet: cheatsheetConditionals,
+            solution: """
+print(temp < 1500)
+""",
+            topic: .conditionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 118,
+            title: "Open Range Loop",
+            description: "Loop with 1..<n",
+            starterCode: """
+                // Challenge 118: Open Range Loop
+                // Use an open range with for-in.
+
+                let end = 3
+
+                // TODO: Loop from 1 up to (but not including) 'end'
+                // TODO: Print each number
+                """,
+            expectedOutput: "1\n2",
+            hints: [
+                "An open range excludes the upper bound: 1..<end.",
+            ],
+            cheatsheet: cheatsheetRanges,
+            solution: """
+for value in 1..<end {
+    print(value)
+}
+""",
+            topic: .loops,
+            tier: .extra
+        ),
+        Challenge(
+            number: 119,
+            title: "Closed Range Sum",
+            description: "Sum values in 1...n",
+            starterCode: """
+                // Challenge 119: Closed Range Sum
+                // Sum a closed range.
+
+                let end = 3
+                var total = 0
+
+                // TODO: Loop from 1 through 'end' and add to 'total'
+                // TODO: Print 'total'
+                """,
+            expectedOutput: "6",
+            hints: [
+                "A closed range includes the upper bound.",
+            ],
+            cheatsheet: cheatsheetRanges,
+            solution: """
+for value in 1...end {
+    total += value
+}
+
+print(total)
+""",
+            topic: .loops,
+            tier: .extra
+        ),
+        Challenge(
+            number: 120,
+            title: "Index Range",
+            description: "Use 0..<count with an array",
+            starterCode: """
+                // Challenge 120: Index Range
+                // Loop with array indices.
+
+                let metals = ["Iron", "Gold", "Copper"]
+
+                // TODO: Loop over indices using 0..<metals.count
+                // TODO: Print each metal
+                """,
+            expectedOutput: "Iron\nGold\nCopper",
+            hints: [
+                "Use indices to access array elements by position.",
+            ],
+            cheatsheet: cheatsheetRanges,
+            solution: """
+for index in 0..<metals.count {
+    print(metals[index])
+}
+""",
+            topic: .loops,
             tier: .extra
         ),
     ]

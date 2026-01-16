@@ -42,7 +42,7 @@
 ## 2026-01-11 (Random Practice + Extras)
 - Added challenge topics/tiers to support future random/adaptive modes.
 - Introduced extra fundamentals challenges (conditionals, loops, optionals, collections, functions) for practice variety.
-- Added new Core 3 fundamentals coverage (string methods, dictionary iteration, tuple returns, struct basics) and extended total challenges to 1–88.
+- Added new Core 3 fundamentals coverage (string methods, dictionary iteration, struct basics) and extended total challenges to 1–88.
 - Added a random practice mode in the CLI (`swift run forge random`) with optional count/topic/tier filters.
 
 ## 2026-01-11 (Extra Projects)
@@ -53,3 +53,15 @@
 - Added a cheatsheet command (`c`) and attached cheatsheets to challenges and projects.
 - Created shared topic cheatsheets and project-specific cheatsheets.
 - Rewrote Core 1–3 challenge hints and Core 1–3 project hints to follow the hint rules.
+
+## 2026-01-12 (Tuple Returns Placement)
+- Moved tuple-return coverage into Core 2 (Challenge 40) to precede the Core 2 project.
+- Renumbered Core 3 challenges to 41–78 and kept totals at 1–88.
+
+## 2026-01-13 (Extra Core Expansion)
+- Added 20 extra challenges across conditionals, loops, collections, functions, and optionals.
+- Expanded total challenges to 1–108.
+
+## 2026-01-13 (Strings, Comparisons, Ranges Extras)
+- Added 12 extra challenges for strings, comparison operators, and ranges practice.
+- Expanded total challenges to 1–120.
