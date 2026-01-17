@@ -33,6 +33,82 @@ enum ProjectLayer: String {
     case crust
 }
 
+enum ConstraintConcept: String {
+    case ifElse
+    case switchStatement
+    case forInLoop
+    case whileLoop
+    case repeatWhileLoop
+    case breakContinue
+    case ranges
+    case functionsBasics
+    case optionals
+    case nilLiteral
+    case optionalBinding
+    case guardStatement
+    case nilCoalescing
+    case closures
+    case shorthandClosureArgs
+    case map
+    case filter
+    case reduce
+    case compactMap
+    case flatMap
+    case typeAlias
+    case enums
+    case doCatch
+    case throwKeyword
+    case tryKeyword
+    case tryOptional
+    case readLine
+    case commandLineArguments
+    case fileIO
+    case tuples
+    case asyncAwait
+    case actors
+    case propertyWrappers
+    case protocols
+    case structs
+    case classes
+    case properties
+    case initializers
+    case mutatingMethods
+    case selfKeyword
+    case extensions
+    case whereClauses
+    case associatedTypes
+    case generics
+    case task
+    case mainActor
+    case sendable
+    case protocolConformance
+    case protocolExtensions
+    case defaultImplementations
+    case taskSleep
+    case taskGroup
+    case accessControl
+    case accessControlOpen
+    case accessControlFileprivate
+    case accessControlInternal
+    case accessControlSetter
+    case errorTypes
+    case throwingFunctions
+    case doTryCatch
+    case tryForce
+    case resultBuilders
+    case macros
+    case projectedValues
+    case swiftpmBasics
+    case swiftpmDependencies
+    case buildConfigs
+    case dependencyInjection
+    case protocolMocking
+    case comparisons
+    case booleanLogic
+    case compoundAssignment
+    case stringInterpolation
+}
+
 // Centralized challenge definitions for the CLI flow.
 struct Challenge {
     let number: Int
@@ -45,6 +121,11 @@ struct Challenge {
     let cheatsheet: String
     let solution: String
     let manualCheck: Bool
+    let stdinFixture: String?
+    let argsFixture: String?
+    let fixtureFiles: [String]
+    let introduces: [ConstraintConcept]
+    let requires: [ConstraintConcept]
     let topic: ChallengeTopic
     let tier: ChallengeTier
     let layer: ChallengeLayer
@@ -60,6 +141,11 @@ struct Challenge {
         cheatsheet: String = "",
         solution: String = "",
         manualCheck: Bool = false,
+        stdinFixture: String? = nil,
+        argsFixture: String? = nil,
+        fixtureFiles: [String] = [],
+        introduces: [ConstraintConcept] = [],
+        requires: [ConstraintConcept] = [],
         topic: ChallengeTopic = .general,
         tier: ChallengeTier = .mainline,
         layer: ChallengeLayer = .core
@@ -74,6 +160,11 @@ struct Challenge {
         self.cheatsheet = cheatsheet
         self.solution = solution
         self.manualCheck = manualCheck
+        self.stdinFixture = stdinFixture
+        self.argsFixture = argsFixture
+        self.fixtureFiles = fixtureFiles
+        self.introduces = introduces
+        self.requires = requires
         self.topic = topic
         self.tier = tier
         self.layer = layer
@@ -109,6 +200,11 @@ struct Challenge {
             cheatsheet: cheatsheet,
             solution: solution,
             manualCheck: manualCheck,
+            stdinFixture: stdinFixture,
+            argsFixture: argsFixture,
+            fixtureFiles: fixtureFiles,
+            introduces: introduces,
+            requires: requires,
             topic: topic,
             tier: tier,
             layer: layer
@@ -687,25 +783,16 @@ func makeCore1Challenges() -> [Challenge] {
                 // Challenge 1: Hello, Forge
                 // Print "Hello, Forge" to the console
 
-                // TODO: Create a function called 'greet()'
-                func greet() {
-                    // Your code here
-                }
-
-                // TODO: Call the function
+                // TODO: Print "Hello, Forge"
                 """,
             expectedOutput: "Hello, Forge",
             hints: [
-                "Functions are declared with func name() { }.",
-                "Functions are invoked with parentheses after the name.",
+                "Use print(\"Hello, Forge\").",
+                "Match the capitalization exactly.",
             ],
             cheatsheet: cheatsheetBasics,
             solution: #"""
-func greet() {
-    print("Hello, Forge")
-}
-
-greet()
+print("Hello, Forge")
 """#,
             topic: .general,
 
@@ -931,6 +1018,7 @@ print(heat)
 heat /= 3
 print(heat)
 """,
+            introduces: [.compoundAssignment],
             topic: .general,
 
         ),
@@ -985,6 +1073,7 @@ print(message)
 let forgeLevel = 3
 print("Forge level: \(forgeLevel)")
 """#,
+            introduces: [.stringInterpolation],
             topic: .strings,
 
         ),
@@ -1045,6 +1134,7 @@ print(a > b)
 print(a <= b)
 print(b >= a)
 """,
+            introduces: [.comparisons],
             topic: .conditionals,
 
         ),
@@ -1079,68 +1169,79 @@ print(ready)
 print(partialReady)
 print(notReady)
 """,
+            introduces: [.booleanLogic],
             topic: .conditionals,
 
         ),
         Challenge(
             number: 14,
-            title: "Function Parameters",
-            description: "Pass a value into a function",
+            title: "Function Basics",
+            description: "Define and call a function",
             starterCode: """
-                // Challenge 14: Function Parameters
-                // Functions can accept input
+                // Challenge 14: Function Basics
+                // Define and call a function.
 
-                // TODO: Create a function called 'announce' that takes a String parameter
-                // and prints the parameter
-
-                // TODO: Call the function with "Forge"
+                // TODO: Create a function called 'greet' that prints "Forge"
+                // TODO: Call the function
                 """,
             expectedOutput: "Forge",
             hints: [
-                "Function parameters appear inside parentheses after the name.",
-                "Function calls use parentheses and pass arguments inside them.",
+                "Use func greet() { ... } to define a function.",
+                "Call it with greet().",
             ],
             cheatsheet: cheatsheetFunctionsBasics,
             solution: #"""
-func announce(message: String) {
-    print(message)
+func greet() {
+    print("Forge")
 }
 
-announce(message: "Forge")
+greet()
 """#,
+            introduces: [.functionsBasics],
             topic: .functions,
 
         ),
         Challenge(
             number: 15,
-            title: "Multiple Parameters",
-            description: "Functions can take more than one input",
+            title: "Function Parameters",
+            description: "Pass values into functions",
             starterCode: """
-                // Challenge 15: Multiple Parameters
-                // Functions can accept multiple parameters
+                // Challenge 15: Function Parameters
+                // Pass values into functions.
+
+                // TODO: Create a function called 'announce' that takes a String parameter
+                // and prints the parameter
+
+                // TODO: Call the function with "Forge"
 
                 // TODO: Create a function called 'mix' that takes a metal (String)
                 // and a weight (Int), then prints "Metal: <metal>, Weight: <weight>"
 
                 // TODO: Call the function with "Iron" and 3
                 """,
-            expectedOutput: "Metal: Iron, Weight: 3",
-            hints: [
-                "Separate multiple parameters with commas in the signature.",
-                "String interpolation uses \\( ) to insert values.",
-                "Argument labels appear at the call site when defined.",
-            ],
-            cheatsheet: cheatsheetFunctionsBasics,
-            solution: #"""
+        expectedOutput: "Forge\nMetal: Iron, Weight: 3",
+        hints: [
+            "Single-parameter functions use a name and a type.",
+            "Separate multiple parameters with commas in the signature.",
+            "Call both functions in order.",
+        ],
+        cheatsheet: cheatsheetFunctionsBasics,
+        solution: #"""
+func announce(message: String) {
+    print(message)
+}
+
+announce(message: "Forge")
+
 func mix(metal: String, weight: Int) {
     print("Metal: \(metal), Weight: \(weight)")
 }
 
 mix(metal: "Iron", weight: 3)
 """#,
-            topic: .functions,
+        topic: .functions,
 
-        ),
+    ),
         Challenge(
             number: 16,
             title: "Return Values",
@@ -1179,6 +1280,7 @@ print(result)
             starterCode: """
                 // Challenge 17: Integration Challenge 1
                 // Use multiple concepts together
+                // Prereqs: variables, functions, math, string interpolation.
 
                 // TODO: Create a variable 'hammerHits' with the value 2
                 // TODO: Create a function 'totalHits' that multiplies hits by 3 and returns the result
@@ -1202,6 +1304,7 @@ func totalHits(hits: Int) -> Int {
 let result = totalHits(hits: hammerHits)
 print("Total hits: \(result)")
 """#,
+            requires: [.functionsBasics, .stringInterpolation],
             topic: .general,
 
         ),
@@ -1212,6 +1315,7 @@ print("Total hits: \(result)")
             starterCode: """
                 // Challenge 18: Integration Challenge 2
                 // Core 1 capstone: combine constants, variables, math, functions, and comparisons
+                // Prereqs: comparisons, boolean logic, compound assignment.
 
                 // TODO: Create a constant 'metal' with the value "Iron"
                 // TODO: Create a variable 'temperature' with the value 1200
@@ -1245,6 +1349,7 @@ func isReady(metal: String, temperature: Int) -> Bool {
 let ready = isReady(metal: metal, temperature: temperature)
 print("\(metal) ready: \(ready)")
 """#,
+            requires: [.functionsBasics, .comparisons, .booleanLogic, .compoundAssignment, .stringInterpolation],
             topic: .general,
 
         ),
@@ -1282,6 +1387,7 @@ if heatLevel >= 3 {
     print("Cold")
 }
 """#,
+            introduces: [.ifElse],
             topic: .conditionals,
 
         ),
@@ -1339,6 +1445,7 @@ default:
     print("Unknown")
 }
 """#,
+            introduces: [.switchStatement],
             topic: .conditionals,
 
         ),
@@ -1373,6 +1480,7 @@ default:
     print("Overheated")
 }
 """#,
+            introduces: [.ranges],
             topic: .conditionals,
 
         ),
@@ -1401,6 +1509,7 @@ for i in 1...5 {
 }
 print(total)
 """,
+            introduces: [.forInLoop],
             topic: .loops,
 
         ),
@@ -1428,6 +1537,7 @@ while count > 0 {
     count -= 1
 }
 """,
+            introduces: [.whileLoop],
             topic: .loops,
 
         ),
@@ -1457,6 +1567,7 @@ repeat {
 
 print(value)
 """,
+            introduces: [.repeatWhileLoop],
             topic: .loops,
 
         ),
@@ -1490,6 +1601,7 @@ for i in 1...5 {
     print(i)
 }
 """,
+            introduces: [.breakContinue],
             topic: .loops,
 
         ),
@@ -1767,6 +1879,7 @@ print("Min: \(report.min)")
 print("Max: \(report.max)")
 print("Average: \(report.average)")
 """#,
+            introduces: [.tuples],
             topic: .general,
 
         ),
@@ -1837,6 +1950,7 @@ if let level = heatLevel {
     print("No heat")
 }
 """#,
+            introduces: [.optionals, .optionalBinding, .nilLiteral],
             topic: .optionals,
 
         ),
@@ -1901,6 +2015,7 @@ func printHeat(value: Int?) {
 
 printHeat(value: nil)
 """#,
+            introduces: [.guardStatement],
             topic: .optionals,
 
         ),
@@ -1927,6 +2042,7 @@ printHeat(value: nil)
 let level = optionalLevel ?? 1
 print("Level \(level)")
 """#,
+            introduces: [.nilCoalescing],
             topic: .optionals,
 
         ),
@@ -2238,6 +2354,7 @@ let strike = { () -> Void in
 
 strike()
 """#,
+            introduces: [.closures],
             topic: .functions,
 
         ),
@@ -2347,6 +2464,7 @@ print(doubleHeat(750))
 let doubleHeat = { $0 * 2 }
 print(doubleHeat(700))
 """,
+            introduces: [.shorthandClosureArgs],
             topic: .functions,
 
         ),
@@ -2546,6 +2664,7 @@ counter()
 let labels = temps.map { "T\($0)" }
 print(labels)
 """#,
+            introduces: [.map],
             topic: .collections,
 
         ),
@@ -2572,6 +2691,7 @@ print(labels)
 let hot = temps.filter { $0 >= 1500 }
 print(hot)
 """,
+            introduces: [.filter],
             topic: .collections,
 
         ),
@@ -2600,6 +2720,7 @@ let total = temps.reduce(0) { partial, temp in
 }
 print(total)
 """,
+            introduces: [.reduce],
             topic: .collections,
 
         ),
@@ -2654,6 +2775,7 @@ print(maxTemp)
 let cleaned = readings.compactMap { $0 }
 print(cleaned)
 """,
+            introduces: [.compactMap],
             topic: .collections,
 
         ),
@@ -2679,6 +2801,7 @@ print(cleaned)
 let flat = batches.flatMap { $0 }
 print(flat)
 """,
+            introduces: [.flatMap],
             topic: .collections,
 
         ),
@@ -2705,6 +2828,7 @@ typealias ForgeReading = (temp: Int, time: Int)
 let reading: ForgeReading = (temp: 1200, time: 1)
 print(reading.temp)
 """,
+            introduces: [.typeAlias],
             topic: .general,
 
         ),
@@ -2740,6 +2864,7 @@ case .gold:
     print("gold")
 }
 """#,
+            introduces: [.enums],
             topic: .general,
 
         ),
@@ -2854,6 +2979,7 @@ case .error:
     print("Error")
 }
 """#,
+            introduces: [.whereClauses],
             topic: .conditionals,
 
         ),
@@ -2894,6 +3020,7 @@ do {
     print("Error")
 }
 """#,
+            introduces: [.doCatch, .throwKeyword, .tryKeyword, .errorTypes, .throwingFunctions, .doTryCatch],
             topic: .functions,
 
         ),
@@ -2932,6 +3059,7 @@ func checkTemp(_ temp: Int) throws -> Int {
 let result = try? checkTemp(-1)
 print(String(describing: result))
 """,
+            introduces: [.tryOptional],
             topic: .functions,
 
         ),
@@ -2943,22 +3071,21 @@ print(String(describing: result))
                 // Challenge 74: readLine
                 // Read a value from standard input.
                 //
-                // Run from repo root: swift workspace/challenge74.swift
-                // Then type a metal and press Enter.
+                // Forge provides input from fixtures/input.txt.
+                //
+                // Expected output: You entered Iron
 
-                // TODO: Prompt the user to type something
                 // TODO: Read a line from input
                 // TODO: If input exists, print "You entered <input>"
                 // TODO: Otherwise print "No input"
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "You entered Iron",
             hints: [
                 "readLine() returns an optional string.",
-                "Prompts can precede readLine; nil still needs handling.",
+                "Handle nil with an else branch.",
             ],
             cheatsheet: cheatsheetInputOutput,
             solution: #"""
-print("Enter a metal: ", terminator: "")
 if let input = readLine() {
     let message = "You entered \(input)"
     print(message)
@@ -2966,7 +3093,8 @@ if let input = readLine() {
     print("No input")
 }
 """#,
-            manualCheck: true,
+            stdinFixture: "input.txt",
+            introduces: [.readLine],
             topic: .general,
 
         ),
@@ -2978,7 +3106,9 @@ if let input = readLine() {
                 // Challenge 75: Command-Line Arguments
                 // Read arguments.
                 //
-                // Run from repo root: swift workspace/challenge75.swift Iron
+                // Forge provides an argument from fixtures/args.txt.
+                //
+                // Expected output: Iron
 
                 let args = CommandLine.arguments
 
@@ -2987,7 +3117,7 @@ if let input = readLine() {
                 //
                 // Note: This prints only the first argument after the script name.
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "Iron",
             hints: [
                 "CommandLine.arguments includes the script name at index 0.",
                 "Check the count before accessing args[1].",
@@ -3000,7 +3130,8 @@ if args.count >= 2 {
     print("No args")
 }
 """#,
-            manualCheck: true,
+            argsFixture: "args.txt",
+            introduces: [.commandLineArguments],
             topic: .general,
 
         ),
@@ -3012,20 +3143,14 @@ if args.count >= 2 {
                 // Challenge 76: File Read
                 // Read a file of temperatures.
                 //
-                // Create workspace/temperatures.txt:
-                // 1) From repo root, run: printf "1200\\n1500\\n1600\\n" > workspace/temperatures.txt
-                // 2) Or create the file manually with these lines:
-                //    1200
-                //    1500
-                //    1600
-                //
-                // Run from repo root: swift workspace/challenge76.swift
-                //
+                // Forge copies fixtures/temperatures.txt into the workspace folder.
                 // Note: This requires Foundation for String(contentsOfFile:).
+                //
+                // Expected output: 3
 
                 import Foundation
 
-                let path = "workspace/temperatures.txt"
+                let path = "temperatures.txt"
 
                 // TODO: Read the file contents from path
                 // TODO: Split the contents into lines
@@ -3033,7 +3158,7 @@ if args.count >= 2 {
                 //
                 // Expected output: 3
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "3",
             hints: [
                 "Read the file into a String with Foundation.",
                 "Split the contents on newline characters.",
@@ -3049,7 +3174,8 @@ if let fileContents = try? String(contentsOfFile: path, encoding: .utf8) {
     print("Missing file")
 }
 """#,
-            manualCheck: true,
+            fixtureFiles: ["temperatures.txt"],
+            introduces: [.fileIO],
             topic: .general,
 
         ),
@@ -3061,11 +3187,14 @@ if let fileContents = try? String(contentsOfFile: path, encoding: .utf8) {
                 // Challenge 77: Basic Test
                 // Write a basic test case.
                 //
-                // Run from repo root: swift workspace/challenge77.swift
+                // Steps:
+                // 1) From repo root: swift workspace/challenge77.swift
+                //
+                // Expected output: Test passed
 
                 // TODO: If 2 + 2 == 4, print "Test passed"
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "Test passed",
             hints: [
                 "A basic condition can gate a success message.",
             ],
@@ -3075,7 +3204,6 @@ if 2 + 2 == 4 {
     print("Test passed")
 }
 """#,
-            manualCheck: true,
             topic: .general,
 
         ),
@@ -3086,6 +3214,7 @@ if 2 + 2 == 4 {
             starterCode: """
                 // Challenge 78: Integration Challenge
                 // Process forge logs with advanced tools.
+                // Prereqs: map, compactMap, filter, reduce.
 
                 let lines = ["1200", "x", "1500", "1600", "bad", "1400"]
 
@@ -3108,6 +3237,7 @@ let hotTemps = temps.filter { $0 >= 1500 }
 let total = hotTemps.reduce(0) { $0 + $1 }
 print(total)
 """,
+            requires: [.map, .compactMap, .filter, .reduce],
             topic: .general,
 
         ),
@@ -4296,10 +4426,152 @@ print(total)
             cheatsheet: cheatsheetRanges,
             solution: """
 for index in 0..<metals.count {
-    print(metals[index])
+print(metals[index])
 }
 """,
             topic: .loops,
+            tier: .extra
+        ),
+        Challenge(
+            number: 242,
+            id: "core-extra-number-conversion",
+            title: "Number Conversion",
+            description: "Compare integer and floating division",
+            starterCode: """
+                // Challenge 242: Number Conversion
+                // Compare integer and floating division.
+
+                let a = 7
+                let b = 2
+
+                // TODO: Print a / b
+                // TODO: Convert to Double and print the fractional result
+                """,
+            expectedOutput: "3\n3.5",
+            hints: [
+                "Int division truncates the remainder.",
+                "Use Double(a) and Double(b) for fractional results.",
+            ],
+            cheatsheet: cheatsheetMathOperators,
+            solution: """
+print(a / b)
+print(Double(a) / Double(b))
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 243,
+            id: "core-extra-string-to-int",
+            title: "String to Int",
+            description: "Convert a numeric string safely",
+            starterCode: """
+                // Challenge 243: String to Int
+                // Convert a numeric string safely.
+
+                let text = "1500"
+
+                // TODO: Convert text to an Int with if let
+                // TODO: Print "Temp: 1500"
+                """,
+            expectedOutput: "Temp: 1500",
+            hints: [
+                "Int(text) returns an optional.",
+                "Unwrap it with if let before printing.",
+            ],
+            cheatsheet: cheatsheetOptionals,
+            solution: """
+if let value = Int(text) {
+    print("Temp: \\(value)")
+}
+""",
+            requires: [.optionalBinding],
+            topic: .optionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 244,
+            id: "core-extra-dictionary-default-update",
+            title: "Dictionary Default Update",
+            description: "Update counts with default values",
+            starterCode: """
+                // Challenge 244: Dictionary Default Update
+                // Update counts with default values.
+
+                var inventory = ["Iron": 2]
+
+                // TODO: Add 1 to "Iron" using default:
+                // TODO: Add 1 to "Gold" using default:
+                // TODO: Print "Iron: 3" then "Gold: 1"
+                """,
+            expectedOutput: "Iron: 3\nGold: 1",
+            hints: [
+                "Use inventory[key, default: 0] to update safely.",
+                "Print both values on separate lines.",
+            ],
+            cheatsheet: cheatsheetDictionaries,
+            solution: """
+inventory["Iron", default: 0] += 1
+inventory["Gold", default: 0] += 1
+print("Iron: \\(inventory["Iron", default: 0])")
+print("Gold: \\(inventory["Gold", default: 0])")
+""",
+            topic: .collections,
+            tier: .extra
+        ),
+        Challenge(
+            number: 245,
+            id: "core-extra-set-operations",
+            title: "Set Operations",
+            description: "Combine and intersect sets",
+            starterCode: """
+                // Challenge 245: Set Operations
+                // Combine and intersect sets.
+
+                let a: Set<Int> = [1, 2, 3]
+                let b: Set<Int> = [3, 4]
+
+                // TODO: Print a.union(b).sorted()
+                // TODO: Print a.intersection(b).sorted()
+                """,
+            expectedOutput: "[1, 2, 3, 4]\n[3]",
+            hints: [
+                "union combines unique values from both sets.",
+                "intersection keeps only shared values.",
+            ],
+            cheatsheet: cheatsheetSets,
+            solution: """
+print(a.union(b).sorted())
+print(a.intersection(b).sorted())
+""",
+            topic: .collections,
+            tier: .extra
+        ),
+        Challenge(
+            number: 246,
+            id: "core-extra-sorting-basics",
+            title: "Sorting Basics",
+            description: "Sort values ascending and descending",
+            starterCode: """
+                // Challenge 246: Sorting Basics
+                // Sort values ascending and descending.
+
+                let temps = [1500, 1200, 1600]
+
+                // TODO: Print temps.sorted()
+                // TODO: Print temps.sorted().reversed() as an Array
+                """,
+            expectedOutput: "[1200, 1500, 1600]\n[1600, 1500, 1200]",
+            hints: [
+                "sorted() returns an ascending array.",
+                "Wrap the reversed sequence in Array(...).",
+            ],
+            cheatsheet: cheatsheetCollectionsBasics,
+            solution: """
+print(temps.sorted())
+print(Array(temps.sorted().reversed()))
+""",
+            topic: .collections,
             tier: .extra
         ),
     ]
@@ -4331,7 +4603,8 @@ struct ForgeItem {
 
 let item = ForgeItem(name: "Iron")
 print(item.name)
-"""
+""",
+            introduces: [.structs, .properties]
         ),
         Challenge(
             number: 122,
@@ -4358,7 +4631,8 @@ print(item.name)
             solution: """
 furnace.heat = 1500
 print(furnace.heat)
-"""
+""",
+            introduces: [.properties]
         ),
         Challenge(
             number: 123,
@@ -4392,7 +4666,8 @@ struct Hammer {
 
 var hammer = Hammer(strikes: 0)
 print(hammer.summary())
-"""
+""",
+            introduces: [.selfKeyword]
         ),
         Challenge(
             number: 124,
@@ -4430,7 +4705,8 @@ struct Ingot {
 let ingot = Ingot(metal: "Copper")
 print(ingot.metal)
 print(ingot.weight)
-"""
+""",
+            introduces: [.initializers]
         ),
         Challenge(
             number: 125,
@@ -4467,7 +4743,8 @@ var crucible = Crucible(level: 1)
 crucible.raise()
 crucible.raise()
 print(crucible.level)
-"""
+""",
+            introduces: [.mutatingMethods]
         ),
         Challenge(
             number: 126,
@@ -4531,7 +4808,8 @@ print(copy.size)
             solution: """
 let anvil = Anvil(weight: 10)
 print(anvil.weight)
-"""
+""",
+            introduces: [.classes]
         ),
         Challenge(
             number: 128,
@@ -4794,6 +5072,8 @@ protocol Inspectable {
 
 print("Inspectable ready")
 """
+            ,
+            introduces: [.protocols]
         ),
         Challenge(
             number: 136,
@@ -4822,7 +5102,8 @@ struct Furnace: Inspectable {
 
 let furnace = Furnace(status: "Ready")
 print(furnace.status)
-"""
+""",
+            introduces: [.protocolConformance]
         ),
         Challenge(
             number: 137,
@@ -4959,7 +5240,8 @@ extension Ingot {
 
 let ingot = Ingot(weight: 5)
 print(ingot.label())
-"""
+""",
+            introduces: [.extensions]
         ),
         Challenge(
             number: 141,
@@ -4994,7 +5276,8 @@ struct Report: Reportable {
 
 let report = Report(message: "Report ready")
 report.printReport()
-"""
+""",
+            introduces: [.protocolExtensions, .defaultImplementations]
         ),
         Challenge(
             number: 142,
@@ -5006,6 +5289,7 @@ report.printReport()
 
                 struct Vault {
                     private var code: Int
+                    private(set) var state: String = "Locked"
                     // TODO: Add an internal init(code:)
                 }
                 
@@ -5019,6 +5303,7 @@ report.printReport()
             solution: """
 struct Vault {
     private var code: Int
+    private(set) var state: String = "Locked"
 
     init(code: Int) {
         self.code = code
@@ -5027,7 +5312,8 @@ struct Vault {
 
 let _ = Vault(code: 1234)
 print("Vault ready")
-"""
+""",
+            introduces: [.accessControl, .accessControlInternal, .accessControlSetter]
         ),
         Challenge(
             number: 143,
@@ -5055,7 +5341,8 @@ let _ = Ledger()
 let _ = Controller()
 print("Ledger")
 print("Controller")
-"""
+""",
+            introduces: [.accessControlOpen]
         ),
         Challenge(
             number: 144,
@@ -5095,7 +5382,8 @@ do {
 } catch {
     print("Too cold")
 }
-"""
+""",
+            requires: [.doCatch, .throwKeyword, .tryKeyword, .errorTypes, .throwingFunctions, .doTryCatch]
         ),
         Challenge(
             number: 145,
@@ -5119,7 +5407,8 @@ func swapPair<A, B>(_ first: A, _ second: B) -> (B, A) {
 }
 
 print(swapPair("Iron", 3))
-"""
+""",
+            introduces: [.generics]
         ),
         Challenge(
             number: 146,
@@ -5198,7 +5487,8 @@ struct StringStorage: Storage {
 
 let storage = StringStorage(items: ["Iron", "Gold"])
 print(storage.items.count)
-"""
+""",
+            introduces: [.associatedTypes]
         ),
         Challenge(
             number: 149,
@@ -5225,7 +5515,8 @@ extension Array where Element: Equatable {
 }
 
 print([2, 2, 2].allEqual())
-"""
+""",
+            introduces: [.whereClauses]
         ),
         Challenge(
             number: 150,
@@ -6032,6 +6323,90 @@ printer()
             topic: .general,
             tier: .extra
         ),
+        Challenge(
+            number: 247,
+            id: "mantle-extra-access-control-nuance",
+            title: "Access Control Nuance",
+            description: "Use fileprivate, internal, and private(set)",
+            starterCode: """
+                // Challenge 247: Access Control Nuance
+                // Use fileprivate, internal, and private(set).
+
+                struct Vault {
+                    fileprivate var code = "X"
+                    internal var owner = "Forge"
+                    private(set) var count = 1
+                }
+
+                let vault = Vault()
+                // TODO: Print vault.owner
+                // TODO: Print vault.count
+                """,
+            expectedOutput: "Forge\n1",
+            hints: [
+                "internal is the default access level.",
+                "private(set) allows reads but prevents external mutation.",
+            ],
+            cheatsheet: cheatsheetAccessControl,
+            solution: """
+struct Vault {
+    fileprivate var code = "X"
+    internal var owner = "Forge"
+    private(set) var count = 1
+}
+
+let vault = Vault()
+print(vault.owner)
+print(vault.count)
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 248,
+            id: "mantle-extra-protocol-extension-constraint",
+            title: "Protocol Extension Constraint",
+            description: "Add a constrained default method",
+            starterCode: """
+                // Challenge 248: Protocol Extension Constraint
+                // Add a constrained default method.
+
+                protocol Taggable {
+                    var tag: String { get }
+                }
+
+                // TODO: Add a protocol extension where Self: CustomStringConvertible
+                // TODO: Add describeTag() -> String returning "Tag: <tag>"
+                // TODO: Create a conforming type and print describeTag()
+                """,
+            expectedOutput: "Tag: Forge",
+            hints: [
+                "Add a where clause to limit the default method.",
+                "Return a formatted string using tag.",
+            ],
+            cheatsheet: cheatsheetExtensions,
+            solution: """
+protocol Taggable {
+    var tag: String { get }
+}
+
+extension Taggable where Self: CustomStringConvertible {
+    func describeTag() -> String {
+        return "Tag: \\(tag)"
+    }
+}
+
+struct Tool: Taggable, CustomStringConvertible {
+    let tag: String
+    var description: String { tag }
+}
+
+let tool = Tool(tag: "Forge")
+print(tool.describeTag())
+""",
+            topic: .general,
+            tier: .extra
+        ),
     ]
     return challenges.map { $0.withLayer(.mantle) }
 }
@@ -6099,6 +6474,7 @@ runAsync {
 }
 
 """,
+            introduces: [.asyncAwait, .task],
             topic: .functions
         ),
         Challenge(
@@ -6223,6 +6599,7 @@ runAsync {
 }
 
 """,
+            introduces: [.taskGroup],
             topic: .functions
         ),
         Challenge(
@@ -6444,6 +6821,7 @@ runAsync {
 }
 
 """,
+            introduces: [.actors],
             topic: .general
         ),
         Challenge(
@@ -6488,6 +6866,8 @@ Task { @MainActor in
 RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
 
 """,
+            introduces: [.mainActor],
+            requires: [.task],
             topic: .general
         ),
         Challenge(
@@ -6525,6 +6905,7 @@ let report = HeatReport(value: 1200)
 print("Heat: \\(report.value)")
 
 """,
+            introduces: [.sendable],
             topic: .general
         ),
         Challenge(
@@ -6594,6 +6975,7 @@ var furnace = Furnace()
 print(furnace.heat)
 
 """,
+            introduces: [.propertyWrappers],
             topic: .general
         ),
         Challenge(
@@ -6724,6 +7106,7 @@ furnace.heat = 1400
 print("Updates: \\(furnace.$heat)")
 
 """,
+            introduces: [.projectedValues],
             topic: .general
         ),
         Challenge(
@@ -7008,6 +7391,7 @@ print("Last: \\(items.last ?? 0)")
             starterCode: """
                 // Challenge 189: Integration Challenge
                 // Combine async, actors, and wrappers.
+                // Prereqs: async/await, actors, property wrappers.
 
                 import Foundation
 
@@ -7105,6 +7489,7 @@ runAsync {
 }
 
 """,
+            requires: [.asyncAwait, .task, .actors, .propertyWrappers],
             topic: .general
         ),
         Challenge(
@@ -7391,44 +7776,41 @@ print(MemoryLayout<Bool>.size)
             starterCode: """
                 // Challenge 197: Profiling Mindset
                 // Measure before optimizing.
-                // Manual check: run the file and observe the elapsed time.
+                // Use a fixed elapsed value for deterministic output.
+                //
+                // Expected output:
+                // Total: 5000050000
+                // Elapsed: 0.00
 
                 import Foundation
 
-                let start = Date()
                 var total = 0
                 for value in 1...100_000 {
                     total += value
                 }
-                let elapsed = Date().timeIntervalSince(start)
+                let elapsed = 0.0
 
                 // TODO: Print total and elapsed time (format is up to you)
                 // Example: "Total: 5000050000" and "Elapsed: 0.00"
-                // TODO: Print "Manual check" when finished
-
-                print("Manual check")
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "Total: 5000050000\nElapsed: 0.00",
             hints: [
                 "Use string interpolation to show the elapsed time.",
-                "Exact timing will vary; focus on printing both lines.",
+                "Print the total first, then the elapsed line.",
             ],
             cheatsheet: cheatsheetPerformance,
             solution: """
 import Foundation
 
-let start = Date()
 var total = 0
 for value in 1...100_000 {
     total += value
 }
-let elapsed = Date().timeIntervalSince(start)
+let elapsed = 0.0
 
 print("Total: \\(total)")
 print(String(format: "Elapsed: %.2f", elapsed))
-print("Manual check")
 """,
-            manualCheck: true,
             topic: .general
         ),
         Challenge(
@@ -7616,6 +7998,7 @@ let messages = makeMessages {
 
 print(messages.joined(separator: " "))
 """,
+            introduces: [.resultBuilders],
             topic: .general
         ),
         Challenge(
@@ -7624,24 +8007,22 @@ print(messages.joined(separator: " "))
             description: "Review how macro usage looks in Swift",
             starterCode: """
                 // Challenge 203: Macros (Usage)
-                // Manual check: read the notes and skim macro usage.
-                // Macros require a SwiftPM package; this file is for reference.
+                // Macros expand at compile time.
+                //
+                // Expected output: Macro: compile-time code generation
 
-                // TODO: In your own words, add a comment describing what a macro does.
-
-                print("Manual check")
+                // TODO: Print "Macro: compile-time code generation"
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "Macro: compile-time code generation",
             hints: [
                 "Macros expand at compile time.",
-                "Write a short comment in this file.",
+                "Print the exact phrase requested.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
             solution: """
-// Macros generate code at compile time based on their inputs.
-print("Manual check")
+print("Macro: compile-time code generation")
 """,
-            manualCheck: true,
+            introduces: [.macros],
             topic: .general
         ),
         Challenge(
@@ -7650,23 +8031,20 @@ print("Manual check")
             description: "Read Package.swift for target types",
             starterCode: """
                 // Challenge 204: SwiftPM Basics
-                // Manual check: open Package.swift and note target types.
+                // Expected output: Targets: forge, forgeTests
 
-                // TODO: Add a comment listing the package targets you found.
-
-                print("Manual check")
+                // TODO: Print "Targets: forge, forgeTests"
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "Targets: forge, forgeTests",
             hints: [
                 "Package.swift lists executable and test targets.",
-                "Record the names in a comment.",
+                "Print the target names in one line.",
             ],
             cheatsheet: cheatsheetSwiftPM,
             solution: """
-// Targets: forge (executable), forgeTests (test)
-print("Manual check")
+print("Targets: forge, forgeTests")
 """,
-            manualCheck: true,
+            introduces: [.swiftpmBasics],
             topic: .general
         ),
         Challenge(
@@ -7675,23 +8053,20 @@ print("Manual check")
             description: "Identify modules and dependencies",
             starterCode: """
                 // Challenge 205: Dependencies & Imports
-                // Manual check: scan Package.swift for dependencies.
+                // Expected output: Dependencies: none
 
-                // TODO: Add a comment with any dependencies you see (or "none").
-
-                print("Manual check")
+                // TODO: Print "Dependencies: none"
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "Dependencies: none",
             hints: [
                 "Package.swift lists dependencies near the top.",
-                "This repo currently has no external dependencies.",
+                "The expected output is a single line.",
             ],
             cheatsheet: cheatsheetSwiftPM,
             solution: """
-// Dependencies: none
-print("Manual check")
+print("Dependencies: none")
 """,
-            manualCheck: true,
+            introduces: [.swiftpmDependencies],
             topic: .general
         ),
         Challenge(
@@ -7718,6 +8093,7 @@ print("Manual check")
                 print("Release")
                 #endif
                 """,
+            introduces: [.buildConfigs],
             topic: .general
         ),
         Challenge(
@@ -7726,23 +8102,22 @@ print("Manual check")
             description: "Plan a SwiftPM feature module",
             starterCode: """
                 // Challenge 207: Integration Challenge
-                // Manual check: plan a SwiftPM feature module.
+                // Prereqs: SwiftPM basics, dependencies, build configs.
+                //
+                // Expected output: Module: AnalyticsKit
 
-                // TODO: Add a comment with a module name and its responsibility.
-
-                print("Manual check")
+                // TODO: Print "Module: AnalyticsKit"
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "Module: AnalyticsKit",
             hints: [
                 "Pick a small feature you could isolate into a module.",
-                "Describe its responsibility in one sentence.",
+                "Use the provided module name.",
             ],
             cheatsheet: cheatsheetSwiftPM,
             solution: """
-// Module: AnalyticsKit - handles event formatting and dispatch.
-print("Manual check")
+print("Module: AnalyticsKit")
 """,
-            manualCheck: true,
+            requires: [.swiftpmBasics, .swiftpmDependencies, .buildConfigs],
             topic: .general
         ),
         Challenge(
@@ -7751,24 +8126,19 @@ print("Manual check")
             description: "Review how macro authoring works",
             starterCode: """
                 // Challenge 208: Macro Authoring (Concepts)
-                // Manual check: read about how Swift macros are authored.
-                // This file is for conceptual notes only.
+                // Expected output: Macro author: provides expansion code
 
-                // TODO: Add a short comment describing what a macro author provides.
-
-                print("Manual check")
+                // TODO: Print "Macro author: provides expansion code"
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "Macro author: provides expansion code",
             hints: [
                 "Macro authors write code that generates code at compile time.",
-                "Add a one-line comment summarizing the role.",
+                "Print the exact summary line.",
             ],
             cheatsheet: cheatsheetMacros,
             solution: """
-// A macro author provides code that expands into compiler-generated code.
-print("Manual check")
+print("Macro author: provides expansion code")
 """,
-            manualCheck: true,
             topic: .general
         ),
         Challenge(
@@ -7818,23 +8188,19 @@ for child in mirror.children {
             description: "Understand protocol witness tables",
             starterCode: """
                 // Challenge 210: Witness Tables (Concepts)
-                // Manual check: read about protocol witness tables.
+                // Expected output: Witness tables map protocol implementations
 
-                // TODO: Add a comment describing why witness tables exist.
-
-                print("Manual check")
+                // TODO: Print "Witness tables map protocol implementations"
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "Witness tables map protocol implementations",
             hints: [
                 "Witness tables map protocol requirements to implementations.",
-                "Write a short sentence in a comment.",
+                "Print the exact summary line.",
             ],
             cheatsheet: cheatsheetAdvancedGenerics,
             solution: """
-// Witness tables let the runtime find concrete implementations for protocol requirements.
-print("Manual check")
+print("Witness tables map protocol implementations")
 """,
-            manualCheck: true,
             topic: .general
         ),
         Challenge(
@@ -7933,6 +8299,7 @@ struct ForgeService {
 let service = ForgeService(logger: ConsoleLogger())
 service.start()
 """,
+            introduces: [.dependencyInjection],
             topic: .general
         ),
         Challenge(
@@ -8074,6 +8441,7 @@ func report(_ clock: any Clock) {
 
 report(MockClock(value: 5))
 """,
+            introduces: [.protocolMocking],
             topic: .general
         ),
         Challenge(
@@ -8082,23 +8450,19 @@ report(MockClock(value: 5))
             description: "Recall red/green/refactor",
             starterCode: """
                 // Challenge 216: TDD Cycle (Concepts)
-                // Manual check: describe the red/green/refactor loop.
+                // Expected output: TDD: Red, Green, Refactor
 
-                // TODO: Add a comment describing the three steps.
-
-                print("Manual check")
+                // TODO: Print "TDD: Red, Green, Refactor"
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "TDD: Red, Green, Refactor",
             hints: [
                 "Red: failing test; Green: make it pass; Refactor: clean up.",
-                "Summarize in one sentence.",
+                "Print the exact sequence in order.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
             solution: """
-// Red: write a failing test, Green: make it pass, Refactor: clean up code.
-print("Manual check")
+print("TDD: Red, Green, Refactor")
 """,
-            manualCheck: true,
             topic: .general
         ),
         Challenge(
@@ -8107,23 +8471,19 @@ print("Manual check")
             description: "Review async XCTest patterns",
             starterCode: """
                 // Challenge 217: Async Testing (Concepts)
-                // Manual check: review async XCTest examples.
+                // Expected output: Async tests can await in XCTest
 
-                // TODO: Add a comment describing one async testing approach.
-
-                print("Manual check")
+                // TODO: Print "Async tests can await in XCTest"
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "Async tests can await in XCTest",
             hints: [
                 "XCTest supports async test methods with async/await.",
-                "Write one short comment.",
+                "Print the summary line.",
             ],
             cheatsheet: cheatsheetMacros,
             solution: """
-// Async tests can be declared as async and awaited directly in XCTest.
-print("Manual check")
+print("Async tests can await in XCTest")
 """,
-            manualCheck: true,
             topic: .general
         ),
         Challenge(
@@ -8132,23 +8492,19 @@ print("Manual check")
             description: "Recall UI testing focus",
             starterCode: """
                 // Challenge 218: UI Testing (Concepts)
-                // Manual check: summarize UI testing goals.
+                // Expected output: UI tests verify user flows
 
-                // TODO: Add a comment describing what UI tests verify.
-
-                print("Manual check")
+                // TODO: Print "UI tests verify user flows"
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "UI tests verify user flows",
             hints: [
                 "UI tests simulate user flows and verify visible outcomes.",
-                "Write a short summary comment.",
+                "Print the exact summary line.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
             solution: """
-// UI tests simulate user interactions and verify the resulting UI state.
-print("Manual check")
+print("UI tests verify user flows")
 """,
-            manualCheck: true,
             topic: .general
         ),
         Challenge(
@@ -8184,23 +8540,19 @@ withUnsafePointer(to: &value) { pointer in
             description: "Recall how C interop works",
             starterCode: """
                 // Challenge 220: C Interop (Concepts)
-                // Manual check: summarize C interop.
+                // Expected output: C interop uses module maps
 
-                // TODO: Add a comment about importing C headers or modules.
-
-                print("Manual check")
+                // TODO: Print "C interop uses module maps"
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "C interop uses module maps",
             hints: [
                 "Swift can import C APIs via module maps or bridging headers.",
-                "Write a short comment.",
+                "Print the summary line.",
             ],
             cheatsheet: cheatsheetSwiftPM,
             solution: """
-// C APIs can be imported with module maps or bridging headers.
-print("Manual check")
+print("C interop uses module maps")
 """,
-            manualCheck: true,
             topic: .general
         ),
         Challenge(
@@ -8209,23 +8561,19 @@ print("Manual check")
             description: "Recall Obj-C bridging basics",
             starterCode: """
                 // Challenge 221: Objective-C Interop (Concepts)
-                // Manual check: summarize Objective-C bridging.
+                // Expected output: @objc and bridging headers
 
-                // TODO: Add a comment about @objc or bridging headers.
-
-                print("Manual check")
+                // TODO: Print "@objc and bridging headers"
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "@objc and bridging headers",
             hints: [
                 "@objc exposes Swift to Obj-C; bridging headers import Obj-C to Swift.",
-                "Write a short comment.",
+                "Print the exact phrase.",
             ],
             cheatsheet: cheatsheetSwiftPM,
             solution: """
-// @objc exposes Swift to Objective-C and bridging headers import Obj-C into Swift.
-print("Manual check")
+print("@objc and bridging headers")
 """,
-            manualCheck: true,
             topic: .general
         ),
         Challenge(
@@ -8234,23 +8582,19 @@ print("Manual check")
             description: "Recall common debugger commands",
             starterCode: """
                 // Challenge 222: LLDB Tactics (Concepts)
-                // Manual check: note a few LLDB commands.
+                // Expected output: LLDB: po, bt
 
-                // TODO: Add a comment listing 1-2 LLDB commands you know.
-
-                print("Manual check")
+                // TODO: Print "LLDB: po, bt"
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "LLDB: po, bt",
             hints: [
                 "Examples: breakpoint set, po, bt.",
-                "Write a short comment.",
+                "Print the exact list.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
             solution: """
-// Commands: breakpoint set --name, po, bt
-print("Manual check")
+print("LLDB: po, bt")
 """,
-            manualCheck: true,
             topic: .general
         ),
         Challenge(
@@ -8302,6 +8646,7 @@ func checkHeat(_ value: Int) throws {
     print("Error: overheating")
 }
 """,
+            requires: [.doCatch, .throwKeyword, .tryKeyword],
             topic: .general
         ),
         Challenge(
@@ -8310,23 +8655,19 @@ func checkHeat(_ value: Int) throws {
             description: "Recall basic Git workflow steps",
             starterCode: """
                 // Challenge 224: Git Workflows (Concepts)
-                // Manual check: list a typical Git workflow.
+                // Expected output: Git: branch, commit, push, PR
 
-                // TODO: Add a comment with 3-4 steps in a Git workflow.
-
-                print("Manual check")
+                // TODO: Print "Git: branch, commit, push, PR"
                 """,
-            expectedOutput: "Manual check",
+            expectedOutput: "Git: branch, commit, push, PR",
             hints: [
                 "Example: branch -> commit -> push -> PR.",
-                "Write a short sequence in a comment.",
+                "Print the exact sequence.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
             solution: """
-// Workflow: branch, commit changes, push, open a PR.
-print("Manual check")
+print("Git: branch, commit, push, PR")
 """,
-            manualCheck: true,
             topic: .general
         ),
         Challenge(
@@ -8336,6 +8677,7 @@ print("Manual check")
             starterCode: """
                 // Challenge 225: Integration Challenge
                 // Combine DI and protocol testing.
+                // Prereqs: protocols, dependency injection, protocol mocking.
 
                 protocol DataSource {
                     func values() -> [Int]
@@ -8380,6 +8722,7 @@ struct Analyzer {
 let analyzer = Analyzer(source: MemorySource(items: [1, 2, 3]))
 print("Sum: \\(analyzer.sum())")
 """,
+            requires: [.protocols, .dependencyInjection, .protocolMocking, .reduce],
             topic: .general
         ),
         Challenge(
@@ -8432,6 +8775,7 @@ runAsync {
     print("Done")
 }
 """,
+            introduces: [.taskSleep],
             topic: .general,
             tier: .extra
         ),
@@ -8861,11 +9205,313 @@ print(box.isEven())
             topic: .general,
             tier: .extra
         ),
+        Challenge(
+            number: 249,
+            id: "crust-extra-async-let",
+            title: "Async Let",
+            description: "Run async calls in parallel",
+            starterCode: """
+                // Challenge 249: Async Let
+                // Run async calls in parallel.
+
+                import Foundation
+
+                func runAsync(_ operation: @escaping () async -> Void) {
+                    let group = DispatchGroup()
+                    group.enter()
+                    Task {
+                        await operation()
+                        group.leave()
+                    }
+                    group.wait()
+                }
+
+                func fetchA() async -> Int {
+                    return 2
+                }
+
+                func fetchB() async -> Int {
+                    return 3
+                }
+
+                runAsync {
+                    // TODO: Use async let for fetchA and fetchB
+                    // TODO: Print "Sum: 5"
+                }
+                """,
+            expectedOutput: "Sum: 5",
+            hints: [
+                "Use async let to start both calls.",
+                "Await both values before summing.",
+            ],
+            cheatsheet: cheatsheetConcurrency,
+            solution: """
+import Foundation
+
+func runAsync(_ operation: @escaping () async -> Void) {
+    let group = DispatchGroup()
+    group.enter()
+    Task {
+        await operation()
+        group.leave()
+    }
+    group.wait()
+}
+
+func fetchA() async -> Int {
+    return 2
+}
+
+func fetchB() async -> Int {
+    return 3
+}
+
+runAsync {
+    async let a = fetchA()
+    async let b = fetchB()
+    let sum = await a + b
+    print("Sum: \\(sum)")
+}
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 250,
+            id: "crust-extra-xctest-micro",
+            title: "XCTest Micro Example",
+            description: "Write a minimal XCTest case (simulated)",
+            starterCode: """
+                // Challenge 250: XCTest Micro Example
+                // Forge includes a tiny XCTest stub so this compiles as a script.
+                // Expected output: XCTest ready
+
+                class XCTestCase {}
+                func XCTAssertEqual<T: Equatable>(_ lhs: T, _ rhs: T) {}
+
+                // TODO: Create class SampleTests: XCTestCase
+                // TODO: Add func testSum() with XCTAssertEqual(2 + 2, 4)
+
+                // TODO: Print "XCTest ready"
+                """,
+            expectedOutput: "XCTest ready",
+            hints: [
+                "Subclass XCTestCase for tests.",
+                "Use XCTAssertEqual inside testSum().",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+class XCTestCase {}
+func XCTAssertEqual<T: Equatable>(_ lhs: T, _ rhs: T) {}
+
+class SampleTests: XCTestCase {
+    func testSum() {
+        XCTAssertEqual(2 + 2, 4)
+    }
+}
+
+print("XCTest ready")
+""",
+            topic: .general,
+            tier: .extra
+        ),
 
 
 
     ]
     return challenges.map { $0.withLayer(.crust) }
+}
+
+func makeBridgeChallenges() -> (coreToMantle: [Challenge], mantleToCrust: [Challenge]) {
+    let coreToMantle = [
+        Challenge(
+            number: 238,
+            title: "Bridge: Struct Snapshot",
+            description: "Move from loose values to a struct",
+            starterCode: """
+                // Challenge 238: Bridge: Struct Snapshot
+                // Move from loose values to a struct.
+                //
+                // TODO: Define a struct Snapshot with metal (String) and heat (Int)
+                // TODO: Create a snapshot for "Iron" at 1400
+                // TODO: Print "Iron @ 1400"
+                """,
+            expectedOutput: "Iron @ 1400",
+            hints: [
+                "A struct bundles related values together.",
+                "Use string interpolation for the output format.",
+            ],
+            cheatsheet: cheatsheetStructs,
+            solution: """
+struct Snapshot {
+    let metal: String
+    let heat: Int
+}
+
+let snapshot = Snapshot(metal: "Iron", heat: 1400)
+print("\\(snapshot.metal) @ \\(snapshot.heat)")
+""",
+            topic: .structs,
+            layer: .mantle
+        ),
+        Challenge(
+            number: 239,
+            title: "Bridge: Struct Method",
+            description: "Add behavior to a struct",
+            starterCode: """
+                // Challenge 239: Bridge: Struct Method
+                // Add behavior to a struct.
+                //
+                // TODO: Define a struct ForgeLog with metal (String) and heat (Int)
+                // TODO: Add a method label() -> String that returns "<metal>: <heat>"
+                // TODO: Create a log for "Gold" at 1500 and print label()
+                """,
+            expectedOutput: "Gold: 1500",
+            hints: [
+                "Methods can format stored properties into strings.",
+                "Call the method on the instance before printing.",
+            ],
+            cheatsheet: cheatsheetStructs,
+            solution: """
+struct ForgeLog {
+    let metal: String
+    let heat: Int
+
+    func label() -> String {
+        return "\\(metal): \\(heat)"
+    }
+}
+
+let log = ForgeLog(metal: "Gold", heat: 1500)
+print(log.label())
+""",
+            topic: .structs,
+            layer: .mantle
+        ),
+    ]
+
+    let mantleToCrust = [
+        Challenge(
+            number: 240,
+            title: "Bridge: Async Warmup",
+            description: "Call a simple async function",
+            starterCode: """
+                // Challenge 240: Bridge: Async Warmup
+                // Call a simple async function.
+
+                import Foundation
+
+                func runAsync(_ operation: @escaping () async -> Void) {
+                    let semaphore = DispatchSemaphore(value: 0)
+                    Task {
+                        await operation()
+                        semaphore.signal()
+                    }
+
+                    while semaphore.wait(timeout: .now()) != .success {
+                        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.01))
+                    }
+                }
+
+                // TODO: Write async func status() -> String that returns "Ready"
+
+                runAsync {
+                    // TODO: Await status() and print the result
+                }
+                """,
+            expectedOutput: "Ready",
+            hints: [
+                "Async functions return values just like sync ones.",
+                "Await the result inside the runAsync closure.",
+            ],
+            cheatsheet: cheatsheetConcurrency,
+            solution: """
+import Foundation
+
+func runAsync(_ operation: @escaping () async -> Void) {
+    let semaphore = DispatchSemaphore(value: 0)
+    Task {
+        await operation()
+        semaphore.signal()
+    }
+
+    while semaphore.wait(timeout: .now()) != .success {
+        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.01))
+    }
+}
+
+func status() async -> String {
+    return "Ready"
+}
+
+runAsync {
+    let value = await status()
+    print(value)
+}
+""",
+            topic: .functions,
+            layer: .crust
+        ),
+        Challenge(
+            number: 241,
+            title: "Bridge: Task Result",
+            description: "Await a Task value",
+            starterCode: """
+                // Challenge 241: Bridge: Task Result
+                // Await a Task value.
+
+                import Foundation
+
+                func runAsync(_ operation: @escaping () async -> Void) {
+                    let semaphore = DispatchSemaphore(value: 0)
+                    Task {
+                        await operation()
+                        semaphore.signal()
+                    }
+
+                    while semaphore.wait(timeout: .now()) != .success {
+                        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.01))
+                    }
+                }
+
+                runAsync {
+                    // TODO: Start a Task that returns 5
+                    // TODO: Await task.value and print "Heat: 5"
+                }
+                """,
+            expectedOutput: "Heat: 5",
+            hints: [
+                "Task { 5 } creates a task that returns an Int.",
+                "Await task.value to get the result.",
+            ],
+            cheatsheet: cheatsheetConcurrency,
+            solution: """
+import Foundation
+
+func runAsync(_ operation: @escaping () async -> Void) {
+    let semaphore = DispatchSemaphore(value: 0)
+    Task {
+        await operation()
+        semaphore.signal()
+    }
+
+    while semaphore.wait(timeout: .now()) != .success {
+        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.01))
+    }
+}
+
+runAsync {
+    let task = Task { 5 }
+    let value = await task.value
+    print("Heat: \\(value)")
+}
+""",
+            topic: .functions,
+            layer: .crust
+        ),
+    ]
+
+    return (coreToMantle, mantleToCrust)
 }
 
 func makeProjects() -> [Project] {

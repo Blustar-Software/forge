@@ -1,7 +1,7 @@
 # Session Log
 
 ## Current State
-- Forge is a SwiftPM CLI with challenges defined in `Sources/forge/Challenges.swift` (now 1–237).
+- Forge is a SwiftPM CLI with challenges defined in `Sources/forge/Challenges.swift` (now 1–241, including bridge challenges).
 - Challenge headers live inside each `starterCode`; the CLI no longer prepends headers when writing files.
 - Output validation trims whitespace/newlines before comparison.
 - Challenge and project checks are triggered manually by pressing Enter.
@@ -9,10 +9,63 @@
 - Docs updated: `README.md` includes run/reset + learning overview; `AGENTS.md` includes structure + commands; `ROADMAP.md` added.
 - Challenges and projects now support stored hints and solutions.
 - Cheatsheets are available via `c`, with shared topic blocks and project-specific blocks.
-- Core + Mantle content are implemented; Crust 1–3 challenges are implemented (Crust projects are not yet built).
+- Core + Mantle content are implemented; Crust 1–3 challenges and projects are implemented.
 - FTS standards have not yet been applied across the curriculum or engine.
 
 ## Recent Changes
+- Updated FTS gap analysis and roadmap to reflect default constraint enforcement with `--allow-early-concepts` as the opt-out.
+- Added a startup note when `--allow-early-concepts` is active to indicate warn-only mode.
+- Added per-unit constraint metadata via concept introductions and switched constraint checks to use that metadata (still regex-based).
+- Added explicit integration prerequisites with runtime checks that block if required concepts are introduced later in the sequence.
+- Added a fixture-backed input file and updated the readLine manual-check instructions to use scripted input.
+- Added a fixture-backed args file and updated the command-line arguments manual-check instructions.
+- Improved challenge feedback details with numbered expected/actual lines and consistent line-by-line validation in random mode.
+- Reduced constraint false positives by stripping comments and string literals (including multiline/raw strings) before regex checks.
+- Switched constraint detection to token-based heuristics (with tuple regex fallback) for fewer false positives.
+- Added per-topic adaptive attempt tracking to `workspace/.adaptive_stats` as an adaptive progression stub.
+- Documented the adaptive stats data model and proposed Phase 2+ gating logic in the FTS spec and README.
+- Random mode now weights selection using adaptive stats (more fails → higher weight).
+- Stage review selection now weights topics using adaptive stats when available.
+- Expanded constraint coverage to include struct/class basics, properties, initializers, mutating methods, and self.
+- Expanded constraint coverage to include extensions, generics, associated types, and where clauses.
+- Expanded constraint coverage to include Task, MainActor, and Sendable.
+- Expanded constraint coverage for protocol conformance, protocol extensions, and default implementations.
+- Expanded constraint coverage for Task.sleep and withTaskGroup (concurrency advanced).
+- Expanded constraint coverage for access control and error-handling patterns.
+- Added access-control refinement for public/open usage.
+- Added constraint coverage for try! (forced try).
+- Added access-control nuance detectors for fileprivate and internal.
+- Added access-control setter constraint for private(set).
+- Added SwiftPM constraint concepts (basics, dependencies, build configs) and tagged SwiftPM integration prereqs.
+- Added dependency injection + protocol mocking constraint concepts and tagged the Crust 3 integration prereqs accordingly.
+- Added Core 1 constraint concepts (comparisons, boolean logic, compound assignment, string interpolation) and enforced them for integration challenges.
+- Realigned Core 1 function introduction: Challenge 1 no longer uses functions; Challenge 14 now introduces functions.
+- Refined constraint detection to ignore for-in loops as closures and $0 shorthand as projected values; added early where-clause intro in Core 3.
+- Adjusted Crust concurrency sequencing: Task introduced in Challenge 172; MainActor now only requires Task; property wrapper detection ignores @MainActor.
+- FTS spec updated to reflect refined detector and clean sequencing scans across layers.
+- Added dependency-injection and protocol-mocking detection heuristics to constraint checks.
+- Refined dependency-injection detection to require `any Protocol` properties to avoid type-erasure false positives.
+- FTS spec updated to note DI/mock heuristics in constraint enforcement.
+- FTS checklist review: no status upgrades; sequencing scans clean but constraints remain heuristic.
+- README updated to mention heuristic early-concept checks.
+- FTS spec now marks Phase 1 implementation complete with remaining gaps listed.
+- FTS spec audit updated: clarified Phase 1 completion wording and documented integration prereq audit.
+- FTS spec now includes a post‑curriculum re‑audit checklist.
+- Added `--disable-di-mock-heuristics` to make DI/mock constraint detection configurable.
+- FTS spec updated to mention the DI/mock heuristic toggle.
+- Next curriculum edits should trigger the FTS re-audit checklist (review scan + integration prereq scan).
+- Added gap-filling extra challenges in Core/Mantle/Crust (242–250).
+- Curriculum doc updated with random-mode coverage notes for extras 242–250.
+- Added Core 1 Function Basics before parameters and consolidated parameter practice.
+- Added Task as an explicit prereq for the Crust integration challenge that uses Task.
+- Added `random adaptive` to focus random sets on weakest topics.
+- Added `forge stats` to print adaptive per-topic counts.
+- Added `forge stats --reset` to clear adaptive stats and expanded constraint coverage for result builders/macros/projected values.
+- Main flow now inserts adaptive practice sets after repeated failures (threshold-based).
+- Added CLI flags to tune adaptive gating thresholds and counts.
+- Adjusted FTS spec gaps/strengths to reflect adaptive nondeterminism and updated integration coverage note.
+- Added `--adaptive-off` to disable adaptive gating in the main flow.
+- Changed `reset` to exit by default and added `reset --start` to immediately continue into the flow; documented in CLI usage and README.
 - Rebuilt Core 1 to explicitly cover type inference and make arithmetic, compound assignment, comparison, and logical operators exhaustive.
 - Reordered Core 2 to introduce ranges without properties, add a collection-properties challenge after arrays/loops, and move tuples closer to collections.
 - Added an Array Metrics challenge to prepare learners for Core 2 Project A.
@@ -27,6 +80,11 @@
 - Expanded the Core 3 closure sequence with compression steps (implicit return, inferred types, inferred trailing closures), added a Shorthand Closure Syntax I/II split, and moved the annotated closure assignment to sit with assigned-closure steps.
 - Logged curriculum changes in `CURRICULUM_CHANGES_LOG.md`.
 - Ran `scripts/check.sh`; build and tests passed.
+- Ran `swift run forge verify-solutions 76`; verification passed.
+- Fixed deterministic verification for challenges 197 and crust-extra-xctest-micro (Foundation import + XCTest stub).
+- Ran `swift run forge verify-solutions 197-197` and `250-250`; verification passed.
+- Ran `swift run forge verify-solutions 1-250`; verification passed.
+- Documented the XCTest stub approach in README and FTS spec.
 - Replaced file watching with manual Enter-to-check flow; added hint/solution commands in the CLI for challenges and projects.
 - Ran `scripts/check.sh` after enabling project hints; build and tests passed.
 - Migrated inline starter hints into `hints` and `solution` fields for closure and collection challenges.
@@ -83,6 +141,11 @@
 - Added Crust projects (crust1a–crust3c) and wired them into the main flow (passes 7–9).
 - Added Crust extra challenges (226–237) for advanced practice.
 - Added optional challenge IDs with `challenge:<id>` progress tokens; extras use explicit ids like `crust-extra-async-sleep`.
+- Wired fixture-backed stdin/args/file inputs into challenge validation and solution verification for determinism.
+- Stage review selection is now deterministic by default (adaptive selection is opt-in).
+- Adaptive gating defaulted off; added `--adaptive-on` flag to enable it.
+- Updated README and FTS spec to reflect deterministic Phase 1 behavior and fixture usage.
+- Ran `scripts/check.sh`; build and tests passed.
 
 ## Notes
 - Core 2 project `core2a` requires tuple usage; tuples are now taught in Core 2.

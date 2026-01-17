@@ -122,3 +122,18 @@
 ## 2026-01-16 (Challenge IDs)
 - Added optional challenge IDs and support for `challenge:<id>` in progress tokens.
 - Extras now use explicit ids like `crust-extra-async-sleep` for easier reference.
+
+## 2026-01-16 (Gap Extras)
+- Added 5 Core extra challenges for numeric conversion, string-to-int conversion, dictionary default updates, set operations, and sorting.
+- Added 2 Mantle extra challenges for access control nuance and protocol extension constraints.
+- Added 2 Crust extra challenges for async let and a minimal XCTest example.
+- Expanded total challenges to 1–250.
+
+## 2026-01-16 (Core 1 Functions)
+- Added a Function Basics challenge before parameters.
+- Combined single-parameter and multi-parameter practice into the Function Parameters challenge.
+
+## 2026-01-17 (FTS Phase 1 Determinism)
+- Added fixture-backed stdin/args/file inputs so I/O challenges stay deterministic.
+- Wired fixtures into validation and solution verification runs.
+- Stage review selection is deterministic by default; adaptive gating is opt-in.
