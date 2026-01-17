@@ -36,6 +36,7 @@ enum ProjectLayer: String {
 // Centralized challenge definitions for the CLI flow.
 struct Challenge {
     let number: Int
+    let id: String
     let title: String
     let description: String
     let starterCode: String
@@ -50,6 +51,7 @@ struct Challenge {
 
     init(
         number: Int,
+        id: String = "",
         title: String,
         description: String,
         starterCode: String,
@@ -63,6 +65,7 @@ struct Challenge {
         layer: ChallengeLayer = .core
     ) {
         self.number = number
+        self.id = id
         self.title = title
         self.description = description
         self.starterCode = starterCode
@@ -80,9 +83,24 @@ struct Challenge {
         return "challenge\(number).swift"
     }
 
+    var progressId: String {
+        if !id.isEmpty {
+            return id
+        }
+        if tier == .extra {
+            return "\(number)a"
+        }
+        return String(number)
+    }
+
+    var displayId: String {
+        return progressId
+    }
+
     func withLayer(_ layer: ChallengeLayer) -> Challenge {
         return Challenge(
             number: number,
+            id: id,
             title: title,
             description: description,
             starterCode: starterCode,
@@ -401,6 +419,79 @@ I/O Basics
 - File read: String(contentsOfFile: path, encoding: .utf8)
 """
 
+let cheatsheetConcurrency = """
+Concurrency
+- async functions can suspend and resume
+- await calls async work and returns the value
+- Task runs async work concurrently
+- withTaskGroup manages child tasks
+"""
+
+let cheatsheetActors = """
+Actors
+- actor isolates mutable state
+- actor methods are accessed with await
+- @MainActor marks main-thread-bound work
+"""
+
+let cheatsheetPropertyWrappers = """
+Property Wrappers
+- @propertyWrapper wraps get/set logic
+- wrappedValue is the stored interface
+- projectedValue is accessed via $name
+"""
+
+let cheatsheetKeyPaths = """
+Key Paths
+- Syntax: \\Type.property
+- Access with value[keyPath: path]
+- Map with \\Type.property
+"""
+
+let cheatsheetSequences = """
+Sequences
+- Sequence can be iterated once with for-in
+- Collection adds indices and count
+- lazy creates deferred transformations
+"""
+
+let cheatsheetAdvancedGenerics = """
+Advanced Generics
+- some returns an opaque type
+- any uses an existential type
+- Type erasure hides concrete types
+- where clauses add constraints
+"""
+
+let cheatsheetPerformance = """
+Performance
+- Arrays use copy-on-write behavior
+- MemoryLayout reports size/stride/alignment
+- Measure before optimizing
+"""
+
+let cheatsheetAdvancedFeatures = """
+Advanced Features
+- Custom operators declare precedence
+- Subscripts can accept multiple parameters
+- dynamicMemberLookup forwards unknown members
+- dynamicCallable forwards calls
+"""
+
+let cheatsheetSwiftPM = """
+SwiftPM
+- Package.swift defines targets and dependencies
+- Executable targets produce CLI tools
+- Library targets expose modules
+"""
+
+let cheatsheetMacros = """
+Macros (Usage)
+- Macros are expanded at compile time
+- Macro packages are added via SwiftPM
+- Use #macroName(...) per macro definition
+"""
+
 let cheatsheetProjectCore1a = """
 Project Cheatsheet: Temperature Converter
 - Functions can return computed values
@@ -521,6 +612,69 @@ let cheatsheetProjectMantle3c = """
 Project Cheatsheet: Constraint Report
 - where clauses add constraints
 - Protocol extensions add shared behavior
+"""
+
+let cheatsheetProjectCrust1a = """
+Project Cheatsheet: Async Client
+- async functions return values with await
+- Tasks run async work concurrently
+- Actors isolate mutable state
+"""
+
+let cheatsheetProjectCrust1b = """
+Project Cheatsheet: KeyPath Transformer
+- Key paths access stored properties
+- map can use \\Type.property
+- Reduce combines values into one
+"""
+
+let cheatsheetProjectCrust1c = """
+Project Cheatsheet: Task Orchestrator
+- withTaskGroup manages child tasks
+- Sum results as they arrive
+- Keep output deterministic
+"""
+
+let cheatsheetProjectCrust2a = """
+Project Cheatsheet: Config DSL
+- Result builders collect values
+- Custom types keep settings structured
+- Print in a stable order
+"""
+
+let cheatsheetProjectCrust2b = """
+Project Cheatsheet: Lazy Metrics
+- lazy defers work until needed
+- map transforms, reduce aggregates
+- Arrays preserve order
+"""
+
+let cheatsheetProjectCrust2c = """
+Project Cheatsheet: Feature Flags
+- Enums model known flags
+- Sets provide fast membership checks
+- Print booleans for enabled state
+"""
+
+let cheatsheetProjectCrust3a = """
+Project Cheatsheet: Mini Framework
+- Protocols define boundaries
+- Inject dependencies for testability
+- Store events in a simple sink
+"""
+
+let cheatsheetProjectCrust3b = """
+Project Cheatsheet: Modular CLI Tool
+- Commands expose a shared interface
+- Use a lookup table for dispatch
+- Print a single selected result
+"""
+
+let cheatsheetProjectCrust3c = """
+Project Cheatsheet: DSL Builder
+- Result builders collect steps
+- Join with separators for output
+- Keep the DSL minimal and clear
 """
 
 func makeCore1Challenges() -> [Challenge] {
@@ -1206,7 +1360,7 @@ default:
             expectedOutput: "Working",
             hints: [
                 "Switch cases can match ranges like 0...1199.",
-                "A final case can catch values outside earlier ranges.",
+                "A final case can cover values outside earlier ranges.",
             ],
             cheatsheet: cheatsheetRanges,
             solution: #"""
@@ -2734,7 +2888,7 @@ func checkTemp(_ temp: Int) throws {
     }
 }
 
- do {
+do {
     try checkTemp(-1)
 } catch {
     print("Error")
@@ -2959,6 +3113,7 @@ print(total)
         ),
         Challenge(
             number: 79,
+            id: "core-extra-safety-check",
             title: "Safety Check",
             description: "Combine conditions with &&",
             starterCode: """
@@ -2988,6 +3143,7 @@ if heatLevel >= 3 && hasVentilation {
         ),
         Challenge(
             number: 80,
+            id: "core-extra-heat-levels",
             title: "Heat Levels",
             description: "Use if/else if/else with ranges",
             starterCode: """
@@ -3021,6 +3177,7 @@ if heatLevel == 0 {
         ),
         Challenge(
             number: 81,
+            id: "core-extra-count-multiples",
             title: "Count Multiples",
             description: "Count matches in a loop",
             starterCode: """
@@ -3055,6 +3212,7 @@ print(count)
         ),
         Challenge(
             number: 82,
+            id: "core-extra-running-total",
             title: "Running Total",
             description: "Break when a total reaches a limit",
             starterCode: """
@@ -3090,6 +3248,7 @@ print(total)
         ),
         Challenge(
             number: 83,
+            id: "core-extra-optional-conversion",
             title: "Optional Conversion",
             description: "Convert a string to an Int safely",
             starterCode: """
@@ -3121,6 +3280,7 @@ if let temp = Int(input) {
         ),
         Challenge(
             number: 84,
+            id: "core-extra-guard-conversion",
             title: "Guard Conversion",
             description: "Use guard let for early exit",
             starterCode: """
@@ -3157,6 +3317,7 @@ readTemp("abc")
         ),
         Challenge(
             number: 85,
+            id: "core-extra-inventory-update",
             title: "Inventory Update",
             description: "Update a dictionary value",
             starterCode: """
@@ -3183,6 +3344,7 @@ print(inventory["Iron", default: 0])
         ),
         Challenge(
             number: 86,
+            id: "core-extra-remove-from-array",
             title: "Remove from Array",
             description: "Remove an element by index",
             starterCode: """
@@ -3209,6 +3371,7 @@ print(metals)
         ),
         Challenge(
             number: 87,
+            id: "core-extra-boolean-return",
             title: "Boolean Return",
             description: "Return true or false from a function",
             starterCode: """
@@ -3237,6 +3400,7 @@ print(isOverheated(temp: 1600))
         ),
         Challenge(
             number: 88,
+            id: "core-extra-helper-function",
             title: "Helper Function",
             description: "Call one function from another",
             starterCode: """
@@ -3270,6 +3434,7 @@ printLabel(for: 1200)
         ),
         Challenge(
             number: 89,
+            id: "core-extra-fuel-warning",
             title: "Fuel Warning",
             description: "Branch on a Bool with if/else",
             starterCode: """
@@ -3298,6 +3463,7 @@ if hasFuel {
         ),
         Challenge(
             number: 90,
+            id: "core-extra-override-switch",
             title: "Override Switch",
             description: "Combine conditions with ||",
             starterCode: """
@@ -3327,6 +3493,7 @@ if hasFuel || emergencyOverride {
         ),
         Challenge(
             number: 91,
+            id: "core-extra-negation-drill",
             title: "Negation Drill",
             description: "Use ! to invert a Bool",
             starterCode: """
@@ -3355,6 +3522,7 @@ if !isCooling {
         ),
         Challenge(
             number: 92,
+            id: "core-extra-ternary-warm-up",
             title: "Ternary Warm-up",
             description: "Use the ternary operator",
             starterCode: """
@@ -3380,6 +3548,7 @@ print(status)
         ),
         Challenge(
             number: 93,
+            id: "core-extra-heat-steps",
             title: "Heat Steps",
             description: "Loop over a range with for-in",
             starterCode: """
@@ -3407,6 +3576,7 @@ for step in 1...steps {
         ),
         Challenge(
             number: 94,
+            id: "core-extra-cooldown-countdown",
             title: "Cooldown Countdown",
             description: "Use a while loop to count down",
             starterCode: """
@@ -3433,6 +3603,7 @@ while level > 0 {
         ),
         Challenge(
             number: 95,
+            id: "core-extra-repeat-ignite",
             title: "Repeat Ignite",
             description: "Use repeat-while for at least one run",
             starterCode: """
@@ -3460,6 +3631,7 @@ repeat {
         ),
         Challenge(
             number: 96,
+            id: "core-extra-skip-weak-ore",
             title: "Skip Weak Ore",
             description: "Use continue and break",
             starterCode: """
@@ -3498,6 +3670,7 @@ print(processed)
         ),
         Challenge(
             number: 97,
+            id: "core-extra-stock-count",
             title: "Stock Count",
             description: "Append to an array and count it",
             starterCode: """
@@ -3523,6 +3696,7 @@ print(metals.count)
         ),
         Challenge(
             number: 98,
+            id: "core-extra-first-ore",
             title: "First Ore",
             description: "Use first with a default value",
             starterCode: """
@@ -3548,6 +3722,7 @@ print(firstMetal)
         ),
         Challenge(
             number: 99,
+            id: "core-extra-unique-ingots",
             title: "Unique Ingots",
             description: "Insert and check a set",
             starterCode: """
@@ -3574,6 +3749,7 @@ print(ingots.contains("Gold"))
         ),
         Challenge(
             number: 100,
+            id: "core-extra-fuel-ledger",
             title: "Fuel Ledger",
             description: "Update dictionary values and count keys",
             starterCode: """
@@ -3601,6 +3777,7 @@ print(fuel.keys.count)
         ),
         Challenge(
             number: 101,
+            id: "core-extra-iterate-ores",
             title: "Iterate Ores",
             description: "Build labels while iterating an array",
             starterCode: """
@@ -3630,6 +3807,7 @@ print(labels)
         ),
         Challenge(
             number: 102,
+            id: "core-extra-iterate-ledger",
             title: "Iterate Ledger",
             description: "Sum dictionary values",
             starterCode: """
@@ -3659,6 +3837,7 @@ print(total)
         ),
         Challenge(
             number: 103,
+            id: "core-extra-announce-heat",
             title: "Announce Heat",
             description: "Define a function with one parameter",
             starterCode: """
@@ -3686,6 +3865,7 @@ announceHeat(level: 1500)
         ),
         Challenge(
             number: 104,
+            id: "core-extra-combine-alloy",
             title: "Combine Alloy",
             description: "Define a function with two parameters",
             starterCode: """
@@ -3713,6 +3893,7 @@ combine(metal: "Iron", additive: "Carbon")
         ),
         Challenge(
             number: 105,
+            id: "core-extra-return-weight",
             title: "Return Weight",
             description: "Return a value from a function",
             starterCode: """
@@ -3739,6 +3920,7 @@ print(totalWeight(ingots: 3, weightPerIngot: 5))
         ),
         Challenge(
             number: 106,
+            id: "core-extra-label-maker",
             title: "Label Maker",
             description: "Use a function that returns a String",
             starterCode: """
@@ -3765,6 +3947,7 @@ print(makeLabel(id: 7))
         ),
         Challenge(
             number: 107,
+            id: "core-extra-coalesce-default",
             title: "Coalesce Default",
             description: "Use ?? with an optional",
             starterCode: """
@@ -3790,6 +3973,7 @@ print(value)
         ),
         Challenge(
             number: 108,
+            id: "core-extra-optional-bool-check",
             title: "Optional Bool Check",
             description: "Unwrap an optional Bool",
             starterCode: """
@@ -3818,6 +4002,7 @@ if let ready = isReady {
         ),
         Challenge(
             number: 109,
+            id: "core-extra-string-count",
             title: "String Count",
             description: "Use count on a String",
             starterCode: """
@@ -3841,6 +4026,7 @@ print(alloyName.count)
         ),
         Challenge(
             number: 110,
+            id: "core-extra-string-contains",
             title: "String Contains",
             description: "Check if a String contains text",
             starterCode: """
@@ -3864,6 +4050,7 @@ print(label.contains("Gold"))
         ),
         Challenge(
             number: 111,
+            id: "core-extra-case-shift",
             title: "Case Shift",
             description: "Uppercase a String",
             starterCode: """
@@ -3887,6 +4074,7 @@ print(code.uppercased())
         ),
         Challenge(
             number: 112,
+            id: "core-extra-prefix-check",
             title: "Prefix Check",
             description: "Check a String prefix",
             starterCode: """
@@ -3910,6 +4098,7 @@ print(line.hasPrefix("TEMP"))
         ),
         Challenge(
             number: 113,
+            id: "core-extra-suffix-check",
             title: "Suffix Check",
             description: "Check a String suffix",
             starterCode: """
@@ -3933,6 +4122,7 @@ print(line.hasSuffix("IRON"))
         ),
         Challenge(
             number: 114,
+            id: "core-extra-split-words",
             title: "Split Words",
             description: "Split a String and count parts",
             starterCode: """
@@ -3957,6 +4147,7 @@ print(parts.count)
         ),
         Challenge(
             number: 115,
+            id: "core-extra-heat-comparison",
             title: "Heat Comparison",
             description: "Use a comparison operator",
             starterCode: """
@@ -3980,6 +4171,7 @@ print(heatLevel >= 1500)
         ),
         Challenge(
             number: 116,
+            id: "core-extra-not-equal-check",
             title: "Not Equal Check",
             description: "Compare two Strings",
             starterCode: """
@@ -4004,6 +4196,7 @@ print(a != b)
         ),
         Challenge(
             number: 117,
+            id: "core-extra-lower-than",
             title: "Lower Than",
             description: "Use < with Ints",
             starterCode: """
@@ -4027,6 +4220,7 @@ print(temp < 1500)
         ),
         Challenge(
             number: 118,
+            id: "core-extra-open-range-loop",
             title: "Open Range Loop",
             description: "Loop with 1..<n",
             starterCode: """
@@ -4053,6 +4247,7 @@ for value in 1..<end {
         ),
         Challenge(
             number: 119,
+            id: "core-extra-closed-range-sum",
             title: "Closed Range Sum",
             description: "Sum values in 1...n",
             starterCode: """
@@ -4082,6 +4277,7 @@ print(total)
         ),
         Challenge(
             number: 120,
+            id: "core-extra-index-range",
             title: "Index Range",
             description: "Use 0..<count with an array",
             starterCode: """
@@ -4649,7 +4845,7 @@ print(furnace.status)
                 """,
             expectedOutput: "1200",
             hints: [
-                "Protocol types let you accept any conforming type.",
+                "Protocol types let you accept a conforming type.",
             ],
             cheatsheet: cheatsheetProtocols,
             solution: """
@@ -4938,7 +5134,7 @@ print(swapPair("Iron", 3))
                 """,
             expectedOutput: "7",
             hints: [
-                "Generic types store values of any type parameter.",
+                "Generic types store values of a type parameter.",
             ],
             cheatsheet: cheatsheetGenerics,
             solution: """
@@ -5179,6 +5375,7 @@ print("Cycle avoided")
         ),
         Challenge(
             number: 154,
+            id: "mantle-extra-struct-copy-drill",
             title: "Struct Copy Drill",
             description: "Show independent struct copies",
             starterCode: """
@@ -5210,6 +5407,7 @@ print(copy.thickness)
         ),
         Challenge(
             number: 155,
+            id: "mantle-extra-mutating-counter",
             title: "Mutating Counter",
             description: "Use a mutating method",
             starterCode: """
@@ -5249,6 +5447,7 @@ print(counter.value)
         ),
         Challenge(
             number: 156,
+            id: "mantle-extra-computed-conversion",
             title: "Computed Conversion",
             description: "Use a computed get/set",
             starterCode: """
@@ -5288,6 +5487,7 @@ print(weight.kg)
         ),
         Challenge(
             number: 157,
+            id: "mantle-extra-observer-echo",
             title: "Observer Echo",
             description: "Use property observers",
             starterCode: """
@@ -5328,6 +5528,7 @@ gauge.pressure = 3
         ),
         Challenge(
             number: 158,
+            id: "mantle-extra-class-shared-state",
             title: "Class Shared State",
             description: "Share state across references",
             starterCode: """
@@ -5361,6 +5562,7 @@ print(primary.mode)
         ),
         Challenge(
             number: 159,
+            id: "mantle-extra-lazy-builder",
             title: "Lazy Builder",
             description: "Use a lazy property",
             starterCode: """
@@ -5394,6 +5596,7 @@ print(report.title)
         ),
         Challenge(
             number: 160,
+            id: "mantle-extra-default-label",
             title: "Default Label",
             description: "Add a protocol default method",
             starterCode: """
@@ -5430,6 +5633,7 @@ print(Tool(name: "Hammer").label())
         ),
         Challenge(
             number: 161,
+            id: "mantle-extra-protocol-parameter",
             title: "Protocol Parameter",
             description: "Use a protocol as a parameter",
             starterCode: """
@@ -5464,6 +5668,7 @@ reportHeat(source: Furnace(heat: 1500))
         ),
         Challenge(
             number: 162,
+            id: "mantle-extra-composition-drill",
             title: "Composition Drill",
             description: "Require two protocols",
             starterCode: """
@@ -5504,6 +5709,7 @@ report(Vent(fuel: 2, airflow: 3))
         ),
         Challenge(
             number: 163,
+            id: "mantle-extra-extension-helper",
             title: "Extension Helper",
             description: "Add a method with an extension",
             starterCode: """
@@ -5532,6 +5738,7 @@ print(5.squared())
         ),
         Challenge(
             number: 164,
+            id: "mantle-extra-access-wrapper",
             title: "Access Wrapper",
             description: "Hide data with access control",
             starterCode: """
@@ -5572,6 +5779,7 @@ print(vault.masked)
         ),
         Challenge(
             number: 165,
+            id: "mantle-extra-error-route",
             title: "Error Route",
             description: "Throw and catch an error",
             starterCode: """
@@ -5608,8 +5816,9 @@ do {
         ),
         Challenge(
             number: 166,
+            id: "mantle-extra-generic-box",
             title: "Generic Box",
-            description: "Store any type in a box",
+            description: "Store a type in a box",
             starterCode: """
                 // Challenge 166: Generic Box
                 // Create a generic container.
@@ -5635,6 +5844,7 @@ print(box.value)
         ),
         Challenge(
             number: 167,
+            id: "mantle-extra-comparable-min",
             title: "Comparable Min",
             description: "Use a generic constraint",
             starterCode: """
@@ -5661,6 +5871,7 @@ print(minValue(3, 5))
         ),
         Challenge(
             number: 168,
+            id: "mantle-extra-associated-storage",
             title: "Associated Storage",
             description: "Use associated types",
             starterCode: """
@@ -5710,6 +5921,7 @@ print(stack.items.count)
         ),
         Challenge(
             number: 169,
+            id: "mantle-extra-where-clause",
             title: "Where Clause",
             description: "Constrain an extension",
             starterCode: """
@@ -5739,6 +5951,7 @@ print([1, 1, 2].allSame())
         ),
         Challenge(
             number: 170,
+            id: "mantle-extra-conditional-conformance",
             title: "Conditional Conformance",
             description: "Add Equatable conformance conditionally",
             starterCode: """
@@ -5769,6 +5982,7 @@ print(first == second)
         ),
         Challenge(
             number: 171,
+            id: "mantle-extra-weak-capture",
             title: "Weak Capture",
             description: "Use weak in a closure capture list",
             starterCode: """
@@ -5820,6 +6034,2838 @@ printer()
         ),
     ]
     return challenges.map { $0.withLayer(.mantle) }
+}
+
+func makeCrustChallenges() -> [Challenge] {
+    let challenges = [
+        Challenge(
+            number: 172,
+            title: "Async/Await Basics",
+            description: "Write and await a simple async function",
+            starterCode: """
+                // Challenge 172: Async/Await Basics
+                // Write and await a simple async function.
+
+                import Foundation
+
+                func runAsync(_ operation: @escaping () async -> Void) {
+                    let semaphore = DispatchSemaphore(value: 0)
+                    Task {
+                        await operation()
+                        semaphore.signal()
+                    }
+
+                    while semaphore.wait(timeout: .now()) != .success {
+                        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.01))
+                    }
+                }
+
+                // TODO: Write an async function fetchHeat() that returns 1500
+
+                runAsync {
+                    // TODO: Call fetchHeat() and print "Heat: 1500"
+                }
+
+                """,
+            expectedOutput: "Heat: 1500",
+            hints: [
+                "Async functions are declared with async and called with await.",
+                "Call the function inside the runAsync block, then print the result.",
+                "runAsync uses a Task to bridge async work in a script.",
+            ],
+            cheatsheet: cheatsheetConcurrency,
+            solution: """
+import Foundation
+
+func runAsync(_ operation: @escaping () async -> Void) {
+    let semaphore = DispatchSemaphore(value: 0)
+    Task {
+        await operation()
+        semaphore.signal()
+    }
+
+    while semaphore.wait(timeout: .now()) != .success {
+        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.01))
+    }
+}
+
+func fetchHeat() async -> Int {
+    return 1500
+}
+
+runAsync {
+    let value = await fetchHeat()
+    print("Heat: \\(value)")
+}
+
+""",
+            topic: .functions
+        ),
+        Challenge(
+            number: 173,
+            title: "Task Basics",
+            description: "Run async work in a Task",
+            starterCode: """
+                // Challenge 173: Task Basics
+                // Run async work in a Task.
+
+                import Foundation
+
+                func runAsync(_ operation: @escaping () async -> Void) {
+                    let group = DispatchGroup()
+                    group.enter()
+                    Task {
+                        await operation()
+                        group.leave()
+                    }
+                    group.wait()
+                }
+
+                // TODO: Write an async function forgeName() that returns "Forged"
+
+                runAsync {
+                    // TODO: Start a Task that awaits forgeName()
+                    // TODO: Await task.value and print the result
+                }
+
+                """,
+            expectedOutput: "Forged",
+            hints: [
+                "Create a Task with a closure that awaits your async function.",
+                "task.value returns the Task result.",
+            ],
+            cheatsheet: cheatsheetConcurrency,
+            solution: """
+import Foundation
+
+func runAsync(_ operation: @escaping () async -> Void) {
+    let group = DispatchGroup()
+    group.enter()
+    Task {
+        await operation()
+        group.leave()
+    }
+    group.wait()
+}
+
+func forgeName() async -> String {
+    return "Forged"
+}
+
+runAsync {
+    let task = Task { await forgeName() }
+    let result = await task.value
+    print(result)
+}
+
+""",
+            topic: .functions
+        ),
+        Challenge(
+            number: 174,
+            title: "Structured Concurrency",
+            description: "Sum values using a task group",
+            starterCode: """
+                // Challenge 174: Structured Concurrency
+                // Sum values using a task group.
+
+                import Foundation
+
+                func runAsync(_ operation: @escaping () async -> Void) {
+                    let group = DispatchGroup()
+                    group.enter()
+                    Task {
+                        await operation()
+                        group.leave()
+                    }
+                    group.wait()
+                }
+
+                runAsync {
+                    // TODO: Use withTaskGroup to sum [1, 2, 3]
+                    // TODO: Print "Sum: 6"
+                }
+
+                """,
+            expectedOutput: "Sum: 6",
+            hints: [
+                "Add a task for each value and sum the results as they arrive.",
+                "Return the sum from the task group scope.",
+            ],
+            cheatsheet: cheatsheetConcurrency,
+            solution: """
+import Foundation
+
+func runAsync(_ operation: @escaping () async -> Void) {
+    let group = DispatchGroup()
+    group.enter()
+    Task {
+        await operation()
+        group.leave()
+    }
+    group.wait()
+}
+
+runAsync {
+    let sum = await withTaskGroup(of: Int.self) { group -> Int in
+        for value in [1, 2, 3] {
+            group.addTask { value }
+        }
+
+        var total = 0
+        for await value in group {
+            total += value
+        }
+        return total
+    }
+
+    print("Sum: \\(sum)")
+}
+
+""",
+            topic: .functions
+        ),
+        Challenge(
+            number: 175,
+            title: "Async Sequences",
+            description: "Iterate an AsyncStream",
+            starterCode: """
+                // Challenge 175: Async Sequences
+                // Iterate an AsyncStream of values.
+
+                import Foundation
+
+                func runAsync(_ operation: @escaping () async -> Void) {
+                    let group = DispatchGroup()
+                    group.enter()
+                    Task {
+                        await operation()
+                        group.leave()
+                    }
+                    group.wait()
+                }
+
+                // TODO: Build an AsyncStream that yields 1, 2, 3 then finishes
+                func makeStream() -> AsyncStream<Int> {
+                    return AsyncStream { continuation in
+                        // TODO: Yield 1, 2, 3 and finish
+                    }
+                }
+
+                runAsync {
+                    var total = 0
+                    let stream = makeStream()
+
+                    // TODO: Sum values from the stream with for await
+                    // TODO: Print "Total: 6"
+                }
+
+                """,
+            expectedOutput: "Total: 6",
+            hints: [
+                "Use continuation.yield to emit values and continuation.finish() to close.",
+                "for await iterates async sequences.",
+            ],
+            cheatsheet: cheatsheetConcurrency,
+            solution: """
+import Foundation
+
+func runAsync(_ operation: @escaping () async -> Void) {
+    let group = DispatchGroup()
+    group.enter()
+    Task {
+        await operation()
+        group.leave()
+    }
+    group.wait()
+}
+
+func makeStream() -> AsyncStream<Int> {
+    return AsyncStream { continuation in
+        continuation.yield(1)
+        continuation.yield(2)
+        continuation.yield(3)
+        continuation.finish()
+    }
+}
+
+runAsync {
+    var total = 0
+    let stream = makeStream()
+
+    for await value in stream {
+        total += value
+    }
+
+    print("Total: \\(total)")
+}
+
+""",
+            topic: .functions
+        ),
+        Challenge(
+            number: 176,
+            title: "Cancellation",
+            description: "Respect Task cancellation",
+            starterCode: """
+                // Challenge 176: Cancellation
+                // Respect Task cancellation.
+
+                import Foundation
+
+                func runAsync(_ operation: @escaping () async -> Void) {
+                    let group = DispatchGroup()
+                    group.enter()
+                    Task {
+                        await operation()
+                        group.leave()
+                    }
+                    group.wait()
+                }
+
+                runAsync {
+                    let task = Task<Int, Never> {
+                        await Task.yield()
+                        // TODO: If Task.isCancelled, return 0
+                        // TODO: Otherwise return 3
+                    }
+
+                    // TODO: Cancel the task
+                    // TODO: Await task.value and print "Cancelled: 0"
+                }
+
+                """,
+            expectedOutput: "Cancelled: 0",
+            hints: [
+                "Task.isCancelled lets you exit early.",
+                "Cancel the task before awaiting task.value.",
+            ],
+            cheatsheet: cheatsheetConcurrency,
+            solution: """
+import Foundation
+
+func runAsync(_ operation: @escaping () async -> Void) {
+    let group = DispatchGroup()
+    group.enter()
+    Task {
+        await operation()
+        group.leave()
+    }
+    group.wait()
+}
+
+runAsync {
+    let task = Task<Int, Never> {
+        await Task.yield()
+        if Task.isCancelled {
+            return 0
+        }
+        return 3
+    }
+
+    task.cancel()
+    let result = await task.value
+    print("Cancelled: \\(result)")
+}
+
+""",
+            topic: .functions
+        ),
+        Challenge(
+            number: 177,
+            title: "Actor Basics",
+            description: "Isolate state with an actor",
+            starterCode: """
+                // Challenge 177: Actor Basics
+                // Isolate state with an actor.
+
+                import Foundation
+
+                func runAsync(_ operation: @escaping () async -> Void) {
+                    let group = DispatchGroup()
+                    group.enter()
+                    Task {
+                        await operation()
+                        group.leave()
+                    }
+                    group.wait()
+                }
+
+                actor Counter {
+                    private var value = 0
+                    // TODO: Add increment() to add 1
+                    // TODO: Add current() -> Int to return value
+                }
+
+                let counter = Counter()
+                runAsync {
+                    // TODO: Call increment twice
+                    // TODO: Print "Count: 2"
+                }
+
+                """,
+            expectedOutput: "Count: 2",
+            hints: [
+                "Actor methods are accessed with await.",
+                "Store the result from current() before printing.",
+            ],
+            cheatsheet: cheatsheetActors,
+            solution: """
+import Foundation
+
+func runAsync(_ operation: @escaping () async -> Void) {
+    let group = DispatchGroup()
+    group.enter()
+    Task {
+        await operation()
+        group.leave()
+    }
+    group.wait()
+}
+
+actor Counter {
+    private var value = 0
+
+    func increment() {
+        value += 1
+    }
+
+    func current() -> Int {
+        return value
+    }
+}
+
+let counter = Counter()
+runAsync {
+    await counter.increment()
+    await counter.increment()
+    let value = await counter.current()
+    print("Count: \\(value)")
+}
+
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 178,
+            title: "MainActor",
+            description: "Run work on the main actor",
+            starterCode: """
+                // Challenge 178: MainActor
+                // Run work on the main actor.
+
+                import Foundation
+
+                @MainActor
+                func updateStatus(value: Int) -> String {
+                    // TODO: Return "Status: <value>"
+                }
+
+                // TODO: Create a Task on the main actor that prints updateStatus(value: 3)
+                // TODO: Keep the run loop alive briefly so the task can finish
+
+                """,
+            expectedOutput: "Status: 3",
+            hints: [
+                "@MainActor functions run on the main actor.",
+                "Use Task { @MainActor in ... } to run the print.",
+                "Run the main run loop briefly so the task can execute.",
+            ],
+            cheatsheet: cheatsheetActors,
+            solution: """
+import Foundation
+
+@MainActor
+func updateStatus(value: Int) -> String {
+    return "Status: \\(value)"
+}
+
+Task { @MainActor in
+    let status = updateStatus(value: 3)
+    print(status)
+}
+
+RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
+
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 179,
+            title: "Sendable",
+            description: "Mark values as safe to send across tasks",
+            starterCode: """
+                // Challenge 179: Sendable
+                // Mark values as safe to send across tasks.
+
+                import Foundation
+
+                struct HeatReport: Sendable {
+                    let value: Int
+                }
+
+                let report = HeatReport(value: 1200)
+                // TODO: Print "Heat: 1200"
+
+                """,
+            expectedOutput: "Heat: 1200",
+            hints: [
+                "Sendable is a marker for concurrency safety.",
+                "Use the stored value in the output.",
+            ],
+            cheatsheet: cheatsheetConcurrency,
+            solution: """
+import Foundation
+
+struct HeatReport: Sendable {
+    let value: Int
+}
+
+let report = HeatReport(value: 1200)
+print("Heat: \\(report.value)")
+
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 180,
+            title: "Property Wrapper Usage",
+            description: "Use a provided property wrapper",
+            starterCode: """
+                // Challenge 180: Property Wrapper Usage
+                // Use a provided property wrapper.
+
+                import Foundation
+
+                @propertyWrapper
+                struct Clamped {
+                    private var value: Int
+                    private let range: ClosedRange<Int>
+
+                    var wrappedValue: Int {
+                        get { value }
+                        set { value = min(max(newValue, range.lowerBound), range.upperBound) }
+                    }
+
+                    init(wrappedValue: Int, _ range: ClosedRange<Int>) {
+                        self.range = range
+                        self.value = min(max(wrappedValue, range.lowerBound), range.upperBound)
+                    }
+                }
+
+                struct Furnace {
+                    // TODO: Create @Clamped(0...100) var heat = 120
+                }
+
+                var furnace = Furnace()
+                // TODO: Print heat (should be 100)
+
+                """,
+            expectedOutput: "100",
+            hints: [
+                "The wrapper clamps values into the provided range.",
+                "Declare the wrapped property on a type, then print it.",
+            ],
+            cheatsheet: cheatsheetPropertyWrappers,
+            solution: """
+import Foundation
+
+@propertyWrapper
+struct Clamped {
+    private var value: Int
+    private let range: ClosedRange<Int>
+
+    var wrappedValue: Int {
+        get { value }
+        set { value = min(max(newValue, range.lowerBound), range.upperBound) }
+    }
+
+    init(wrappedValue: Int, _ range: ClosedRange<Int>) {
+        self.range = range
+        self.value = min(max(wrappedValue, range.lowerBound), range.upperBound)
+    }
+}
+
+struct Furnace {
+    @Clamped(0...100) var heat = 120
+}
+
+var furnace = Furnace()
+print(furnace.heat)
+
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 181,
+            title: "Custom Property Wrapper",
+            description: "Build a wrapper that normalizes input",
+            starterCode: """
+                // Challenge 181: Custom Property Wrapper
+                // Build a wrapper that normalizes input.
+
+                import Foundation
+
+                @propertyWrapper
+                struct Lowercased {
+                    private var value: String
+
+                    // TODO: Add wrappedValue that lowercases on set
+                    // TODO: Add init(wrappedValue:) that lowercases the initial value
+                }
+
+                struct Label {
+                    @Lowercased var name: String
+                }
+
+                let label = Label(name: "IRON")
+                // TODO: Print label.name (should be "iron")
+
+                """,
+            expectedOutput: "iron",
+            hints: [
+                "wrappedValue should return the stored value and lowercased on set.",
+                "Lowercase the initial wrappedValue in the initializer.",
+            ],
+            cheatsheet: cheatsheetPropertyWrappers,
+            solution: """
+import Foundation
+
+@propertyWrapper
+struct Lowercased {
+    private var value: String
+
+    var wrappedValue: String {
+        get { value }
+        set { value = newValue.lowercased() }
+    }
+
+    init(wrappedValue: String) {
+        value = wrappedValue.lowercased()
+    }
+}
+
+struct Label {
+    @Lowercased var name: String
+}
+
+let label = Label(name: "IRON")
+print(label.name)
+
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 182,
+            title: "Projected Values",
+            description: "Use projected values from a wrapper",
+            starterCode: """
+                // Challenge 182: Projected Values
+                // Use projected values from a wrapper.
+
+                import Foundation
+
+                @propertyWrapper
+                struct Tracked {
+                    private var value: Int
+                    private(set) var projectedValue: Int = 0
+
+                    var wrappedValue: Int {
+                        get { value }
+                        set { value = newValue; projectedValue += 1 }
+                    }
+
+                    init(wrappedValue: Int) {
+                        value = wrappedValue
+                    }
+                }
+
+                struct Furnace {
+                    @Tracked var heat = 1200
+                }
+
+                var furnace = Furnace()
+                furnace.heat = 1300
+                furnace.heat = 1400
+                // TODO: Print "Updates: 2" using the projected value
+
+                """,
+            expectedOutput: "Updates: 2",
+            hints: [
+                "Projected values are accessed with a $ prefix.",
+                "Use the projected value on the instance after two assignments.",
+            ],
+            cheatsheet: cheatsheetPropertyWrappers,
+            solution: """
+import Foundation
+
+@propertyWrapper
+struct Tracked {
+    private var value: Int
+    private(set) var projectedValue: Int = 0
+
+    var wrappedValue: Int {
+        get { value }
+        set { value = newValue; projectedValue += 1 }
+    }
+
+    init(wrappedValue: Int) {
+        value = wrappedValue
+    }
+}
+
+struct Furnace {
+    @Tracked var heat = 1200
+}
+
+var furnace = Furnace()
+furnace.heat = 1300
+furnace.heat = 1400
+print("Updates: \\(furnace.$heat)")
+
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 183,
+            title: "Key Path Syntax",
+            description: "Read a value using a key path",
+            starterCode: """
+                // Challenge 183: Key Path Syntax
+                // Read a value using a key path.
+
+                import Foundation
+
+                struct Ore {
+                    let name: String
+                    let purity: Int
+                }
+
+                let ore = Ore(name: "Iron", purity: 90)
+
+                // TODO: Create a key path for name and print it
+                """,
+            expectedOutput: "Iron",
+            hints: [
+                "Key paths use the \\Type.property syntax.",
+                "Access with value[keyPath: path].",
+            ],
+            cheatsheet: cheatsheetKeyPaths,
+            solution: """
+import Foundation
+
+struct Ore {
+    let name: String
+    let purity: Int
+}
+
+let ore = Ore(name: "Iron", purity: 90)
+let nameKey = \\Ore.name
+print(ore[keyPath: nameKey])
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 184,
+            title: "Key Path Mapping",
+            description: "Map values using key paths",
+            starterCode: """
+                // Challenge 184: Key Path Mapping
+                // Map values using key paths.
+
+                import Foundation
+
+                struct Ore {
+                    let name: String
+                }
+
+                let ores = [Ore(name: "Iron"), Ore(name: "Gold")]
+
+                // TODO: Use map with a key path to get names
+                // TODO: Print the names joined by a comma
+                """,
+            expectedOutput: "Iron,Gold",
+            hints: [
+                "map can take a key path like \\.name.",
+                "Use joined(separator:) to format the array.",
+            ],
+            cheatsheet: cheatsheetKeyPaths,
+            solution: """
+import Foundation
+
+struct Ore {
+    let name: String
+}
+
+let ores = [Ore(name: "Iron"), Ore(name: "Gold")]
+let names = ores.map(\\.name)
+print(names.joined(separator: \",\"))
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 185,
+            title: "Lazy Collections",
+            description: "Defer work with lazy",
+            starterCode: """
+                // Challenge 185: Lazy Collections
+                // Defer work with lazy.
+
+                import Foundation
+
+                let numbers = [1, 2, 3]
+
+                // TODO: Use lazy and map to double the numbers
+                // TODO: Convert to Array and print the result
+                """,
+            expectedOutput: "[2, 4, 6]",
+            hints: [
+                "lazy creates a deferred sequence.",
+                "Wrap the lazy result in Array(...) to print it.",
+            ],
+            cheatsheet: cheatsheetSequences,
+            solution: """
+import Foundation
+
+let numbers = [1, 2, 3]
+let doubled = numbers.lazy.map { $0 * 2 }
+print(Array(doubled))
+""",
+            topic: .collections
+        ),
+        Challenge(
+            number: 186,
+            title: "Custom Sequence",
+            description: "Create a sequence that counts down",
+            starterCode: """
+                // Challenge 186: Custom Sequence
+                // Create a sequence that counts down.
+
+                import Foundation
+
+                struct Countdown: Sequence {
+                    let start: Int
+                    func makeIterator() -> CountdownIterator {
+                        return CountdownIterator(current: start)
+                    }
+                }
+
+                struct CountdownIterator: IteratorProtocol {
+                    var current: Int
+                    // TODO: Implement next() to return current, then decrement until 0
+                }
+
+                let countdown = Countdown(start: 3)
+                for value in countdown {
+                    print(value)
+                }
+                """,
+            expectedOutput: "3\n2\n1",
+            hints: [
+                "Return nil when the sequence is done.",
+                "Use defer or manual decrement to update current.",
+            ],
+            cheatsheet: cheatsheetSequences,
+            solution: """
+import Foundation
+
+struct Countdown: Sequence {
+    let start: Int
+    func makeIterator() -> CountdownIterator {
+        return CountdownIterator(current: start)
+    }
+}
+
+struct CountdownIterator: IteratorProtocol {
+    var current: Int
+    mutating func next() -> Int? {
+        guard current > 0 else { return nil }
+        defer { current -= 1 }
+        return current
+    }
+}
+
+let countdown = Countdown(start: 3)
+for value in countdown {
+    print(value)
+}
+""",
+            topic: .collections
+        ),
+        Challenge(
+            number: 187,
+            title: "Custom Iterator",
+            description: "Implement next() manually",
+            starterCode: """
+                // Challenge 187: Custom Iterator
+                // Implement next() manually.
+
+                import Foundation
+
+                struct HeatIterator: IteratorProtocol {
+                    var current: Int
+                    let max: Int
+
+                    // TODO: Return current, then add 100 until max is reached
+                }
+
+                var iterator = HeatIterator(current: 1200, max: 1400)
+                print(iterator.next()!)
+                print(iterator.next()!)
+                """,
+            expectedOutput: "1200\n1300",
+            hints: [
+                "Return nil after current exceeds max.",
+                "Update current after returning the old value.",
+            ],
+            cheatsheet: cheatsheetSequences,
+            solution: """
+import Foundation
+
+struct HeatIterator: IteratorProtocol {
+    var current: Int
+    let max: Int
+
+    mutating func next() -> Int? {
+        guard current <= max else { return nil }
+        defer { current += 100 }
+        return current
+    }
+}
+
+var iterator = HeatIterator(current: 1200, max: 1400)
+print(iterator.next()!)
+print(iterator.next()!)
+""",
+            topic: .collections
+        ),
+        Challenge(
+            number: 188,
+            title: "Sequence vs Collection",
+            description: "Materialize a sequence to access count",
+            starterCode: """
+                // Challenge 188: Sequence vs Collection
+                // Materialize a sequence to access count.
+
+                import Foundation
+
+                struct Counter: Sequence {
+                    let start: Int
+                    func makeIterator() -> CounterIterator {
+                        return CounterIterator(current: start)
+                    }
+                }
+
+                struct CounterIterator: IteratorProtocol {
+                    var current: Int
+                    mutating func next() -> Int? {
+                        guard current > 0 else { return nil }
+                        defer { current -= 1 }
+                        return current
+                    }
+                }
+
+                let sequence = Counter(start: 3)
+                // TODO: Convert the sequence to an Array
+                // TODO: Print "Count: 3" and "Last: 1"
+                """,
+            expectedOutput: "Count: 3\nLast: 1",
+            hints: [
+                "Array(sequence) materializes the values.",
+                "Use items.count and items.last to format output.",
+            ],
+            cheatsheet: cheatsheetSequences,
+            solution: """
+import Foundation
+
+struct Counter: Sequence {
+    let start: Int
+    func makeIterator() -> CounterIterator {
+        return CounterIterator(current: start)
+    }
+}
+
+struct CounterIterator: IteratorProtocol {
+    var current: Int
+    mutating func next() -> Int? {
+        guard current > 0 else { return nil }
+        defer { current -= 1 }
+        return current
+    }
+}
+
+let sequence = Counter(start: 3)
+let items = Array(sequence)
+print("Count: \\(items.count)")
+print("Last: \\(items.last ?? 0)")
+""",
+            topic: .collections
+        ),
+        Challenge(
+            number: 189,
+            title: "Integration Challenge",
+            description: "Combine async, actors, and wrappers",
+            starterCode: """
+                // Challenge 189: Integration Challenge
+                // Combine async, actors, and wrappers.
+
+                import Foundation
+
+                func runAsync(_ operation: @escaping () async -> Void) {
+                    let group = DispatchGroup()
+                    group.enter()
+                    Task {
+                        await operation()
+                        group.leave()
+                    }
+                    group.wait()
+                }
+
+                @propertyWrapper
+                struct Clamped {
+                    private var value: Int
+                    private let range: ClosedRange<Int>
+
+                    var wrappedValue: Int {
+                        get { value }
+                        set { value = min(max(newValue, range.lowerBound), range.upperBound) }
+                    }
+
+                    init(wrappedValue: Int, _ range: ClosedRange<Int>) {
+                        self.range = range
+                        self.value = min(max(wrappedValue, range.lowerBound), range.upperBound)
+                    }
+                }
+
+                actor Furnace {
+                    @Clamped(0...2000) var heat: Int = 0
+                    // TODO: Add addHeat(_:) to increase heat
+                    // TODO: Add currentHeat() -> Int to return heat
+                }
+
+                let furnace = Furnace()
+                runAsync {
+                    // TODO: await furnace.addHeat(2200)
+                    // TODO: Print "Heat: 2000"
+                }
+
+                """,
+            expectedOutput: "Heat: 2000",
+            hints: [
+                "The wrapper clamps heat to 2000.",
+                "Use await to call actor methods.",
+            ],
+            cheatsheet: cheatsheetActors,
+            solution: """
+import Foundation
+
+func runAsync(_ operation: @escaping () async -> Void) {
+    let group = DispatchGroup()
+    group.enter()
+    Task {
+        await operation()
+        group.leave()
+    }
+    group.wait()
+}
+
+@propertyWrapper
+struct Clamped {
+    private var value: Int
+    private let range: ClosedRange<Int>
+
+    var wrappedValue: Int {
+        get { value }
+        set { value = min(max(newValue, range.lowerBound), range.upperBound) }
+    }
+
+    init(wrappedValue: Int, _ range: ClosedRange<Int>) {
+        self.range = range
+        self.value = min(max(wrappedValue, range.lowerBound), range.upperBound)
+    }
+}
+
+actor Furnace {
+    @Clamped(0...2000) var heat: Int = 0
+
+    func addHeat(_ value: Int) {
+        heat += value
+    }
+
+    func currentHeat() -> Int {
+        return heat
+    }
+}
+
+let furnace = Furnace()
+runAsync {
+    await furnace.addHeat(2200)
+    let current = await furnace.currentHeat()
+    print("Heat: \\(current)")
+}
+
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 190,
+            title: "Opaque Types",
+            description: "Return an opaque type with some",
+            starterCode: """
+                // Challenge 190: Opaque Types
+                // Return an opaque type with some.
+
+                protocol Metal {
+                    var name: String { get }
+                }
+
+                struct Ingot: Metal {
+                    let name: String
+                }
+
+                // TODO: Return an Ingot named "Iron"
+                func makeMetal() -> some Metal {
+                }
+
+                let metal = makeMetal()
+                print("Metal: \\(metal.name)")
+                """,
+            expectedOutput: "Metal: Iron",
+            hints: [
+                "Return a concrete type that conforms to Metal.",
+                "Use the name property when printing.",
+            ],
+            cheatsheet: cheatsheetAdvancedGenerics,
+            solution: """
+protocol Metal {
+    var name: String { get }
+}
+
+struct Ingot: Metal {
+    let name: String
+}
+
+func makeMetal() -> some Metal {
+    return Ingot(name: "Iron")
+}
+
+let metal = makeMetal()
+print("Metal: \\(metal.name)")
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 191,
+            title: "Existentials",
+            description: "Store mixed conforming types with any",
+            starterCode: """
+                // Challenge 191: Existentials
+                // Store mixed conforming types with any.
+
+                protocol Sensor {
+                    var name: String { get }
+                }
+
+                struct TempSensor: Sensor { let name = "Temp" }
+                struct PressureSensor: Sensor { let name = "Pressure" }
+
+                func report(_ sensors: [any Sensor]) {
+                    // TODO: Print each sensor name on its own line
+                }
+
+                let sensors: [any Sensor] = [TempSensor(), PressureSensor()]
+                report(sensors)
+                """,
+            expectedOutput: "Temp\nPressure",
+            hints: [
+                "any Sensor stores values with different concrete types.",
+                "Loop and print the name for each sensor.",
+            ],
+            cheatsheet: cheatsheetAdvancedGenerics,
+            solution: """
+protocol Sensor {
+    var name: String { get }
+}
+
+struct TempSensor: Sensor { let name = "Temp" }
+struct PressureSensor: Sensor { let name = "Pressure" }
+
+func report(_ sensors: [any Sensor]) {
+    for sensor in sensors {
+        print(sensor.name)
+    }
+}
+
+let sensors: [any Sensor] = [TempSensor(), PressureSensor()]
+report(sensors)
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 192,
+            title: "Type Erasure",
+            description: "Hide concrete types behind a wrapper",
+            starterCode: """
+                // Challenge 192: Type Erasure
+                // Hide concrete types behind a wrapper.
+
+                protocol Reader {
+                    func read() -> Int
+                }
+
+                struct FixedReader: Reader {
+                    let value: Int
+                    func read() -> Int { value }
+                }
+
+                struct AnyReader: Reader {
+                    private let _read: () -> Int
+
+                    // TODO: Add init that stores the base reader's read method
+                    // TODO: Implement read() to call the stored closure
+                }
+
+                let readers: [AnyReader] = [AnyReader(FixedReader(value: 3)), AnyReader(FixedReader(value: 4))]
+                let total = readers.reduce(0) { $0 + $1.read() }
+                print("Sum: \\(total)")
+                """,
+            expectedOutput: "Sum: 7",
+            hints: [
+                "Capture the base.read method in the initializer.",
+                "read() should call the stored closure.",
+            ],
+            cheatsheet: cheatsheetAdvancedGenerics,
+            solution: """
+protocol Reader {
+    func read() -> Int
+}
+
+struct FixedReader: Reader {
+    let value: Int
+    func read() -> Int { value }
+}
+
+struct AnyReader: Reader {
+    private let _read: () -> Int
+
+    init<R: Reader>(_ base: R) {
+        _read = base.read
+    }
+
+    func read() -> Int {
+        return _read()
+    }
+}
+
+let readers: [AnyReader] = [AnyReader(FixedReader(value: 3)), AnyReader(FixedReader(value: 4))]
+let total = readers.reduce(0) { $0 + $1.read() }
+print("Sum: \\(total)")
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 193,
+            title: "Primary Associated Types",
+            description: "Use generic protocol syntax",
+            starterCode: """
+                // Challenge 193: Primary Associated Types
+                // Use generic protocol syntax.
+
+                protocol Stack<Element> {
+                    associatedtype Element
+                    var items: [Element] { get }
+                }
+
+                struct IntStack: Stack {
+                    let items: [Int]
+                }
+
+                let stack: any Stack<Int> = IntStack(items: [1, 2, 3])
+                // TODO: Print the top item as "Top: 3"
+                """,
+            expectedOutput: "Top: 3",
+            hints: [
+                "A primary associated type lets you write Stack<Int>.",
+                "Use items.last to get the top value.",
+            ],
+            cheatsheet: cheatsheetAdvancedGenerics,
+            solution: """
+protocol Stack<Element> {
+    associatedtype Element
+    var items: [Element] { get }
+}
+
+struct IntStack: Stack {
+    let items: [Int]
+}
+
+let stack: any Stack<Int> = IntStack(items: [1, 2, 3])
+print("Top: \\(stack.items.last ?? 0)")
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 194,
+            title: "Where Clauses",
+            description: "Add extra generic constraints",
+            starterCode: """
+                // Challenge 194: Where Clauses
+                // Add extra generic constraints.
+
+                // TODO: Write areEqual(_:_:), constrained to Equatable, that returns Bool
+                // TODO: Print the result of areEqual(4, 4)
+                """,
+            expectedOutput: "true",
+            hints: [
+                "Use a where clause or a generic constraint on the function.",
+                "Return the equality check result.",
+            ],
+            cheatsheet: cheatsheetAdvancedGenerics,
+            solution: """
+func areEqual<T>(_ a: T, _ b: T) -> Bool where T: Equatable {
+    return a == b
+}
+
+print(areEqual(4, 4))
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 195,
+            title: "Copy-on-Write",
+            description: "Observe value semantics in collections",
+            starterCode: """
+                // Challenge 195: Copy-on-Write
+                // Observe value semantics in collections.
+
+                var first = [1, 2]
+                var second = first
+
+                // TODO: Append 3 to second
+                // TODO: Print first.count then second.count
+                """,
+            expectedOutput: "2\n3",
+            hints: [
+                "Arrays copy on write when mutated.",
+                "Update second, then print both counts.",
+            ],
+            cheatsheet: cheatsheetPerformance,
+            solution: """
+var first = [1, 2]
+var second = first
+
+second.append(3)
+
+print(first.count)
+print(second.count)
+""",
+            topic: .collections
+        ),
+        Challenge(
+            number: 196,
+            title: "MemoryLayout",
+            description: "Inspect type sizes",
+            starterCode: """
+                // Challenge 196: MemoryLayout
+                // Inspect type sizes.
+
+                // TODO: Print MemoryLayout<UInt8>.size
+                // TODO: Print MemoryLayout<Bool>.size
+                """,
+            expectedOutput: "1\n1",
+            hints: [
+                "MemoryLayout<T>.size returns the size in bytes.",
+                "Use the same pattern for both types.",
+            ],
+            cheatsheet: cheatsheetPerformance,
+            solution: """
+print(MemoryLayout<UInt8>.size)
+print(MemoryLayout<Bool>.size)
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 197,
+            title: "Profiling Mindset",
+            description: "Measure before optimizing",
+            starterCode: """
+                // Challenge 197: Profiling Mindset
+                // Measure before optimizing.
+                // Manual check: run the file and observe the elapsed time.
+
+                import Foundation
+
+                let start = Date()
+                var total = 0
+                for value in 1...100_000 {
+                    total += value
+                }
+                let elapsed = Date().timeIntervalSince(start)
+
+                // TODO: Print total and elapsed time (format is up to you)
+                // Example: "Total: 5000050000" and "Elapsed: 0.00"
+                // TODO: Print "Manual check" when finished
+
+                print("Manual check")
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                "Use string interpolation to show the elapsed time.",
+                "Exact timing will vary; focus on printing both lines.",
+            ],
+            cheatsheet: cheatsheetPerformance,
+            solution: """
+import Foundation
+
+let start = Date()
+var total = 0
+for value in 1...100_000 {
+    total += value
+}
+let elapsed = Date().timeIntervalSince(start)
+
+print("Total: \\(total)")
+print(String(format: "Elapsed: %.2f", elapsed))
+print("Manual check")
+""",
+            manualCheck: true,
+            topic: .general
+        ),
+        Challenge(
+            number: 198,
+            title: "Custom Operators",
+            description: "Define a new infix operator",
+            starterCode: """
+                // Challenge 198: Custom Operators
+                // Define a new infix operator.
+
+                // TODO: Declare infix operator +++ with AdditionPrecedence
+                // TODO: Implement +++ for Int that adds two values
+                // TODO: Print the result of 3 +++ 4
+                """,
+            expectedOutput: "7",
+            hints: [
+                "Use infix operator and a matching function implementation.",
+                "The operator function should return an Int.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+infix operator +++: AdditionPrecedence
+
+func +++ (lhs: Int, rhs: Int) -> Int {
+    return lhs + rhs
+}
+
+print(3 +++ 4)
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 199,
+            title: "Custom Subscripts",
+            description: "Add a subscript with two parameters",
+            starterCode: """
+                // Challenge 199: Custom Subscripts
+                // Add a subscript with two parameters.
+
+                struct Grid {
+                    let values: [[Int]]
+                    // TODO: Add subscript(_:_:) -> Int
+                }
+
+                let grid = Grid(values: [[1, 2], [4, 5]])
+                print(grid[1, 0])
+                """,
+            expectedOutput: "4",
+            hints: [
+                "Subscripts can accept multiple parameters.",
+                "Return values[row][col] inside the subscript.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+struct Grid {
+    let values: [[Int]]
+    subscript(_ row: Int, _ col: Int) -> Int {
+        return values[row][col]
+    }
+}
+
+let grid = Grid(values: [[1, 2], [4, 5]])
+print(grid[1, 0])
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 200,
+            title: "dynamicMemberLookup",
+            description: "Forward unknown members",
+            starterCode: """
+                // Challenge 200: dynamicMemberLookup
+                // Forward unknown members.
+
+                @dynamicMemberLookup
+                struct Settings {
+                    var values: [String: String]
+                    // TODO: Add dynamicMember subscript returning String
+                }
+
+                let settings = Settings(values: ["mode": "safe", "level": "3"])
+                print(settings.mode)
+                print(settings.level)
+                """,
+            expectedOutput: "safe\n3",
+            hints: [
+                "dynamicMemberLookup requires a dynamicMember subscript.",
+                "Return values[member] with a default if missing.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+@dynamicMemberLookup
+struct Settings {
+    var values: [String: String]
+    subscript(dynamicMember member: String) -> String {
+        return values[member, default: ""]
+    }
+}
+
+let settings = Settings(values: ["mode": "safe", "level": "3"])
+print(settings.mode)
+print(settings.level)
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 201,
+            title: "dynamicCallable",
+            description: "Forward calls to a type",
+            starterCode: """
+                // Challenge 201: dynamicCallable
+                // Forward calls to a type.
+
+                @dynamicCallable
+                struct Multiplier {
+                    // TODO: Implement dynamicallyCall(withArguments:) -> Int
+                }
+
+                let multiply = Multiplier()
+                print(multiply(2, 3, 4))
+                """,
+            expectedOutput: "24",
+            hints: [
+                "dynamicallyCall receives an array of arguments.",
+                "Multiply all values in the array.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+@dynamicCallable
+struct Multiplier {
+    func dynamicallyCall(withArguments args: [Int]) -> Int {
+        return args.reduce(1, *)
+    }
+}
+
+let multiply = Multiplier()
+print(multiply(2, 3, 4))
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 202,
+            title: "Result Builders (Use)",
+            description: "Build values with a result builder",
+            starterCode: """
+                // Challenge 202: Result Builders (Use)
+                // Build values with a result builder.
+
+                @resultBuilder
+                struct MessageBuilder {
+                    static func buildBlock(_ components: String...) -> [String] {
+                        return components
+                    }
+                }
+
+                func makeMessages(@MessageBuilder _ content: () -> [String]) -> [String] {
+                    return content()
+                }
+
+                // TODO: Use makeMessages to build ["Forge", "Ready"]
+                // TODO: Print "Forge Ready"
+                """,
+            expectedOutput: "Forge Ready",
+            hints: [
+                "The builder collects string literals into an array.",
+                "Join with a space to match the output.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+@resultBuilder
+struct MessageBuilder {
+    static func buildBlock(_ components: String...) -> [String] {
+        return components
+    }
+}
+
+func makeMessages(@MessageBuilder _ content: () -> [String]) -> [String] {
+    return content()
+}
+
+let messages = makeMessages {
+    "Forge"
+    "Ready"
+}
+
+print(messages.joined(separator: " "))
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 203,
+            title: "Macros (Usage)",
+            description: "Review how macro usage looks in Swift",
+            starterCode: """
+                // Challenge 203: Macros (Usage)
+                // Manual check: read the notes and skim macro usage.
+                // Macros require a SwiftPM package; this file is for reference.
+
+                // TODO: In your own words, add a comment describing what a macro does.
+
+                print("Manual check")
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                "Macros expand at compile time.",
+                "Write a short comment in this file.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+// Macros generate code at compile time based on their inputs.
+print("Manual check")
+""",
+            manualCheck: true,
+            topic: .general
+        ),
+        Challenge(
+            number: 204,
+            title: "SwiftPM Basics",
+            description: "Read Package.swift for target types",
+            starterCode: """
+                // Challenge 204: SwiftPM Basics
+                // Manual check: open Package.swift and note target types.
+
+                // TODO: Add a comment listing the package targets you found.
+
+                print("Manual check")
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                "Package.swift lists executable and test targets.",
+                "Record the names in a comment.",
+            ],
+            cheatsheet: cheatsheetSwiftPM,
+            solution: """
+// Targets: forge (executable), forgeTests (test)
+print("Manual check")
+""",
+            manualCheck: true,
+            topic: .general
+        ),
+        Challenge(
+            number: 205,
+            title: "Dependencies & Imports",
+            description: "Identify modules and dependencies",
+            starterCode: """
+                // Challenge 205: Dependencies & Imports
+                // Manual check: scan Package.swift for dependencies.
+
+                // TODO: Add a comment with any dependencies you see (or "none").
+
+                print("Manual check")
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                "Package.swift lists dependencies near the top.",
+                "This repo currently has no external dependencies.",
+            ],
+            cheatsheet: cheatsheetSwiftPM,
+            solution: """
+// Dependencies: none
+print("Manual check")
+""",
+            manualCheck: true,
+            topic: .general
+        ),
+        Challenge(
+            number: 206,
+            title: "Build Configs & Flags",
+            description: "Print the active build configuration",
+            starterCode: """
+                // Challenge 206: Build Configs & Flags
+                // Print the active build configuration.
+                // Note: Running with `swift` uses release-style flags, so DEBUG is not set.
+
+                // TODO: Use #if DEBUG to print "Debug", otherwise "Release"
+                """,
+            expectedOutput: "Release",
+            hints: [
+                "#if DEBUG is true in debug builds.",
+                "Scripts run without DEBUG, so the release branch should print.",
+            ],
+            cheatsheet: cheatsheetPerformance,
+            solution: """
+                #if DEBUG
+                print("Debug")
+                #else
+                print("Release")
+                #endif
+                """,
+            topic: .general
+        ),
+        Challenge(
+            number: 207,
+            title: "Integration Challenge",
+            description: "Plan a SwiftPM feature module",
+            starterCode: """
+                // Challenge 207: Integration Challenge
+                // Manual check: plan a SwiftPM feature module.
+
+                // TODO: Add a comment with a module name and its responsibility.
+
+                print("Manual check")
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                "Pick a small feature you could isolate into a module.",
+                "Describe its responsibility in one sentence.",
+            ],
+            cheatsheet: cheatsheetSwiftPM,
+            solution: """
+// Module: AnalyticsKit - handles event formatting and dispatch.
+print("Manual check")
+""",
+            manualCheck: true,
+            topic: .general
+        ),
+        Challenge(
+            number: 208,
+            title: "Macro Authoring (Concepts)",
+            description: "Review how macro authoring works",
+            starterCode: """
+                // Challenge 208: Macro Authoring (Concepts)
+                // Manual check: read about how Swift macros are authored.
+                // This file is for conceptual notes only.
+
+                // TODO: Add a short comment describing what a macro author provides.
+
+                print("Manual check")
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                "Macro authors write code that generates code at compile time.",
+                "Add a one-line comment summarizing the role.",
+            ],
+            cheatsheet: cheatsheetMacros,
+            solution: """
+// A macro author provides code that expands into compiler-generated code.
+print("Manual check")
+""",
+            manualCheck: true,
+            topic: .general
+        ),
+        Challenge(
+            number: 209,
+            title: "Reflection",
+            description: "Inspect values with Mirror",
+            starterCode: """
+                // Challenge 209: Reflection
+                // Inspect values with Mirror.
+
+                struct ForgeLog {
+                    let metal: String
+                    let heat: Int
+                }
+
+                let log = ForgeLog(metal: "Iron", heat: 1200)
+                let mirror = Mirror(reflecting: log)
+
+                // TODO: Print each child label on its own line
+                """,
+            expectedOutput: "metal\nheat",
+            hints: [
+                "Mirror.children yields label/value pairs.",
+                "Print the label for each child.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+struct ForgeLog {
+    let metal: String
+    let heat: Int
+}
+
+let log = ForgeLog(metal: "Iron", heat: 1200)
+let mirror = Mirror(reflecting: log)
+
+for child in mirror.children {
+    if let label = child.label {
+        print(label)
+    }
+}
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 210,
+            title: "Witness Tables (Concepts)",
+            description: "Understand protocol witness tables",
+            starterCode: """
+                // Challenge 210: Witness Tables (Concepts)
+                // Manual check: read about protocol witness tables.
+
+                // TODO: Add a comment describing why witness tables exist.
+
+                print("Manual check")
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                "Witness tables map protocol requirements to implementations.",
+                "Write a short sentence in a comment.",
+            ],
+            cheatsheet: cheatsheetAdvancedGenerics,
+            solution: """
+// Witness tables let the runtime find concrete implementations for protocol requirements.
+print("Manual check")
+""",
+            manualCheck: true,
+            topic: .general
+        ),
+        Challenge(
+            number: 211,
+            title: "MVVM vs MVC",
+            description: "Sketch a simple ViewModel",
+            starterCode: """
+                // Challenge 211: MVVM vs MVC
+                // Sketch a simple ViewModel.
+
+                struct FurnaceModel {
+                    let heat: Int
+                }
+
+                struct FurnaceViewModel {
+                    let model: FurnaceModel
+                    // TODO: Add a computed property status returning "Ready" when heat >= 1200
+                }
+
+                let viewModel = FurnaceViewModel(model: FurnaceModel(heat: 1300))
+                print("Status: \\(viewModel.status)")
+                """,
+            expectedOutput: "Status: Ready",
+            hints: [
+                "ViewModels map model data into display-ready values.",
+                "Return a string based on the model's heat.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+struct FurnaceModel {
+    let heat: Int
+}
+
+struct FurnaceViewModel {
+    let model: FurnaceModel
+    var status: String {
+        return model.heat >= 1200 ? "Ready" : "Cold"
+    }
+}
+
+let viewModel = FurnaceViewModel(model: FurnaceModel(heat: 1300))
+print("Status: \\(viewModel.status)")
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 212,
+            title: "Dependency Injection",
+            description: "Inject a dependency via protocol",
+            starterCode: """
+                // Challenge 212: Dependency Injection
+                // Inject a dependency via protocol.
+
+                protocol Logger {
+                    func log(_ message: String)
+                }
+
+                struct ConsoleLogger: Logger {
+                    func log(_ message: String) {
+                        print(message)
+                    }
+                }
+
+                struct ForgeService {
+                    let logger: any Logger
+                    // TODO: Add a start() method that logs "Forge started"
+                }
+
+                let service = ForgeService(logger: ConsoleLogger())
+                // TODO: Call service.start()
+                """,
+            expectedOutput: "Forge started",
+            hints: [
+                "Inject the logger through the initializer or property.",
+                "Use logger.log inside start().",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+protocol Logger {
+    func log(_ message: String)
+}
+
+struct ConsoleLogger: Logger {
+    func log(_ message: String) {
+        print(message)
+    }
+}
+
+struct ForgeService {
+    let logger: any Logger
+    func start() {
+        logger.log("Forge started")
+    }
+}
+
+let service = ForgeService(logger: ConsoleLogger())
+service.start()
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 213,
+            title: "Coordinator Pattern",
+            description: "Centralize navigation flow",
+            starterCode: """
+                // Challenge 213: Coordinator Pattern
+                // Centralize navigation flow.
+
+                protocol Coordinator {
+                    func start()
+                }
+
+                struct AppCoordinator: Coordinator {
+                    // TODO: Implement start() to print "Start"
+                }
+
+                let coordinator = AppCoordinator()
+                coordinator.start()
+                """,
+            expectedOutput: "Start",
+            hints: [
+                "Coordinators expose a start() method.",
+                "Print a simple marker string.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+protocol Coordinator {
+    func start()
+}
+
+struct AppCoordinator: Coordinator {
+    func start() {
+        print("Start")
+    }
+}
+
+let coordinator = AppCoordinator()
+coordinator.start()
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 214,
+            title: "Repository Pattern",
+            description: "Separate data access from logic",
+            starterCode: """
+                // Challenge 214: Repository Pattern
+                // Separate data access from logic.
+
+                protocol InventoryRepository {
+                    func loadItems() -> [String]
+                }
+
+                struct MemoryInventoryRepository: InventoryRepository {
+                    let items: [String]
+                    func loadItems() -> [String] { items }
+                }
+
+                struct InventoryService {
+                    let repository: any InventoryRepository
+                    // TODO: Add count() -> Int that returns item count
+                }
+
+                let service = InventoryService(repository: MemoryInventoryRepository(items: ["Iron", "Gold"]))
+                print("Count: \\(service.count())")
+                """,
+            expectedOutput: "Count: 2",
+            hints: [
+                "Call repository.loadItems inside count().",
+                "Return the count of the items array.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+protocol InventoryRepository {
+    func loadItems() -> [String]
+}
+
+struct MemoryInventoryRepository: InventoryRepository {
+    let items: [String]
+    func loadItems() -> [String] { items }
+}
+
+struct InventoryService {
+    let repository: any InventoryRepository
+    func count() -> Int {
+        return repository.loadItems().count
+    }
+}
+
+let service = InventoryService(repository: MemoryInventoryRepository(items: ["Iron", "Gold"]))
+print("Count: \\(service.count())")
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 215,
+            title: "Protocol Mocking",
+            description: "Swap in a mock for testing",
+            starterCode: """
+                // Challenge 215: Protocol Mocking
+                // Swap in a mock for testing.
+
+                protocol Clock {
+                    func now() -> Int
+                }
+
+                struct MockClock: Clock {
+                    let value: Int
+                    func now() -> Int { value }
+                }
+
+                func report(_ clock: any Clock) {
+                    // TODO: Print "Now: <value>"
+                }
+
+                report(MockClock(value: 5))
+                """,
+            expectedOutput: "Now: 5",
+            hints: [
+                "Mocks return a fixed value for predictable output.",
+                "Call clock.now() inside report().",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+protocol Clock {
+    func now() -> Int
+}
+
+struct MockClock: Clock {
+    let value: Int
+    func now() -> Int { value }
+}
+
+func report(_ clock: any Clock) {
+    print("Now: \\(clock.now())")
+}
+
+report(MockClock(value: 5))
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 216,
+            title: "TDD Cycle (Concepts)",
+            description: "Recall red/green/refactor",
+            starterCode: """
+                // Challenge 216: TDD Cycle (Concepts)
+                // Manual check: describe the red/green/refactor loop.
+
+                // TODO: Add a comment describing the three steps.
+
+                print("Manual check")
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                "Red: failing test; Green: make it pass; Refactor: clean up.",
+                "Summarize in one sentence.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+// Red: write a failing test, Green: make it pass, Refactor: clean up code.
+print("Manual check")
+""",
+            manualCheck: true,
+            topic: .general
+        ),
+        Challenge(
+            number: 217,
+            title: "Async Testing (Concepts)",
+            description: "Review async XCTest patterns",
+            starterCode: """
+                // Challenge 217: Async Testing (Concepts)
+                // Manual check: review async XCTest examples.
+
+                // TODO: Add a comment describing one async testing approach.
+
+                print("Manual check")
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                "XCTest supports async test methods with async/await.",
+                "Write one short comment.",
+            ],
+            cheatsheet: cheatsheetMacros,
+            solution: """
+// Async tests can be declared as async and awaited directly in XCTest.
+print("Manual check")
+""",
+            manualCheck: true,
+            topic: .general
+        ),
+        Challenge(
+            number: 218,
+            title: "UI Testing (Concepts)",
+            description: "Recall UI testing focus",
+            starterCode: """
+                // Challenge 218: UI Testing (Concepts)
+                // Manual check: summarize UI testing goals.
+
+                // TODO: Add a comment describing what UI tests verify.
+
+                print("Manual check")
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                "UI tests simulate user flows and verify visible outcomes.",
+                "Write a short summary comment.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+// UI tests simulate user interactions and verify the resulting UI state.
+print("Manual check")
+""",
+            manualCheck: true,
+            topic: .general
+        ),
+        Challenge(
+            number: 219,
+            title: "Unsafe Pointers",
+            description: "Access memory with an unsafe pointer",
+            starterCode: """
+                // Challenge 219: Unsafe Pointers
+                // Access memory with an unsafe pointer.
+
+                var value = 42
+
+                // TODO: Use withUnsafePointer(to:) to print the value
+                """,
+            expectedOutput: "42",
+            hints: [
+                "withUnsafePointer passes a pointer to a closure.",
+                "Use pointer.pointee to read the value.",
+            ],
+            cheatsheet: cheatsheetPerformance,
+            solution: """
+var value = 42
+
+withUnsafePointer(to: &value) { pointer in
+    print(pointer.pointee)
+}
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 220,
+            title: "C Interop (Concepts)",
+            description: "Recall how C interop works",
+            starterCode: """
+                // Challenge 220: C Interop (Concepts)
+                // Manual check: summarize C interop.
+
+                // TODO: Add a comment about importing C headers or modules.
+
+                print("Manual check")
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                "Swift can import C APIs via module maps or bridging headers.",
+                "Write a short comment.",
+            ],
+            cheatsheet: cheatsheetSwiftPM,
+            solution: """
+// C APIs can be imported with module maps or bridging headers.
+print("Manual check")
+""",
+            manualCheck: true,
+            topic: .general
+        ),
+        Challenge(
+            number: 221,
+            title: "Objective-C Interop (Concepts)",
+            description: "Recall Obj-C bridging basics",
+            starterCode: """
+                // Challenge 221: Objective-C Interop (Concepts)
+                // Manual check: summarize Objective-C bridging.
+
+                // TODO: Add a comment about @objc or bridging headers.
+
+                print("Manual check")
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                "@objc exposes Swift to Obj-C; bridging headers import Obj-C to Swift.",
+                "Write a short comment.",
+            ],
+            cheatsheet: cheatsheetSwiftPM,
+            solution: """
+// @objc exposes Swift to Objective-C and bridging headers import Obj-C into Swift.
+print("Manual check")
+""",
+            manualCheck: true,
+            topic: .general
+        ),
+        Challenge(
+            number: 222,
+            title: "LLDB Tactics (Concepts)",
+            description: "Recall common debugger commands",
+            starterCode: """
+                // Challenge 222: LLDB Tactics (Concepts)
+                // Manual check: note a few LLDB commands.
+
+                // TODO: Add a comment listing 1-2 LLDB commands you know.
+
+                print("Manual check")
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                "Examples: breakpoint set, po, bt.",
+                "Write a short comment.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+// Commands: breakpoint set --name, po, bt
+print("Manual check")
+""",
+            manualCheck: true,
+            topic: .general
+        ),
+        Challenge(
+            number: 223,
+            title: "Diagnostics",
+            description: "Surface errors with context",
+            starterCode: """
+                // Challenge 223: Diagnostics
+                // Surface errors with context.
+
+                enum ForgeError: Error {
+                    case overheated
+                }
+
+                func checkHeat(_ value: Int) throws {
+                    if value > 2000 {
+                        throw ForgeError.overheated
+                    }
+                }
+
+                do {
+                    try checkHeat(2200)
+                    print("OK")
+                } catch {
+                    // TODO: Print "Error: overheating"
+                }
+                """,
+            expectedOutput: "Error: overheating",
+            hints: [
+                "The catch block handles thrown errors.",
+                "Print a clear message for the failure case.",
+            ],
+            cheatsheet: cheatsheetErrors,
+            solution: """
+enum ForgeError: Error {
+    case overheated
+}
+
+func checkHeat(_ value: Int) throws {
+    if value > 2000 {
+        throw ForgeError.overheated
+    }
+}
+
+ do {
+    try checkHeat(2200)
+    print("OK")
+} catch {
+    print("Error: overheating")
+}
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 224,
+            title: "Git Workflows (Concepts)",
+            description: "Recall basic Git workflow steps",
+            starterCode: """
+                // Challenge 224: Git Workflows (Concepts)
+                // Manual check: list a typical Git workflow.
+
+                // TODO: Add a comment with 3-4 steps in a Git workflow.
+
+                print("Manual check")
+                """,
+            expectedOutput: "Manual check",
+            hints: [
+                "Example: branch -> commit -> push -> PR.",
+                "Write a short sequence in a comment.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+// Workflow: branch, commit changes, push, open a PR.
+print("Manual check")
+""",
+            manualCheck: true,
+            topic: .general
+        ),
+        Challenge(
+            number: 225,
+            title: "Integration Challenge",
+            description: "Combine DI and protocol testing",
+            starterCode: """
+                // Challenge 225: Integration Challenge
+                // Combine DI and protocol testing.
+
+                protocol DataSource {
+                    func values() -> [Int]
+                }
+
+                struct MemorySource: DataSource {
+                    let items: [Int]
+                    func values() -> [Int] { items }
+                }
+
+                struct Analyzer {
+                    let source: DataSource
+                    // TODO: Add sum() -> Int that totals the source values
+                }
+
+                let analyzer = Analyzer(source: MemorySource(items: [1, 2, 3]))
+                print("Sum: \\(analyzer.sum())")
+                """,
+            expectedOutput: "Sum: 6",
+            hints: [
+                "Call source.values() and sum the results.",
+                "Return the total from sum().",
+            ],
+            cheatsheet: cheatsheetAdvancedGenerics,
+            solution: """
+protocol DataSource {
+    func values() -> [Int]
+}
+
+struct MemorySource: DataSource {
+    let items: [Int]
+    func values() -> [Int] { items }
+}
+
+struct Analyzer {
+    let source: DataSource
+    func sum() -> Int {
+        return source.values().reduce(0, +)
+    }
+}
+
+let analyzer = Analyzer(source: MemorySource(items: [1, 2, 3]))
+print("Sum: \\(analyzer.sum())")
+""",
+            topic: .general
+        ),
+        Challenge(
+            number: 226,
+            id: "crust-extra-async-sleep",
+            title: "Async Sleep",
+            description: "Pause an async task before printing",
+            starterCode: """
+                // Challenge 226: Async Sleep
+                // Pause an async task before printing.
+
+                import Foundation
+
+                func runAsync(_ operation: @escaping () async -> Void) {
+                    let group = DispatchGroup()
+                    group.enter()
+                    Task {
+                        await operation()
+                        group.leave()
+                    }
+                    group.wait()
+                }
+
+                runAsync {
+                    // TODO: Sleep briefly with Task.sleep
+                    // TODO: Print "Done"
+                }
+                """,
+            expectedOutput: "Done",
+            hints: [
+                "Task.sleep is async and can be called with try? await.",
+                "Print after the sleep call.",
+            ],
+            cheatsheet: cheatsheetConcurrency,
+            solution: """
+import Foundation
+
+func runAsync(_ operation: @escaping () async -> Void) {
+    let group = DispatchGroup()
+    group.enter()
+    Task {
+        await operation()
+        group.leave()
+    }
+    group.wait()
+}
+
+runAsync {
+    try? await Task.sleep(nanoseconds: 50_000_000)
+    print("Done")
+}
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 227,
+            id: "crust-extra-actor-balance",
+            title: "Actor Balance",
+            description: "Update actor state safely",
+            starterCode: """
+                // Challenge 227: Actor Balance
+                // Update actor state safely.
+
+                import Foundation
+
+                func runAsync(_ operation: @escaping () async -> Void) {
+                    let group = DispatchGroup()
+                    group.enter()
+                    Task {
+                        await operation()
+                        group.leave()
+                    }
+                    group.wait()
+                }
+
+                actor Ledger {
+                    private var balance = 0
+                    // TODO: Add add(_:) and current() methods
+                }
+
+                let ledger = Ledger()
+                runAsync {
+                    // TODO: Add 3 and 4, then print "Balance: 7"
+                }
+                """,
+            expectedOutput: "Balance: 7",
+            hints: [
+                "Actor methods are called with await.",
+                "Print the balance after both updates.",
+            ],
+            cheatsheet: cheatsheetActors,
+            solution: """
+import Foundation
+
+func runAsync(_ operation: @escaping () async -> Void) {
+    let group = DispatchGroup()
+    group.enter()
+    Task {
+        await operation()
+        group.leave()
+    }
+    group.wait()
+}
+
+actor Ledger {
+    private var balance = 0
+
+    func add(_ value: Int) {
+        balance += value
+    }
+
+    func current() -> Int {
+        return balance
+    }
+}
+
+let ledger = Ledger()
+runAsync {
+    await ledger.add(3)
+    await ledger.add(4)
+    let value = await ledger.current()
+    print("Balance: \\(value)")
+}
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 228,
+            id: "crust-extra-sendable-snapshot",
+            title: "Sendable Snapshot",
+            description: "Move values across tasks safely",
+            starterCode: """
+                // Challenge 228: Sendable Snapshot
+                // Move values across tasks safely.
+
+                struct Snapshot: Sendable {
+                    let values: [Int]
+                }
+
+                let snapshot = Snapshot(values: [1, 2, 3])
+                // TODO: Print "Count: 3"
+                """,
+            expectedOutput: "Count: 3",
+            hints: [
+                "Sendable marks the struct as safe for concurrency.",
+                "Use values.count in the output.",
+            ],
+            cheatsheet: cheatsheetConcurrency,
+            solution: """
+struct Snapshot: Sendable {
+    let values: [Int]
+}
+
+let snapshot = Snapshot(values: [1, 2, 3])
+print("Count: \\(snapshot.values.count)")
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 229,
+            id: "crust-extra-keypath-average",
+            title: "KeyPath Average",
+            description: "Compute an average using key paths",
+            starterCode: """
+                // Challenge 229: KeyPath Average
+                // Compute an average using key paths.
+
+                struct Ore {
+                    let name: String
+                    let purity: Int
+                }
+
+                let ores = [
+                    Ore(name: "Iron", purity: 70),
+                    Ore(name: "Gold", purity: 90),
+                ]
+
+                // TODO: Map purity values with a key path
+                // TODO: Print "Average: 80"
+                """,
+            expectedOutput: "Average: 80",
+            hints: [
+                "Use ores.map(\\.purity) to extract values.",
+                "Average is sum / count with Int math.",
+            ],
+            cheatsheet: cheatsheetKeyPaths,
+            solution: """
+struct Ore {
+    let name: String
+    let purity: Int
+}
+
+let ores = [
+    Ore(name: "Iron", purity: 70),
+    Ore(name: "Gold", purity: 90),
+]
+
+let values = ores.map(\\.purity)
+let average = values.reduce(0, +) / values.count
+print("Average: \\(average)")
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 230,
+            id: "crust-extra-lazy-even-sum",
+            title: "Lazy Even Sum",
+            description: "Filter and sum with lazy",
+            starterCode: """
+                // Challenge 230: Lazy Even Sum
+                // Filter and sum with lazy.
+
+                let numbers = [1, 2, 3, 4, 5, 6]
+
+                // TODO: Use lazy to keep even numbers
+                // TODO: Multiply each by 10
+                // TODO: Print "Total: 120"
+                """,
+            expectedOutput: "Total: 120",
+            hints: [
+                "Use lazy.filter then lazy.map before reducing.",
+                "Sum the transformed values to match the total.",
+            ],
+            cheatsheet: cheatsheetSequences,
+            solution: """
+let numbers = [1, 2, 3, 4, 5, 6]
+
+let total = numbers.lazy
+    .filter { $0 % 2 == 0 }
+    .map { $0 * 10 }
+    .reduce(0, +)
+
+print("Total: \\(total)")
+""",
+            topic: .collections,
+            tier: .extra
+        ),
+        Challenge(
+            number: 231,
+            id: "crust-extra-generic-max",
+            title: "Generic Max",
+            description: "Compare values with generics",
+            starterCode: """
+                // Challenge 231: Generic Max
+                // Compare values with generics.
+
+                // TODO: Write maxValue<T: Comparable>(_:_:) -> T
+                // TODO: Print maxValue(4, 9)
+                """,
+            expectedOutput: "9",
+            hints: [
+                "Return a if a > b, otherwise b.",
+                "Use a generic constraint on Comparable.",
+            ],
+            cheatsheet: cheatsheetAdvancedGenerics,
+            solution: """
+func maxValue<T: Comparable>(_ a: T, _ b: T) -> T {
+    return a > b ? a : b
+}
+
+print(maxValue(4, 9))
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 232,
+            id: "crust-extra-anysequence",
+            title: "AnySequence",
+            description: "Erase sequence types",
+            starterCode: """
+                // Challenge 232: AnySequence
+                // Erase sequence types.
+
+                func makeSequence() -> AnySequence<Int> {
+                    // TODO: Return AnySequence with [1, 2, 3]
+                }
+
+                let sequence = makeSequence()
+                let items = Array(sequence)
+                print("Count: \\(items.count)")
+                """,
+            expectedOutput: "Count: 3",
+            hints: [
+                "Wrap the array with AnySequence(...).",
+                "Materialize the sequence to count it.",
+            ],
+            cheatsheet: cheatsheetAdvancedGenerics,
+            solution: """
+func makeSequence() -> AnySequence<Int> {
+    return AnySequence([1, 2, 3])
+}
+
+let sequence = makeSequence()
+let items = Array(sequence)
+print("Count: \\(items.count)")
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 233,
+            id: "crust-extra-dynamicmemberlookup-extra",
+            title: "dynamicMemberLookup Extra",
+            description: "Provide default values",
+            starterCode: """
+                // Challenge 233: dynamicMemberLookup Extra
+                // Provide default values.
+
+                @dynamicMemberLookup
+                struct Defaults {
+                    var values: [String: Int]
+                    // TODO: Add dynamicMember subscript returning Int
+                }
+
+                let defaults = Defaults(values: ["limit": 5])
+                print("Limit: \\(defaults.limit)")
+                print("Missing: \\(defaults.missing)")
+                """,
+            expectedOutput: "Limit: 5\nMissing: 0",
+            hints: [
+                "Return values[member, default: 0].",
+                "The missing key should return 0.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+@dynamicMemberLookup
+struct Defaults {
+    var values: [String: Int]
+    subscript(dynamicMember member: String) -> Int {
+        return values[member, default: 0]
+    }
+}
+
+let defaults = Defaults(values: ["limit": 5])
+print("Limit: \\(defaults.limit)")
+print("Missing: \\(defaults.missing)")
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 234,
+            id: "crust-extra-dynamiccallable-keywords",
+            title: "dynamicCallable Keywords",
+            description: "Sum keyword arguments",
+            starterCode: """
+                // Challenge 234: dynamicCallable Keywords
+                // Sum keyword arguments.
+
+                @dynamicCallable
+                struct KeyedAdder {
+                    // TODO: Implement dynamicallyCall(withKeywordArguments:)
+                }
+
+                let adder = KeyedAdder()
+                print(adder(a: 1, b: 2, c: 3))
+                """,
+            expectedOutput: "6",
+            hints: [
+                "Keyword arguments arrive as KeyValuePairs.",
+                "Sum the values and return the total.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+@dynamicCallable
+struct KeyedAdder {
+    func dynamicallyCall(withKeywordArguments args: KeyValuePairs<String, Int>) -> Int {
+        return args.reduce(0) { $0 + $1.value }
+    }
+}
+
+let adder = KeyedAdder()
+print(adder(a: 1, b: 2, c: 3))
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 235,
+            id: "crust-extra-memorylayout-stride",
+            title: "MemoryLayout Stride",
+            description: "Inspect stride and alignment",
+            starterCode: """
+                // Challenge 235: MemoryLayout Stride
+                // Inspect stride and alignment.
+
+                // TODO: Print "Stride: 2" and "Alignment: 2" for UInt16
+                """,
+            expectedOutput: "Stride: 2\nAlignment: 2",
+            hints: [
+                "Use MemoryLayout<UInt16>.stride and .alignment.",
+                "Format exactly as requested.",
+            ],
+            cheatsheet: cheatsheetPerformance,
+            solution: """
+print("Stride: \\(MemoryLayout<UInt16>.stride)")
+print("Alignment: \\(MemoryLayout<UInt16>.alignment)")
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 236,
+            id: "crust-extra-unsafe-mutation",
+            title: "Unsafe Mutation",
+            description: "Update through a pointer",
+            starterCode: """
+                // Challenge 236: Unsafe Mutation
+                // Update through a pointer.
+
+                var value = 5
+
+                // TODO: Use withUnsafeMutablePointer to add 5
+                // TODO: Print value (should be 10)
+                """,
+            expectedOutput: "10",
+            hints: [
+                "Use pointer.pointee to update the value.",
+                "Print after the pointer scope.",
+            ],
+            cheatsheet: cheatsheetPerformance,
+            solution: """
+var value = 5
+
+withUnsafeMutablePointer(to: &value) { pointer in
+    pointer.pointee += 5
+}
+
+print(value)
+""",
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 237,
+            id: "crust-extra-where-filter",
+            title: "Where Filter",
+            description: "Use a constrained extension",
+            starterCode: """
+                // Challenge 237: Where Filter
+                // Use a constrained extension.
+
+                struct Box<T> {
+                    let value: T
+                }
+
+                extension Box where T == Int {
+                    // TODO: Add isEven() -> Bool
+                }
+
+                let box = Box(value: 6)
+                print(box.isEven())
+                """,
+            expectedOutput: "true",
+            hints: [
+                "Add a constrained extension for Int.",
+                "Use value % 2 == 0.",
+            ],
+            cheatsheet: cheatsheetAdvancedGenerics,
+            solution: """
+struct Box<T> {
+    let value: T
+}
+
+extension Box where T == Int {
+    func isEven() -> Bool {
+        return value % 2 == 0
+    }
+}
+
+let box = Box(value: 6)
+print(box.isEven())
+""",
+            topic: .general,
+            tier: .extra
+        ),
+
+
+
+    ]
+    return challenges.map { $0.withLayer(.crust) }
 }
 
 func makeProjects() -> [Project] {
@@ -6969,5 +10015,642 @@ func isEqual<T: Equatable>(_ first: T, _ second: T) -> Bool {
             tier: .extra,
             layer: .mantle
         ),
+        Project(
+            id: "crust1a",
+            pass: 7,
+            title: "Async Client",
+            description: "Coordinate async work with a cache actor",
+            starterCode: #"""
+                // Crust 1 Project A: Async Client
+                // Coordinate async work and an actor-backed cache.
+                //
+                // Requirements:
+                // - Write async function fetchStatus() -> String that returns "OK"
+                // - Add actor StatusCache with:
+                //   - store(_:) to save a status
+                //   - current() -> String to read the saved status
+                // - Use runAsync to:
+                //   - await fetchStatus()
+                //   - store it in the cache
+                //   - print:
+                //     "Status: OK"
+                //     "Cached: OK"
+                //
+                // TODO: Implement the async flow.
+
+                import Foundation
+
+                func runAsync(_ operation: @escaping () async -> Void) {
+                    let group = DispatchGroup()
+                    group.enter()
+                    Task {
+                        await operation()
+                        group.leave()
+                    }
+                    group.wait()
+                }
+
+                // TODO: Write fetchStatus() async
+
+                actor StatusCache {
+                    // TODO: Store a status and return it
+                }
+
+                // Test code (don't modify):
+                let cache = StatusCache()
+                runAsync {
+                    // TODO: Fetch status, store it, then print Status/Cached lines
+                }
+                """#,
+            testCases: [
+                (input: "status", expectedOutput: "Status: OK"),
+                (input: "cached", expectedOutput: "Cached: OK"),
+            ],
+            completionTitle: "⚡ Crust 1 Complete!",
+            completionMessage: "You can now coordinate async work safely.",
+            hints: [
+                "Use await for fetchStatus and actor calls.",
+                "Store the result before printing both lines.",
+            ],
+            cheatsheet: cheatsheetProjectCrust1a,
+            solution: """
+import Foundation
+
+func runAsync(_ operation: @escaping () async -> Void) {
+    let group = DispatchGroup()
+    group.enter()
+    Task {
+        await operation()
+        group.leave()
+    }
+    group.wait()
+}
+
+func fetchStatus() async -> String {
+    return "OK"
+}
+
+actor StatusCache {
+    private var status = ""
+
+    func store(_ value: String) {
+        status = value
+    }
+
+    func current() -> String {
+        return status
+    }
+}
+
+let cache = StatusCache()
+runAsync {
+    let status = await fetchStatus()
+    await cache.store(status)
+    let cached = await cache.current()
+    print("Status: \\(status)")
+    print("Cached: \\(cached)")
+}
+""",
+            tier: .mainline,
+            layer: .crust
+        ),
+        Project(
+            id: "crust1b",
+            pass: 7,
+            title: "KeyPath Transformer",
+            description: "Aggregate values with key paths",
+            starterCode: #"""
+                // Crust 1 Project B: KeyPath Transformer
+                // Aggregate values with key paths.
+                //
+                // Requirements:
+                // - Create an array of readings:
+                //   - ("Iron", 2)
+                //   - ("Gold", 4)
+                // - Use a key path to map values
+                // - Sum them and print "Total: 6"
+                //
+                // TODO: Implement the transformer.
+
+                struct Reading {
+                    let label: String
+                    let value: Int
+                }
+
+                let readings = [
+                    Reading(label: "Iron", value: 2),
+                    Reading(label: "Gold", value: 4),
+                ]
+
+                // TODO: Map values with a key path and print the total
+                """#,
+            testCases: [
+                (input: "total", expectedOutput: "Total: 6"),
+            ],
+            completionTitle: "✨ Crust 1 Extra Project Complete!",
+            completionMessage: "Great work using key paths for aggregation.",
+            hints: [
+                "Use map(\\.value) to extract values.",
+                "Reduce the values to a total before printing.",
+            ],
+            cheatsheet: cheatsheetProjectCrust1b,
+            solution: """
+struct Reading {
+    let label: String
+    let value: Int
+}
+
+let readings = [
+    Reading(label: "Iron", value: 2),
+    Reading(label: "Gold", value: 4),
+]
+
+let values = readings.map(\\.value)
+let total = values.reduce(0, +)
+print("Total: \\(total)")
+""",
+            tier: .extra,
+            layer: .crust
+        ),
+        Project(
+            id: "crust1c",
+            pass: 7,
+            title: "Task Orchestrator",
+            description: "Coordinate task-group work",
+            starterCode: #"""
+                // Crust 1 Project C: Task Orchestrator
+                // Coordinate task-group work.
+                //
+                // Requirements:
+                // - Use withTaskGroup to sum [2, 4, 6]
+                // - Print "Sum: 12"
+                //
+                // TODO: Implement the task group.
+
+                import Foundation
+
+                func runAsync(_ operation: @escaping () async -> Void) {
+                    let group = DispatchGroup()
+                    group.enter()
+                    Task {
+                        await operation()
+                        group.leave()
+                    }
+                    group.wait()
+                }
+
+                runAsync {
+                    // TODO: Sum the values with a task group
+                    // TODO: Print the result
+                }
+                """#,
+            testCases: [
+                (input: "sum", expectedOutput: "Sum: 12"),
+            ],
+            completionTitle: "✨ Crust 1 Extra Project Complete!",
+            completionMessage: "Nice job coordinating async tasks.",
+            hints: [
+                "Add a task for each value and sum with for await.",
+                "Print the final total after the group finishes.",
+            ],
+            cheatsheet: cheatsheetProjectCrust1c,
+            solution: """
+import Foundation
+
+func runAsync(_ operation: @escaping () async -> Void) {
+    let group = DispatchGroup()
+    group.enter()
+    Task {
+        await operation()
+        group.leave()
+    }
+    group.wait()
+}
+
+runAsync {
+    let total = await withTaskGroup(of: Int.self) { group -> Int in
+        for value in [2, 4, 6] {
+            group.addTask { value }
+        }
+
+        var sum = 0
+        for await value in group {
+            sum += value
+        }
+        return sum
+    }
+
+    print("Sum: \\(total)")
+}
+""",
+            tier: .extra,
+            layer: .crust
+        ),
+        Project(
+            id: "crust2a",
+            pass: 8,
+            title: "Config DSL",
+            description: "Build settings with a result builder",
+            starterCode: #"""
+                // Crust 2 Project A: Config DSL
+                // Build settings with a result builder.
+                //
+                // Requirements:
+                // - Use ConfigBuilder to build two settings:
+                //   - mode = fast
+                //   - retries = 3
+                // - Print:
+                //   "mode=fast"
+                //   "retries=3"
+                //
+                // TODO: Implement the DSL.
+
+                struct Setting {
+                    let key: String
+                    let value: String
+                }
+
+                @resultBuilder
+                struct ConfigBuilder {
+                    static func buildBlock(_ components: Setting...) -> [Setting] {
+                        return components
+                    }
+                }
+
+                func makeConfig(@ConfigBuilder _ content: () -> [Setting]) -> [Setting] {
+                    return content()
+                }
+
+                // Test code (don't modify):
+                let settings = makeConfig {
+                    // TODO: Add Setting(key:value:) items
+                }
+
+                for setting in settings {
+                    print("\(setting.key)=\(setting.value)")
+                }
+                """#,
+            testCases: [
+                (input: "mode", expectedOutput: "mode=fast"),
+                (input: "retries", expectedOutput: "retries=3"),
+            ],
+            completionTitle: "🚀 Crust 2 Complete!",
+            completionMessage: "You can now build small DSLs in Swift.",
+            hints: [
+                "Return two Setting values from the builder block.",
+                "Order matters for the output.",
+            ],
+            cheatsheet: cheatsheetProjectCrust2a,
+            solution: """
+struct Setting {
+    let key: String
+    let value: String
+}
+
+@resultBuilder
+struct ConfigBuilder {
+    static func buildBlock(_ components: Setting...) -> [Setting] {
+        return components
+    }
+}
+
+func makeConfig(@ConfigBuilder _ content: () -> [Setting]) -> [Setting] {
+    return content()
+}
+
+let settings = makeConfig {
+    Setting(key: "mode", value: "fast")
+    Setting(key: "retries", value: "3")
+}
+
+for setting in settings {
+    print("\\(setting.key)=\\(setting.value)")
+}
+""",
+            tier: .mainline,
+            layer: .crust
+        ),
+        Project(
+            id: "crust2b",
+            pass: 8,
+            title: "Lazy Metrics",
+            description: "Aggregate values with lazy transforms",
+            starterCode: #"""
+                // Crust 2 Project B: Lazy Metrics
+                // Aggregate values with lazy transforms.
+                //
+                // Requirements:
+                // - Double the numbers [1, 2, 3, 4, 5] using lazy map
+                // - Sum the results and print "Total: 30"
+                //
+                // TODO: Implement the aggregation.
+
+                let numbers = [1, 2, 3, 4, 5]
+
+                // TODO: Use lazy map + reduce
+                """#,
+            testCases: [
+                (input: "total", expectedOutput: "Total: 30"),
+            ],
+            completionTitle: "✨ Crust 2 Extra Project Complete!",
+            completionMessage: "Nice work combining lazy and reduce.",
+            hints: [
+                "Use numbers.lazy.map { $0 * 2 }.",
+                "Reduce the mapped values to a sum.",
+            ],
+            cheatsheet: cheatsheetProjectCrust2b,
+            solution: """
+let numbers = [1, 2, 3, 4, 5]
+
+let doubled = numbers.lazy.map { $0 * 2 }
+let total = doubled.reduce(0, +)
+print("Total: \\(total)")
+""",
+            tier: .extra,
+            layer: .crust
+        ),
+        Project(
+            id: "crust2c",
+            pass: 8,
+            title: "Feature Flags",
+            description: "Check enabled flags",
+            starterCode: #"""
+                // Crust 2 Project C: Feature Flags
+                // Check enabled flags.
+                //
+                // Requirements:
+                // - Define enum FeatureFlag with cases darkMode and newUI
+                // - Implement isEnabled(flags:flag:) -> Bool
+                // - Print:
+                //   "Dark: true"
+                //   "NewUI: false"
+                //
+                // TODO: Implement the flag checks.
+
+                enum FeatureFlag: String {
+                    case darkMode = "dark"
+                    case newUI = "new-ui"
+                }
+
+                let enabled: Set<FeatureFlag> = [.darkMode]
+
+                // TODO: Write isEnabled and print the results
+                """#,
+            testCases: [
+                (input: "dark", expectedOutput: "Dark: true"),
+                (input: "newui", expectedOutput: "NewUI: false"),
+            ],
+            completionTitle: "✨ Crust 2 Extra Project Complete!",
+            completionMessage: "Feature flags are now in your toolkit.",
+            hints: [
+                "Use flags.contains(flag) inside isEnabled.",
+                "Print the two booleans in the requested format.",
+            ],
+            cheatsheet: cheatsheetProjectCrust2c,
+            solution: """
+enum FeatureFlag: String {
+    case darkMode = "dark"
+    case newUI = "new-ui"
+}
+
+let enabled: Set<FeatureFlag> = [.darkMode]
+
+func isEnabled(flags: Set<FeatureFlag>, flag: FeatureFlag) -> Bool {
+    return flags.contains(flag)
+}
+
+print("Dark: \\(isEnabled(flags: enabled, flag: .darkMode))")
+print("NewUI: \\(isEnabled(flags: enabled, flag: .newUI))")
+""",
+            tier: .extra,
+            layer: .crust
+        ),
+        Project(
+            id: "crust3a",
+            pass: 9,
+            title: "Mini Framework",
+            description: "Track events through a protocol boundary",
+            starterCode: #"""
+                // Crust 3 Project A: Mini Framework
+                // Track events through a protocol boundary.
+                //
+                // Requirements:
+                // - Define protocol EventSink with send(_:) method
+                // - Implement class MemorySink storing events
+                // - Define Analytics that depends on EventSink
+                // - Track two events: "start" and "finish"
+                // - Print "Count: 2"
+                //
+                // TODO: Implement the mini framework.
+
+                protocol EventSink {
+                    func send(_ event: String)
+                }
+
+                class MemorySink: EventSink {
+                    // TODO: Store events and expose count
+                }
+
+                struct Analytics {
+                    let sink: EventSink
+                    // TODO: Add track(_:) to send "Event: <name>"
+                }
+
+                // Test code (don't modify):
+                let sink = MemorySink()
+                let analytics = Analytics(sink: sink)
+                analytics.track("start")
+                analytics.track("finish")
+                print("Count: \(sink.count)")
+                """#,
+            testCases: [
+                (input: "count", expectedOutput: "Count: 2"),
+            ],
+            completionTitle: "🛠️ Crust 3 Complete!",
+            completionMessage: "You can now structure professional Swift systems.",
+            hints: [
+                "Store events in an array and expose a count property.",
+                "Analytics should call sink.send with the Event prefix.",
+            ],
+            cheatsheet: cheatsheetProjectCrust3a,
+            solution: """
+protocol EventSink {
+    func send(_ event: String)
+}
+
+class MemorySink: EventSink {
+    private var events: [String] = []
+    var count: Int { events.count }
+
+    func send(_ event: String) {
+        events.append(event)
+    }
+}
+
+struct Analytics {
+    let sink: EventSink
+    func track(_ name: String) {
+        sink.send("Event: \\(name)")
+    }
+}
+
+let sink = MemorySink()
+let analytics = Analytics(sink: sink)
+analytics.track("start")
+analytics.track("finish")
+print("Count: \\(sink.count)")
+""",
+            tier: .mainline,
+            layer: .crust
+        ),
+        Project(
+            id: "crust3b",
+            pass: 9,
+            title: "Modular CLI Tool",
+            description: "Dispatch commands by name",
+            starterCode: #"""
+                // Crust 3 Project B: Modular CLI Tool
+                // Dispatch commands by name.
+                //
+                // Requirements:
+                // - Define protocol Command with name and run() -> String
+                // - Implement StatusCommand and ListCommand
+                // - Use a dictionary to select "status"
+                // - Print the selected command output
+                //
+                // TODO: Implement the command system.
+
+                protocol Command {
+                    var name: String { get }
+                    func run() -> String
+                }
+
+                struct StatusCommand: Command {
+                    let name = "status"
+                    // TODO: Return "Status: OK"
+                }
+
+                struct ListCommand: Command {
+                    let name = "list"
+                    // TODO: Return "List: 2"
+                }
+
+                let commands: [String: Command] = [
+                    "status": StatusCommand(),
+                    "list": ListCommand(),
+                ]
+
+                if let command = commands["status"] {
+                    print(command.run())
+                }
+                """#,
+            testCases: [
+                (input: "status", expectedOutput: "Status: OK"),
+            ],
+            completionTitle: "✨ Crust 3 Extra Project Complete!",
+            completionMessage: "Great command routing discipline.",
+            hints: [
+                "Return a string from each run() implementation.",
+                "Look up the command by its key in the dictionary.",
+            ],
+            cheatsheet: cheatsheetProjectCrust3b,
+            solution: """
+protocol Command {
+    var name: String { get }
+    func run() -> String
+}
+
+struct StatusCommand: Command {
+    let name = "status"
+    func run() -> String {
+        return "Status: OK"
+    }
+}
+
+struct ListCommand: Command {
+    let name = "list"
+    func run() -> String {
+        return "List: 2"
+    }
+}
+
+let commands: [String: Command] = [
+    "status": StatusCommand(),
+    "list": ListCommand(),
+]
+
+if let command = commands["status"] {
+    print(command.run())
+}
+""",
+            tier: .extra,
+            layer: .crust
+        ),
+        Project(
+            id: "crust3c",
+            pass: 9,
+            title: "DSL Builder",
+            description: "Compose steps with a builder",
+            starterCode: #"""
+                // Crust 3 Project C: DSL Builder
+                // Compose steps with a builder.
+                //
+                // Requirements:
+                // - Use StepsBuilder to build ["forge", "cool", "ship"]
+                // - Print "forge -> cool -> ship"
+                //
+                // TODO: Implement the builder usage.
+
+                @resultBuilder
+                struct StepsBuilder {
+                    static func buildBlock(_ components: String...) -> [String] {
+                        return components
+                    }
+                }
+
+                func buildSteps(@StepsBuilder _ content: () -> [String]) -> [String] {
+                    return content()
+                }
+
+                let steps = buildSteps {
+                    // TODO: Add the steps
+                }
+
+                print(steps.joined(separator: " -> "))
+                """#,
+            testCases: [
+                (input: "steps", expectedOutput: "forge -> cool -> ship"),
+            ],
+            completionTitle: "✨ Crust 3 Extra Project Complete!",
+            completionMessage: "Nice work shaping a tiny DSL.",
+            hints: [
+                "Return three string literals from the builder block.",
+                "Join with -> between steps to match the output.",
+            ],
+            cheatsheet: cheatsheetProjectCrust3c,
+            solution: """
+@resultBuilder
+struct StepsBuilder {
+    static func buildBlock(_ components: String...) -> [String] {
+        return components
+    }
+}
+
+func buildSteps(@StepsBuilder _ content: () -> [String]) -> [String] {
+    return content()
+}
+
+let steps = buildSteps {
+    "forge"
+    "cool"
+    "ship"
+}
+
+print(steps.joined(separator: " -> "))
+""",
+            tier: .extra,
+            layer: .crust
+        ),
+
     ]
 }

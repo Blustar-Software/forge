@@ -9,6 +9,7 @@ enum Step {
 
 enum ProgressTarget {
     case challenge(Int)
+    case challengeId(String)
     case step(Int)
     case project(String)
     case completed
@@ -98,10 +99,10 @@ func resetProgress(workspacePath: String = "workspace") {
     // Delete progress file
     try? fileManager.removeItem(atPath: progressFile)
     
-    // Delete all challenge and project files
+    // Delete all generated Swift files in workspace
     if let files = try? fileManager.contentsOfDirectory(atPath: workspacePath) {
         for file in files {
-            if (file.hasPrefix("challenge") || file.hasPrefix("project_")) && file.hasSuffix(".swift") {
+            if file.hasSuffix(".swift") {
                 try? fileManager.removeItem(atPath: "\(workspacePath)/\(file)")
             }
         }
@@ -125,7 +126,7 @@ func loadChallenge(_ challenge: Challenge, workspacePath: String = "workspace") 
     print(
         """
 
-        Challenge \(challenge.number): \(challenge.title)
+        Challenge \(challenge.displayId): \(challenge.title)
         └─ \(challenge.description)
 
         Edit: \(filePath)
@@ -153,6 +154,154 @@ func compileAndRun(file: String) -> String? {
     } catch {
         return nil
     }
+}
+
+func compileAndRunWithTimeout(file: String, timeoutSeconds: TimeInterval) -> (output: String?, timedOut: Bool, exitCode: Int32) {
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/swift")
+    process.arguments = [file]
+
+    let pipe = Pipe()
+    process.standardOutput = pipe
+    process.standardError = pipe
+
+    do {
+        try process.run()
+        let start = Date()
+        while process.isRunning {
+            if Date().timeIntervalSince(start) > timeoutSeconds {
+                process.terminate()
+                return (nil, true, -1)
+            }
+            usleep(50_000)
+        }
+
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        return (output, false, process.terminationStatus)
+    } catch {
+        return (nil, false, -1)
+    }
+}
+
+func applySolutionToStarter(starterCode: String, solution: String) -> String {
+    var lines = starterCode.components(separatedBy: "\n")
+    if let index = lines.firstIndex(where: { $0.contains("// TODO:") }) {
+        let indent = lines[index].prefix { $0 == " " || $0 == "\t" }
+        let solutionLines = solution.components(separatedBy: "\n").map { line in
+            line.isEmpty ? "" : "\(indent)\(line)"
+        }
+        lines.replaceSubrange(index...index, with: solutionLines)
+        return lines.joined(separator: "\n")
+    }
+    return starterCode + "\n" + solution + "\n"
+}
+
+func skipReasonForVerification(starterCode: String, solution: String) -> String? {
+    let combined = starterCode + "\n" + solution
+    if combined.contains("readLine(") {
+        return "requires stdin"
+    }
+    if combined.contains("CommandLine.arguments") {
+        return "requires arguments"
+    }
+    if combined.contains("contentsOfFile") || combined.contains("FileHandle") || combined.contains("FileManager") {
+        return "requires file IO"
+    }
+    return nil
+}
+
+func verifyChallengeSolutions(_ challenges: [Challenge]) -> Bool {
+    let workspacePath = "workspace_verify"
+    setupWorkspace(at: workspacePath)
+    clearWorkspaceContents(at: workspacePath)
+
+    var failures: [(id: String, reason: String)] = []
+    var skipped = 0
+    var skippedReasons: [String: Int] = [:]
+    var checked = 0
+
+    print("Verifying \(challenges.count) challenge solution(s)...")
+
+    for (index, challenge) in challenges.enumerated() {
+        if challenge.manualCheck {
+            skipped += 1
+            skippedReasons["manual check", default: 0] += 1
+            continue
+        }
+        let solution = challenge.solution.trimmingCharacters(in: .whitespacesAndNewlines)
+        if solution.isEmpty {
+            skipped += 1
+            skippedReasons["missing solution", default: 0] += 1
+            continue
+        }
+        if let reason = skipReasonForVerification(starterCode: challenge.starterCode, solution: solution) {
+            skipped += 1
+            skippedReasons[reason, default: 0] += 1
+            continue
+        }
+
+        let filePath = "\(workspacePath)/\(challenge.filename)"
+        let expected = challenge.expectedOutput
+
+        var passed = false
+        var lastExitCode: Int32 = 0
+        try? solution.write(toFile: filePath, atomically: true, encoding: .utf8)
+        let firstRun = compileAndRunWithTimeout(file: filePath, timeoutSeconds: 2.0)
+        if firstRun.timedOut {
+            failures.append((challenge.displayId, "timeout"))
+            continue
+        }
+        lastExitCode = firstRun.exitCode
+        if let output = firstRun.output, isExpectedOutput(output, expected: expected) {
+            passed = true
+        }
+
+        if !passed {
+            let combined = applySolutionToStarter(starterCode: challenge.starterCode, solution: solution)
+            try? combined.write(toFile: filePath, atomically: true, encoding: .utf8)
+            let secondRun = compileAndRunWithTimeout(file: filePath, timeoutSeconds: 2.0)
+            if secondRun.timedOut {
+                failures.append((challenge.displayId, "timeout"))
+                continue
+            }
+            lastExitCode = secondRun.exitCode
+            if let output = secondRun.output, isExpectedOutput(output, expected: expected) {
+                passed = true
+            }
+        }
+
+        if !passed {
+            let exitCode = max(lastExitCode, 0)
+            let reason = exitCode == 0 ? "output mismatch" : "compile/runtime error"
+            failures.append((challenge.displayId, reason))
+        } else {
+            checked += 1
+        }
+
+        if (index + 1) % 10 == 0 {
+            print("Checked \(index + 1)/\(challenges.count)...")
+        }
+    }
+
+    if failures.isEmpty {
+        print("✓ Verified solutions: \(challenges.count - skipped)")
+        if skipped > 0 {
+            let reasons = skippedReasons.map { "\($0.key): \($0.value)" }.sorted().joined(separator: ", ")
+            print("Skipped: \(skipped) (\(reasons))")
+        }
+        return true
+    }
+
+    print("✗ Solution verification failed for \(failures.count) challenge(s).")
+    for failure in failures {
+        print("- \(failure.id): \(failure.reason)")
+    }
+    if skipped > 0 {
+        let reasons = skippedReasons.map { "\($0.key): \($0.value)" }.sorted().joined(separator: ", ")
+        print("Skipped: \(skipped) (\(reasons))")
+    }
+    return false
 }
 
 func isExpectedOutput(_ output: String, expected: String) -> Bool {
@@ -374,15 +523,20 @@ func makeSteps(
     core2Challenges: [Challenge],
     core3Challenges: [Challenge],
     mantleChallenges: [Challenge],
+    crustChallenges: [Challenge],
     projects: [Project]
 ) -> [Step] {
     let core1Only = core1Challenges.filter { $0.tier == .mainline }
     let core2Only = core2Challenges.filter { $0.tier == .mainline }
     let core3Only = core3Challenges.filter { $0.tier == .mainline }
     let mantleOnly = mantleChallenges.filter { $0.tier == .mainline }
+    let crustOnly = crustChallenges.filter { $0.tier == .mainline }
     let mantle1Only = mantleOnly.filter { $0.number >= 121 && $0.number <= 134 }
     let mantle2Only = mantleOnly.filter { $0.number >= 135 && $0.number <= 144 }
     let mantle3Only = mantleOnly.filter { $0.number >= 145 && $0.number <= 153 }
+    let crust1Only = crustOnly.filter { $0.number >= 172 && $0.number <= 189 }
+    let crust2Only = crustOnly.filter { $0.number >= 190 && $0.number <= 207 }
+    let crust3Only = crustOnly.filter { $0.number >= 208 && $0.number <= 225 }
 
     var steps: [Step] = []
     steps.append(contentsOf: core1Only.map { Step.challenge($0) })
@@ -409,6 +563,18 @@ func makeSteps(
     if let mantle3Project = firstProject(forPass: 6, in: projects) {
         steps.append(.project(mantle3Project))
     }
+    steps.append(contentsOf: crust1Only.map { Step.challenge($0) })
+    if let crust1Project = firstProject(forPass: 7, in: projects) {
+        steps.append(.project(crust1Project))
+    }
+    steps.append(contentsOf: crust2Only.map { Step.challenge($0) })
+    if let crust2Project = firstProject(forPass: 8, in: projects) {
+        steps.append(.project(crust2Project))
+    }
+    steps.append(contentsOf: crust3Only.map { Step.challenge($0) })
+    if let crust3Project = firstProject(forPass: 9, in: projects) {
+        steps.append(.project(crust3Project))
+    }
     return steps
 }
 
@@ -424,6 +590,24 @@ func nextStepPrompt(for step: Step) -> String {
 func waitForEnterToContinue() {
     print("Press Enter to continue.")
     _ = readLine()
+}
+
+func printMainUsage() {
+    print("""
+    Usage:
+      swift run forge
+      swift run forge reset
+      swift run forge random [count] [topic] [tier] [layer]
+      swift run forge project <id>
+      swift run forge verify-solutions
+      swift run forge --help
+
+    Try:
+      swift run forge random --help
+      swift run forge project --help
+      swift run forge verify-solutions crust
+      swift run forge verify-solutions 190-237
+    """)
 }
 
 func printRandomUsage() {
@@ -494,6 +678,47 @@ func parseRandomArguments(
     }
 
     return (count, topic, tier, layer)
+}
+
+func parseVerifyArguments(
+    _ args: [String]
+) -> (range: ClosedRange<Int>?, topic: ChallengeTopic?, tier: ChallengeTier?, layer: ChallengeLayer?) {
+    var range: ClosedRange<Int>?
+    var topic: ChallengeTopic?
+    var tier: ChallengeTier?
+    var layer: ChallengeLayer?
+
+    for value in args {
+        let lowered = value.lowercased()
+        if ["help", "-h", "--help"].contains(lowered) {
+            continue
+        }
+        if let parsedTopic = ChallengeTopic(rawValue: lowered) {
+            topic = parsedTopic
+            continue
+        }
+        if let parsedTier = ChallengeTier(rawValue: lowered) {
+            tier = parsedTier
+            continue
+        }
+        if let parsedLayer = ChallengeLayer(rawValue: lowered) {
+            layer = parsedLayer
+            continue
+        }
+        if let number = Int(lowered) {
+            range = number...number
+            continue
+        }
+        if let dashIndex = lowered.firstIndex(of: "-") {
+            let startPart = String(lowered[..<dashIndex])
+            let endPart = String(lowered[lowered.index(after: dashIndex)...])
+            if let start = Int(startPart), let end = Int(endPart), start <= end {
+                range = start...end
+            }
+        }
+    }
+
+    return (range, topic, tier, layer)
 }
 
 func parseProjectListArguments(_ args: [String]) -> (tier: ProjectTier?, layer: ProjectLayer?) {
@@ -725,9 +950,11 @@ func parseProgressTarget(_ token: String, projects: [Project]) -> ProgressTarget
     let lowered = trimmed.lowercased()
     if lowered.hasPrefix("challenge:") {
         let value = String(trimmed.dropFirst("challenge:".count))
-        if let number = Int(value.trimmingCharacters(in: .whitespacesAndNewlines)) {
+        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let number = Int(trimmedValue) {
             return .challenge(number)
         }
+        return .challengeId(trimmedValue.lowercased())
     }
     if lowered.hasPrefix("project:") {
         let projectId = String(trimmed.dropFirst("project:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
@@ -749,6 +976,16 @@ func challengeStepIndexMap(for steps: [Step]) -> [Int: Int] {
     for (index, step) in steps.enumerated() {
         if case .challenge(let challenge) = step {
             map[challenge.number] = index + 1
+        }
+    }
+    return map
+}
+
+func challengeIdStepIndexMap(for steps: [Step]) -> [String: Int] {
+    var map: [String: Int] = [:]
+    for (index, step) in steps.enumerated() {
+        if case .challenge(let challenge) = step {
+            map[challenge.progressId.lowercased()] = index + 1
         }
     }
     return map
@@ -785,6 +1022,27 @@ struct Forge {
         let practiceWorkspace = "workspace_random"
         let projectWorkspace = "workspace_projects"
 
+        if CommandLine.arguments.count > 1 {
+            let firstArg = CommandLine.arguments[1].lowercased()
+            if ["help", "-h", "--help"].contains(firstArg) {
+                printMainUsage()
+                return
+            }
+        }
+
+        let overrideToken: String? = {
+            guard CommandLine.arguments.count > 1 else { return nil }
+            let arg = CommandLine.arguments[1]
+            let lowered = arg.lowercased()
+            if ["reset", "random", "project", "verify-solutions", "verify"].contains(lowered) {
+                return nil
+            }
+            if ["help", "-h", "--help"].contains(lowered) {
+                return nil
+            }
+            return arg
+        }()
+
         // Check for reset command
         if CommandLine.arguments.count > 1 && CommandLine.arguments[1] == "reset" {
             setupWorkspace()
@@ -796,7 +1054,35 @@ struct Forge {
         let core2Challenges = makeCore2Challenges()
         let core3Challenges = makeCore3Challenges()
         let mantleChallenges = makeMantleChallenges()
+        let crustChallenges = makeCrustChallenges()
         let projects = makeProjects()
+
+        if CommandLine.arguments.count > 1 {
+            let firstArg = CommandLine.arguments[1].lowercased()
+            if ["verify-solutions", "verify"].contains(firstArg) {
+                let args = Array(CommandLine.arguments.dropFirst(2))
+                let (range, topic, tier, layer) = parseVerifyArguments(args)
+                var pool = core1Challenges + core2Challenges + core3Challenges + mantleChallenges + crustChallenges
+                if let range = range {
+                    pool = pool.filter { range.contains($0.number) }
+                }
+                if let topic = topic {
+                    pool = pool.filter { $0.topic == topic }
+                }
+                if let tier = tier {
+                    pool = pool.filter { $0.tier == tier }
+                }
+                if let layer = layer {
+                    pool = pool.filter { $0.layer == layer }
+                }
+                if pool.isEmpty {
+                    print("No challenges match those filters.")
+                    return
+                }
+                _ = verifyChallengeSolutions(pool)
+                return
+            }
+        }
 
         if CommandLine.arguments.count > 1 && CommandLine.arguments[1] == "random" {
             setupWorkspace(at: practiceWorkspace)
@@ -809,7 +1095,7 @@ struct Forge {
                 return
             }
             let (count, topic, tier, layer) = parseRandomArguments(args)
-            var pool = core1Challenges + core2Challenges + core3Challenges + mantleChallenges
+            var pool = core1Challenges + core2Challenges + core3Challenges + mantleChallenges + crustChallenges
 
             if let topic = topic {
                 pool = pool.filter { $0.topic == topic }
@@ -896,9 +1182,14 @@ struct Forge {
             core2Challenges: core2Challenges,
             core3Challenges: core3Challenges,
             mantleChallenges: mantleChallenges,
+            crustChallenges: crustChallenges,
             projects: projects
         )
         let challengeIndexMap = challengeStepIndexMap(for: steps)
+        let challengeIdIndexMap = challengeIdStepIndexMap(for: steps)
+        let allChallenges = core1Challenges + core2Challenges + core3Challenges + mantleChallenges + crustChallenges
+        let allChallengeIdMap = Dictionary(uniqueKeysWithValues: allChallenges.map { ($0.progressId.lowercased(), $0) })
+        let allChallengeNumberMap = Dictionary(uniqueKeysWithValues: allChallenges.map { ($0.number, $0) })
         let projectIndexMap = projectStepIndexMap(for: steps)
         let maxChallengeNumber = max(
             steps.compactMap { step in
@@ -914,21 +1205,38 @@ struct Forge {
         clearWorkspaceContents(at: practiceWorkspace)
         clearWorkspaceContents(at: projectWorkspace)
 
-        let progressToken = getProgressToken() ?? "1"
+        let progressToken = overrideToken ?? getProgressToken() ?? "1"
         let progressTarget = parseProgressTarget(progressToken, projects: projects)
         let startIndex: Int
+        var extraNotice: String? = nil
         switch progressTarget {
         case .completed:
             startIndex = steps.count + 1
         case .project(let projectId):
             startIndex = projectIndexMap[projectId] ?? 1
         case .challenge(let number):
-            startIndex = stepIndexForChallenge(
-                number,
-                challengeStepIndex: challengeIndexMap,
-                maxChallengeNumber: maxChallengeNumber,
-                stepsCount: steps.count
-            )
+            if let index = challengeIndexMap[number] {
+                startIndex = index
+            } else if let extraChallenge = allChallengeNumberMap[number], extraChallenge.tier == .extra {
+                extraNotice = "Challenge \(extraChallenge.progressId) is an extra. Use random/adaptive mode to practice extras."
+                startIndex = steps.count + 1
+            } else {
+                startIndex = stepIndexForChallenge(
+                    number,
+                    challengeStepIndex: challengeIndexMap,
+                    maxChallengeNumber: maxChallengeNumber,
+                    stepsCount: steps.count
+                )
+            }
+        case .challengeId(let id):
+            if let index = challengeIdIndexMap[id.lowercased()] {
+                startIndex = index
+            } else if let extraChallenge = allChallengeIdMap[id.lowercased()], extraChallenge.tier == .extra {
+                extraNotice = "Challenge \(extraChallenge.progressId) is an extra. Use random/adaptive mode to practice extras."
+                startIndex = steps.count + 1
+            } else {
+                startIndex = 1
+            }
         case .step(let rawProgress):
             startIndex = normalizedStepIndex(rawProgress, stepsCount: steps.count)
         }
@@ -945,6 +1253,9 @@ struct Forge {
         if startIndex <= steps.count {
             runSteps(steps, startingAt: startIndex)
         } else {
+            if let extraNotice = extraNotice {
+                print(extraNotice)
+            }
             print("🎉 You've completed everything!")
             print("Run 'swift run forge reset' to start over.\n")
         }

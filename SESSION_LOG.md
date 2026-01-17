@@ -1,7 +1,7 @@
 # Session Log
 
 ## Current State
-- Forge is a SwiftPM CLI with challenges defined in `Sources/forge/Challenges.swift` (now 1–171).
+- Forge is a SwiftPM CLI with challenges defined in `Sources/forge/Challenges.swift` (now 1–237).
 - Challenge headers live inside each `starterCode`; the CLI no longer prepends headers when writing files.
 - Output validation trims whitespace/newlines before comparison.
 - Challenge and project checks are triggered manually by pressing Enter.
@@ -9,7 +9,7 @@
 - Docs updated: `README.md` includes run/reset + learning overview; `AGENTS.md` includes structure + commands; `ROADMAP.md` added.
 - Challenges and projects now support stored hints and solutions.
 - Cheatsheets are available via `c`, with shared topic blocks and project-specific blocks.
-- Core + Mantle content are implemented; Crust content is not yet built.
+- Core + Mantle content are implemented; Crust 1–3 challenges are implemented (Crust projects are not yet built).
 - FTS standards have not yet been applied across the curriculum or engine.
 
 ## Recent Changes
@@ -77,6 +77,12 @@
 - Added `project --random` support with tier/layer filters and documented usage.
 - Documented `project --help` usage in repo docs.
 - Added a `project --help` hint when an unknown project id is provided.
+- Added Crust 1 challenges (172–189) and wired them into the main flow and random mode.
+- Added Crust 2 challenges (190–207) covering advanced generics, language features, performance, and SwiftPM basics.
+- Added Crust 3 challenges (208–225) covering macro authoring concepts, architecture patterns, testing concepts, diagnostics, and interop topics.
+- Added Crust projects (crust1a–crust3c) and wired them into the main flow (passes 7–9).
+- Added Crust extra challenges (226–237) for advanced practice.
+- Added optional challenge IDs with `challenge:<id>` progress tokens; extras use explicit ids like `crust-extra-async-sleep`.
 
 ## Notes
 - Core 2 project `core2a` requires tuple usage; tuples are now taught in Core 2.

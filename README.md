@@ -12,19 +12,21 @@ Edit the generated file in `workspace/`, then press Enter to check. Use `h` for 
 - Generates a challenge file in `workspace/` and waits for you to press Enter to check.
 - Runs your edited Swift file and compares its output to the expected answer.
 - Tracks progress in `workspace/.progress` so you can resume later.
-- Current curriculum includes Challenges 1–171 in `Sources/forge/Challenges.swift`.
+- Current curriculum includes Challenges 1–237 in `Sources/forge/Challenges.swift`.
 
 ## What you’ll learn
 - Early challenges cover comments, constants, variables, and basic math.
 - Later challenges add strings, booleans, comparisons, and functions.
 - Integration challenges combine multiple concepts to reinforce learning.
 - Core 3 includes a stepped closure sequence that moves from full syntax to shorthand.
+- Crust introduces advanced topics like concurrency, actors, key paths, advanced language features, and professional practices.
 
 ## Run the CLI
 ```sh
 swift run forge
 ```
 When prompted, press Enter to check your work. Type `h` for a hint, `c` for a cheatsheet, or `s` for a solution (challenges and projects).
+Use `swift run forge --help` or `swift run forge help` for usage.
 
 ## Reset your progress
 ```sh
@@ -33,13 +35,19 @@ swift run forge reset
 
 ## Progress shortcuts
 You can set `workspace/.progress` manually to jump ahead.
+You can also pass the same tokens directly to Forge (for example, `swift run forge challenge:36`).
 
 - Challenge number: use `challenge:<number>` (e.g., `challenge:36`).
+- Challenge id: use `challenge:<id>` for extras (e.g., `challenge:crust-extra-async-sleep`).
 - Project id: use `project:<id>` or just `<id>` (case-insensitive).
 
 Examples:
 ```
+swift run forge challenge:36
+swift run forge project:core2a
+swift run forge core2a
 challenge:36
+challenge:crust-extra-async-sleep
 project:core3a
 core2a
 ```
@@ -48,8 +56,8 @@ core2a
 - Some challenges (real CLI/file I/O) require you to run the generated file yourself and verify the output manually. Forge will label these as manual checks; press Enter after you run them to mark complete.
 
 ## Projects
-- Core projects in the default flow: `core1a`, `core2a`, `core3a`, `mantle1a`, `mantle2a`, `mantle3a`.
-- Extra projects (not in the default flow): `core1b`, `core1c`, `core2b`, `core2c`, `core3b`, `core3c`, `mantle1b`, `mantle1c`, `mantle2b`, `mantle2c`, `mantle3b`, `mantle3c`.
+- Core projects in the default flow: `core1a`, `core2a`, `core3a`, `mantle1a`, `mantle2a`, `mantle3a`, `crust1a`, `crust2a`, `crust3a`.
+- Extra projects (not in the default flow): `core1b`, `core1c`, `core2b`, `core2c`, `core3b`, `core3c`, `mantle1b`, `mantle1c`, `mantle2b`, `mantle2c`, `mantle3b`, `mantle3c`, `crust1b`, `crust1c`, `crust2b`, `crust2c`, `crust3b`, `crust3c`.
 - To jump directly to a project, set `workspace/.progress` to `project:<id>` (case-insensitive).
 
 ## Random mode
@@ -93,4 +101,15 @@ swift run forge project --help
 ## Build
 ```sh
 swift build
+```
+
+## Verify solutions
+```sh
+swift run forge verify-solutions
+```
+Optional filters (range/layer/topic/tier):
+```
+swift run forge verify-solutions 190-237
+swift run forge verify-solutions crust
+swift run forge verify-solutions loops extra
 ```

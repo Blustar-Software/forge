@@ -100,3 +100,25 @@
 ## 2026-01-16 (Status)
 - Core + Mantle challenges and projects are implemented and wired into the CLI.
 - Crust layer is planned but not yet built.
+
+## 2026-01-16 (Crust 1)
+- Added Crust 1 challenges (172–189) covering concurrency, actors, property wrappers, key paths, and sequences.
+- Added Crust cheatsheets for concurrency, actors, property wrappers, key paths, and sequences.
+- Wired Crust challenges into the main flow and random mode.
+
+## 2026-01-16 (Crust 2)
+- Added Crust 2 challenges (190–207) covering advanced generics, language features, performance, and SwiftPM basics.
+- Added cheatsheets for advanced generics, performance, advanced language features, SwiftPM, and macros.
+
+## 2026-01-16 (Crust 3)
+- Added Crust 3 challenges (208–225) covering macro authoring concepts, reflection, architecture patterns, testing concepts, unsafe pointers, and interop topics.
+
+## 2026-01-16 (Crust Projects)
+- Added Crust core projects (crust1a/crust2a/crust3a) and extra projects (crust1b/crust1c/crust2b/crust2c/crust3b/crust3c).
+
+## 2026-01-16 (Crust Extras)
+- Added Crust extra challenges (226–237) covering async practice, actor usage, key paths, lazy transforms, dynamic features, and pointer basics.
+
+## 2026-01-16 (Challenge IDs)
+- Added optional challenge IDs and support for `challenge:<id>` in progress tokens.
+- Extras now use explicit ids like `crust-extra-async-sleep` for easier reference.
