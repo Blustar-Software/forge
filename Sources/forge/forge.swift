@@ -106,6 +106,17 @@ func saveProgress(_ challengeNumber: Int, workspacePath: String = "workspace") {
     try? String(challengeNumber).write(toFile: progressFile, atomically: true, encoding: .utf8)
 }
 
+func resetWorkspaceContents(at workspacePath: String, removeAll: Bool) {
+    let fileManager = FileManager.default
+    if let files = try? fileManager.contentsOfDirectory(atPath: workspacePath) {
+        for file in files {
+            if removeAll || !file.hasPrefix(".") {
+                try? fileManager.removeItem(atPath: "\(workspacePath)/\(file)")
+            }
+        }
+    }
+}
+
 func resetProgress(workspacePath: String = "workspace", removeAll: Bool = false) {
     let progressFile = progressFilePath(workspacePath: workspacePath)
     let fileManager = FileManager.default
@@ -115,16 +126,13 @@ func resetProgress(workspacePath: String = "workspace", removeAll: Bool = false)
     try? fileManager.removeItem(atPath: progressFile)
     try? fileManager.removeItem(atPath: stageGateFile)
     
-    // Delete generated files in workspace
-    if let files = try? fileManager.contentsOfDirectory(atPath: workspacePath) {
-        for file in files {
-            if removeAll {
-                try? fileManager.removeItem(atPath: "\(workspacePath)/\(file)")
-            } else if file.hasSuffix(".swift") {
-                try? fileManager.removeItem(atPath: "\(workspacePath)/\(file)")
-            }
-        }
-    }
+    resetWorkspaceContents(at: workspacePath, removeAll: removeAll)
+    setupWorkspace(at: "workspace_random")
+    setupWorkspace(at: "workspace_projects")
+    setupWorkspace(at: "workspace_verify")
+    resetWorkspaceContents(at: "workspace_random", removeAll: removeAll)
+    resetWorkspaceContents(at: "workspace_projects", removeAll: removeAll)
+    resetWorkspaceContents(at: "workspace_verify", removeAll: removeAll)
     
     print("✓ Progress reset! Starting from Challenge 1.\n")
 }
@@ -143,10 +151,11 @@ func loadChallenge(_ challenge: Challenge, workspacePath: String = "workspace") 
     let prereqLine = prerequisiteLine(for: challenge) ?? ""
     let prereqBlock = prereqLine.isEmpty ? "" : "\n\(prereqLine)\n"
 
+    let idLabel = challenge.id.isEmpty ? "" : " (\(challenge.id))"
     print(
         """
 
-        Challenge \(challenge.displayId): \(challenge.title)
+        Challenge \(challenge.number)\(idLabel): \(challenge.title)
         └─ \(challenge.description)
 
         Edit: \(filePath)
@@ -2158,6 +2167,7 @@ func runGateChallenges(
     _ challenges: [Challenge],
     workspacePath: String = "workspace",
     constraintIndex: ConstraintIndex,
+    confirmCheckEnabled: Bool,
     enforceConstraints: Bool = false,
     enableDiMockHeuristics: Bool = true
 ) -> Bool {
@@ -2207,6 +2217,10 @@ func runGateChallenges(
 
             if !input.isEmpty {
                 print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 's' for solution.\n")
+                continue
+            }
+
+            if !confirmCheckIfNeeded(confirmCheckEnabled) {
                 continue
             }
 
@@ -2302,6 +2316,7 @@ func runStageGate(
     workspacePath: String = "workspace",
     constraintIndex: ConstraintIndex,
     adaptiveEnabled: Bool,
+    confirmCheckEnabled: Bool,
     enforceConstraints: Bool = false,
     enableDiMockHeuristics: Bool = true
 ) {
@@ -2325,6 +2340,7 @@ func runStageGate(
             review,
             workspacePath: workspacePath,
             constraintIndex: constraintIndex,
+            confirmCheckEnabled: confirmCheckEnabled,
             enforceConstraints: enforceConstraints,
             enableDiMockHeuristics: enableDiMockHeuristics
         )
@@ -2364,10 +2380,13 @@ func runSteps(
     adaptiveThreshold: Int,
     adaptiveCount: Int,
     adaptiveEnabled: Bool,
+    confirmCheckEnabled: Bool,
     enforceConstraints: Bool,
     enableDiMockHeuristics: Bool
 ) {
     var adaptiveGateScores: [ChallengeTopic: Int] = [:]
+    var pendingAdaptiveTopic: ChallengeTopic? = nil
+    var pendingAdaptivePool: [Challenge] = []
     var currentIndex = startingAt - 1
 
     while currentIndex < steps.count {
@@ -2420,6 +2439,10 @@ func runSteps(
                     continue
                 }
 
+                if !confirmCheckIfNeeded(confirmCheckEnabled) {
+                    continue
+                }
+
                 if challenge.manualCheck {
                     print("\n--- Manual check ---\n")
                 } else {
@@ -2435,6 +2458,25 @@ func runSteps(
                     enableDiMockHeuristics: enableDiMockHeuristics
                 )
                 if didPass {
+                    if adaptiveEnabled, pendingAdaptiveTopic == challenge.topic {
+                        let practicePool = pendingAdaptivePool
+                        pendingAdaptiveTopic = nil
+                        pendingAdaptivePool = []
+                        let stats = loadAdaptiveStats(workspacePath: "workspace")
+                        print("Adaptive practice for \(challenge.topic.rawValue). Press Enter to start.")
+                        _ = readLine()
+                        runAdaptiveGate(
+                            topic: challenge.topic,
+                            pool: practicePool,
+                            stats: stats,
+                            count: adaptiveCount,
+                            workspacePath: practiceWorkspace,
+                            constraintIndex: constraintIndex,
+                            confirmCheckEnabled: confirmCheckEnabled,
+                            enforceConstraints: enforceConstraints,
+                            enableDiMockHeuristics: enableDiMockHeuristics
+                        )
+                    }
                     challengeComplete = true
                     currentIndex += 1
 
@@ -2463,24 +2505,23 @@ func runSteps(
                         lastTriggered: &adaptiveGateScores,
                         threshold: adaptiveThreshold
                     ) {
-                        print("Adaptive gate triggered for \(challenge.topic.rawValue) (score \(score)).")
-                        print("Press Enter to start practice.")
-                        _ = readLine()
-                        runAdaptiveGate(
-                            topic: challenge.topic,
-                            pool: practicePool,
-                            stats: stats,
-                            count: adaptiveCount,
-                            workspacePath: practiceWorkspace,
-                            constraintIndex: constraintIndex,
-                            enforceConstraints: enforceConstraints,
-                            enableDiMockHeuristics: enableDiMockHeuristics
-                        )
+                        if pendingAdaptiveTopic == nil {
+                            let eligiblePool = steps.prefix(currentIndex + 1).compactMap { step -> Challenge? in
+                                if case .challenge(let stepChallenge) = step {
+                                    return stepChallenge
+                                }
+                                return nil
+                            }
+                            pendingAdaptiveTopic = challenge.topic
+                            pendingAdaptivePool = eligiblePool
+                            print("Adaptive practice queued for \(challenge.topic.rawValue) (score \(score)).")
+                            print("Finish this challenge to start practice.\n")
+                        }
                     }
                 }
             }
         case .project(let project):
-            if runProject(project) {
+            if runProject(project, confirmCheckEnabled: confirmCheckEnabled) {
                 currentIndex += 1
                 if currentIndex < steps.count {
                     saveProgress(currentIndex + 1)
@@ -2512,6 +2553,7 @@ func runSteps(
                 gate,
                 constraintIndex: constraintIndex,
                 adaptiveEnabled: adaptiveEnabled,
+                confirmCheckEnabled: confirmCheckEnabled,
                 enforceConstraints: enforceConstraints,
                 enableDiMockHeuristics: enableDiMockHeuristics
             )
@@ -2821,6 +2863,7 @@ func runAdaptiveGate(
     count: Int,
     workspacePath: String,
     constraintIndex: ConstraintIndex,
+    confirmCheckEnabled: Bool,
     enforceConstraints: Bool,
     enableDiMockHeuristics: Bool
 ) {
@@ -2840,6 +2883,7 @@ func runAdaptiveGate(
         selection,
         workspacePath: workspacePath,
         constraintIndex: constraintIndex,
+        confirmCheckEnabled: confirmCheckEnabled,
         enforceConstraints: enforceConstraints,
         enableDiMockHeuristics: enableDiMockHeuristics,
         completionTitle: "Adaptive practice complete!",
@@ -2864,43 +2908,66 @@ func waitForEnterToContinue() {
     _ = readLine()
 }
 
+func confirmCheckIfNeeded(_ enabled: Bool) -> Bool {
+    if !enabled {
+        return true
+    }
+    print("Press Enter again to run the check, or type anything to cancel.")
+    let input = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    return input.isEmpty
+}
+
 func printMainUsage() {
     print("""
     Usage:
       swift run forge
-      swift run forge reset
-      swift run forge reset --all
-      swift run forge reset --start
-      swift run forge stats
+
+    Core commands:
+      swift run forge reset [--all] [--start]
+      swift run forge stats [--reset]
       swift run forge random [count] [topic] [tier] [layer]
       swift run forge project <id>
-      swift run forge verify-solutions
-      swift run forge review-progression
-      swift run forge --allow-early-concepts
-      swift run forge --disable-di-mock-heuristics
-      swift run forge --adaptive-on
-      swift run forge --adaptive-threshold <n>
-      swift run forge --adaptive-count <n>
-      swift run forge --adaptive-off
-      swift run forge --help
+      swift run forge verify-solutions [filters]
+      swift run forge review-progression [filters]
 
-    Try:
+    Progress shortcuts:
+      swift run forge challenge:<number>
+      swift run forge challenge:<id>
+      swift run forge project:<id>
+      swift run forge <project-id>
+
+    Flow + behavior flags:
+      --gate-passes <n>
+      --gate-count <n>
+      --allow-early-concepts
+      --confirm-check
+      --disable-di-mock-heuristics
+
+    Adaptive flags:
+      --adaptive-on
+      --adaptive-threshold <n>
+      --adaptive-count <n>
+      --adaptive-off
+
+    Help:
+      swift run forge --help
       swift run forge random --help
       swift run forge project --help
-      swift run forge stats
-      swift run forge stats --reset
+      swift run forge stats --help
+
+    Examples:
+      swift run forge random 8
+      swift run forge random adaptive
+      swift run forge project --list core
+      swift run forge project:core2a
+      swift run forge challenge:36
       swift run forge verify-solutions crust
-      swift run forge verify-solutions 190-237
-      swift run forge review-progression core
       swift run forge review-progression 1-80
-      swift run forge --gate-passes 1
-      swift run forge --gate-count 2
-      swift run forge --allow-early-concepts
-      swift run forge --disable-di-mock-heuristics
-      swift run forge --adaptive-on
-      swift run forge --adaptive-threshold 2
-      swift run forge --adaptive-count 4
-      swift run forge --adaptive-off
+
+    Notes:
+      - Random mode uses workspace_random/. Project mode uses workspace_projects/.
+      - Adaptive gating is off by default; enable with --adaptive-on.
+      - Use --confirm-check to require a second Enter before running checks.
     """)
 }
 
@@ -3097,6 +3164,27 @@ func parseAdaptiveSettings(
     return (threshold, count, enabled, remaining)
 }
 
+func parseConfirmSettings(
+    _ args: [String]
+) -> (enabled: Bool, remaining: [String]) {
+    var enabled = false
+    var remaining: [String] = []
+    var index = 0
+
+    while index < args.count {
+        let arg = args[index]
+        if arg == "--confirm-check" {
+            enabled = true
+            index += 1
+            continue
+        }
+        remaining.append(arg)
+        index += 1
+    }
+
+    return (enabled, remaining)
+}
+
 func parseConstraintSettings(
     _ args: [String]
 ) -> (enforce: Bool, enableDiMockHeuristics: Bool, remaining: [String]) {
@@ -3277,6 +3365,7 @@ func runPracticeChallenges(
     _ challenges: [Challenge],
     workspacePath: String,
     constraintIndex: ConstraintIndex,
+    confirmCheckEnabled: Bool,
     enforceConstraints: Bool = false,
     enableDiMockHeuristics: Bool = true,
     completionTitle: String = "✅ Random set complete!",
@@ -3330,6 +3419,10 @@ func runPracticeChallenges(
 
             if !input.isEmpty {
                 print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 's' for solution.\n")
+                continue
+            }
+
+            if !confirmCheckIfNeeded(confirmCheckEnabled) {
                 continue
             }
 
@@ -3432,7 +3525,11 @@ func runPracticeChallenges(
     }
 }
 
-func runProject(_ project: Project, workspacePath: String = "workspace") -> Bool {
+func runProject(
+    _ project: Project,
+    workspacePath: String = "workspace",
+    confirmCheckEnabled: Bool
+) -> Bool {
     _ = loadProject(project, workspacePath: workspacePath)
 
     var hintIndex = 0
@@ -3475,6 +3572,10 @@ func runProject(_ project: Project, workspacePath: String = "workspace") -> Bool
 
         if !input.isEmpty {
             print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 's' for solution.\n")
+            continue
+        }
+
+        if !confirmCheckIfNeeded(confirmCheckEnabled) {
             continue
         }
 
@@ -3589,7 +3690,9 @@ struct Forge {
         let adaptiveThreshold = adaptiveParsed.threshold
         let adaptiveCount = adaptiveParsed.count
         let adaptiveEnabled = adaptiveParsed.enabled
-        let args = adaptiveParsed.remaining
+        let confirmParsed = parseConfirmSettings(adaptiveParsed.remaining)
+        let confirmCheckEnabled = confirmParsed.enabled
+        let args = confirmParsed.remaining
         if !enforceConstraints {
             print("Note: Early-concept usage will warn only (--allow-early-concepts).\n")
         }
@@ -3760,6 +3863,7 @@ struct Forge {
                 selection,
                 workspacePath: practiceWorkspace,
                 constraintIndex: constraintIndex,
+                confirmCheckEnabled: confirmCheckEnabled,
                 enforceConstraints: enforceConstraints,
                 enableDiMockHeuristics: enableDiMockHeuristics
             )
@@ -3796,7 +3900,11 @@ struct Forge {
                 clearScreen()
                 print("Project mode: \(project.title)")
                 print("Workspace: \(projectWorkspace)\n")
-                let completed = runProject(project, workspacePath: projectWorkspace)
+                let completed = runProject(
+                    project,
+                    workspacePath: projectWorkspace,
+                    confirmCheckEnabled: confirmCheckEnabled
+                )
                 print("Press Enter to finish.\n")
                 _ = readLine()
                 if completed {
@@ -3813,7 +3921,11 @@ struct Forge {
             clearScreen()
             print("Project mode: \(project.title)")
             print("Workspace: \(projectWorkspace)\n")
-            let completed = runProject(project, workspacePath: projectWorkspace)
+            let completed = runProject(
+                project,
+                workspacePath: projectWorkspace,
+                confirmCheckEnabled: confirmCheckEnabled
+            )
             print("Press Enter to finish.\n")
             _ = readLine()
             if completed {
@@ -3907,6 +4019,7 @@ struct Forge {
                 adaptiveThreshold: adaptiveThreshold,
                 adaptiveCount: adaptiveCount,
                 adaptiveEnabled: adaptiveEnabled,
+                confirmCheckEnabled: confirmCheckEnabled,
                 enforceConstraints: enforceConstraints,
                 enableDiMockHeuristics: enableDiMockHeuristics
             )

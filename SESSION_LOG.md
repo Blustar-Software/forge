@@ -85,6 +85,20 @@
 - Ran `swift run forge verify-solutions 197-197` and `250-250`; verification passed.
 - Ran `swift run forge verify-solutions 1-250`; verification passed.
 - Documented the XCTest stub approach in README and FTS spec.
+- Added a Phase 2 roadmap draft to the FTS spec.
+- Noted to break Phase 2 into 2.1/2.2/2.3 milestones with effort estimates on resume.
+- Noted that topic variants should come after Phase 2 engine work (or a small pilot).
+- Expanded main help output with progress shortcuts and workspace notes; verified `swift run forge --help`.
+- Adaptive practice now queues until the current challenge is completed, so it no longer interrupts mid-challenge.
+- Added `--confirm-check` to require a second Enter before running checks (main, project, random, and stage review).
+- Adaptive practice now pulls only from challenges already encountered in the main flow.
+- Clarified fixture behavior in challenges 74–76 (stdin/args/file IO).
+- `reset` now clears non-hidden files in `workspace/`, `workspace_random/`, and `workspace_projects/` (use `--all` to include dotfiles).
+- `reset` now also clears `workspace_verify/`.
+- Challenge header now shows the numeric id and optional challenge id for extras.
+- Reorganized main help output with grouped sections and examples.
+- Reorganized README flags/options into a dedicated section with defaults.
+- Verified `swift run forge --help` and `swift run forge random --help`.
 - Replaced file watching with manual Enter-to-check flow; added hint/solution commands in the CLI for challenges and projects.
 - Ran `scripts/check.sh` after enabling project hints; build and tests passed.
 - Migrated inline starter hints into `hints` and `solution` fields for closure and collection challenges.

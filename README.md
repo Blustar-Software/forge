@@ -31,14 +31,25 @@ Edit the generated file in `workspace/`, then press Enter to check. Use `h` for 
 swift run forge
 ```
 When prompted, press Enter to check your work. Type `h` for a hint, `c` for a cheatsheet, or `s` for a solution (challenges and projects).
-Use `swift run forge --help` or `swift run forge help` for usage.
-Use `--allow-early-concepts` to warn instead of block.
-Use `--disable-di-mock-heuristics` to ignore DI/mock heuristic checks.
-Use `swift run forge stats` to view adaptive stats, and `swift run forge stats --reset` to clear them.
-Use `--adaptive-on` to enable adaptive gating during the main flow.
-Use `--adaptive-threshold <n>` and `--adaptive-count <n>` to tune adaptive gating.
-Use `--adaptive-off` to explicitly disable adaptive gating during the main flow.
-Adaptive tuning flags only apply when adaptive gating is enabled.
+Use `swift run forge --help` for usage and `swift run forge <command> --help` for subcommands.
+
+## Flags and options
+Flow control:
+- `--gate-passes <n>`: set the number of stage review passes (default 2).
+- `--gate-count <n>`: set the number of challenges per stage review (default 3).
+
+Constraints:
+- `--allow-early-concepts`: warn instead of block early-concept usage.
+- `--disable-di-mock-heuristics`: ignore DI/mock heuristic checks.
+
+Adaptive gating:
+- `--adaptive-on`: enable adaptive practice in the main flow (off by default).
+- `--adaptive-threshold <n>`: set the score threshold to queue practice (default 3).
+- `--adaptive-count <n>`: set the number of adaptive practice challenges (default 3).
+- `--adaptive-off`: explicitly disable adaptive gating.
+
+Confirmation:
+- `--confirm-check`: require a second Enter before running checks.
 
 ## Stats
 ```sh
@@ -57,7 +68,8 @@ swift run forge --gate-count 2
 swift run forge reset
 ```
 Reset clears progress and exits.
-To remove all files in `workspace/` (including non-Swift files):
+Reset also removes non-hidden files in `workspace/`, `workspace_random/`, `workspace_projects/`, and `workspace_verify/`.
+To remove all files (including dotfiles) in those folders:
 ```sh
 swift run forge reset --all
 ```
@@ -69,6 +81,7 @@ To reset, wipe all files, and start:
 ```sh
 swift run forge reset --all --start
 ```
+Reset does not clear adaptive stats; use `swift run forge stats --reset` for that.
 
 ## Progress shortcuts
 You can set `workspace/.progress` manually to jump ahead.

@@ -3071,7 +3071,7 @@ print(String(describing: result))
                 // Challenge 74: readLine
                 // Read a value from standard input.
                 //
-                // Forge provides input from fixtures/input.txt.
+                // Forge pipes fixtures/input.txt into stdin, so readLine() reads its first line.
                 //
                 // Expected output: You entered Iron
 
@@ -3106,7 +3106,7 @@ if let input = readLine() {
                 // Challenge 75: Command-Line Arguments
                 // Read arguments.
                 //
-                // Forge provides an argument from fixtures/args.txt.
+                // Forge injects args from fixtures/args.txt into CommandLine.arguments.
                 //
                 // Expected output: Iron
 
@@ -3144,6 +3144,7 @@ if args.count >= 2 {
                 // Read a file of temperatures.
                 //
                 // Forge copies fixtures/temperatures.txt into the workspace folder.
+                // Your code reads it by path from the current working directory.
                 // Note: This requires Foundation for String(contentsOfFile:).
                 //
                 // Expected output: 3
