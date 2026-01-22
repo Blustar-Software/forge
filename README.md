@@ -41,11 +41,17 @@ Flow control:
 Constraints:
 - `--allow-early-concepts`: warn instead of block early-concept usage.
 - `--disable-di-mock-heuristics`: ignore DI/mock heuristic checks.
+- `--disable-constraint-profiles`: skip Phase 2 constraint profiles when present.
+- Phase 2 adds constraint profiles (per-challenge plus topic defaults) to enforce allowed imports/APIs and require certain constructs.
+ - `swift run forge verify-solutions --constraints-only`: fast constraint-only scan (skips compilation).
 
 Adaptive gating:
 - `--adaptive-on`: enable adaptive practice in the main flow (off by default).
 - `--adaptive-threshold <n>`: set the score threshold to queue practice (default 3).
 - `--adaptive-count <n>`: set the number of adaptive practice challenges (default 3).
+- `--adaptive-topic-failures <n>`: require N consecutive failures on the same topic before queueing (default 2).
+- `--adaptive-challenge-failures <n>`: require N failures on the same challenge before queueing (default 2).
+- `--adaptive-cooldown <n>`: cooldown in steps between adaptive queues (default 2).
 - `--adaptive-off`: explicitly disable adaptive gating.
 
 Confirmation:
@@ -55,7 +61,29 @@ Confirmation:
 ```sh
 swift run forge stats
 swift run forge stats --reset
+swift run forge stats --reset-all
+swift run forge stats --stats-limit 5
 ```
+Stats also summarize constraint violations recorded in `workspace/.performance_log`.
+Stats include constraint-violation counts by mode, topic, and challenge, plus a top-topic list.
+Stats print a small topic summary table when constraint violations exist.
+Use `--stats-limit` to cap the number of rows shown in the topic summary table.
+Use `--reset-all` to clear adaptive stats, constraint mastery, and the performance log.
+Per-challenge adaptive stats are stored in `workspace/.adaptive_challenge_stats`.
+
+## Report
+```sh
+swift run forge report
+```
+Shows stage review summaries, constraint mastery state, and adaptive stats.
+
+## Audit
+```sh
+swift run forge audit
+swift run forge audit core
+swift run forge audit 1-80
+```
+Runs sequencing review, constraint profile verification, and fixture presence checks (same filters as verify/review).
 
 Stage review tuning examples:
 ```sh
@@ -82,9 +110,14 @@ To reset, wipe all files, and start:
 swift run forge reset --all --start
 ```
 Reset does not clear adaptive stats; use `swift run forge stats --reset` for that.
+To clear stats and the performance log, use `swift run forge stats --reset-all`.
+
+## Constraint smoke checks
+Use `scripts/constraints_check.sh` to run a constraint-only sweep for core, mantle, and crust.
 
 ## Progress shortcuts
 You can set `workspace/.progress` manually to jump ahead.
+You can also use `swift run forge progress <target>` to update it for you.
 You can also pass the same tokens directly to Forge (for example, `swift run forge challenge:36`).
 
 - Challenge number: use `challenge:<number>` (e.g., `challenge:36`).
@@ -96,6 +129,10 @@ Examples:
 swift run forge challenge:36
 swift run forge project:core2a
 swift run forge core2a
+swift run forge progress challenge:36
+swift run forge progress project:core2a
+swift run forge progress step:19
+swift run forge verify-solutions core --constraints-only
 challenge:36
 challenge:crust-extra-async-sleep
 project:core3a
@@ -106,6 +143,20 @@ core2a
 - Some challenges use fixture files in `fixtures/` to provide stdin, command-line arguments, or file input.
 - Forge copies fixture files into the active workspace and injects stdin/args when needed, so the challenge stays deterministic.
 - A few testing-focused challenges simulate XCTest in script form with a tiny stub so they compile under `swift` while still teaching the test structure.
+
+## Constraint profiles (Phase 2)
+- Constraints run before compilation and can block a check if they detect disallowed usage.
+- Each challenge can define a `ConstraintProfile`, and topic-level profiles add defaults.
+- Topic profiles currently:
+  - `functions`: blocks stdin/argv by default.
+  - `optionals`: requires optional usage; blocks stdin/argv by default.
+  - `collections`: requires collection usage; blocks stdin/argv by default.
+  - `strings`: blocks stdin/argv by default.
+  - `conditionals`: blocks loop keywords (`for`, `while`, `repeat`).
+  - `structs`: requires a `struct` definition.
+- Some topic profiles also disallow advanced operations until they are introduced (for example, `map`/`filter`/`reduce` in collections, `??`/`guard` in optionals, string interpolation and higher-order collection ops in strings, error handling across topics, or switch/loop control and ranges in conditionals/loops).
+- Challenge profiles can override topic requirements (e.g., disable `requireCollectionUsage`).
+- Use `--disable-constraint-profiles` to skip profile enforcement.
 
 ## Projects
 - Core projects in the default flow: `core1a`, `core2a`, `core3a`, `mantle1a`, `mantle2a`, `mantle3a`, `crust1a`, `crust2a`, `crust3a`.
@@ -183,21 +234,23 @@ swift run forge review-progression core
 - `swift run forge verify-solutions` to confirm solution outputs.
 
 ## Stage review summary
-Forge stores the last stage review summary in `workspace/.stage_gate_summary` with pass count and elapsed time per stage.
+Forge stores the last stage review summary in `workspace/.stage_gate_summary` with pass count and elapsed time per stage. Stage review challenge files are written to `workspace_review/`.
 
 ## Performance log (Phase 2+ stub)
 Forge appends JSON lines to `workspace/.performance_log` for stage reviews and challenge/project attempts (event name, identifiers, result, elapsed time, timestamp).
 
 ## Adaptive stats (Phase 2+ stub)
-Forge stores per-topic attempt counts in `workspace/.adaptive_stats` to support adaptive progression.
+Forge stores per-topic attempt counts in `workspace/.adaptive_stats` and per-challenge attempts in `workspace/.adaptive_challenge_stats` to support adaptive progression.
 
 Format:
 ```
 topic|pass=0,fail=0,compile_fail=0,manual_pass=0
 ```
 
-Random mode now weights topic selection using these stats (more fails → higher weight).
-When adaptive is enabled, the main flow may insert short practice sets after repeated failures.
+Random mode now weights topic selection using these stats (more fails → higher weight), and adaptive random selection uses per-challenge recency + failures.
+When adaptive is enabled, the main flow may insert short practice sets after repeated failures; practice is scoped to the same topic/layer, avoids the current challenge, and favors a recent window of nearby challenges.
+Stats output includes a small "top failing challenges" list when per-challenge stats exist.
+Constraint violation stats now include a per-challenge detail list for quick debugging.
 
 To view stats:
 ```sh

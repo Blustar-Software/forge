@@ -10,9 +10,23 @@
 - Challenges and projects now support stored hints and solutions.
 - Cheatsheets are available via `c`, with shared topic blocks and project-specific blocks.
 - Core + Mantle content are implemented; Crust 1–3 challenges and projects are implemented.
-- FTS standards have not yet been applied across the curriculum or engine.
+- FTS Phase 1 standards are implemented in the engine with constraint profiles, heuristics, and audit tooling.
 
 ## Recent Changes
+- Completed a full hint audit across Core, Core extras, Mantle (and extras), Crust (and extras), and Bridge to align with hint rules (reduced solution mirroring).
+- Tightened a few early hints (e.g., Challenge 1) to avoid “exact output” phrasing while preserving formatting guidance.
+- Ran `scripts/check.sh`; all tests passing.
+- Added common-mistake diagnostics on output mismatch (missing print, line count mismatch, optional printing, missing calls, basic topic guidance).
+- Added adaptive stability guards: require repeated failures by topic or challenge and enforce a short cooldown between adaptive queues.
+- Added adaptive stability CLI flags (`--adaptive-topic-failures`, `--adaptive-challenge-failures`, `--adaptive-cooldown`) and documented them in help/README.
+- Updated the FTS spec to mark Phase 2 milestone 9.2 as implemented.
+- Added tests for diagnostics and adaptive flag parsing; ran `scripts/check.sh` with all tests passing.
+- Implemented constraint mastery ladder with persistent state and a warn/block/relax cycle.
+- Added stage review debrief summary output.
+- Added `forge report` and `forge audit` commands (reporting, sequencing/constraint/fixture audits).
+- Added fixture presence audit and constraint mastery tracking to the report.
+- Added tests for constraint mastery transitions; ran `scripts/check.sh` with all tests passing.
+- `stats --reset-all` now clears constraint mastery as well.
 - Updated FTS gap analysis and roadmap to reflect default constraint enforcement with `--allow-early-concepts` as the opt-out.
 - Added a startup note when `--allow-early-concepts` is active to indicate warn-only mode.
 - Added per-unit constraint metadata via concept introductions and switched constraint checks to use that metadata (still regex-based).
@@ -99,6 +113,19 @@
 - Reorganized main help output with grouped sections and examples.
 - Reorganized README flags/options into a dedicated section with defaults.
 - Verified `swift run forge --help` and `swift run forge random --help`.
+- Added Phase 2 controlled-execution design draft to the FTS spec.
+- Added Phase 2 milestones (9.1/9.2/9.3) with rough estimates to the FTS spec.
+- Added Phase 2 constraint profile scaffolding and pre-run constraint logging.
+- Added a README note about Phase 2 constraint profiles.
+- Added `--disable-constraint-profiles` flag to toggle Phase 2 constraint enforcement.
+- Removed example constraint profiles from challenges 1, 74, and 76.
+- Added a baseline Phase 2 constraint profile to Core 1 challenges 1–10.
+- Expanded the baseline Phase 2 constraint profile to all Core 1 challenges (1–18).
+- Added the baseline Phase 2 constraint profile to all Core 2 challenges (19–40).
+- Added baseline constraint profiles to Core 3 challenges (41–120), skipping the import-based challenge.
+- Added baseline constraint profiles to Mantle challenges, skipping those that require imports.
+- Added baseline constraint profiles to Crust challenges, skipping those that require imports.
+- Added baseline constraint profiles to the remaining crust interop concept challenges.
 - Replaced file watching with manual Enter-to-check flow; added hint/solution commands in the CLI for challenges and projects.
 - Ran `scripts/check.sh` after enabling project hints; build and tests passed.
 - Migrated inline starter hints into `hints` and `solution` fields for closure and collection challenges.
@@ -160,6 +187,88 @@
 - Adaptive gating defaulted off; added `--adaptive-on` flag to enable it.
 - Updated README and FTS spec to reflect deterministic Phase 1 behavior and fixture usage.
 - Ran `scripts/check.sh`; build and tests passed.
+- Added Phase 2 constraint enforcement in `forge` with `ConstraintProfile` support and `--disable-constraint-profiles`.
+- Applied baseline constraint profiles across Core/Mantle/Crust and added targeted profiles for import/file/network/concurrency challenges.
+- Normalized challenge argument ordering after bulk profile insertion and verified build with `swift run forge --disable-constraint-profiles`.
+- Added per-topic constraint profiles (strings/conditionals/functions/collections/optionals/structs) and merged them with per-challenge profiles during validation.
+- Added constraint profile requirements for optional/collection/closure usage with token-based checks; closure-focused Core 3 challenges now require closures.
+- Tuned optional and collection usage detectors to reduce false positives (type-context checks; capture-list skip; bracket heuristics).
+- Added per-challenge overrides to relax collection requirements for the Mantle sequence/iterator set.
+- Added constraint detector tests for array/dictionary literals, if-let optional usage, and closure assignment detection.
+- Documented Phase 2 topic-level constraint profiles and overrides in README and help output.
+- Added `verify-solutions --constraints-only` for fast constraint-only verification.
+- Constraint-only verification updated to validate combined starter+solution; Core set now passes after relaxing functions topic requirement.
+- Added topic-level disallow rules for map/filter/reduce/compactMap/flatMap (collections), optional binding/guard/?? (optionals), and closures (functions); core constraint-only verification passes.
+- Added tests for topic disallow rules (map before intro) and confirmed `swift test` passes.
+- Expanded topic disallow rules for optionals (try?) and strings (interpolation), with tests; `swift test` passes.
+- Added more topic disallow rules (closures in collections, map in strings, do/catch + try! in optionals) and tests; `swift test` passes.
+- Added stats reset-all and constraint smoke check script; constraint-only verification now passes for core, mantle, and crust (scripts/constraints_check.sh).
+- Added loop topic constraint profile and disallow rules for switch/loops; updated tests and `swift test` passes.
+- Added conditionals disallow for break/continue with tests; `swift test` passes.
+- Added stats reset-all test coverage; `swift test` passes.
+- Added loop range disallow checks with tests; `swift test` passes.
+- Re-ran `scripts/constraints_check.sh`; constraint-only verification passes for core, mantle, and crust.
+- Stats now summarize constraint violations by topic; `swift test` and `scripts/constraints_check.sh` pass.
+- Added conditionals disallow for ranges with tests; `swift test` passes.
+- Re-ran `scripts/constraints_check.sh`; constraint-only verification passes for core, mantle, and crust.
+- Expanded string topic disallows to filter/reduce/compactMap/flatMap with tests; `swift test` passes.
+- Stats now include a top-topic list for constraint violations; `swift test` passes.
+- Stats now print a topic summary table for constraint violations; `swift test` passes.
+- Added `--stats-limit` for limiting the topic summary table; `swift test` passes.
+- Added error-handling disallow rules across topics with a try keyword test; `swift test` passes.
+- Added stats limit test via table helper; `swift test` passes.
+- Scoped error-handling disallows to general topics; updated try keyword test; `swift test` passes.
+- Added error-handling disallows to optionals; `swift test` passes.
+- Re-ran `scripts/constraints_check.sh`; constraint-only verification passes for core, mantle, and crust.
+- Stats now summarize constraint violations from the performance log.
+- Re-ran `scripts/constraints_check.sh` after the latest changes; constraint-only verification passes for core, mantle, and crust.
+- Expanded error-handling disallows to all topic profiles; updated README.
+- Ran `swift test`; all tests pass.
+- Re-ran `scripts/constraints_check.sh`; constraint-only verification passes for core, mantle, and crust.
+- Documented `--stats-limit` usage in README.
+- Expanded constraint warnings with collections detection and broader optional/closure usage checks.
+- Ran `swift test`; all tests pass.
+- Tightened tuple detection for sequencing warnings; added a tuple warning test.
+- Ran `swift test`; all tests pass.
+- Tightened file IO + CLI argument detection for sequencing warnings; added a file IO warning test.
+- Ran `swift test`; all tests pass.
+- Added a command-line arguments warning test for sequencing checks.
+- Ran `swift test`; all tests pass.
+- Expanded async/concurrency detection (Task/MainActor/Sendable/task groups); added Task and task group warning tests.
+- Ran `swift test`; all tests pass.
+- Tightened error-handling/generics/protocol conformance sequencing detection; added warning tests.
+- Ran `swift test`; all tests pass.
+- Tightened protocol extension detection; added protocol extension and access control warning tests.
+- Ran `swift test`; all tests pass.
+- Tightened macro detection for sequencing warnings; added a macro warning test.
+- Ran `swift test`; all tests pass.
+- Tightened SwiftPM/build-config detection for sequencing warnings; added warning tests.
+- Ran `swift test`; all tests pass.
+- Improved adaptive practice selection by filtering the pool to same topic/layer/current progress and favoring extras; added a selection test.
+- Ran `swift test`; all tests pass.
+- Added per-challenge adaptive stats with recency-aware weighting; updated README and tests.
+- Ran `swift test`; all tests pass.
+- Fixed macro detection crash on empty token lists.
+- Ran `swift test`; all tests pass.
+- Skipped extra enter prompt after adaptive practice returns to main flow.
+- Updated README to describe per-challenge adaptive stats and scoped practice selection.
+- Ran `swift test`; all tests pass.
+- Updated help output to mention per-challenge adaptive stats and recency weighting.
+- Ran `swift test`; all tests pass.
+- Added per-challenge failure summary to stats output; updated README/help and tests.
+- Ran `swift test`; all tests pass.
+- Added an enter prompt before starting the project after stage review.
+- Ran `swift test`; all tests pass.
+- Moved stage review challenge files to workspace_review and updated reset/help/README.
+- Added `progress` helper command to set .progress for challenges/projects/steps; updated README/help.
+- Ran `swift test`; all tests pass.
+- Clarified progress helper output with resolved step label.
+- Expanded constraint violation stats with per-challenge detail; updated README/help.
+- Added a windowed adaptive practice filter and tests; updated README.
+- Made progress helper output include the resolved step label (challenge/project/stage review).
+- Ran `swift test`; all tests pass.
+- Tweaked Core 1 hints to avoid solution leakage and remove optional terminology before it's introduced.
+- Ran `swift test`; all tests pass.
 
 ## Notes
 - Core 2 project `core2a` requires tuple usage; tuples are now taught in Core 2.

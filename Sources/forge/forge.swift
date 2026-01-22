@@ -16,6 +16,12 @@ enum ProgressTarget {
     case completed
 }
 
+enum ProgressInput {
+    case challenge(Int)
+    case project(String)
+    case step(Int)
+}
+
 struct ConstraintIndex {
     let introByConcept: [ConstraintConcept: Int]
     let legacyMinByConcept: [ConstraintConcept: Int]
@@ -130,9 +136,11 @@ func resetProgress(workspacePath: String = "workspace", removeAll: Bool = false)
     setupWorkspace(at: "workspace_random")
     setupWorkspace(at: "workspace_projects")
     setupWorkspace(at: "workspace_verify")
+    setupWorkspace(at: "workspace_review")
     resetWorkspaceContents(at: "workspace_random", removeAll: removeAll)
     resetWorkspaceContents(at: "workspace_projects", removeAll: removeAll)
     resetWorkspaceContents(at: "workspace_verify", removeAll: removeAll)
+    resetWorkspaceContents(at: "workspace_review", removeAll: removeAll)
     
     print("✓ Progress reset! Starting from Challenge 1.\n")
 }
@@ -201,6 +209,38 @@ func adaptiveStatsFilePath(workspacePath: String = "workspace") -> String {
     return "\(workspacePath)/.adaptive_stats"
 }
 
+func adaptiveChallengeStatsFilePath(workspacePath: String = "workspace") -> String {
+    return "\(workspacePath)/.adaptive_challenge_stats"
+}
+
+struct ChallengeStats {
+    var pass: Int = 0
+    var fail: Int = 0
+    var compileFail: Int = 0
+    var manualPass: Int = 0
+    var lastAttempt: Int = 0
+}
+
+func parseStatCounts(_ raw: String) -> [String: Int] {
+    var result: [String: Int] = [:]
+    for entry in raw.split(separator: ",") {
+        let parts = entry.split(separator: "=", maxSplits: 1).map(String.init)
+        guard parts.count == 2, let value = Int(parts[1]) else { continue }
+        result[parts[0]] = value
+    }
+    return result
+}
+
+func parseKeyValues(_ raw: String) -> [String: String] {
+    var result: [String: String] = [:]
+    for entry in raw.split(separator: ",") {
+        let parts = entry.split(separator: "=", maxSplits: 1).map(String.init)
+        guard parts.count == 2 else { continue }
+        result[parts[0]] = parts[1]
+    }
+    return result
+}
+
 func loadAdaptiveStats(workspacePath: String = "workspace") -> [String: [String: Int]] {
     let path = adaptiveStatsFilePath(workspacePath: workspacePath)
     guard let content = try? String(contentsOfFile: path, encoding: .utf8) else {
@@ -236,6 +276,47 @@ func saveAdaptiveStats(_ stats: [String: [String: Int]], workspacePath: String =
     try? content.write(toFile: path, atomically: true, encoding: .utf8)
 }
 
+func loadAdaptiveChallengeStats(workspacePath: String = "workspace") -> [String: ChallengeStats] {
+    let path = adaptiveChallengeStatsFilePath(workspacePath: workspacePath)
+    guard let content = try? String(contentsOfFile: path, encoding: .utf8) else {
+        return [:]
+    }
+    var stats: [String: ChallengeStats] = [:]
+    for line in content.split(separator: "\n") {
+        let parts = line.split(separator: "|", maxSplits: 1).map(String.init)
+        guard parts.count == 2 else { continue }
+        let counts = parseStatCounts(parts[1])
+        var entry = ChallengeStats()
+        entry.pass = counts["pass", default: 0]
+        entry.fail = counts["fail", default: 0]
+        entry.compileFail = counts["compile_fail", default: 0]
+        entry.manualPass = counts["manual_pass", default: 0]
+        entry.lastAttempt = counts["last", default: 0]
+        stats[parts[0]] = entry
+    }
+    return stats
+}
+
+func saveAdaptiveChallengeStats(
+    _ stats: [String: ChallengeStats],
+    workspacePath: String = "workspace"
+) {
+    let path = adaptiveChallengeStatsFilePath(workspacePath: workspacePath)
+    let lines = stats.keys.sorted().map { id in
+        let entry = stats[id] ?? ChallengeStats()
+        let entries: [String] = [
+            "pass=\(entry.pass)",
+            "fail=\(entry.fail)",
+            "compile_fail=\(entry.compileFail)",
+            "manual_pass=\(entry.manualPass)",
+            "last=\(entry.lastAttempt)",
+        ]
+        return "\(id)|\(entries.joined(separator: ","))"
+    }
+    let content = lines.joined(separator: "\n")
+    try? content.write(toFile: path, atomically: true, encoding: .utf8)
+}
+
 func recordAdaptiveStat(
     topic: ChallengeTopic,
     result: String,
@@ -248,11 +329,87 @@ func recordAdaptiveStat(
     saveAdaptiveStats(stats, workspacePath: workspacePath)
 }
 
+func recordAdaptiveChallengeStat(
+    challenge: Challenge,
+    result: String,
+    workspacePath: String = "workspace"
+) {
+    var stats = loadAdaptiveChallengeStats(workspacePath: workspacePath)
+    let id = challenge.displayId
+    var entry = stats[id] ?? ChallengeStats()
+    switch result {
+    case "pass":
+        entry.pass += 1
+    case "fail":
+        entry.fail += 1
+    case "compile_fail":
+        entry.compileFail += 1
+    case "manual_pass":
+        entry.manualPass += 1
+    default:
+        break
+    }
+    entry.lastAttempt = Int(Date().timeIntervalSince1970)
+    stats[id] = entry
+    saveAdaptiveChallengeStats(stats, workspacePath: workspacePath)
+}
+
 func topicScore(for topic: ChallengeTopic, stats: [String: [String: Int]]) -> Int {
     let topicStats = stats[topic.rawValue] ?? [:]
     let failures = (topicStats["fail"] ?? 0) + (topicStats["compile_fail"] ?? 0)
     let passes = (topicStats["pass"] ?? 0) + (topicStats["manual_pass"] ?? 0)
     return max(1, 1 + failures - passes)
+}
+
+func challengeScore(for challenge: Challenge, stats: [String: ChallengeStats]) -> Int {
+    let entry = stats[challenge.displayId] ?? ChallengeStats()
+    let failures = entry.fail + entry.compileFail
+    let passes = entry.pass + entry.manualPass
+    return max(0, failures - passes)
+}
+
+func recencyBonus(for challenge: Challenge, stats: [String: ChallengeStats], now: Int) -> Int {
+    let entry = stats[challenge.displayId] ?? ChallengeStats()
+    guard entry.lastAttempt > 0 else { return 2 }
+    let age = max(0, now - entry.lastAttempt)
+    if age < 300 {
+        return 0
+    }
+    if age < 1800 {
+        return 1
+    }
+    if age < 7200 {
+        return 2
+    }
+    return 3
+}
+
+func adaptiveChallengeWeight(
+    challenge: Challenge,
+    topicStats: [String: [String: Int]],
+    challengeStats: [String: ChallengeStats],
+    now: Int
+) -> Int {
+    let base = topicScore(for: challenge.topic, stats: topicStats)
+    let failures = challengeScore(for: challenge, stats: challengeStats)
+    let recency = recencyBonus(for: challenge, stats: challengeStats, now: now)
+    let extraBonus = challenge.tier == .extra ? 1 : 0
+    return max(1, base + failures + recency + extraBonus)
+}
+
+func adaptivePracticePool(
+    for challenge: Challenge,
+    from pool: [Challenge],
+    windowSize: Int = 8
+) -> [Challenge] {
+    let minNumber = max(1, challenge.number - windowSize)
+    return pool.filter { candidate in
+        guard candidate.topic == challenge.topic else { return false }
+        guard candidate.layer == challenge.layer else { return false }
+        guard candidate.number <= challenge.number else { return false }
+        guard candidate.number >= minNumber else { return false }
+        return candidate.progressId != challenge.progressId
+    }
 }
 
 func weightedRandomSelection<T>(
@@ -307,6 +464,118 @@ func performanceLogPath(workspacePath: String = "workspace") -> String {
     return "\(workspacePath)/.performance_log"
 }
 
+func constraintMasteryPath(workspacePath: String = "workspace") -> String {
+    return "\(workspacePath)/.constraint_mastery"
+}
+
+enum ConstraintMasteryState: String {
+    case warn
+    case block
+    case relax
+}
+
+struct ConstraintMasteryEntry {
+    var state: ConstraintMasteryState
+    var warnCount: Int
+    var cleanCount: Int
+}
+
+func loadConstraintMastery(workspacePath: String = "workspace") -> [String: ConstraintMasteryEntry] {
+    let path = constraintMasteryPath(workspacePath: workspacePath)
+    guard let content = try? String(contentsOfFile: path, encoding: .utf8) else {
+        return [:]
+    }
+    var entries: [String: ConstraintMasteryEntry] = [:]
+    for line in content.split(separator: "\n") {
+        let parts = line.split(separator: "|", maxSplits: 1).map(String.init)
+        guard parts.count == 2 else { continue }
+        let topic = parts[0]
+        let kvs = parseKeyValues(parts[1])
+        let stateRaw = kvs["state"].flatMap { ConstraintMasteryState(rawValue: $0) } ?? .block
+        let warnCount = Int(kvs["warn"] ?? "") ?? 0
+        let cleanCount = Int(kvs["clean"] ?? "") ?? 0
+        entries[topic] = ConstraintMasteryEntry(state: stateRaw, warnCount: warnCount, cleanCount: cleanCount)
+    }
+    return entries
+}
+
+func saveConstraintMastery(_ entries: [String: ConstraintMasteryEntry], workspacePath: String = "workspace") {
+    let lines = entries.keys.sorted().map { topic -> String in
+        let entry = entries[topic] ?? ConstraintMasteryEntry(state: .block, warnCount: 0, cleanCount: 0)
+        return "\(topic)|state=\(entry.state.rawValue),warn=\(entry.warnCount),clean=\(entry.cleanCount)"
+    }
+    let content = lines.joined(separator: "\n")
+    try? content.write(toFile: constraintMasteryPath(workspacePath: workspacePath), atomically: true, encoding: .utf8)
+}
+
+func effectiveConstraintEnforcement(
+    for topic: ChallengeTopic,
+    enforceConstraints: Bool,
+    workspacePath: String = "workspace"
+) -> Bool {
+    guard enforceConstraints else { return false }
+    let entries = loadConstraintMastery(workspacePath: workspacePath)
+    let entry = entries[topic.rawValue] ?? ConstraintMasteryEntry(state: .block, warnCount: 0, cleanCount: 0)
+    return entry.state == .block
+}
+
+func recordConstraintMastery(
+    topic: ChallengeTopic,
+    hadWarnings: Bool,
+    passed: Bool,
+    workspacePath: String = "workspace"
+) {
+    let warnToBlockThreshold = 2
+    let blockToRelaxThreshold = 3
+    let relaxToWarnThreshold = 3
+
+    var entries = loadConstraintMastery(workspacePath: workspacePath)
+    var entry = entries[topic.rawValue] ?? ConstraintMasteryEntry(state: .block, warnCount: 0, cleanCount: 0)
+
+    if hadWarnings {
+        entry.cleanCount = 0
+        if entry.state != .block {
+            entry.warnCount += 1
+            if entry.warnCount >= warnToBlockThreshold {
+                entry.state = .block
+                entry.warnCount = 0
+                entry.cleanCount = 0
+            }
+        }
+    } else if passed {
+        entry.warnCount = 0
+        if entry.state == .block {
+            entry.cleanCount += 1
+            if entry.cleanCount >= blockToRelaxThreshold {
+                entry.state = .relax
+                entry.cleanCount = 0
+            }
+        } else if entry.state == .relax {
+            entry.cleanCount += 1
+            if entry.cleanCount >= relaxToWarnThreshold {
+                entry.state = .warn
+                entry.cleanCount = 0
+            }
+        }
+    }
+
+    entries[topic.rawValue] = entry
+    saveConstraintMastery(entries, workspacePath: workspacePath)
+}
+
+func resetPerformanceLog(workspacePath: String = "workspace") {
+    let path = performanceLogPath(workspacePath: workspacePath)
+    try? FileManager.default.removeItem(atPath: path)
+}
+
+func loadPerformanceLogEntries(workspacePath: String = "workspace") -> [String] {
+    let path = performanceLogPath(workspacePath: workspacePath)
+    guard let content = try? String(contentsOfFile: path, encoding: .utf8) else {
+        return []
+    }
+    return content.split(separator: "\n").map(String.init)
+}
+
 func appendPerformanceLogEntry(_ entry: String, workspacePath: String = "workspace") {
     let path = performanceLogPath(workspacePath: workspacePath)
     let existing = (try? String(contentsOfFile: path, encoding: .utf8)) ?? ""
@@ -321,6 +590,129 @@ func jsonEscaped(_ value: String) -> String {
     escaped = escaped.replacingOccurrences(of: "\r", with: "\\r")
     escaped = escaped.replacingOccurrences(of: "\t", with: "\\t")
     return escaped
+}
+
+func extractLogField(_ line: String, key: String) -> String? {
+    let needle = "\"\(key)\":\""
+    guard let range = line.range(of: needle) else { return nil }
+    let start = range.upperBound
+    guard let end = line[start...].firstIndex(of: "\"") else { return nil }
+    return String(line[start..<end])
+}
+
+func parseLogTimestamp(_ value: String) -> Date? {
+    return ISO8601DateFormatter().date(from: value)
+}
+
+func printStageReviewDebrief(startedAt: Date, workspacePath: String = "workspace") {
+    let entries = loadPerformanceLogEntries(workspacePath: workspacePath)
+    var attempts: [String: Int] = [:]
+    var violationsByTopic: [String: Int] = [:]
+    let topicIndex = buildChallengeTopicIndex()
+
+    for line in entries {
+        guard let timestampValue = extractLogField(line, key: "timestamp"),
+              let timestamp = parseLogTimestamp(timestampValue),
+              timestamp >= startedAt else { continue }
+
+        if extractLogField(line, key: "mode") != "stage_review" {
+            continue
+        }
+
+        if let event = extractLogField(line, key: "event"), event == "challenge_attempt" {
+            if let result = extractLogField(line, key: "result") {
+                attempts[result, default: 0] += 1
+            }
+        } else if let event = extractLogField(line, key: "event"), event == "constraint_violation" {
+            if let id = extractLogField(line, key: "id"), let topic = topicIndex[id] {
+                violationsByTopic[topic, default: 0] += 1
+            }
+        }
+    }
+
+    if attempts.isEmpty && violationsByTopic.isEmpty {
+        return
+    }
+
+    print("Stage review debrief:")
+    if !attempts.isEmpty {
+        let pass = attempts["pass", default: 0]
+        let fail = attempts["fail", default: 0]
+        let compileFail = attempts["compile_fail", default: 0]
+        let total = pass + fail + compileFail
+        print("- Attempts: \(total) (pass=\(pass), fail=\(fail), compile_fail=\(compileFail))")
+    }
+    if !violationsByTopic.isEmpty {
+        let topTopics = violationsByTopic.sorted { $0.value > $1.value }.prefix(3)
+        let summary = topTopics.map { "\($0.key)(\($0.value))" }.joined(separator: ", ")
+        print("- Constraint warnings: \(summary)")
+    }
+    print("")
+}
+
+func buildChallengeTopicIndex() -> [String: String] {
+    let core1Challenges = makeCore1Challenges()
+    let core2Challenges = makeCore2Challenges()
+    let core3Challenges = makeCore3Challenges()
+    let mantleChallenges = makeMantleChallenges()
+    let crustChallenges = makeCrustChallenges()
+    let bridgeChallenges = makeBridgeChallenges()
+    let allChallenges = core1Challenges
+        + core2Challenges
+        + core3Challenges
+        + mantleChallenges
+        + crustChallenges
+        + bridgeChallenges.coreToMantle
+        + bridgeChallenges.mantleToCrust
+
+    var index: [String: String] = [:]
+    for challenge in allChallenges {
+        index[challenge.displayId] = challenge.topic.rawValue
+    }
+    return index
+}
+
+func buildChallengeTitleIndex() -> [String: String] {
+    let core1Challenges = makeCore1Challenges()
+    let core2Challenges = makeCore2Challenges()
+    let core3Challenges = makeCore3Challenges()
+    let mantleChallenges = makeMantleChallenges()
+    let crustChallenges = makeCrustChallenges()
+    let bridgeChallenges = makeBridgeChallenges()
+    let allChallenges = core1Challenges
+        + core2Challenges
+        + core3Challenges
+        + mantleChallenges
+        + crustChallenges
+        + bridgeChallenges.coreToMantle
+        + bridgeChallenges.mantleToCrust
+
+    var index: [String: String] = [:]
+    for challenge in allChallenges {
+        index[challenge.displayId] = challenge.title
+    }
+    return index
+}
+
+func constraintTopicTableLines(
+    _ violationsByTopic: [String: Int],
+    limit: Int?
+) -> [String] {
+    func padded(_ text: String, width: Int) -> String {
+        if text.count >= width {
+            return String(text.prefix(width))
+        }
+        return text + String(repeating: " ", count: width - text.count)
+    }
+
+    let sortedTopics = violationsByTopic.sorted { $0.value > $1.value }
+    let header = "\(padded("Topic", width: 16)) \(padded("Count", width: 5))"
+    let separator = String(repeating: "-", count: header.count)
+    let maxRows = limit ?? sortedTopics.count
+    let rows = sortedTopics.prefix(maxRows).map { topic, count in
+        "\(padded(topic, width: 16)) \(padded(String(count), width: 5))"
+    }
+    return [header, separator] + rows
 }
 
 func logEvent(
@@ -348,6 +740,23 @@ func logEvent(
 
     let entry = "{\(parts.joined(separator: ","))}"
     appendPerformanceLogEntry(entry, workspacePath: workspacePath)
+}
+
+func logConstraintViolation(
+    _ challenge: Challenge,
+    mode: String? = nil,
+    workspacePath: String = "workspace"
+) {
+    var fields: [String: String] = ["id": challenge.displayId]
+    if let mode = mode {
+        fields["mode"] = mode
+    }
+    logEvent(
+        "constraint_violation",
+        fields: fields,
+        intFields: ["number": challenge.number],
+        workspacePath: workspacePath
+    )
 }
 
 func compileAndRun(file: String, arguments: [String] = [], stdin: String? = nil) -> String? {
@@ -492,10 +901,14 @@ func skipReasonForVerification(challenge: Challenge) -> String? {
     return nil
 }
 
-func verifyChallengeSolutions(_ challenges: [Challenge]) -> Bool {
+func verifyChallengeSolutions(
+    _ challenges: [Challenge],
+    enableConstraintProfiles: Bool
+) -> Bool {
     let workspacePath = "workspace_verify"
     setupWorkspace(at: workspacePath)
     clearWorkspaceContents(at: workspacePath)
+    let constraintIndex = buildConstraintIndex(from: challenges)
 
     var failures: [(id: String, reason: String)] = []
     var skipped = 0
@@ -530,6 +943,18 @@ func verifyChallengeSolutions(_ challenges: [Challenge]) -> Bool {
         clearWorkspaceContents(at: workspacePath)
         let (stdin, args) = prepareChallengeEnvironment(challenge, workspacePath: workspacePath)
         try? solution.write(toFile: filePath, atomically: true, encoding: .utf8)
+        if let source = try? String(contentsOfFile: filePath, encoding: .utf8) {
+            let violations = constraintViolations(
+                for: source,
+                challenge: challenge,
+                enabled: enableConstraintProfiles,
+                index: constraintIndex
+            )
+            if !violations.isEmpty {
+                failures.append((challenge.displayId, "constraint violation"))
+                continue
+            }
+        }
         let firstRun = compileAndRunWithTimeout(
             file: filePath,
             arguments: args,
@@ -597,6 +1022,70 @@ func verifyChallengeSolutions(_ challenges: [Challenge]) -> Bool {
     return false
 }
 
+func verifyConstraintProfiles(
+    _ challenges: [Challenge],
+    enableConstraintProfiles: Bool
+) -> Bool {
+    if !enableConstraintProfiles {
+        print("Constraint profiles disabled; skipping verification.")
+        return true
+    }
+
+    let constraintIndex = buildConstraintIndex(from: challenges)
+    var failures: [(id: String, reason: String)] = []
+    var skipped = 0
+    var skippedReasons: [String: Int] = [:]
+    var checked = 0
+
+    print("Verifying constraint profiles for \(challenges.count) challenge(s)...")
+
+    for (index, challenge) in challenges.enumerated() {
+        if challenge.constraintProfile == nil && topicConstraintProfiles[challenge.topic] == nil {
+            skipped += 1
+            skippedReasons["no profile", default: 0] += 1
+            continue
+        }
+        let solution = challenge.solution.trimmingCharacters(in: .whitespacesAndNewlines)
+        if solution.isEmpty {
+            skipped += 1
+            skippedReasons["missing solution", default: 0] += 1
+            continue
+        }
+        let combined = applySolutionToStarter(starterCode: challenge.starterCode, solution: solution)
+        let violations = constraintViolations(
+            for: combined,
+            challenge: challenge,
+            enabled: enableConstraintProfiles,
+            index: constraintIndex
+        )
+        if !violations.isEmpty {
+            let reason = violations.first ?? "constraint violation"
+            failures.append((challenge.displayId, reason))
+        } else {
+            checked += 1
+        }
+
+        if (index + 1) % 25 == 0 {
+            print("Checked \(index + 1)/\(challenges.count)...")
+        }
+    }
+
+    if failures.isEmpty {
+        print("✓ Verified constraint profiles: \(checked)")
+        if skipped > 0 {
+            let reasons = skippedReasons.map { "\($0.key): \($0.value)" }.sorted().joined(separator: ", ")
+            print("Skipped: \(skipped) (\(reasons))")
+        }
+        return true
+    }
+
+    print("✗ Constraint profile verification failed for \(failures.count) challenge(s).")
+    for failure in failures {
+        print("- \(failure.id): \(failure.reason)")
+    }
+    return false
+}
+
 func isExpectedOutput(_ output: String, expected: String) -> Bool {
     let normalizedOutput = output.trimmingCharacters(in: .whitespacesAndNewlines)
     let normalizedExpected = expected.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -618,6 +1107,7 @@ func legacyConstraintMinimums() -> [ConstraintConcept: Int] {
         .optionalBinding: 37,
         .guardStatement: 39,
         .nilCoalescing: 40,
+        .collections: 28,
         .closures: 50,
         .shorthandClosureArgs: 54,
         .map: 61,
@@ -709,6 +1199,8 @@ func constraintConceptName(_ concept: ConstraintConcept) -> String {
         return "guard"
     case .nilCoalescing:
         return "nil coalescing"
+    case .collections:
+        return "collections"
     case .closures:
         return "closures"
     case .shorthandClosureArgs:
@@ -1058,6 +1550,15 @@ func tokenizeSource(_ source: String) -> [String] {
     return tokens
 }
 
+func isIdentifierToken(_ token: String) -> Bool {
+    guard let first = token.first else { return false }
+    guard first.isLetter || first == "_" else { return false }
+    for ch in token.dropFirst() where !(ch.isLetter || ch.isNumber || ch == "_") {
+        return false
+    }
+    return true
+}
+
 func hasToken(_ tokens: [String], _ token: String) -> Bool {
     return tokens.contains(token)
 }
@@ -1083,14 +1584,26 @@ func hasDotMember(_ tokens: [String], _ member: String) -> Bool {
 }
 
 func hasOptionalType(_ tokens: [String]) -> Bool {
-    let typeNames = ["Int", "String", "Bool", "Double"]
     guard tokens.count >= 2 else { return false }
-    for index in 0..<(tokens.count - 1) {
-        if typeNames.contains(tokens[index]) && tokens[index + 1] == "?" {
+    let typeContextTokens: Set<String> = [":", "->", "[", ",", "("]
+    for index in 1..<tokens.count where tokens[index] == "?" {
+        let prev = tokens[index - 1]
+        guard isIdentifierToken(prev) else { continue }
+        let prevPrev = index >= 2 ? tokens[index - 2] : ""
+        if typeContextTokens.contains(prevPrev) {
             return true
         }
     }
     return false
+}
+
+func hasOptionalUsage(_ tokens: [String]) -> Bool {
+    return hasOptionalType(tokens)
+        || hasToken(tokens, "nil")
+        || hasToken(tokens, "??")
+        || hasSequence(tokens, ["if", "let"])
+        || hasSequence(tokens, ["guard", "let"])
+        || hasSequence(tokens, ["as", "?"])
 }
 
 func hasShorthandClosureArg(_ tokens: [String]) -> Bool {
@@ -1103,16 +1616,128 @@ func hasShorthandClosureArg(_ tokens: [String]) -> Bool {
     return false
 }
 
+func hasClosureAssignment(_ tokens: [String]) -> Bool {
+    guard tokens.count >= 2 else { return false }
+    for index in 0..<(tokens.count - 1) {
+        let token = tokens[index]
+        let next = tokens[index + 1]
+        if (token == "=" || token == "return") && next == "{" {
+            return true
+        }
+    }
+    return false
+}
+
+func hasClosureUsage(_ tokens: [String]) -> Bool {
+    return hasClosureToken(tokens) || hasShorthandClosureArg(tokens) || hasClosureAssignment(tokens)
+}
+
+func hasCollectionUsage(tokens: [String], source: String) -> Bool {
+    if tokens.contains("Array") || tokens.contains("Dictionary") || tokens.contains("Set") {
+        return true
+    }
+    if hasCollectionLiteral(tokens: tokens) {
+        return true
+    }
+    return false
+}
+
+func hasCollectionLiteral(tokens: [String]) -> Bool {
+    let starterTokens: Set<String> = [":", "=", "return", "in", ",", "(", "["]
+    var index = 0
+    while index < tokens.count {
+        if tokens[index] == "[" {
+            let prev = index > 0 ? tokens[index - 1] : ""
+            if prev == "{" {
+                index += 1
+                continue
+            }
+            var j = index + 1
+            while j < tokens.count && tokens[j] != "]" {
+                j += 1
+            }
+            if j < tokens.count {
+                if starterTokens.contains(prev) {
+                    return true
+                }
+                let innerTokens = tokens[(index + 1)..<j]
+                if innerTokens.contains(where: { $0 == "," || $0 == ":" }) {
+                    return true
+                }
+            }
+        }
+        index += 1
+    }
+    return false
+}
+
+func hasTupleUsage(_ tokens: [String]) -> Bool {
+    let anchors: Set<String> = ["=", ":", "->", "return"]
+    var index = 0
+    while index < tokens.count - 1 {
+        let token = tokens[index]
+        if anchors.contains(token), tokens[index + 1] == "(" {
+            if hasTupleParens(tokens, startIndex: index + 1) {
+                return true
+            }
+        }
+        index += 1
+    }
+    return false
+}
+
+func hasTupleParens(_ tokens: [String], startIndex: Int) -> Bool {
+    var depth = 0
+    var sawComma = false
+    var index = startIndex
+    while index < tokens.count {
+        let token = tokens[index]
+        if token == "(" {
+            depth += 1
+        } else if token == ")" {
+            depth -= 1
+            if depth == 0 {
+                return sawComma
+            }
+        } else if token == "," && depth == 1 {
+            sawComma = true
+        }
+        index += 1
+    }
+    return false
+}
+
 func hasTryOptional(_ tokens: [String]) -> Bool {
     return hasSequence(tokens, ["try", "?"])
 }
 
 func hasCommandLineArguments(_ tokens: [String]) -> Bool {
-    return hasSequence(tokens, ["CommandLine", ".", "arguments"])
+    if hasSequence(tokens, ["CommandLine", ".", "arguments"]) {
+        return true
+    }
+    if hasSequence(tokens, ["ProcessInfo", ".", "processInfo", ".", "arguments"]) {
+        return true
+    }
+    return false
 }
 
 func hasFileIO(_ tokens: [String]) -> Bool {
-    return tokens.contains("contentsOfFile") || tokens.contains("FileHandle") || tokens.contains("FileManager")
+    if tokens.contains("contentsOfFile") || tokens.contains("FileHandle") || tokens.contains("FileManager") {
+        return true
+    }
+    if hasSequence(tokens, ["Data", ".", "contentsOf"]) {
+        return true
+    }
+    if hasSequence(tokens, ["String", ".", "contentsOf"]) {
+        return true
+    }
+    if hasSequence(tokens, ["URL", ".", "fileURLWithPath"]) {
+        return true
+    }
+    if tokens.contains("URL") || tokens.contains("Path") {
+        return true
+    }
+    return false
 }
 
 func hasPropertyWrapperUsage(_ tokens: [String]) -> Bool {
@@ -1167,19 +1792,35 @@ func hasGenericDefinition(_ tokens: [String]) -> Bool {
             return true
         }
     }
+    if let whereIndex = tokens.firstIndex(of: "where") {
+        for index in 0..<whereIndex where anchors.contains(tokens[index]) {
+            return true
+        }
+    }
     return false
 }
 
 func hasTaskUsage(_ tokens: [String]) -> Bool {
-    return hasToken(tokens, "Task")
+    let nextTokens: Set<String> = ["{", "(", ".", "<", "?", "!"]
+    let prevTokens: Set<String> = [":", "->"]
+    for (index, token) in tokens.enumerated() where token == "Task" {
+        if index > 0, prevTokens.contains(tokens[index - 1]) {
+            return true
+        }
+        let nextIndex = index + 1
+        if nextIndex < tokens.count, nextTokens.contains(tokens[nextIndex]) {
+            return true
+        }
+    }
+    return false
 }
 
 func hasMainActorUsage(_ tokens: [String]) -> Bool {
-    return hasToken(tokens, "MainActor")
+    return hasToken(tokens, "MainActor") || hasSequence(tokens, ["@", "MainActor"])
 }
 
 func hasSendableUsage(_ tokens: [String]) -> Bool {
-    return hasToken(tokens, "Sendable")
+    return hasToken(tokens, "Sendable") || hasSequence(tokens, ["@", "Sendable"])
 }
 
 func hasProtocolConformance(_ tokens: [String]) -> Bool {
@@ -1205,6 +1846,31 @@ func hasProtocolConformance(_ tokens: [String]) -> Bool {
                     k += 1
                 }
                 if hasNonIgnored {
+                    return true
+                }
+            }
+            j += 1
+        }
+    }
+    for (index, token) in tokens.enumerated() where token == "extension" {
+        var j = index + 1
+        while j < tokens.count && tokens[j] != "{" {
+            if tokens[j] == ":" {
+                var hasConformance = false
+                var k = j + 1
+                while k < tokens.count && tokens[k] != "{" {
+                    let next = tokens[k]
+                    if next == "," {
+                        k += 1
+                        continue
+                    }
+                    if !ignoredTypes.contains(next) && next != "where" {
+                        hasConformance = true
+                        break
+                    }
+                    k += 1
+                }
+                if hasConformance {
                     return true
                 }
             }
@@ -1334,7 +2000,32 @@ func hasProtocolMocking(_ tokens: [String]) -> Bool {
 }
 
 func hasProtocolExtension(_ tokens: [String]) -> Bool {
-    return hasToken(tokens, "protocol") && hasToken(tokens, "extension")
+    let protocols = protocolNames(in: tokens)
+    guard !protocols.isEmpty else { return false }
+
+    func isIdentifierToken(_ token: String) -> Bool {
+        guard let first = token.first else { return false }
+        return first.isLetter || first == "_"
+    }
+
+    var index = 0
+    while index < tokens.count - 1 {
+        if tokens[index] == "extension" {
+            var j = index + 1
+            while j < tokens.count && tokens[j] != "{" && tokens[j] != ":" && tokens[j] != "where" {
+                let name = tokens[j]
+                if isIdentifierToken(name), protocols.contains(name) {
+                    return true
+                }
+                if tokens[j] == "<" {
+                    break
+                }
+                j += 1
+            }
+        }
+        index += 1
+    }
+    return false
 }
 
 func hasTaskSleepUsage(_ tokens: [String]) -> Bool {
@@ -1343,6 +2034,9 @@ func hasTaskSleepUsage(_ tokens: [String]) -> Bool {
 
 func hasTaskGroupUsage(_ tokens: [String]) -> Bool {
     return hasToken(tokens, "withTaskGroup")
+        || hasToken(tokens, "withThrowingTaskGroup")
+        || hasToken(tokens, "TaskGroup")
+        || hasToken(tokens, "ThrowingTaskGroup")
 }
 
 func hasAccessControlKeyword(_ tokens: [String]) -> Bool {
@@ -1368,11 +2062,21 @@ func hasAccessControlSetter(_ tokens: [String]) -> Bool {
 }
 
 func hasErrorType(_ tokens: [String]) -> Bool {
-    return hasSequence(tokens, [":", "Error"]) || hasToken(tokens, "Error")
+    if hasSequence(tokens, [":", "Error"]) || hasToken(tokens, "Error") {
+        return true
+    }
+    var index = 0
+    while index < tokens.count - 1 {
+        if tokens[index] == "Result", tokens[index + 1] == "<" {
+            return true
+        }
+        index += 1
+    }
+    return false
 }
 
 func hasThrowingFunction(_ tokens: [String]) -> Bool {
-    return hasToken(tokens, "throws")
+    return hasToken(tokens, "throws") || hasToken(tokens, "rethrows")
 }
 
 func hasDoTryCatch(_ tokens: [String]) -> Bool {
@@ -1388,7 +2092,18 @@ func hasResultBuilder(_ tokens: [String]) -> Bool {
 }
 
 func hasMacroUsage(_ tokens: [String]) -> Bool {
-    return hasToken(tokens, "macro")
+    if hasToken(tokens, "macro") {
+        return true
+    }
+    guard tokens.count >= 2 else { return false }
+    for index in 0..<(tokens.count - 1) where tokens[index] == "#" {
+        let next = tokens[index + 1]
+        guard let first = next.first else { continue }
+        if first.isLetter || first == "_" {
+            return true
+        }
+    }
+    return false
 }
 
 func hasProjectedValues(_ tokens: [String]) -> Bool {
@@ -1403,7 +2118,9 @@ func hasProjectedValues(_ tokens: [String]) -> Bool {
 }
 
 func hasSwiftPMBasics(_ tokens: [String]) -> Bool {
-    return hasToken(tokens, "Package") || hasToken(tokens, "Target")
+    return hasToken(tokens, "Package")
+        || hasToken(tokens, "Target")
+        || hasToken(tokens, "PackageDescription")
 }
 
 func hasSwiftPMDependencies(_ tokens: [String]) -> Bool {
@@ -1411,7 +2128,7 @@ func hasSwiftPMDependencies(_ tokens: [String]) -> Bool {
 }
 
 func hasBuildConfigs(_ tokens: [String]) -> Bool {
-    return hasSequence(tokens, ["#", "if", "DEBUG"])
+    return hasSequence(tokens, ["#", "if"]) || hasSequence(tokens, ["#", "elseif"]) || hasSequence(tokens, ["#", "else"])
 }
 
 func containsStringInterpolation(in source: String) -> Bool {
@@ -1636,7 +2353,7 @@ func usesConcept(_ concept: ConstraintConcept, tokens: [String], source: String,
     case .functionsBasics:
         return hasToken(tokens, "func")
     case .optionals:
-        return hasOptionalType(tokens)
+        return hasOptionalUsage(tokens)
     case .nilLiteral:
         return hasToken(tokens, "nil")
     case .optionalBinding:
@@ -1645,8 +2362,10 @@ func usesConcept(_ concept: ConstraintConcept, tokens: [String], source: String,
         return hasToken(tokens, "guard")
     case .nilCoalescing:
         return hasToken(tokens, "??")
+    case .collections:
+        return hasCollectionUsage(tokens: tokens, source: source)
     case .closures:
-        return hasClosureToken(tokens)
+        return hasClosureToken(tokens) || hasClosureAssignment(tokens)
     case .shorthandClosureArgs:
         return hasShorthandClosureArg(tokens)
     case .map:
@@ -1678,11 +2397,7 @@ func usesConcept(_ concept: ConstraintConcept, tokens: [String], source: String,
     case .fileIO:
         return hasFileIO(tokens)
     case .tuples:
-        if let tupleRegex = try? NSRegularExpression(pattern: "=\\s*\\([^\\n\\)]*,[^\\n\\)]*\\)", options: []) {
-            let range = NSRange(location: 0, length: source.utf16.count)
-            return tupleRegex.firstMatch(in: source, options: [], range: range) != nil
-        }
-        return false
+        return hasTupleUsage(tokens)
     case .asyncAwait:
         return hasToken(tokens, "async") || hasToken(tokens, "await")
     case .actors:
@@ -1958,6 +2673,7 @@ func constraintWarnings(
         .optionalBinding,
         .guardStatement,
         .nilCoalescing,
+        .collections,
         .closures,
         .shorthandClosureArgs,
         .map,
@@ -2034,6 +2750,190 @@ func constraintWarnings(
     return warnings
 }
 
+func mapDisallowConcepts(for topic: ChallengeTopic) -> [ConstraintConcept] {
+    let errorHandlingConcepts: [ConstraintConcept] = [
+        .errorTypes,
+        .throwingFunctions,
+        .throwKeyword,
+        .tryKeyword,
+        .tryOptional,
+        .tryForce,
+        .doCatch,
+    ]
+
+    switch topic {
+    case .collections:
+        return [.map, .filter, .reduce, .compactMap, .flatMap, .closures] + errorHandlingConcepts
+    case .optionals:
+        return [.optionalBinding, .guardStatement, .nilCoalescing] + errorHandlingConcepts
+    case .functions:
+        return [.closures, .shorthandClosureArgs] + errorHandlingConcepts
+    case .strings:
+        return [.stringInterpolation, .map, .filter, .reduce, .compactMap, .flatMap] + errorHandlingConcepts
+    case .conditionals:
+        return [.switchStatement, .breakContinue, .ranges] + errorHandlingConcepts
+    case .loops:
+        return [.forInLoop, .whileLoop, .repeatWhileLoop, .breakContinue, .ranges] + errorHandlingConcepts
+    case .structs, .general:
+        return errorHandlingConcepts
+    }
+}
+
+func topicDisallowConceptViolations(
+    tokens: [String],
+    source: String,
+    rawSource: String,
+    challenge: Challenge,
+    index: ConstraintIndex
+) -> [String] {
+    let concepts = Set(mapDisallowConcepts(for: challenge.topic))
+    guard !concepts.isEmpty else { return [] }
+    var violations: [String] = []
+
+    for concept in concepts {
+        let introNumber = introductionNumber(for: concept, index: index)
+        if challenge.number < introNumber,
+           usesConcept(concept, tokens: tokens, source: source, rawSource: rawSource) {
+            violations.append("✗ Uses \(constraintConceptName(concept)) before Challenge \(introNumber).")
+        }
+    }
+
+    return violations
+}
+
+func extractImports(from source: String) -> [String] {
+    var imports: [String] = []
+    for line in source.components(separatedBy: "\n") {
+        let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.hasPrefix("import ") else { continue }
+        let parts = trimmed.split(separator: " ")
+        if parts.count >= 2 {
+            imports.append(String(parts[1]))
+        }
+    }
+    return imports
+}
+
+func hasNetworkUsage(tokens: [String], source: String) -> Bool {
+    if source.contains("http://") || source.contains("https://") {
+        return true
+    }
+    return tokens.contains("URLSession") || tokens.contains("URLRequest")
+}
+
+func hasConcurrencyUsage(tokens: [String]) -> Bool {
+    return tokens.contains("async")
+        || tokens.contains("await")
+        || tokens.contains("Task")
+        || tokens.contains("actor")
+        || tokens.contains("MainActor")
+        || tokens.contains("Sendable")
+        || tokens.contains("withTaskGroup")
+        || tokens.contains("withThrowingTaskGroup")
+        || tokens.contains("TaskGroup")
+        || tokens.contains("ThrowingTaskGroup")
+}
+
+func constraintViolations(
+    for source: String,
+    challenge: Challenge,
+    enabled: Bool,
+    index: ConstraintIndex? = nil
+) -> [String] {
+    guard enabled else { return [] }
+    guard let profile = mergedConstraintProfile(
+        base: challenge.constraintProfile,
+        topic: topicConstraintProfiles[challenge.topic]
+    ) else { return [] }
+    let cleanedSource = stripCommentsAndStrings(from: source)
+    let tokens = tokenizeSource(cleanedSource)
+    var violations: [String] = []
+
+    if !profile.allowedImports.isEmpty {
+        let imports = extractImports(from: cleanedSource)
+        for item in imports where !profile.allowedImports.contains(item) {
+            violations.append("✗ Import not allowed: \(item)")
+        }
+    }
+
+    for token in profile.disallowedTokens where hasToken(tokens, token) {
+        violations.append("✗ Token not allowed: \(token)")
+    }
+
+    for token in profile.requiredTokens where !hasToken(tokens, token) {
+        violations.append("✗ Required token missing: \(token)")
+    }
+
+    if !profile.allowFileIO, hasFileIO(tokens) {
+        violations.append("✗ File IO not allowed.")
+    }
+
+    if !profile.allowNetwork, hasNetworkUsage(tokens: tokens, source: cleanedSource) {
+        violations.append("✗ Network usage not allowed.")
+    }
+
+    if !profile.allowConcurrency, hasConcurrencyUsage(tokens: tokens) {
+        violations.append("✗ Concurrency not allowed.")
+    }
+
+    if let index = index {
+        let topicViolations = topicDisallowConceptViolations(
+            tokens: tokens,
+            source: cleanedSource,
+            rawSource: source,
+            challenge: challenge,
+            index: index
+        )
+        violations.append(contentsOf: topicViolations)
+    }
+
+    if profile.requireOptionalUsage == true, !hasOptionalUsage(tokens) {
+        violations.append("✗ Optional usage required.")
+    }
+
+    if profile.requireCollectionUsage == true, !hasCollectionUsage(tokens: tokens, source: cleanedSource) {
+        violations.append("✗ Collection usage required.")
+    }
+
+    if profile.requireClosureUsage == true, !hasClosureUsage(tokens) {
+        violations.append("✗ Closure usage required.")
+    }
+
+    return violations
+}
+
+func mergedConstraintProfile(
+    base: ConstraintProfile?,
+    topic: ConstraintProfile?
+) -> ConstraintProfile? {
+    guard base != nil || topic != nil else { return nil }
+    let baseProfile = base ?? ConstraintProfile()
+    let topicProfile = topic ?? ConstraintProfile()
+
+    func mergedTokens(_ first: [String], _ second: [String]) -> [String] {
+        var seen = Set<String>()
+        var merged: [String] = []
+        for token in first + second where !seen.contains(token) {
+            seen.insert(token)
+            merged.append(token)
+        }
+        return merged
+    }
+
+    return ConstraintProfile(
+        allowedImports: mergedTokens(baseProfile.allowedImports, topicProfile.allowedImports),
+        disallowedTokens: mergedTokens(baseProfile.disallowedTokens, topicProfile.disallowedTokens),
+        requiredTokens: mergedTokens(baseProfile.requiredTokens, topicProfile.requiredTokens),
+        allowFileIO: baseProfile.allowFileIO && topicProfile.allowFileIO,
+        allowNetwork: baseProfile.allowNetwork && topicProfile.allowNetwork,
+        allowConcurrency: baseProfile.allowConcurrency && topicProfile.allowConcurrency,
+        maxRuntimeMs: baseProfile.maxRuntimeMs ?? topicProfile.maxRuntimeMs,
+        requireOptionalUsage: baseProfile.requireOptionalUsage ?? topicProfile.requireOptionalUsage,
+        requireCollectionUsage: baseProfile.requireCollectionUsage ?? topicProfile.requireCollectionUsage,
+        requireClosureUsage: baseProfile.requireClosureUsage ?? topicProfile.requireClosureUsage
+    )
+}
+
 func validateOutputLines(output: String, expected: String) -> Bool {
     let outputLines = output.components(separatedBy: "\n")
     let expectedLines = expected.components(separatedBy: "\n")
@@ -2070,15 +2970,111 @@ func validateOutputLines(output: String, expected: String) -> Bool {
     return allPassed
 }
 
+struct DiagnosticContext {
+    let challenge: Challenge
+    let output: String
+    let expected: String
+    let source: String?
+}
+
+func definedFunctionNames(tokens: [String]) -> [String] {
+    var names: [String] = []
+    for index in 0..<(tokens.count - 1) where tokens[index] == "func" {
+        let name = tokens[index + 1]
+        if name != "init" {
+            names.append(name)
+        }
+    }
+    return names
+}
+
+func hasFunctionCall(named name: String, tokens: [String]) -> Bool {
+    guard tokens.count >= 2 else { return false }
+    for index in 0..<(tokens.count - 1) {
+        if tokens[index] == name, tokens[index + 1] == "(" {
+            let prev = index > 0 ? tokens[index - 1] : ""
+            if prev != "func" {
+                return true
+            }
+        }
+    }
+    return false
+}
+
+func diagnosticsForMismatch(_ context: DiagnosticContext) -> [String] {
+    let expectedTrimmed = context.expected.trimmingCharacters(in: .whitespacesAndNewlines)
+    let outputTrimmed = context.output.trimmingCharacters(in: .whitespacesAndNewlines)
+    let expectedLines = context.expected.components(separatedBy: "\n")
+    let outputLines = context.output.components(separatedBy: "\n")
+
+    var diagnostics: [String] = []
+
+    if !expectedTrimmed.isEmpty, outputTrimmed.isEmpty {
+        diagnostics.append("No output detected. Make sure your code prints a result.")
+    }
+
+    if outputLines.count != expectedLines.count {
+        diagnostics.append("Line count differs. Check how many times you print.")
+    }
+
+    if outputTrimmed.contains("Optional(") {
+        diagnostics.append("You're printing an optional. Unwrap it or use ?? before printing.")
+    }
+
+    if let source = context.source {
+        let cleanedSource = stripCommentsAndStrings(from: source)
+        let tokens = tokenizeSource(cleanedSource)
+
+        if !expectedTrimmed.isEmpty, !hasToken(tokens, "print") {
+            diagnostics.append("No print(...) calls detected. Add output to match the expected result.")
+        }
+
+        if context.challenge.topic == .loops,
+           !hasToken(tokens, "for"),
+           !hasToken(tokens, "while"),
+           !hasToken(tokens, "repeat") {
+            diagnostics.append("This task likely needs a loop to produce repeated output.")
+        }
+
+        if context.challenge.topic == .conditionals,
+           !hasToken(tokens, "if"),
+           !hasToken(tokens, "switch"),
+           !hasToken(tokens, "?") {
+            diagnostics.append("This task expects branching logic. Use a conditional to select output.")
+        }
+
+        if context.challenge.topic == .functions, hasToken(tokens, "func") {
+            let names = definedFunctionNames(tokens: tokens)
+            let hasCall = names.contains(where: { hasFunctionCall(named: $0, tokens: tokens) })
+            if !names.isEmpty, !hasCall {
+                diagnostics.append("Your function is defined, but it may not be called.")
+            }
+        }
+    }
+
+    return diagnostics
+}
+
+func printDiagnostics(_ diagnostics: [String]) {
+    guard !diagnostics.isEmpty else { return }
+    print("Possible fix:")
+    for item in diagnostics {
+        print("- \(item)")
+    }
+    print("")
+}
+
 func validateChallenge(
     _ challenge: Challenge,
     nextStepIndex: Int,
     workspacePath: String = "workspace",
     constraintIndex: ConstraintIndex,
+    enableConstraintProfiles: Bool,
     enforceConstraints: Bool = false,
     enableDiMockHeuristics: Bool = true
 ) -> Bool {
     let filePath = "\(workspacePath)/\(challenge.filename)"
+    var sourceForDiagnostics: String? = nil
     let missingPrereqs = missingPrerequisites(for: challenge, index: constraintIndex)
     if !missingPrereqs.isEmpty {
         let names = missingPrereqs.map(constraintConceptName).joined(separator: ", ")
@@ -2089,6 +3085,7 @@ func validateChallenge(
     if challenge.manualCheck {
         print("Manual check: forge does not auto-validate this challenge.")
         recordAdaptiveStat(topic: challenge.topic, result: "manual_pass", workspacePath: workspacePath)
+        recordAdaptiveChallengeStat(challenge: challenge, result: "manual_pass", workspacePath: workspacePath)
         logEvent(
             "challenge_manual_complete",
             fields: ["id": challenge.displayId],
@@ -2100,7 +3097,23 @@ func validateChallenge(
         return true
     }
 
+    var hadWarnings = false
     if let source = try? String(contentsOfFile: filePath, encoding: .utf8) {
+        sourceForDiagnostics = source
+        let violations = constraintViolations(
+            for: source,
+            challenge: challenge,
+            enabled: enableConstraintProfiles,
+            index: constraintIndex
+        )
+        if !violations.isEmpty {
+            for violation in violations {
+                print(violation)
+            }
+            print("\n✗ Constraint violation. Fix and retry.")
+            logConstraintViolation(challenge, mode: "main", workspacePath: workspacePath)
+            return false
+        }
         let warnings = constraintWarnings(
             for: source,
             challenge: challenge,
@@ -2108,11 +3121,12 @@ func validateChallenge(
             enableDiMockHeuristics: enableDiMockHeuristics
         )
         if !warnings.isEmpty {
+            hadWarnings = true
             for warning in warnings {
                 print(warning)
             }
             print("")
-            if enforceConstraints {
+            if effectiveConstraintEnforcement(for: challenge.topic, enforceConstraints: enforceConstraints, workspacePath: workspacePath) {
                 print("✗ Constraint violation. Remove early concepts and retry.")
                 return false
             }
@@ -2124,6 +3138,7 @@ func validateChallenge(
     guard let output = compileAndRun(file: filePath, arguments: args, stdin: stdin) else {
         print("✗ Compilation failed. Check your code.")
         recordAdaptiveStat(topic: challenge.topic, result: "compile_fail", workspacePath: workspacePath)
+        recordAdaptiveChallengeStat(challenge: challenge, result: "compile_fail", workspacePath: workspacePath)
         logEvent(
             "challenge_attempt",
             fields: ["id": challenge.displayId, "result": "compile_fail"],
@@ -2138,7 +3153,9 @@ func validateChallenge(
 
     if validateOutputLines(output: output, expected: challenge.expectedOutput) {
         print("✓ Challenge Complete! Well done.\n")
+        recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: true, workspacePath: workspacePath)
         recordAdaptiveStat(topic: challenge.topic, result: "pass", workspacePath: workspacePath)
+        recordAdaptiveChallengeStat(challenge: challenge, result: "pass", workspacePath: workspacePath)
         logEvent(
             "challenge_attempt",
             fields: ["id": challenge.displayId, "result": "pass"],
@@ -2152,7 +3169,18 @@ func validateChallenge(
         return true
     } else {
         print("✗ Output doesn't match.")
+        let diagnostics = diagnosticsForMismatch(
+            DiagnosticContext(
+                challenge: challenge,
+                output: output,
+                expected: challenge.expectedOutput,
+                source: sourceForDiagnostics
+            )
+        )
+        printDiagnostics(diagnostics)
+        recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: false, workspacePath: workspacePath)
         recordAdaptiveStat(topic: challenge.topic, result: "fail", workspacePath: workspacePath)
+        recordAdaptiveChallengeStat(challenge: challenge, result: "fail", workspacePath: workspacePath)
         logEvent(
             "challenge_attempt",
             fields: ["id": challenge.displayId, "result": "fail"],
@@ -2165,16 +3193,19 @@ func validateChallenge(
 
 func runGateChallenges(
     _ challenges: [Challenge],
-    workspacePath: String = "workspace",
+    challengeWorkspacePath: String,
+    statsWorkspacePath: String,
     constraintIndex: ConstraintIndex,
     confirmCheckEnabled: Bool,
+    enableConstraintProfiles: Bool,
     enforceConstraints: Bool = false,
     enableDiMockHeuristics: Bool = true
 ) -> Bool {
     for (index, challenge) in challenges.enumerated() {
-        loadChallenge(challenge, workspacePath: workspacePath)
+        loadChallenge(challenge, workspacePath: challengeWorkspacePath)
         var hintIndex = 0
         var challengeComplete = false
+        var sourceForDiagnostics: String? = nil
         let missingPrereqs = missingPrerequisites(for: challenge, index: constraintIndex)
         let missingPrereqNames = missingPrereqs.map(constraintConceptName).joined(separator: ", ")
 
@@ -2233,45 +3264,63 @@ func runGateChallenges(
                 print("\n--- Manual check ---\n")
                 print("Manual check: forge does not auto-validate this challenge.")
                 print("✓ Challenge marked complete.\n")
-                recordAdaptiveStat(topic: challenge.topic, result: "manual_pass", workspacePath: workspacePath)
+                recordConstraintMastery(topic: challenge.topic, hadWarnings: false, passed: true, workspacePath: statsWorkspacePath)
+                recordAdaptiveStat(topic: challenge.topic, result: "manual_pass", workspacePath: statsWorkspacePath)
                 logEvent(
                     "challenge_manual_complete",
                     fields: ["id": challenge.displayId, "mode": "stage_review"],
                     intFields: ["number": challenge.number],
-                    workspacePath: workspacePath
+                    workspacePath: statsWorkspacePath
                 )
                 challengeComplete = true
             } else {
                 print("\n--- Testing your code... ---\n")
-                let filePath = "\(workspacePath)/\(challenge.filename)"
+                let filePath = "\(challengeWorkspacePath)/\(challenge.filename)"
+                var hadWarnings = false
                 if let source = try? String(contentsOfFile: filePath, encoding: .utf8) {
+                    sourceForDiagnostics = source
+                    let violations = constraintViolations(
+                        for: source,
+                        challenge: challenge,
+                        enabled: enableConstraintProfiles,
+                        index: constraintIndex
+                    )
+                    if !violations.isEmpty {
+                        for violation in violations {
+                            print(violation)
+                        }
+                        print("\n✗ Constraint violation. Fix and retry.")
+                        logConstraintViolation(challenge, mode: "stage_review", workspacePath: statsWorkspacePath)
+                        continue
+                    }
                     let warnings = constraintWarnings(
                         for: source,
                         challenge: challenge,
                         index: constraintIndex,
-                        enableDiMockHeuristics: enableDiMockHeuristics
-                    )
+                enableDiMockHeuristics: enableDiMockHeuristics
+            )
                     if !warnings.isEmpty {
+                        hadWarnings = true
                         for warning in warnings {
                             print(warning)
                         }
                         print("")
-                        if enforceConstraints {
+                        if effectiveConstraintEnforcement(for: challenge.topic, enforceConstraints: enforceConstraints, workspacePath: statsWorkspacePath) {
                             print("✗ Constraint violation. Remove early concepts and retry.")
                             continue
                         }
                     }
                 }
                 let start = Date()
-                let (stdin, args) = prepareChallengeEnvironment(challenge, workspacePath: workspacePath)
+                let (stdin, args) = prepareChallengeEnvironment(challenge, workspacePath: challengeWorkspacePath)
                 guard let output = compileAndRun(file: filePath, arguments: args, stdin: stdin) else {
                     print("✗ Compilation failed. Check your code.")
-                    recordAdaptiveStat(topic: challenge.topic, result: "compile_fail", workspacePath: workspacePath)
+                    recordAdaptiveStat(topic: challenge.topic, result: "compile_fail", workspacePath: statsWorkspacePath)
                     logEvent(
                         "challenge_attempt",
                         fields: ["id": challenge.displayId, "result": "compile_fail", "mode": "stage_review"],
                         intFields: ["number": challenge.number, "seconds": Int(Date().timeIntervalSince(start))],
-                        workspacePath: workspacePath
+                        workspacePath: statsWorkspacePath
                     )
                     continue
                 }
@@ -2280,22 +3329,33 @@ func runGateChallenges(
 
                 if validateOutputLines(output: output, expected: challenge.expectedOutput) {
                     print("✓ Challenge Complete! Well done.\n")
-                    recordAdaptiveStat(topic: challenge.topic, result: "pass", workspacePath: workspacePath)
+                    recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: true, workspacePath: statsWorkspacePath)
+                    recordAdaptiveStat(topic: challenge.topic, result: "pass", workspacePath: statsWorkspacePath)
                     logEvent(
                         "challenge_attempt",
                         fields: ["id": challenge.displayId, "result": "pass", "mode": "stage_review"],
                         intFields: ["number": challenge.number, "seconds": Int(Date().timeIntervalSince(start))],
-                        workspacePath: workspacePath
+                        workspacePath: statsWorkspacePath
                     )
                     challengeComplete = true
                 } else {
                     print("✗ Output doesn't match.")
-                    recordAdaptiveStat(topic: challenge.topic, result: "fail", workspacePath: workspacePath)
+                    let diagnostics = diagnosticsForMismatch(
+                        DiagnosticContext(
+                            challenge: challenge,
+                            output: output,
+                            expected: challenge.expectedOutput,
+                            source: sourceForDiagnostics
+                        )
+                    )
+                    printDiagnostics(diagnostics)
+                    recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: false, workspacePath: statsWorkspacePath)
+                    recordAdaptiveStat(topic: challenge.topic, result: "fail", workspacePath: statsWorkspacePath)
                     logEvent(
                         "challenge_attempt",
                         fields: ["id": challenge.displayId, "result": "fail", "mode": "stage_review"],
                         intFields: ["number": challenge.number, "seconds": Int(Date().timeIntervalSince(start))],
-                        workspacePath: workspacePath
+                        workspacePath: statsWorkspacePath
                     )
                 }
             }
@@ -2313,19 +3373,23 @@ func runGateChallenges(
 
 func runStageGate(
     _ gate: StageGate,
-    workspacePath: String = "workspace",
+    progressWorkspacePath: String = "workspace",
+    reviewWorkspacePath: String = "workspace_review",
     constraintIndex: ConstraintIndex,
     adaptiveEnabled: Bool,
     confirmCheckEnabled: Bool,
+    enableConstraintProfiles: Bool,
     enforceConstraints: Bool = false,
     enableDiMockHeuristics: Bool = true
 ) {
-    let current = loadStageGateProgress(workspacePath: workspacePath)
+    let current = loadStageGateProgress(workspacePath: progressWorkspacePath)
     var passes = current?.id == gate.id ? current?.passes ?? 0 : 0
     let startedAt = Date()
+    setupWorkspace(at: reviewWorkspacePath)
+    clearWorkspaceContents(at: reviewWorkspacePath)
     let review: [Challenge]
     if adaptiveEnabled {
-        let stats = loadAdaptiveStats(workspacePath: workspacePath)
+        let stats = loadAdaptiveStats(workspacePath: progressWorkspacePath)
         review = pickStageReviewChallengesAdaptive(from: gate.pool, count: gate.count, stats: stats)
     } else {
         review = pickStageReviewChallenges(from: gate.pool, count: gate.count)
@@ -2338,14 +3402,16 @@ func runStageGate(
 
         _ = runGateChallenges(
             review,
-            workspacePath: workspacePath,
+            challengeWorkspacePath: reviewWorkspacePath,
+            statsWorkspacePath: progressWorkspacePath,
             constraintIndex: constraintIndex,
             confirmCheckEnabled: confirmCheckEnabled,
+            enableConstraintProfiles: enableConstraintProfiles,
             enforceConstraints: enforceConstraints,
             enableDiMockHeuristics: enableDiMockHeuristics
         )
         passes += 1
-        saveStageGateProgress(id: gate.id, passes: passes, workspacePath: workspacePath)
+        saveStageGateProgress(id: gate.id, passes: passes, workspacePath: progressWorkspacePath)
         if passes < gate.requiredPasses {
             print("Stage review pass complete. Press Enter to repeat.\n")
             _ = readLine()
@@ -2354,21 +3420,23 @@ func runStageGate(
     }
 
     let elapsed = Date().timeIntervalSince(startedAt)
-    var summary = loadStageGateSummary(workspacePath: workspacePath)
+    var summary = loadStageGateSummary(workspacePath: progressWorkspacePath)
     summary[gate.id] = "passes=\(gate.requiredPasses), seconds=\(Int(elapsed))"
-    saveStageGateSummary(summary, workspacePath: workspacePath)
+    saveStageGateSummary(summary, workspacePath: progressWorkspacePath)
     print("Stage review complete: \(gate.title)")
     print("Total passes: \(gate.requiredPasses)")
     print("Time: \(Int(elapsed))s\n")
+    printStageReviewDebrief(startedAt: startedAt, workspacePath: progressWorkspacePath)
 
     logEvent(
         "stage_review",
         fields: ["stage": gate.id],
         intFields: ["passes": gate.requiredPasses, "seconds": Int(elapsed)],
-        workspacePath: workspacePath
+        workspacePath: progressWorkspacePath
     )
 
-    clearStageGateProgress(workspacePath: workspacePath)
+    clearStageGateProgress(workspacePath: progressWorkspacePath)
+    resetWorkspaceContents(at: reviewWorkspacePath, removeAll: true)
 }
 
 func runSteps(
@@ -2379,7 +3447,11 @@ func runSteps(
     practiceWorkspace: String,
     adaptiveThreshold: Int,
     adaptiveCount: Int,
+    adaptiveMinTopicFailures: Int,
+    adaptiveMinChallengeFailures: Int,
+    adaptiveCooldownSteps: Int,
     adaptiveEnabled: Bool,
+    enableConstraintProfiles: Bool,
     confirmCheckEnabled: Bool,
     enforceConstraints: Bool,
     enableDiMockHeuristics: Bool
@@ -2387,6 +3459,11 @@ func runSteps(
     var adaptiveGateScores: [ChallengeTopic: Int] = [:]
     var pendingAdaptiveTopic: ChallengeTopic? = nil
     var pendingAdaptivePool: [Challenge] = []
+    var justRanAdaptivePractice = false
+    var lastFailedTopic: ChallengeTopic? = nil
+    var topicFailureStreak = 0
+    var challengeFailureCounts: [String: Int] = [:]
+    var adaptiveCooldownRemaining = 0
     var currentIndex = startingAt - 1
 
     while currentIndex < steps.count {
@@ -2454,28 +3531,42 @@ func runSteps(
                     challenge,
                     nextStepIndex: nextStepIndex,
                     constraintIndex: constraintIndex,
+                    enableConstraintProfiles: enableConstraintProfiles,
                     enforceConstraints: enforceConstraints,
                     enableDiMockHeuristics: enableDiMockHeuristics
                 )
                 if didPass {
+                    challengeFailureCounts[challenge.displayId] = 0
+                    if lastFailedTopic == challenge.topic {
+                        lastFailedTopic = nil
+                        topicFailureStreak = 0
+                    }
+                    if adaptiveCooldownRemaining > 0 {
+                        adaptiveCooldownRemaining -= 1
+                    }
                     if adaptiveEnabled, pendingAdaptiveTopic == challenge.topic {
                         let practicePool = pendingAdaptivePool
                         pendingAdaptiveTopic = nil
                         pendingAdaptivePool = []
                         let stats = loadAdaptiveStats(workspacePath: "workspace")
+                        let challengeStats = loadAdaptiveChallengeStats(workspacePath: "workspace")
                         print("Adaptive practice for \(challenge.topic.rawValue). Press Enter to start.")
                         _ = readLine()
                         runAdaptiveGate(
                             topic: challenge.topic,
                             pool: practicePool,
                             stats: stats,
+                            challengeStats: challengeStats,
                             count: adaptiveCount,
                             workspacePath: practiceWorkspace,
                             constraintIndex: constraintIndex,
                             confirmCheckEnabled: confirmCheckEnabled,
+                            enableConstraintProfiles: enableConstraintProfiles,
                             enforceConstraints: enforceConstraints,
                             enableDiMockHeuristics: enableDiMockHeuristics
                         )
+                        adaptiveCooldownRemaining = adaptiveCooldownSteps
+                        justRanAdaptivePractice = true
                     }
                     challengeComplete = true
                     currentIndex += 1
@@ -2487,8 +3578,12 @@ func runSteps(
                         }
                         switch steps[currentIndex] {
                         case .challenge, .stageGate:
-                            waitForEnterToContinue()
-                            clearScreen()
+                            if justRanAdaptivePractice {
+                                justRanAdaptivePractice = false
+                            } else {
+                                waitForEnterToContinue()
+                                clearScreen()
+                            }
                         case .project:
                             break
                         }
@@ -2498,6 +3593,19 @@ func runSteps(
                         print("Run 'swift run forge reset' to start over.\n")
                     }
                 } else if adaptiveEnabled {
+                    let currentFailures = (challengeFailureCounts[challenge.displayId] ?? 0) + 1
+                    challengeFailureCounts[challenge.displayId] = currentFailures
+                    if lastFailedTopic == challenge.topic {
+                        topicFailureStreak += 1
+                    } else {
+                        lastFailedTopic = challenge.topic
+                        topicFailureStreak = 1
+                    }
+                    let meetsStability = topicFailureStreak >= adaptiveMinTopicFailures
+                        || currentFailures >= adaptiveMinChallengeFailures
+                    guard meetsStability, adaptiveCooldownRemaining == 0 else {
+                        continue
+                    }
                     let stats = loadAdaptiveStats(workspacePath: "workspace")
                     if let score = shouldTriggerAdaptiveGate(
                         topic: challenge.topic,
@@ -2512,8 +3620,9 @@ func runSteps(
                                 }
                                 return nil
                             }
+                            let scopedPool = adaptivePracticePool(for: challenge, from: practicePool)
                             pendingAdaptiveTopic = challenge.topic
-                            pendingAdaptivePool = eligiblePool
+                            pendingAdaptivePool = scopedPool.isEmpty ? eligiblePool : scopedPool
                             print("Adaptive practice queued for \(challenge.topic.rawValue) (score \(score)).")
                             print("Finish this challenge to start practice.\n")
                         }
@@ -2551,9 +3660,12 @@ func runSteps(
         case .stageGate(let gate):
             runStageGate(
                 gate,
+                progressWorkspacePath: "workspace",
+                reviewWorkspacePath: "workspace_review",
                 constraintIndex: constraintIndex,
                 adaptiveEnabled: adaptiveEnabled,
                 confirmCheckEnabled: confirmCheckEnabled,
+                enableConstraintProfiles: enableConstraintProfiles,
                 enforceConstraints: enforceConstraints,
                 enableDiMockHeuristics: enableDiMockHeuristics
             )
@@ -2566,7 +3678,8 @@ func runSteps(
                 }
                 switch steps[currentIndex] {
                 case .project:
-                    sleep(2)
+                    print("Press Enter to start your project.")
+                    _ = readLine()
                     clearScreen()
                 case .challenge, .stageGate:
                     waitForEnterToContinue()
@@ -2824,6 +3937,7 @@ func topAdaptiveTopics(
 func pickAdaptivePracticeSet(
     from challenges: [Challenge],
     stats: [String: [String: Int]],
+    challengeStats: [String: ChallengeStats],
     count: Int
 ) -> [Challenge] {
     let topTopics = topAdaptiveTopics(from: challenges, stats: stats, limit: 2)
@@ -2834,9 +3948,10 @@ func pickAdaptivePracticeSet(
     if filtered.isEmpty {
         return Array(challenges.shuffled().prefix(count))
     }
+    let now = Int(Date().timeIntervalSince1970)
     return weightedRandomSelection(
         from: filtered,
-        weight: { topicScore(for: $0.topic, stats: stats) },
+        weight: { adaptiveChallengeWeight(challenge: $0, topicStats: stats, challengeStats: challengeStats, now: now) },
         count: min(count, filtered.count)
     )
 }
@@ -2860,18 +3975,21 @@ func runAdaptiveGate(
     topic: ChallengeTopic,
     pool: [Challenge],
     stats: [String: [String: Int]],
+    challengeStats: [String: ChallengeStats],
     count: Int,
     workspacePath: String,
     constraintIndex: ConstraintIndex,
     confirmCheckEnabled: Bool,
+    enableConstraintProfiles: Bool,
     enforceConstraints: Bool,
     enableDiMockHeuristics: Bool
 ) {
     let filtered = pool.filter { $0.topic == topic }
     guard !filtered.isEmpty else { return }
+    let now = Int(Date().timeIntervalSince1970)
     let selection = weightedRandomSelection(
         from: filtered,
-        weight: { _ in 1 },
+        weight: { adaptiveChallengeWeight(challenge: $0, topicStats: stats, challengeStats: challengeStats, now: now) },
         count: min(count, filtered.count)
     )
 
@@ -2884,6 +4002,7 @@ func runAdaptiveGate(
         workspacePath: workspacePath,
         constraintIndex: constraintIndex,
         confirmCheckEnabled: confirmCheckEnabled,
+        enableConstraintProfiles: enableConstraintProfiles,
         enforceConstraints: enforceConstraints,
         enableDiMockHeuristics: enableDiMockHeuristics,
         completionTitle: "Adaptive practice complete!",
@@ -2927,8 +4046,11 @@ func printMainUsage() {
       swift run forge stats [--reset]
       swift run forge random [count] [topic] [tier] [layer]
       swift run forge project <id>
-      swift run forge verify-solutions [filters]
+      swift run forge progress <target>
+      swift run forge verify-solutions [filters] [--constraints-only]
       swift run forge review-progression [filters]
+      swift run forge audit [filters]
+      swift run forge report
 
     Progress shortcuts:
       swift run forge challenge:<number>
@@ -2941,12 +4063,16 @@ func printMainUsage() {
       --gate-count <n>
       --allow-early-concepts
       --confirm-check
+      --disable-constraint-profiles
       --disable-di-mock-heuristics
 
     Adaptive flags:
       --adaptive-on
       --adaptive-threshold <n>
       --adaptive-count <n>
+      --adaptive-topic-failures <n>
+      --adaptive-challenge-failures <n>
+      --adaptive-cooldown <n>
       --adaptive-off
 
     Help:
@@ -2954,6 +4080,7 @@ func printMainUsage() {
       swift run forge random --help
       swift run forge project --help
       swift run forge stats --help
+      swift run forge report --help
 
     Examples:
       swift run forge random 8
@@ -2961,13 +4088,41 @@ func printMainUsage() {
       swift run forge project --list core
       swift run forge project:core2a
       swift run forge challenge:36
+      swift run forge progress challenge:36
+      swift run forge progress project:core2a
+      swift run forge progress step:19
       swift run forge verify-solutions crust
+      swift run forge verify-solutions core --constraints-only
       swift run forge review-progression 1-80
+      swift run forge audit core
+      swift run forge report
 
     Notes:
       - Random mode uses workspace_random/. Project mode uses workspace_projects/.
+      - Stage review uses workspace_review/.
       - Adaptive gating is off by default; enable with --adaptive-on.
+      - Adaptive practice is weighted by per-topic performance and per-challenge recency.
       - Use --confirm-check to require a second Enter before running checks.
+      - Use --disable-constraint-profiles to skip Phase 2 constraint profiles.
+      - Constraint profiles can require specific constructs (like functions or collections).
+    """)
+}
+
+func printProgressUsage() {
+    print("""
+    Usage:
+      swift run forge progress <target>
+
+    Targets:
+      challenge:<number>
+      project:<id>
+      step:<number>
+
+    Examples:
+      swift run forge progress challenge:20
+      swift run forge progress project:core1a
+      swift run forge progress step:19
+      swift run forge progress 20
     """)
 }
 
@@ -2978,7 +4133,7 @@ func printRandomUsage() {
     Topics: conditionals, loops, optionals, collections, functions, strings, structs, general
     Tiers: mainline, extra
     Layers: core, mantle, crust
-    Adaptive: use 'adaptive' to bias toward weaker topics
+    Adaptive: use 'adaptive' to bias toward weaker topics and stale challenges
 
     Examples:
       swift run forge random 8
@@ -3015,35 +4170,149 @@ func printStatsUsage() {
     Usage:
       swift run forge stats
       swift run forge stats --reset
+      swift run forge stats --reset-all
+      swift run forge stats --stats-limit <n>
       swift run forge stats --help
 
     Prints per-topic adaptive stats from workspace/.adaptive_stats.
+    Per-challenge adaptive stats are stored in workspace/.adaptive_challenge_stats.
+    Also shows top failing challenges when per-challenge stats are available.
+    Also summarizes constraint violations from workspace/.performance_log with per-challenge detail.
     Use --reset to clear the stats file.
+    Use --reset-all to clear stats, constraint mastery, and the performance log.
+    Use --stats-limit to limit the number of topics shown in the summary table.
     """)
 }
 
-func printAdaptiveStats(workspacePath: String = "workspace") {
+func printReportUsage() {
+    print("""
+    Usage:
+      swift run forge report
+
+    Prints a summary of stage review results, constraint mastery state, and adaptive stats.
+    """)
+}
+
+func printAuditUsage() {
+    print("""
+    Usage:
+      swift run forge audit [filters]
+
+    Runs:
+      - Sequencing review (early-concept warnings)
+      - Constraint profile verification
+      - Fixture presence audit
+    Filters match verify-solutions/review-progression (range/topic/tier/layer).
+    """)
+}
+
+func printAdaptiveStats(workspacePath: String = "workspace", statsLimit: Int?) {
     let stats = loadAdaptiveStats(workspacePath: workspacePath)
     if stats.isEmpty {
         print("No adaptive stats recorded yet.")
-        return
+    } else {
+        print("Adaptive stats:")
+        var topicScores: [(topic: String, score: Int)] = []
+        for topic in stats.keys.sorted() {
+            let counts = stats[topic, default: [:]]
+            let pass = counts["pass", default: 0]
+            let fail = counts["fail", default: 0]
+            let compileFail = counts["compile_fail", default: 0]
+            let manualPass = counts["manual_pass", default: 0]
+            let score = max(1, 1 + (fail + compileFail) - (pass + manualPass))
+            topicScores.append((topic, score))
+            print("- \(topic): pass=\(pass), fail=\(fail), compile_fail=\(compileFail), manual_pass=\(manualPass)")
+        }
+        let weakTopics = topicScores.sorted { $0.score > $1.score }.prefix(3)
+        if !weakTopics.isEmpty {
+            let summary = weakTopics.map { "\($0.topic)(\($0.score))" }.joined(separator: ", ")
+            print("Top weak topics: \(summary)")
+        }
     }
-    print("Adaptive stats:")
-    var topicScores: [(topic: String, score: Int)] = []
-    for topic in stats.keys.sorted() {
-        let counts = stats[topic, default: [:]]
-        let pass = counts["pass", default: 0]
-        let fail = counts["fail", default: 0]
-        let compileFail = counts["compile_fail", default: 0]
-        let manualPass = counts["manual_pass", default: 0]
-        let score = max(1, 1 + (fail + compileFail) - (pass + manualPass))
-        topicScores.append((topic, score))
-        print("- \(topic): pass=\(pass), fail=\(fail), compile_fail=\(compileFail), manual_pass=\(manualPass)")
+
+    let challengeStats = loadAdaptiveChallengeStats(workspacePath: workspacePath)
+    if !challengeStats.isEmpty {
+        let titleIndex = buildChallengeTitleIndex()
+        let sortedFailures = challengeStats
+            .map { (id: $0.key, entry: $0.value) }
+            .filter { $0.entry.fail + $0.entry.compileFail > 0 }
+            .sorted {
+                let leftFails = $0.entry.fail + $0.entry.compileFail
+                let rightFails = $1.entry.fail + $1.entry.compileFail
+                if leftFails == rightFails {
+                    return $0.id < $1.id
+                }
+                return leftFails > rightFails
+            }
+        if !sortedFailures.isEmpty {
+            let limit = statsLimit ?? 5
+            print("Top failing challenges:")
+            for item in sortedFailures.prefix(limit) {
+                let title = titleIndex[item.id] ?? "Unknown"
+                let entry = item.entry
+                let failCount = entry.fail + entry.compileFail
+                print("- \(item.id): \(title) (fail=\(entry.fail), compile_fail=\(entry.compileFail), pass=\(entry.pass), total_fail=\(failCount))")
+            }
+        }
     }
-    let weakTopics = topicScores.sorted { $0.score > $1.score }.prefix(3)
-    if !weakTopics.isEmpty {
-        let summary = weakTopics.map { "\($0.topic)(\($0.score))" }.joined(separator: ", ")
-        print("Top weak topics: \(summary)")
+
+    let entries = loadPerformanceLogEntries(workspacePath: workspacePath)
+    var totalViolations = 0
+    var violationsByMode: [String: Int] = [:]
+    var violationsById: [String: Int] = [:]
+    var violationsByTopic: [String: Int] = [:]
+    let topicIndex = buildChallengeTopicIndex()
+    let titleIndex = buildChallengeTitleIndex()
+    for line in entries {
+        guard extractLogField(line, key: "event") == "constraint_violation" else { continue }
+        totalViolations += 1
+        if let mode = extractLogField(line, key: "mode") {
+            violationsByMode[mode, default: 0] += 1
+        }
+        if let id = extractLogField(line, key: "id") {
+            violationsById[id, default: 0] += 1
+            if let topic = topicIndex[id] {
+                violationsByTopic[topic, default: 0] += 1
+            }
+        }
+    }
+
+    if totalViolations > 0 {
+        print("Constraint violations: \(totalViolations)")
+        if !violationsByMode.isEmpty {
+            let modeSummary = violationsByMode
+                .sorted { $0.key < $1.key }
+                .map { "\($0.key)=\($0.value)" }
+                .joined(separator: ", ")
+            print("- By mode: \(modeSummary)")
+        }
+        if !violationsByTopic.isEmpty {
+            let sortedTopics = violationsByTopic.sorted { $0.value > $1.value }
+            let topicSummary = sortedTopics
+                .map { "\($0.key)=\($0.value)" }
+                .joined(separator: ", ")
+            print("- By topic: \(topicSummary)")
+            print("Top topics:")
+            for (topic, count) in sortedTopics.prefix(5) {
+                print("- \(topic): \(count)")
+            }
+            print("Topic summary:")
+            let lines = constraintTopicTableLines(violationsByTopic, limit: statsLimit)
+            for line in lines {
+                print(line)
+            }
+        }
+        let sortedIds = violationsById.sorted { $0.value > $1.value }
+        let limit = statsLimit ?? 5
+        if !sortedIds.isEmpty {
+            let idSummary = sortedIds.prefix(3).map { "\($0.key)(\($0.value))" }.joined(separator: ", ")
+            print("- Top challenges: \(idSummary)")
+            print("Challenge detail:")
+            for (id, count) in sortedIds.prefix(limit) {
+                let title = titleIndex[id] ?? "Unknown"
+                print("- \(id): \(title) (\(count))")
+            }
+        }
     }
 }
 
@@ -3051,6 +4320,44 @@ func resetAdaptiveStats(workspacePath: String = "workspace") {
     let path = adaptiveStatsFilePath(workspacePath: workspacePath)
     try? FileManager.default.removeItem(atPath: path)
     print("✓ Adaptive stats reset.")
+}
+
+func resetAllStats(workspacePath: String = "workspace") {
+    resetAdaptiveStats(workspacePath: workspacePath)
+    let challengePath = adaptiveChallengeStatsFilePath(workspacePath: workspacePath)
+    try? FileManager.default.removeItem(atPath: challengePath)
+    try? FileManager.default.removeItem(atPath: constraintMasteryPath(workspacePath: workspacePath))
+    resetPerformanceLog(workspacePath: workspacePath)
+    print("✓ Performance log reset.")
+}
+
+func parseStatsSettings(_ args: [String]) -> (reset: Bool, resetAll: Bool, limit: Int?) {
+    var reset = false
+    var resetAll = false
+    var limit: Int?
+
+    var index = 0
+    while index < args.count {
+        let lowered = args[index].lowercased()
+        if lowered == "--reset" {
+            reset = true
+            index += 1
+            continue
+        }
+        if lowered == "--reset-all" {
+            resetAll = true
+            index += 1
+            continue
+        }
+        if lowered == "--stats-limit", index + 1 < args.count, let value = Int(args[index + 1]) {
+            limit = max(value, 1)
+            index += 2
+            continue
+        }
+        index += 1
+    }
+
+    return (reset, resetAll, limit)
 }
 
 func parseRandomArguments(
@@ -3124,10 +4431,21 @@ func parseGateSettings(
 
 func parseAdaptiveSettings(
     _ args: [String]
-) -> (threshold: Int, count: Int, enabled: Bool, remaining: [String]) {
+) -> (
+    threshold: Int,
+    count: Int,
+    enabled: Bool,
+    minTopicFailures: Int,
+    minChallengeFailures: Int,
+    cooldownSteps: Int,
+    remaining: [String]
+) {
     var threshold = 3
     var count = 3
     var enabled = false
+    var minTopicFailures = 2
+    var minChallengeFailures = 2
+    var cooldownSteps = 2
     var remaining: [String] = []
     var index = 0
 
@@ -3157,11 +4475,32 @@ func parseAdaptiveSettings(
             index += 2
             continue
         }
+        if arg == "--adaptive-topic-failures", index + 1 < args.count {
+            if let value = Int(args[index + 1]) {
+                minTopicFailures = max(1, value)
+            }
+            index += 2
+            continue
+        }
+        if arg == "--adaptive-challenge-failures", index + 1 < args.count {
+            if let value = Int(args[index + 1]) {
+                minChallengeFailures = max(1, value)
+            }
+            index += 2
+            continue
+        }
+        if arg == "--adaptive-cooldown", index + 1 < args.count {
+            if let value = Int(args[index + 1]) {
+                cooldownSteps = max(0, value)
+            }
+            index += 2
+            continue
+        }
         remaining.append(arg)
         index += 1
     }
 
-    return (threshold, count, enabled, remaining)
+    return (threshold, count, enabled, minTopicFailures, minChallengeFailures, cooldownSteps, remaining)
 }
 
 func parseConfirmSettings(
@@ -3187,9 +4526,10 @@ func parseConfirmSettings(
 
 func parseConstraintSettings(
     _ args: [String]
-) -> (enforce: Bool, enableDiMockHeuristics: Bool, remaining: [String]) {
+) -> (enforce: Bool, enableDiMockHeuristics: Bool, enableConstraintProfiles: Bool, remaining: [String]) {
     var enforce = true
     var enableDiMockHeuristics = true
+    var enableConstraintProfiles = true
     var remaining: [String] = []
     var index = 0
 
@@ -3210,11 +4550,16 @@ func parseConstraintSettings(
             index += 1
             continue
         }
+        if arg == "--disable-constraint-profiles" {
+            enableConstraintProfiles = false
+            index += 1
+            continue
+        }
         remaining.append(arg)
         index += 1
     }
 
-    return (enforce, enableDiMockHeuristics, remaining)
+    return (enforce, enableDiMockHeuristics, enableConstraintProfiles, remaining)
 }
 
 func parseVerifyArguments(
@@ -3256,6 +4601,22 @@ func parseVerifyArguments(
     }
 
     return (range, topic, tier, layer)
+}
+
+func parseVerifySettings(_ args: [String]) -> (constraintsOnly: Bool, remaining: [String]) {
+    var constraintsOnly = false
+    var remaining: [String] = []
+
+    for value in args {
+        let lowered = value.lowercased()
+        if lowered == "--constraints-only" {
+            constraintsOnly = true
+            continue
+        }
+        remaining.append(value)
+    }
+
+    return (constraintsOnly, remaining)
 }
 
 func reviewProgression(
@@ -3302,6 +4663,72 @@ func reviewProgression(
         print("Skipped: \(skipped) (missing solutions)")
     }
     return false
+}
+
+func auditFixtures(_ challenges: [Challenge]) -> Bool {
+    var missing: [String] = []
+    for challenge in challenges {
+        if let stdinFixture = challenge.stdinFixture {
+            let path = "fixtures/\(stdinFixture)"
+            if !FileManager.default.fileExists(atPath: path) {
+                missing.append("\(challenge.displayId): missing stdin fixture \(stdinFixture)")
+            }
+        }
+        if let argsFixture = challenge.argsFixture {
+            let path = "fixtures/\(argsFixture)"
+            if !FileManager.default.fileExists(atPath: path) {
+                missing.append("\(challenge.displayId): missing args fixture \(argsFixture)")
+            }
+        }
+        if !challenge.fixtureFiles.isEmpty {
+            for file in challenge.fixtureFiles {
+                let path = "fixtures/\(file)"
+                if !FileManager.default.fileExists(atPath: path) {
+                    missing.append("\(challenge.displayId): missing fixture file \(file)")
+                }
+            }
+        }
+    }
+
+    if missing.isEmpty {
+        print("✓ Fixture audit passed.")
+        return true
+    }
+
+    print("✗ Fixture audit found \(missing.count) issue(s):")
+    for item in missing {
+        print("- \(item)")
+    }
+    return false
+}
+
+func printForgeReport(workspacePath: String = "workspace") {
+    print("Forge report:\n")
+
+    let summary = loadStageGateSummary(workspacePath: workspacePath)
+    if summary.isEmpty {
+        print("Stage review summary: none")
+    } else {
+        print("Stage review summary:")
+        for key in summary.keys.sorted() {
+            let value = summary[key] ?? ""
+            print("- \(key):\(value)")
+        }
+    }
+
+    let mastery = loadConstraintMastery(workspacePath: workspacePath)
+    if mastery.isEmpty {
+        print("\nConstraint mastery: none")
+    } else {
+        print("\nConstraint mastery:")
+        for key in mastery.keys.sorted() {
+            let entry = mastery[key] ?? ConstraintMasteryEntry(state: .block, warnCount: 0, cleanCount: 0)
+            print("- \(key): \(entry.state.rawValue) (warn=\(entry.warnCount), clean=\(entry.cleanCount))")
+        }
+    }
+
+    print("")
+    printAdaptiveStats(workspacePath: workspacePath, statsLimit: 5)
 }
 
 func parseProjectListArguments(_ args: [String]) -> (tier: ProjectTier?, layer: ProjectLayer?) {
@@ -3366,6 +4793,7 @@ func runPracticeChallenges(
     workspacePath: String,
     constraintIndex: ConstraintIndex,
     confirmCheckEnabled: Bool,
+    enableConstraintProfiles: Bool,
     enforceConstraints: Bool = false,
     enableDiMockHeuristics: Bool = true,
     completionTitle: String = "✅ Random set complete!",
@@ -3377,6 +4805,7 @@ func runPracticeChallenges(
         loadChallenge(challenge, workspacePath: workspacePath)
         var hintIndex = 0
         var challengeComplete = false
+        var sourceForDiagnostics: String? = nil
         let missingPrereqs = missingPrerequisites(for: challenge, index: constraintIndex)
         let missingPrereqNames = missingPrereqs.map(constraintConceptName).joined(separator: ", ")
 
@@ -3435,7 +4864,9 @@ func runPracticeChallenges(
                 print("\n--- Manual check ---\n")
                 print("Manual check: forge does not auto-validate this challenge.")
                 print("✓ Challenge marked complete.\n")
+                recordConstraintMastery(topic: challenge.topic, hadWarnings: false, passed: true, workspacePath: workspacePath)
                 recordAdaptiveStat(topic: challenge.topic, result: "manual_pass", workspacePath: workspacePath)
+                recordAdaptiveChallengeStat(challenge: challenge, result: "manual_pass", workspacePath: workspacePath)
                 logEvent(
                     "challenge_manual_complete",
                     fields: ["id": challenge.displayId, "mode": "random"],
@@ -3447,7 +4878,23 @@ func runPracticeChallenges(
             } else {
                 print("\n--- Testing your code... ---\n")
                 let filePath = "\(workspacePath)/\(challenge.filename)"
+                var hadWarnings = false
                 if let source = try? String(contentsOfFile: filePath, encoding: .utf8) {
+                    sourceForDiagnostics = source
+                    let violations = constraintViolations(
+                        for: source,
+                        challenge: challenge,
+                        enabled: enableConstraintProfiles,
+                        index: constraintIndex
+                    )
+                    if !violations.isEmpty {
+                        for violation in violations {
+                            print(violation)
+                        }
+                        print("\n✗ Constraint violation. Fix and retry.")
+                        logConstraintViolation(challenge, mode: "random", workspacePath: workspacePath)
+                        continue
+                    }
                     let warnings = constraintWarnings(
                         for: source,
                         challenge: challenge,
@@ -3455,11 +4902,12 @@ func runPracticeChallenges(
                         enableDiMockHeuristics: enableDiMockHeuristics
                     )
                     if !warnings.isEmpty {
+                        hadWarnings = true
                         for warning in warnings {
                             print(warning)
                         }
                         print("")
-                        if enforceConstraints {
+                        if effectiveConstraintEnforcement(for: challenge.topic, enforceConstraints: enforceConstraints, workspacePath: workspacePath) {
                             print("✗ Constraint violation. Remove early concepts and retry.")
                             continue
                         }
@@ -3470,6 +4918,7 @@ func runPracticeChallenges(
                 guard let output = compileAndRun(file: filePath, arguments: args, stdin: stdin) else {
                     print("✗ Compilation failed. Check your code.")
                     recordAdaptiveStat(topic: challenge.topic, result: "compile_fail", workspacePath: workspacePath)
+                    recordAdaptiveChallengeStat(challenge: challenge, result: "compile_fail", workspacePath: workspacePath)
                     logEvent(
                         "challenge_attempt",
                         fields: ["id": challenge.displayId, "result": "compile_fail", "mode": "random"],
@@ -3483,7 +4932,9 @@ func runPracticeChallenges(
 
                 if validateOutputLines(output: output, expected: challenge.expectedOutput) {
                     print("✓ Challenge Complete! Well done.\n")
+                    recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: true, workspacePath: workspacePath)
                     recordAdaptiveStat(topic: challenge.topic, result: "pass", workspacePath: workspacePath)
+                    recordAdaptiveChallengeStat(challenge: challenge, result: "pass", workspacePath: workspacePath)
                     logEvent(
                         "challenge_attempt",
                         fields: ["id": challenge.displayId, "result": "pass", "mode": "random"],
@@ -3494,7 +4945,18 @@ func runPracticeChallenges(
                     challengeComplete = true
                 } else {
                     print("✗ Output doesn't match.")
+                    let diagnostics = diagnosticsForMismatch(
+                        DiagnosticContext(
+                            challenge: challenge,
+                            output: output,
+                            expected: challenge.expectedOutput,
+                            source: sourceForDiagnostics
+                        )
+                    )
+                    printDiagnostics(diagnostics)
+                    recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: false, workspacePath: workspacePath)
                     recordAdaptiveStat(topic: challenge.topic, result: "fail", workspacePath: workspacePath)
+                    recordAdaptiveChallengeStat(challenge: challenge, result: "fail", workspacePath: workspacePath)
                     logEvent(
                         "challenge_attempt",
                         fields: ["id": challenge.displayId, "result": "fail", "mode": "random"],
@@ -3630,6 +5092,38 @@ func parseProgressTarget(_ token: String, projects: [Project]) -> ProgressTarget
     return .step(1)
 }
 
+func parseProgressInput(_ args: [String]) -> ProgressInput? {
+    guard let raw = args.first?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else {
+        return nil
+    }
+    let lowered = raw.lowercased()
+    if lowered.hasPrefix("challenge:") {
+        let value = String(raw.dropFirst("challenge:".count))
+        if let number = Int(value.trimmingCharacters(in: .whitespacesAndNewlines)) {
+            return .challenge(number)
+        }
+        return nil
+    }
+    if lowered.hasPrefix("project:") {
+        let value = String(raw.dropFirst("project:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
+        if value.isEmpty {
+            return nil
+        }
+        return .project(value.lowercased())
+    }
+    if lowered.hasPrefix("step:") {
+        let value = String(raw.dropFirst("step:".count))
+        if let number = Int(value.trimmingCharacters(in: .whitespacesAndNewlines)) {
+            return .step(number)
+        }
+        return nil
+    }
+    if let number = Int(raw) {
+        return .challenge(number)
+    }
+    return nil
+}
+
 func challengeStepIndexMap(for steps: [Step]) -> [Int: Int] {
     var map: [Int: Int] = [:]
     for (index, step) in steps.enumerated() {
@@ -3660,6 +5154,20 @@ func projectStepIndexMap(for steps: [Step]) -> [String: Int] {
     return map
 }
 
+func stepLabel(for steps: [Step], index: Int) -> String {
+    guard index >= 1, index <= steps.count else {
+        return "end"
+    }
+    switch steps[index - 1] {
+    case .challenge(let challenge):
+        return "challenge \(challenge.progressId): \(challenge.title)"
+    case .project(let project):
+        return "project \(project.id): \(project.title)"
+    case .stageGate(let gate):
+        return "stage review \(gate.title)"
+    }
+}
+
 func stepIndexForChallenge(
     _ challengeNumber: Int,
     challengeStepIndex: [Int: Int],
@@ -3686,10 +5194,14 @@ struct Forge {
         let constraintParsed = parseConstraintSettings(parsed.remaining)
         let enforceConstraints = constraintParsed.enforce
         let enableDiMockHeuristics = constraintParsed.enableDiMockHeuristics
+        let enableConstraintProfiles = constraintParsed.enableConstraintProfiles
         let adaptiveParsed = parseAdaptiveSettings(constraintParsed.remaining)
         let adaptiveThreshold = adaptiveParsed.threshold
         let adaptiveCount = adaptiveParsed.count
         let adaptiveEnabled = adaptiveParsed.enabled
+        let adaptiveMinTopicFailures = adaptiveParsed.minTopicFailures
+        let adaptiveMinChallengeFailures = adaptiveParsed.minChallengeFailures
+        let adaptiveCooldownSteps = adaptiveParsed.cooldownSteps
         let confirmParsed = parseConfirmSettings(adaptiveParsed.remaining)
         let confirmCheckEnabled = confirmParsed.enabled
         let args = confirmParsed.remaining
@@ -3698,6 +5210,9 @@ struct Forge {
         }
         if !enableDiMockHeuristics {
             print("Note: DI/mock heuristics disabled (--disable-di-mock-heuristics).\n")
+        }
+        if !enableConstraintProfiles {
+            print("Note: Constraint profiles disabled (--disable-constraint-profiles).\n")
         }
 
         if !args.isEmpty {
@@ -3712,7 +5227,7 @@ struct Forge {
             guard !args.isEmpty else { return nil }
             let arg = args[0]
             let lowered = arg.lowercased()
-            if ["reset", "random", "project", "verify-solutions", "verify", "review-progression", "review", "stats"].contains(lowered) {
+            if ["reset", "random", "project", "progress", "verify-solutions", "verify", "review-progression", "review", "stats", "audit", "report"].contains(lowered) {
                 return nil
             }
             if ["help", "-h", "--help"].contains(lowered) {
@@ -3740,12 +5255,29 @@ struct Forge {
                     printStatsUsage()
                     return
                 }
-                if flag == "--reset" {
-                    resetAdaptiveStats()
+            }
+            let settings = parseStatsSettings(Array(args.dropFirst()))
+            if settings.resetAll {
+                resetAllStats()
+                return
+            }
+            if settings.reset {
+                resetAdaptiveStats()
+                return
+            }
+            printAdaptiveStats(statsLimit: settings.limit)
+            return
+        }
+
+        if !args.isEmpty && args[0] == "report" {
+            if args.count > 1 {
+                let flag = args[1].lowercased()
+                if ["--help", "-h", "help"].contains(flag) {
+                    printReportUsage()
                     return
                 }
             }
-            printAdaptiveStats()
+            printForgeReport()
             return
         }
 
@@ -3769,7 +5301,8 @@ struct Forge {
             let firstArg = args[0].lowercased()
             if ["verify-solutions", "verify"].contains(firstArg) {
                 let verifyArgs = Array(args.dropFirst())
-                let (range, topic, tier, layer) = parseVerifyArguments(verifyArgs)
+                let verifySettings = parseVerifySettings(verifyArgs)
+                let (range, topic, tier, layer) = parseVerifyArguments(verifySettings.remaining)
                 var pool = allChallenges
                 if let range = range {
                     pool = pool.filter { range.contains($0.number) }
@@ -3787,7 +5320,11 @@ struct Forge {
                     print("No challenges match those filters.")
                     return
                 }
-                _ = verifyChallengeSolutions(pool)
+                if verifySettings.constraintsOnly {
+                    _ = verifyConstraintProfiles(pool, enableConstraintProfiles: enableConstraintProfiles)
+                } else {
+                    _ = verifyChallengeSolutions(pool, enableConstraintProfiles: enableConstraintProfiles)
+                }
                 return
             }
             if ["review-progression", "review"].contains(firstArg) {
@@ -3815,6 +5352,40 @@ struct Forge {
                     constraintIndex: constraintIndex,
                     enableDiMockHeuristics: enableDiMockHeuristics
                 )
+                return
+            }
+            if ["audit"].contains(firstArg) {
+                let auditArgs = Array(args.dropFirst())
+                if auditArgs.first?.lowercased() == "help" || auditArgs.first == "--help" {
+                    printAuditUsage()
+                    return
+                }
+                let (range, topic, tier, layer) = parseVerifyArguments(auditArgs)
+                var pool = allChallenges
+                if let range = range {
+                    pool = pool.filter { range.contains($0.number) }
+                }
+                if let topic = topic {
+                    pool = pool.filter { $0.topic == topic }
+                }
+                if let tier = tier {
+                    pool = pool.filter { $0.tier == tier }
+                }
+                if let layer = layer {
+                    pool = pool.filter { $0.layer == layer }
+                }
+                if pool.isEmpty {
+                    print("No challenges match those filters.")
+                    return
+                }
+                let reviewOk = reviewProgression(
+                    pool,
+                    constraintIndex: constraintIndex,
+                    enableDiMockHeuristics: enableDiMockHeuristics
+                )
+                let constraintsOk = verifyConstraintProfiles(pool, enableConstraintProfiles: enableConstraintProfiles)
+                let fixturesOk = auditFixtures(pool)
+                _ = reviewOk && constraintsOk && fixturesOk
                 return
             }
         }
@@ -3849,8 +5420,9 @@ struct Forge {
 
             let selectionCount = min(count, pool.count)
             let stats = loadAdaptiveStats(workspacePath: "workspace")
+            let challengeStats = loadAdaptiveChallengeStats(workspacePath: "workspace")
             let selection = adaptive
-                ? pickAdaptivePracticeSet(from: pool, stats: stats, count: selectionCount)
+                ? pickAdaptivePracticeSet(from: pool, stats: stats, challengeStats: challengeStats, count: selectionCount)
                 : weightedRandomSelection(
                     from: pool,
                     weight: { topicScore(for: $0.topic, stats: stats) },
@@ -3864,6 +5436,7 @@ struct Forge {
                 workspacePath: practiceWorkspace,
                 constraintIndex: constraintIndex,
                 confirmCheckEnabled: confirmCheckEnabled,
+                enableConstraintProfiles: enableConstraintProfiles,
                 enforceConstraints: enforceConstraints,
                 enableDiMockHeuristics: enableDiMockHeuristics
             )
@@ -3957,6 +5530,51 @@ struct Forge {
             }.max() ?? 1,
             1
         )
+        if !args.isEmpty && args[0].lowercased() == "progress" {
+            let progressArgs = Array(args.dropFirst())
+            if progressArgs.isEmpty || ["help", "-h", "--help"].contains(progressArgs[0].lowercased()) {
+                printProgressUsage()
+                return
+            }
+            guard let input = parseProgressInput(progressArgs) else {
+                print("Invalid progress target.")
+                printProgressUsage()
+                return
+            }
+            let startIndex: Int
+            switch input {
+            case .step(let rawStep):
+                startIndex = normalizedStepIndex(rawStep, stepsCount: steps.count)
+            case .project(let projectId):
+                if let index = projectIndexMap[projectId] {
+                    startIndex = index
+                } else if projects.contains(where: { $0.id.lowercased() == projectId }) {
+                    print("Project \(projectId) is not part of the main flow. Use project mode instead.")
+                    return
+                } else {
+                    print("Unknown project id: \(projectId)")
+                    return
+                }
+            case .challenge(let number):
+                if let index = challengeIndexMap[number] {
+                    startIndex = index
+                } else if let extraChallenge = allChallengeNumberMap[number], extraChallenge.tier == .extra {
+                    print("Challenge \(extraChallenge.progressId) is an extra. Use random/adaptive mode to practice extras.")
+                    return
+                } else {
+                    startIndex = stepIndexForChallenge(
+                        number,
+                        challengeStepIndex: challengeIndexMap,
+                        maxChallengeNumber: maxChallengeNumber,
+                        stepsCount: steps.count
+                    )
+                }
+            }
+            setupWorkspace()
+            saveProgress(startIndex)
+            print("Progress set to step \(startIndex) (\(stepLabel(for: steps, index: startIndex))).")
+            return
+        }
 
         setupWorkspace()
         setupWorkspace(at: practiceWorkspace)
@@ -4018,7 +5636,11 @@ struct Forge {
                 practiceWorkspace: practiceWorkspace,
                 adaptiveThreshold: adaptiveThreshold,
                 adaptiveCount: adaptiveCount,
+                adaptiveMinTopicFailures: adaptiveMinTopicFailures,
+                adaptiveMinChallengeFailures: adaptiveMinChallengeFailures,
+                adaptiveCooldownSteps: adaptiveCooldownSteps,
                 adaptiveEnabled: adaptiveEnabled,
+                enableConstraintProfiles: enableConstraintProfiles,
                 confirmCheckEnabled: confirmCheckEnabled,
                 enforceConstraints: enforceConstraints,
                 enableDiMockHeuristics: enableDiMockHeuristics

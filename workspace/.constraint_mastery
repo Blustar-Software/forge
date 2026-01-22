@@ -1,0 +1,2 @@
+general|state=warn,warn=0,clean=0
+strings|state=block,warn=0,clean=2
