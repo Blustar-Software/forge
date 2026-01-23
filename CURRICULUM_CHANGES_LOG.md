@@ -127,7 +127,7 @@
 - Added 5 Core extra challenges for numeric conversion, string-to-int conversion, dictionary default updates, set operations, and sorting.
 - Added 2 Mantle extra challenges for access control nuance and protocol extension constraints.
 - Added 2 Crust extra challenges for async let and a minimal XCTest example.
-- Expanded total challenges to 1–250.
+- Expanded total challenges to 1–254.
 
 ## 2026-01-16 (Core 1 Functions)
 - Added a Function Basics challenge before parameters.
@@ -137,3 +137,10 @@
 - Added fixture-backed stdin/args/file inputs so I/O challenges stay deterministic.
 - Wired fixtures into validation and solution verification runs.
 - Stage review selection is deterministic by default; adaptive gating is opt-in.
+
+## 2026-01-23 (Core Boolean Support)
+- Added lesson sheets support with a Booleans & Logic lesson.
+- Added Core extra challenges 253–254 for boolean logic practice (Boolean Flags, Grouped Logic).
+- Inserted mainline boolean challenges 14–15 (Comparison Flags, Metal Readiness) and renumbered challenges 14+ by +2.
+- Core 1 integration challenges now use a custom integration cheatsheet and no lesson.
+- Stage reviews now pull from curated per-stage pools; default passes reduced to 1.

@@ -13,6 +13,7 @@
 - FTS Phase 1 standards are implemented in the engine with constraint profiles, heuristics, and audit tooling.
 
 ## Recent Changes
+- Drafted an assisted-solution policy: pre-pass solution access requires confirmation, logs assisted passes, and queues short practice after completion (resume after restart if interrupted).
 - Completed a full hint audit across Core, Core extras, Mantle (and extras), Crust (and extras), and Bridge to align with hint rules (reduced solution mirroring).
 - Tightened a few early hints (e.g., Challenge 1) to avoid “exact output” phrasing while preserving formatting guidance.
 - Ran `scripts/check.sh`; all tests passing.
@@ -27,6 +28,7 @@
 - Added fixture presence audit and constraint mastery tracking to the report.
 - Added tests for constraint mastery transitions; ran `scripts/check.sh` with all tests passing.
 - `stats --reset-all` now clears constraint mastery as well.
+- Added explicit practice mode (`swift run forge practice`) with its own workspace and adaptive weighting.
 - Updated FTS gap analysis and roadmap to reflect default constraint enforcement with `--allow-early-concepts` as the opt-out.
 - Added a startup note when `--allow-early-concepts` is active to indicate warn-only mode.
 - Added per-unit constraint metadata via concept introductions and switched constraint checks to use that metadata (still regex-based).
@@ -53,7 +55,7 @@
 - Added SwiftPM constraint concepts (basics, dependencies, build configs) and tagged SwiftPM integration prereqs.
 - Added dependency injection + protocol mocking constraint concepts and tagged the Crust 3 integration prereqs accordingly.
 - Added Core 1 constraint concepts (comparisons, boolean logic, compound assignment, string interpolation) and enforced them for integration challenges.
-- Realigned Core 1 function introduction: Challenge 1 no longer uses functions; Challenge 14 now introduces functions.
+- Realigned Core 1 function introduction: Challenge 1 no longer uses functions; Challenge 16 now introduces functions.
 - Refined constraint detection to ignore for-in loops as closures and $0 shorthand as projected values; added early where-clause intro in Core 3.
 - Adjusted Crust concurrency sequencing: Task introduced in Challenge 172; MainActor now only requires Task; property wrapper detection ignores @MainActor.
 - FTS spec updated to reflect refined detector and clean sequencing scans across layers.
@@ -68,8 +70,8 @@
 - Added `--disable-di-mock-heuristics` to make DI/mock constraint detection configurable.
 - FTS spec updated to mention the DI/mock heuristic toggle.
 - Next curriculum edits should trigger the FTS re-audit checklist (review scan + integration prereq scan).
-- Added gap-filling extra challenges in Core/Mantle/Crust (242–250).
-- Curriculum doc updated with random-mode coverage notes for extras 242–250.
+- Added gap-filling extra challenges in Core/Mantle/Crust (244–252).
+- Curriculum doc updated with random-mode coverage notes for extras 244–252.
 - Added Core 1 Function Basics before parameters and consolidated parameter practice.
 - Added Task as an explicit prereq for the Crust integration challenge that uses Task.
 - Added `random adaptive` to focus random sets on weakest topics.
@@ -96,8 +98,8 @@
 - Ran `scripts/check.sh`; build and tests passed.
 - Ran `swift run forge verify-solutions 76`; verification passed.
 - Fixed deterministic verification for challenges 197 and crust-extra-xctest-micro (Foundation import + XCTest stub).
-- Ran `swift run forge verify-solutions 197-197` and `250-250`; verification passed.
-- Ran `swift run forge verify-solutions 1-250`; verification passed.
+- Ran `swift run forge verify-solutions 199-199` and `252-252`; verification passed (now offset +2 after renumbering).
+- Ran `swift run forge verify-solutions 1-252`; verification passed (now offset +2 after renumbering).
 - Documented the XCTest stub approach in README and FTS spec.
 - Added a Phase 2 roadmap draft to the FTS spec.
 - Noted to break Phase 2 into 2.1/2.2/2.3 milestones with effort estimates on resume.
@@ -269,6 +271,23 @@
 - Ran `swift test`; all tests pass.
 - Tweaked Core 1 hints to avoid solution leakage and remove optional terminology before it's introduced.
 - Ran `swift test`; all tests pass.
+- Added lesson sheets support (`l` command) and a Booleans & Logic lesson.
+- Added Core extra challenges 253–254 for boolean logic practice; updated README and curriculum docs.
+- Inserted mainline boolean challenges 14–15 (Comparison Flags, Metal Readiness) and renumbered challenges 14+.
+- Core 1 integration challenges now use a custom integration cheatsheet and no lesson.
+- Challenge numbering shifted by +2 starting at 14 due to new mainline boolean challenges; update any references accordingly.
+- Added `remap-progress` helper to translate legacy challenge numbers after renumbering.
+- Stage reviews now use curated pools and default to 1 pass; adaptive weighting includes recent failures.
+- Ran `scripts/check.sh`; all tests pass (note: resets adaptive stats/performance log/progress).
+- Added stage review pool rubric + curated lists to FTS spec; refined curated pools for synthesis coverage.
+- Improved compile/runtime error handling so compiler output doesn't get treated as user output.
+- Ran `scripts/check.sh`; all tests pass (note: resets adaptive stats/performance log/progress).
+- Assisted practice now only runs when adaptive mode is enabled; updated prompts accordingly.
+- Ran `scripts/check.sh`; all tests pass (note: resets adaptive stats/performance log/progress).
+- Solution viewing now requires confirmation only when assisted tracking is enabled; default mode shows solutions immediately.
+- Ran `scripts/check.sh`; all tests pass (note: resets adaptive stats/performance log/progress).
+- Added `--confirm-solution` flag to require confirmation before showing solutions in any mode.
+- Ran `scripts/check.sh`; all tests pass (note: resets adaptive stats/performance log/progress).
 
 ## Notes
 - Core 2 project `core2a` requires tuple usage; tuples are now taught in Core 2.

@@ -3,7 +3,7 @@
 ## Project Structure & Module Organization
 - `Package.swift` defines a single Swift Package Manager executable target named `forge`.
 - `Sources/forge/forge.swift` contains the CLI entry point and all challenge logic.
-- `Sources/forge/Challenges.swift` defines `Challenge` data and the curriculum (currently 1–237).
+- `Sources/forge/Challenges.swift` defines `Challenge` data and the curriculum (currently 1–254).
 - `workspace/` holds generated challenge files (`challenge1.swift`, etc.) and the `.progress` marker used to resume.
   - Core 3 includes a stepped closure sequence from full syntax to shorthand.
 
@@ -32,11 +32,12 @@
 ## Configuration Notes
 - Progress is stored in `workspace/.progress`; deleting it resets the starting challenge.
 - Challenge files are generated and overwritten by the CLI; avoid committing edited challenge files unless intentional.
-- During challenges/projects, press Enter to check your work; use `h` for hints, `c` for cheatsheets, and `s` for solutions.
+- During challenges/projects, press Enter to check your work; use `h` for hints, `c` for cheatsheets, `l` for lessons, and `s` for solutions.
 - You can set `workspace/.progress` to jump to a specific challenge or project:
   - Challenge number: `challenge:36` starts at Challenge 36.
   - Challenge id: `challenge:crust-extra-async-sleep` starts at that extra challenge.
   - Project id: `project:core2a` or `core3a` (case-insensitive).
+- Use `swift run forge remap-progress <target>` to translate legacy challenge numbers after renumbering.
 
 Manual-check challenges
 - Some challenges (real CLI/file I/O) require running the generated file manually and verifying output yourself. Forge labels these as manual checks; press Enter after you run them to mark complete.

@@ -1,10 +1,4 @@
-{"event":"challenge_attempt","timestamp":"2026-01-19T05:04:55Z","id":"1","result":"pass","number":1,"seconds":0}
-{"event":"challenge_attempt","timestamp":"2026-01-19T05:07:26Z","id":"2","result":"pass","number":2,"seconds":0}
-{"event":"challenge_attempt","timestamp":"2026-01-19T05:08:22Z","id":"3","result":"pass","number":3,"seconds":0}
-{"event":"challenge_attempt","timestamp":"2026-01-19T05:17:13Z","id":"4","result":"pass","number":4,"seconds":0}
-{"event":"challenge_attempt","timestamp":"2026-01-19T05:18:13Z","id":"5","result":"pass","number":5,"seconds":0}
-{"event":"challenge_attempt","timestamp":"2026-01-19T05:19:10Z","id":"6","result":"pass","number":6,"seconds":0}
-{"event":"challenge_attempt","timestamp":"2026-01-19T05:20:23Z","id":"7","result":"pass","number":7,"seconds":0}
-{"event":"challenge_attempt","timestamp":"2026-01-19T05:21:47Z","id":"8","result":"pass","number":8,"seconds":0}
-{"event":"challenge_attempt","timestamp":"2026-01-19T05:22:58Z","id":"9","result":"pass","number":9,"seconds":0}
-{"event":"challenge_attempt","timestamp":"2026-01-19T05:24:35Z","id":"10","result":"pass","number":10,"seconds":0}
+{"event":"challenge_attempt","timestamp":"2026-01-23T16:26:58Z","id":"28","result":"fail","number":28,"seconds":0}
+{"event":"challenge_attempt","timestamp":"2026-01-23T16:27:52Z","id":"28","result":"compile_fail","number":28,"seconds":0}
+{"event":"solution_viewed","timestamp":"2026-01-23T16:38:21Z","assisted":"true","id":"28","mode":"main","number":28}
+{"event":"challenge_attempt","timestamp":"2026-01-23T17:01:01Z","id":"28","result":"pass","number":28,"seconds":0}

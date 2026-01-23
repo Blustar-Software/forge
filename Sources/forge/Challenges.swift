@@ -157,6 +157,7 @@ struct Challenge {
     let expectedOutput: String
     let hints: [String]
     let cheatsheet: String
+    let lesson: String
     let solution: String
     let manualCheck: Bool
     let stdinFixture: String?
@@ -178,6 +179,7 @@ struct Challenge {
         expectedOutput: String,
         hints: [String] = [],
         cheatsheet: String = "",
+        lesson: String = "",
         solution: String = "",
         manualCheck: Bool = false,
         stdinFixture: String? = nil,
@@ -198,6 +200,7 @@ struct Challenge {
         self.expectedOutput = expectedOutput
         self.hints = hints
         self.cheatsheet = cheatsheet
+        self.lesson = lesson
         self.solution = solution
         self.manualCheck = manualCheck
         self.stdinFixture = stdinFixture
@@ -265,6 +268,7 @@ struct Project {
     let completionMessage: String
     let hints: [String]
     let cheatsheet: String
+    let lesson: String
     let solution: String
     let tier: ProjectTier
     let layer: ProjectLayer
@@ -280,6 +284,7 @@ struct Project {
         completionMessage: String,
         hints: [String] = [],
         cheatsheet: String = "",
+        lesson: String = "",
         solution: String = "",
         tier: ProjectTier = .mainline,
         layer: ProjectLayer = .core
@@ -294,6 +299,7 @@ struct Project {
         self.completionMessage = completionMessage
         self.hints = hints
         self.cheatsheet = cheatsheet
+        self.lesson = lesson
         self.solution = solution
         self.tier = tier
         self.layer = layer
@@ -353,6 +359,33 @@ Booleans
 - Bool values are true or false
 - Comparisons return Bool
 - Logical operators: &&, ||, !
+"""
+
+let cheatsheetCore1Integration = """
+Core 1 Integration
+- Use let for constants; var for values that change
+- Compound assignment: +=, -=, *=, /=
+- Comparisons produce Bool: ==, !=, <, >, <=, >=
+- Logic: && (and), || (or), ! (not)
+- Functions: func name(param: Type) -> ReturnType { ... }
+- Interpolation: "Value: \\(value)"
+"""
+
+let lessonBooleans = """
+Lesson: Booleans & Logic
+A Bool stores true or false. Comparisons (==, !=, <, >, <=, >=) produce Bool values.
+
+Logical operators:
+- && (and): true only when both sides are true
+- || (or): true when either side is true
+- ! (not): flips a Bool
+
+Grouping:
+- Use parentheses to group conditions.
+- && runs before || if you skip parentheses.
+
+Pattern:
+let ready = (metal == "Iron" && temp >= 1400) || temp >= 1200
 """
 
 let cheatsheetFunctionsBasics = """
@@ -1227,6 +1260,7 @@ print("Forge level: \(forgeLevel)")
                 "print(...) outputs a value to the console.",
             ],
             cheatsheet: cheatsheetBooleans,
+            lesson: lessonBooleans,
             solution: """
 let isHeated: Bool = true
 print(isHeated)
@@ -1259,6 +1293,7 @@ print(isHeated)
                 "print(...) outputs a value to the console.",
             ],
             cheatsheet: cheatsheetBooleans,
+            lesson: lessonBooleans,
             solution: """
 print(a == b)
 print(a != b)
@@ -1294,6 +1329,7 @@ print(b >= a)
                 "! flips a Bool to its opposite.",
             ],
             cheatsheet: cheatsheetBooleans,
+            lesson: lessonBooleans,
             solution: """
 let ready = heatReady && toolsReady
 let partialReady = heatReady || toolsReady
@@ -1310,10 +1346,69 @@ print(notReady)
         ),
         Challenge(
             number: 14,
+            title: "Comparison Flags",
+            description: "Store comparison results in Bool constants",
+            starterCode: """
+                // Challenge 14: Comparison Flags
+                // Store comparison results in a Bool.
+
+                let temperature = 1500
+                let minTemp = 1400
+
+                // TODO: Create a constant 'hotEnough' that is true when temperature >= minTemp
+                // TODO: Print hotEnough
+                """,
+            expectedOutput: "true",
+            hints: [
+                "Comparisons evaluate to Bool values.",
+                "Assign the result to a named constant before printing.",
+            ],
+            cheatsheet: cheatsheetBooleans,
+            lesson: lessonBooleans,
+            solution: """
+let hotEnough = temperature >= minTemp
+print(hotEnough)
+""",
+            constraintProfile: core1BaselineProfile,
+            topic: .conditionals,
+        ),
+        Challenge(
+            number: 15,
+            title: "Metal Readiness",
+            description: "Use comparisons with && and ||",
+            starterCode: """
+                // Challenge 15: Metal Readiness
+                // Use comparisons with boolean logic (no if/else).
+
+                let metal = "Iron"
+                let temperature = 1400
+
+                // TODO: Create a constant 'ready' using boolean logic only:
+                // - For "Iron": ready when temperature >= 1400
+                // - For other metals: ready when temperature >= 1200
+                // TODO: Print ready
+                """,
+            expectedOutput: "true",
+            hints: [
+                "Model it as two separate conditions, then combine them.",
+                "Use parentheses to group each condition before you join them.",
+            ],
+            cheatsheet: cheatsheetBooleans,
+            lesson: lessonBooleans,
+            solution: """
+let ready = (metal == "Iron" && temperature >= 1400)
+    || (metal != "Iron" && temperature >= 1200)
+print(ready)
+""",
+            constraintProfile: core1BaselineProfile,
+            topic: .conditionals,
+        ),
+        Challenge(
+            number: 16,
             title: "Function Basics",
             description: "Define and call a function",
             starterCode: """
-                // Challenge 14: Function Basics
+                // Challenge 16: Function Basics
                 // Define and call a function.
 
                 // TODO: Create a function called 'greet' that prints "Forge"
@@ -1338,11 +1433,11 @@ greet()
 
         ),
         Challenge(
-            number: 15,
+            number: 17,
             title: "Function Parameters",
             description: "Pass values into functions",
             starterCode: """
-                // Challenge 15: Function Parameters
+                // Challenge 17: Function Parameters
                 // Pass values into functions.
 
                 // TODO: Create a function called 'announce' that takes a String parameter
@@ -1380,11 +1475,11 @@ mix(metal: "Iron", weight: 3)
 
     ),
         Challenge(
-            number: 16,
+            number: 18,
             title: "Return Values",
             description: "Return a value from a function",
             starterCode: """
-                // Challenge 16: Return Values
+                // Challenge 18: Return Values
                 // Functions can return a value
 
                 // TODO: Create a function called 'addHeat' that takes an Int
@@ -1412,11 +1507,11 @@ print(result)
 
         ),
         Challenge(
-            number: 17,
+            number: 19,
             title: "Integration Challenge 1",
             description: "Combine variables, functions, math, and strings",
             starterCode: """
-                // Challenge 17: Integration Challenge 1
+                // Challenge 19: Integration Challenge 1
                 // Use multiple concepts together
                 // Prereqs: variables, functions, math, string interpolation.
 
@@ -1431,7 +1526,7 @@ print(result)
                 "You can store intermediate results before producing final output.",
                 "Formatted output can include values inside the text.",
             ],
-            cheatsheet: cheatsheetFunctionsBasics,
+            cheatsheet: cheatsheetCore1Integration,
             solution: #"""
 var hammerHits = 2
 
@@ -1448,11 +1543,11 @@ print("Total hits: \(result)")
 
         ),
         Challenge(
-            number: 18,
+            number: 20,
             title: "Integration Challenge 2",
             description: "Core 1 capstone: combine the essentials in one task",
             starterCode: """
-                // Challenge 18: Integration Challenge 2
+                // Challenge 20: Integration Challenge 2
                 // Core 1 capstone: combine constants, variables, math, functions, and comparisons
                 // Prereqs: comparisons, boolean logic, compound assignment.
 
@@ -1472,7 +1567,7 @@ print("Total hits: \(result)")
                 "Combine comparisons with && and || to express the rule.",
                 "The final output should summarize the chosen rule’s result.",
             ],
-            cheatsheet: cheatsheetFunctionsBasics,
+            cheatsheet: cheatsheetCore1Integration,
             solution: #"""
 let metal = "Iron"
 var temperature = 1200
@@ -1499,11 +1594,11 @@ print("\(metal) ready: \(ready)")
 func makeCore2Challenges() -> [Challenge] {
     return [
         Challenge(
-            number: 19,
+            number: 21,
             title: "If/Else If/Else",
             description: "Choose between multiple branches",
             starterCode: """
-                // Challenge 19: If/Else If/Else
+                // Challenge 21: If/Else If/Else
                 // Choose the right message for the heat level
 
                 let heatLevel = 2
@@ -1533,11 +1628,11 @@ if heatLevel >= 3 {
 
         ),
         Challenge(
-            number: 20,
+            number: 22,
             title: "Ternary Operator",
             description: "Use a ternary to choose a value",
             starterCode: """
-                // Challenge 20: Ternary Operator
+                // Challenge 22: Ternary Operator
                 // Use a ternary operator to choose a message
 
                 let heatLevel = 3
@@ -1560,11 +1655,11 @@ print(status)
 
         ),
         Challenge(
-            number: 21,
+            number: 23,
             title: "Switch Statements",
             description: "Match multiple cases with switch",
             starterCode: """
-                // Challenge 21: Switch Statements
+                // Challenge 23: Switch Statements
                 // Use switch to handle different metals
 
                 let metal = "Iron"
@@ -1593,11 +1688,11 @@ default:
 
         ),
         Challenge(
-            number: 22,
+            number: 24,
             title: "Pattern Matching",
             description: "Match ranges and multiple values",
             starterCode: """
-                // Challenge 22: Pattern Matching
+                // Challenge 24: Pattern Matching
                 // Use switch to match ranges
 
                 let temperature = 1450
@@ -1629,11 +1724,11 @@ default:
 
         ),
         Challenge(
-            number: 23,
+            number: 25,
             title: "For-In Loops",
             description: "Repeat work over a range",
             starterCode: """
-                // Challenge 23: For-In Loops
+                // Challenge 25: For-In Loops
                 // Sum the numbers 1 through 5
 
                 var total = 0
@@ -1659,11 +1754,11 @@ print(total)
 
         ),
         Challenge(
-            number: 24,
+            number: 26,
             title: "While Loops",
             description: "Repeat work while a condition is true",
             starterCode: """
-                // Challenge 24: While Loops
+                // Challenge 26: While Loops
                 // Count down from 3 to 1
 
                 var count = 3
@@ -1688,11 +1783,11 @@ while count > 0 {
 
         ),
         Challenge(
-            number: 25,
+            number: 27,
             title: "Repeat-While",
             description: "Run code at least once",
             starterCode: """
-                // Challenge 25: Repeat-While
+                // Challenge 27: Repeat-While
                 // Increase value until it reaches 1
 
                 var value = 0
@@ -1719,11 +1814,11 @@ print(value)
 
         ),
         Challenge(
-            number: 26,
+            number: 28,
             title: "Break and Continue",
             description: "Skip or stop inside a loop",
             starterCode: """
-                // Challenge 26: Break and Continue
+                // Challenge 28: Break and Continue
                 // Print numbers 1 to 4, skipping 3
 
                 // TODO: Loop from 1 to 5
@@ -1754,11 +1849,11 @@ for i in 1...5 {
 
         ),
         Challenge(
-            number: 27,
+            number: 29,
             title: "Ranges",
             description: "Use closed and half-open ranges",
             starterCode: """
-                // Challenge 27: Ranges
+                // Challenge 29: Ranges
                 // Compare closed and half-open ranges
 
                 // TODO: Loop through 1...3 and print each number
@@ -1783,11 +1878,11 @@ for i in 1..<3 {
 
         ),
         Challenge(
-            number: 28,
+            number: 30,
             title: "Arrays",
             description: "Create an array of values",
             starterCode: """
-                // Challenge 28: Arrays
+                // Challenge 30: Arrays
                 // Create an array before modifying it
 
                 // TODO: Create an array named 'ingots' with values 1, 2, 3
@@ -1809,11 +1904,11 @@ print(ingots)
 
         ),
         Challenge(
-            number: 29,
+            number: 31,
             title: "Array Append",
             description: "Add a value and check the count",
             starterCode: """
-                // Challenge 29: Array Append
+                // Challenge 31: Array Append
                 // Append a value and check the count
 
                 var ingots = [1, 2, 3]
@@ -1836,11 +1931,11 @@ print(ingots.count)
 
         ),
         Challenge(
-            number: 30,
+            number: 32,
             title: "Array Iteration",
             description: "Loop through array elements",
             starterCode: """
-                // Challenge 30: Array Iteration
+                // Challenge 32: Array Iteration
                 // Add up the weights
 
                 let weights = [2, 4, 6]
@@ -1866,11 +1961,11 @@ print(total)
 
         ),
         Challenge(
-            number: 31,
+            number: 33,
             title: "Metrics Practice",
             description: "Practice loop-based stats on a small data set (mini Core 2 Project A)",
             starterCode: """
-                // Challenge 31: Metrics Practice
+                // Challenge 33: Metrics Practice
                 // Practice min/max/average counting in a loop.
 
                 let weights = [3, 5, 7, 4]
@@ -1917,11 +2012,11 @@ print("Heavy: \(heavyCount)")
 
         ),
         Challenge(
-            number: 32,
+            number: 34,
             title: "Collection Properties",
             description: "Use built-in collection properties",
             starterCode: """
-                // Challenge 32: Collection Properties
+                // Challenge 34: Collection Properties
                 // Use properties to reduce manual work
 
                 let ingots = [1, 2, 3, 4]
@@ -1952,11 +2047,11 @@ print(inventory.values.count)
 
         ),
         Challenge(
-            number: 33,
+            number: 35,
             title: "Dictionaries",
             description: "Store key-value pairs",
             starterCode: """
-                // Challenge 33: Dictionaries
+                // Challenge 35: Dictionaries
                 // Look up an item count
 
                 let inventory = ["Iron": 3, "Gold": 1]
@@ -1979,11 +2074,11 @@ print(count)
 
         ),
         Challenge(
-            number: 34,
+            number: 36,
             title: "Sets",
             description: "Keep only unique values",
             starterCode: """
-                // Challenge 34: Sets
+                // Challenge 36: Sets
                 // Count unique ingots
 
                 let batch = [1, 2, 2, 3]
@@ -2006,11 +2101,11 @@ print(unique.count)
 
         ),
         Challenge(
-            number: 35,
+            number: 37,
             title: "Tuples",
             description: "Group related values together",
             starterCode: """
-                // Challenge 35: Tuples
+                // Challenge 37: Tuples
                 // Use named tuple values
 
                 let report = (min: 1200, max: 1600, average: 1425)
@@ -2042,11 +2137,11 @@ print("Average: \(report.average)")
 
         ),
         Challenge(
-            number: 36,
+            number: 38,
             title: "Tuple Returns",
             description: "Return multiple values from a function (Core 2 Project A pattern)",
             starterCode: """
-                // Challenge 36: Tuple Returns
+                // Challenge 38: Tuple Returns
                 // Return min and max from a function.
 
                 let temps = [3, 5, 2, 6]
@@ -2084,11 +2179,11 @@ print(\"Max: \\(report.max)\")
             topic: .functions
         ),
         Challenge(
-            number: 37,
+            number: 39,
             title: "Optionals",
             description: "Handle missing values safely",
             starterCode: """
-                // Challenge 37: Optionals
+                // Challenge 39: Optionals
                 // Avoid force-unwrapping with !
 
                 let heatLevel: Int? = 1200
@@ -2115,11 +2210,11 @@ if let level = heatLevel {
 
         ),
         Challenge(
-            number: 38,
+            number: 40,
             title: "Optional Binding",
             description: "Unwrap optionals with if let",
             starterCode: """
-                // Challenge 38: Optional Binding
+                // Challenge 40: Optional Binding
                 // Unwrap multiple optionals
 
                 let smithName: String? = "Forge"
@@ -2144,11 +2239,11 @@ if let smithName = smithName, let metal = metal {
 
         ),
         Challenge(
-            number: 39,
+            number: 41,
             title: "Guard Let",
             description: "Exit early when data is missing",
             starterCode: """
-                // Challenge 39: Guard Let
+                // Challenge 41: Guard Let
                 // Print a heat value if it exists
 
                 func printHeat(value: Int?) {
@@ -2182,11 +2277,11 @@ printHeat(value: nil)
 
         ),
         Challenge(
-            number: 40,
+            number: 42,
             title: "Nil Coalescing",
             description: "Provide a fallback value",
             starterCode: """
-                // Challenge 40: Nil Coalescing
+                // Challenge 42: Nil Coalescing
                 // Use ?? to provide a default
 
                 let optionalLevel: Int? = nil
@@ -2215,11 +2310,11 @@ print("Level \(level)")
 func makeCore3Challenges() -> [Challenge] {
     return [
         Challenge(
-            number: 41,
+            number: 43,
             title: "String Methods",
             description: "Inspect and transform strings",
             starterCode: """
-                // Challenge 41: String Methods
+                // Challenge 43: String Methods
                 // Use basic string properties and methods.
 
                 let phrase = "Forge Ready"
@@ -2244,11 +2339,11 @@ print(phrase.contains(\"Ready\"))
             topic: .strings
         ),
         Challenge(
-            number: 42,
+            number: 44,
             title: "Dictionary Iteration",
             description: "Loop through key-value pairs",
             starterCode: """
-                // Challenge 42: Dictionary Iteration
+                // Challenge 44: Dictionary Iteration
                 // Print inventory items in a stable order.
 
                 let inventory = ["Iron": 3, "Gold": 1]
@@ -2274,11 +2369,11 @@ for key in inventory.keys.sorted() {
             topic: .collections
         ),
         Challenge(
-            number: 43,
+            number: 45,
             title: "String Prefix & Suffix",
             description: "Check string prefixes and suffixes",
             starterCode: """
-                // Challenge 43: String Prefix & Suffix
+                // Challenge 45: String Prefix & Suffix
                 // Check the start and end of a string.
 
                 let code = "Forge-01"
@@ -2299,11 +2394,11 @@ print(code.hasSuffix("01"))
             topic: .strings
         ),
         Challenge(
-            number: 44,
+            number: 46,
             title: "External & Internal Labels",
             description: "Design clear APIs with distinct labels",
             starterCode: """
-                // Challenge 44: External & Internal Labels
+                // Challenge 46: External & Internal Labels
                 // Create a function with different external and internal labels.
 
                 // TODO: Create a function called 'forgeHeat' that uses:
@@ -2331,11 +2426,11 @@ forgeHeat(at: 1500)
 
         ),
         Challenge(
-            number: 45,
+            number: 47,
             title: "Void Argument Labels",
             description: "Omit external labels when needed",
             starterCode: """
-                // Challenge 45: Void Argument Labels
+                // Challenge 47: Void Argument Labels
                 // Use _ to omit the external label.
 
                 // TODO: Create a function 'announce' that takes _ metal: String
@@ -2361,11 +2456,11 @@ announce("Iron")
 
         ),
         Challenge(
-            number: 46,
+            number: 48,
             title: "Default Parameters",
             description: "Use default values to simplify calls",
             starterCode: """
-                // Challenge 46: Default Parameters
+                // Challenge 48: Default Parameters
                 // Add a default intensity parameter.
 
                 // TODO: Create a function 'strike' that takes:
@@ -2395,11 +2490,11 @@ strike("Gold", intensity: 3)
 
         ),
         Challenge(
-            number: 47,
+            number: 49,
             title: "Variadics",
             description: "Accept any number of values",
             starterCode: """
-                // Challenge 47: Variadics
+                // Challenge 49: Variadics
                 // Accept multiple temperatures.
 
                 // TODO: Create a function 'averageTemp' that takes any number of Ints
@@ -2431,11 +2526,11 @@ averageTemp(1000, 1200, 1400)
 
         ),
         Challenge(
-            number: 48,
+            number: 50,
             title: "inout Parameters",
             description: "Mutate a value passed into a function",
             starterCode: """
-                // Challenge 48: inout Parameters
+                // Challenge 50: inout Parameters
                 // Simulate tool wear.
 
                 // TODO: Create a function 'wear' that subtracts 1 from a passed-in Int
@@ -2464,11 +2559,11 @@ print(durability)
 
         ),
         Challenge(
-            number: 49,
+            number: 51,
             title: "Nested Functions",
             description: "Use helper functions inside functions",
             starterCode: """
-                // Challenge 49: Nested Functions
+                // Challenge 51: Nested Functions
                 // Validate before processing.
 
                 // TODO: Create a function 'process' that takes an Int parameter
@@ -2503,11 +2598,11 @@ process(-1)
 
         ),
         Challenge(
-            number: 50,
+            number: 52,
             title: "Closure Basics",
             description: "Create and call a closure",
             starterCode: """
-                // Challenge 50: Closure Basics
+                // Challenge 52: Closure Basics
                 // Store a closure in a constant.
 
                 // TODO: Create a closure called strike that prints "Strike"
@@ -2532,11 +2627,11 @@ strike()
 
         ),
         Challenge(
-            number: 51,
+            number: 53,
             title: "Closure Parameters",
             description: "Pass values into a closure",
             starterCode: """
-                // Challenge 51: Closure Parameters
+                // Challenge 53: Closure Parameters
                 // Create a closure that transforms a value.
 
                 // TODO: Create a closure called doubleHeat that takes an Int
@@ -2561,11 +2656,11 @@ print(doubleHeat(750))
 
         ),
         Challenge(
-            number: 52,
+            number: 54,
             title: "Implicit Return in Closures",
             description: "Omit the return keyword in a single-expression closure",
             starterCode: """
-                // Challenge 52: Implicit Return in Closures
+                // Challenge 54: Implicit Return in Closures
                 // Use an explicit signature, but omit return.
 
                 // TODO: Create a closure called 'doubleHeat' that takes an Int
@@ -2590,11 +2685,11 @@ print(doubleHeat(600))
 
         ),
         Challenge(
-            number: 53,
+            number: 55,
             title: "Inferred Closure Types",
             description: "Let Swift infer parameter and return types",
             starterCode: """
-                // Challenge 53: Inferred Closure Types
+                // Challenge 55: Inferred Closure Types
                 // Remove explicit types when they can be inferred.
 
                 // TODO: Create a closure called 'doubleHeat' using inferred types
@@ -2619,11 +2714,11 @@ print(doubleHeat(750))
 
         ),
         Challenge(
-            number: 54,
+            number: 56,
             title: "Shorthand Closure Syntax I",
             description: "Use $0 in an assigned closure",
             starterCode: """
-                // Challenge 54: Shorthand Closure Syntax I
+                // Challenge 56: Shorthand Closure Syntax I
                 // Use $0 in a closure stored in a constant.
 
                 // TODO: Create a closure called 'doubleHeat' using $0
@@ -2646,11 +2741,11 @@ print(doubleHeat(700))
 
         ),
         Challenge(
-            number: 55,
+            number: 57,
             title: "Annotated Closure Assignment",
             description: "Bind a closure to a typed constant",
             starterCode: """
-                // Challenge 55: Annotated Closure Assignment
+                // Challenge 57: Annotated Closure Assignment
                 // Use a closure with an explicit type annotation.
 
                 // TODO: Create a constant 'doubleHeat' with type (Int) -> Int
@@ -2672,11 +2767,11 @@ print(doubleHeat(900))
 
         ),
         Challenge(
-            number: 56,
+            number: 58,
             title: "Closure Arguments",
             description: "Call a function with a closure argument",
             starterCode: """
-                // Challenge 56: Closure Arguments
+                // Challenge 58: Closure Arguments
                 // Call a function that takes a closure.
 
                 func transform(_ value: Int, using closure: (Int) -> Int) {
@@ -2702,11 +2797,11 @@ transform(5, using: { (value: Int) -> Int in
 
         ),
         Challenge(
-            number: 57,
+            number: 59,
             title: "Trailing Closures",
             description: "Use trailing closure syntax",
             starterCode: """
-                // Challenge 57: Trailing Closures
+                // Challenge 59: Trailing Closures
                 // Use a closure to transform values.
 
                 func transform(_ value: Int, using closure: (Int) -> Int) {
@@ -2732,11 +2827,11 @@ transform(5) { (value: Int) -> Int in
 
         ),
         Challenge(
-            number: 58,
+            number: 60,
             title: "Inferred Trailing Closures",
             description: "Drop types and return when they can be inferred",
             starterCode: """
-                // Challenge 58: Inferred Trailing Closures
+                // Challenge 60: Inferred Trailing Closures
                 // Let Swift infer types in a trailing closure.
 
                 func transform(_ value: Int, using closure: (Int) -> Int) {
@@ -2745,7 +2840,7 @@ transform(5) { (value: Int) -> Int in
 
                 // TODO: Call transform with 6 using trailing closure syntax
                 // Multiply the value by 4
-                // Note: You can omit return for a single-expression closure (Challenge 48)
+                // Note: You can omit return for a single-expression closure (Challenge 50)
                 """,
             expectedOutput: "24",
             hints: [
@@ -2763,11 +2858,11 @@ transform(6) { value in
 
         ),
         Challenge(
-            number: 59,
+            number: 61,
             title: "Shorthand Closure Syntax II",
             description: "Use $0 for compact closures",
             starterCode: """
-                // Challenge 59: Shorthand Closure Syntax II
+                // Challenge 61: Shorthand Closure Syntax II
                 // Use $0 to shorten a closure.
 
                 func apply(_ value: Int, using closure: (Int) -> Int) {
@@ -2788,11 +2883,11 @@ transform(6) { value in
 
         ),
         Challenge(
-            number: 60,
+            number: 62,
             title: "Capturing Values",
             description: "Understand closure capture behavior",
             starterCode: """
-                // Challenge 60: Capturing Values
+                // Challenge 62: Capturing Values
                 // Create a counter function.
 
                 // TODO: Create a function 'makeCounter' that returns a closure
@@ -2825,11 +2920,11 @@ counter()
 
         ),
         Challenge(
-            number: 61,
+            number: 63,
             title: "map",
             description: "Transform values with map",
             starterCode: """
-                // Challenge 61: map
+                // Challenge 63: map
                 // Transform forge temperatures into strings.
 
                 let temps = [1200, 1500, 1600]
@@ -2853,11 +2948,11 @@ print(labels)
 
         ),
         Challenge(
-            number: 62,
+            number: 64,
             title: "filter",
             description: "Select values with filter",
             starterCode: """
-                // Challenge 62: filter
+                // Challenge 64: filter
                 // Keep only hot temperatures.
 
                 let temps = [1000, 1500, 1600, 1400]
@@ -2881,11 +2976,11 @@ print(hot)
 
         ),
         Challenge(
-            number: 63,
+            number: 65,
             title: "reduce",
             description: "Combine values with reduce",
             starterCode: """
-                // Challenge 63: reduce
+                // Challenge 65: reduce
                 // Sum forge temperatures.
 
                 let temps = [1000, 1200, 1400]
@@ -2911,11 +3006,11 @@ print(total)
 
         ),
         Challenge(
-            number: 64,
+            number: 66,
             title: "min/max",
             description: "Find smallest and largest values",
             starterCode: """
-                // Challenge 64: min/max
+                // Challenge 66: min/max
                 // Find the smallest and largest temperatures.
 
                 let temps = [1200, 1500, 1600, 1400]
@@ -2941,11 +3036,11 @@ print(maxTemp)
 
         ),
         Challenge(
-            number: 65,
+            number: 67,
             title: "compactMap",
             description: "Remove nil values safely",
             starterCode: """
-                // Challenge 65: compactMap
+                // Challenge 67: compactMap
                 // Clean up optional readings.
 
                 let readings: [Int?] = [1200, nil, 1500, nil, 1600]
@@ -2968,11 +3063,11 @@ print(cleaned)
 
         ),
         Challenge(
-            number: 66,
+            number: 68,
             title: "flatMap",
             description: "Flatten nested arrays",
             starterCode: """
-                // Challenge 66: flatMap
+                // Challenge 68: flatMap
                 // Flatten batches.
 
                 let batches = [[1, 2], [3], [4, 5]]
@@ -2995,11 +3090,11 @@ print(flat)
 
         ),
         Challenge(
-            number: 67,
+            number: 69,
             title: "typealias",
             description: "Improve readability with type aliases",
             starterCode: """
-                // Challenge 67: typealias
+                // Challenge 69: typealias
                 // Create a readable alias.
 
                 // TODO: Create a typealias ForgeReading = (temp: Int, time: Int)
@@ -3023,11 +3118,11 @@ print(reading.temp)
 
         ),
         Challenge(
-            number: 68,
+            number: 70,
             title: "Enums",
             description: "Represent a set of cases",
             starterCode: """
-                // Challenge 68: Enums
+                // Challenge 70: Enums
                 // Represent forge metals.
 
                 // TODO: Create an enum Metal with cases iron and gold
@@ -3060,11 +3155,11 @@ case .gold:
 
         ),
         Challenge(
-            number: 69,
+            number: 71,
             title: "Enums with Raw Values",
             description: "Represent simple categories",
             starterCode: """
-                // Challenge 69: Enums with Raw Values
+                // Challenge 71: Enums with Raw Values
                 // Represent metals.
 
                 // TODO: Create an enum Metal: String with cases iron, gold
@@ -3088,11 +3183,11 @@ print(Metal.iron.rawValue)
 
         ),
         Challenge(
-            number: 70,
+            number: 72,
             title: "Enums with Associated Values",
             description: "Represent structured events",
             starterCode: """
-                // Challenge 70: Enums with Associated Values
+                // Challenge 72: Enums with Associated Values
                 // Represent forge events.
 
                 // TODO: Create an enum 'Event' with:
@@ -3138,11 +3233,11 @@ case .error(let message):
 
         ),
         Challenge(
-            number: 71,
+            number: 73,
             title: "Enum Pattern Matching",
             description: "Match and extract associated values",
             starterCode: """
-                // Challenge 71: Enum Pattern Matching
+                // Challenge 73: Enum Pattern Matching
                 // Use a switch with a where clause.
 
                 enum Event {
@@ -3178,11 +3273,11 @@ case .error:
 
         ),
         Challenge(
-            number: 72,
+            number: 74,
             title: "Throwing Functions",
             description: "Introduce error throwing",
             starterCode: """
-                // Challenge 72: Throwing Functions
+                // Challenge 74: Throwing Functions
                 // Validate temperature.
 
                 // TODO: Create an enum TempError: Error with case outOfRange
@@ -3220,11 +3315,11 @@ do {
 
         ),
         Challenge(
-            number: 73,
+            number: 75,
             title: "try?",
             description: "Convert errors into optionals",
             starterCode: """
-                // Challenge 73: try?
+                // Challenge 75: try?
                 // Use try? to simplify error handling.
 
                 // TODO: Reuse checkTemp from the previous challenge
@@ -3260,11 +3355,11 @@ print(String(describing: result))
 
         ),
         Challenge(
-            number: 74,
+            number: 76,
             title: "ReadLine Input",
             description: "Read from standard input",
             starterCode: """
-                // Challenge 74: readLine
+                // Challenge 76: readLine
                 // Read a value from standard input.
                 //
                 // Forge pipes fixtures/input.txt into stdin, so readLine() reads its first line.
@@ -3296,11 +3391,11 @@ if let input = readLine() {
 
         ),
         Challenge(
-            number: 75,
+            number: 77,
             title: "Command-Line Arguments",
             description: "Read from CommandLine.arguments",
             starterCode: """
-                // Challenge 75: Command-Line Arguments
+                // Challenge 77: Command-Line Arguments
                 // Read arguments.
                 //
                 // Forge injects args from fixtures/args.txt into CommandLine.arguments.
@@ -3334,11 +3429,11 @@ if args.count >= 2 {
 
         ),
         Challenge(
-            number: 76,
+            number: 78,
             title: "File Read",
             description: "Read from a file on disk",
             starterCode: """
-                // Challenge 76: File Read
+                // Challenge 78: File Read
                 // Read a file of temperatures.
                 //
                 // Forge copies fixtures/temperatures.txt into the workspace folder.
@@ -3381,11 +3476,11 @@ if let fileContents = try? String(contentsOfFile: path, encoding: .utf8) {
 
         ),
         Challenge(
-            number: 77,
+            number: 79,
             title: "Basic Test",
             description: "Check a condition and report result",
             starterCode: """
-                // Challenge 77: Basic Test
+                // Challenge 79: Basic Test
                 // Write a basic test case.
                 //
                 // Steps:
@@ -3410,11 +3505,11 @@ if 2 + 2 == 4 {
 
         ),
         Challenge(
-            number: 78,
+            number: 80,
             title: "Integration Challenge",
             description: "Combine Core 3 concepts",
             starterCode: """
-                // Challenge 78: Integration Challenge
+                // Challenge 80: Integration Challenge
                 // Process forge logs with advanced tools.
                 // Prereqs: map, compactMap, filter, reduce.
 
@@ -3445,12 +3540,12 @@ print(total)
 
         ),
         Challenge(
-            number: 79,
+            number: 81,
             id: "core-extra-safety-check",
             title: "Safety Check",
             description: "Combine conditions with &&",
             starterCode: """
-                // Challenge 79: Safety Check
+                // Challenge 81: Safety Check
                 // Use && to require two conditions.
 
                 let heatLevel = 3
@@ -3477,12 +3572,12 @@ if heatLevel >= 3 && hasVentilation {
             tier: .extra
         ),
         Challenge(
-            number: 80,
+            number: 82,
             id: "core-extra-heat-levels",
             title: "Heat Levels",
             description: "Use if/else if/else with ranges",
             starterCode: """
-                // Challenge 80: Heat Levels
+                // Challenge 82: Heat Levels
                 // Categorize a value using if/else if/else.
 
                 let heatLevel = 1
@@ -3512,12 +3607,12 @@ if heatLevel == 0 {
             tier: .extra
         ),
         Challenge(
-            number: 81,
+            number: 83,
             id: "core-extra-count-multiples",
             title: "Count Multiples",
             description: "Count matches in a loop",
             starterCode: """
-                // Challenge 81: Count Multiples
+                // Challenge 83: Count Multiples
                 // Count numbers divisible by 3.
 
                 let numbers = [1, 2, 3, 4, 5, 6]
@@ -3548,12 +3643,12 @@ print(count)
             tier: .extra
         ),
         Challenge(
-            number: 82,
+            number: 84,
             id: "core-extra-running-total",
             title: "Running Total",
             description: "Break when a total reaches a limit",
             starterCode: """
-                // Challenge 82: Running Total
+                // Challenge 84: Running Total
                 // Add values until the total reaches a limit.
 
                 let temps = [900, 1000, 1200, 1500]
@@ -3585,12 +3680,12 @@ print(total)
             tier: .extra
         ),
         Challenge(
-            number: 83,
+            number: 85,
             id: "core-extra-optional-conversion",
             title: "Optional Conversion",
             description: "Convert a string to an Int safely",
             starterCode: """
-                // Challenge 83: Optional Conversion
+                // Challenge 85: Optional Conversion
                 // Use if let with Int().
 
                 let input = "1500"
@@ -3618,12 +3713,12 @@ if let temp = Int(input) {
             tier: .extra
         ),
         Challenge(
-            number: 84,
+            number: 86,
             id: "core-extra-guard-conversion",
             title: "Guard Conversion",
             description: "Use guard let for early exit",
             starterCode: """
-                // Challenge 84: Guard Conversion
+                // Challenge 86: Guard Conversion
                 // Use guard let to unwrap and convert.
 
                 func readTemp(_ value: String?) {
@@ -3656,12 +3751,12 @@ readTemp("abc")
             tier: .extra
         ),
         Challenge(
-            number: 85,
+            number: 87,
             id: "core-extra-inventory-update",
             title: "Inventory Update",
             description: "Update a dictionary value",
             starterCode: """
-                // Challenge 85: Inventory Update
+                // Challenge 87: Inventory Update
                 // Increment a dictionary value.
 
                 var inventory = ["Iron": 1]
@@ -3684,12 +3779,12 @@ print(inventory["Iron", default: 0])
             tier: .extra
         ),
         Challenge(
-            number: 86,
+            number: 88,
             id: "core-extra-remove-from-array",
             title: "Remove from Array",
             description: "Remove an element by index",
             starterCode: """
-                // Challenge 86: Remove from Array
+                // Challenge 88: Remove from Array
                 // Remove one item and print the result.
 
                 var metals = ["Iron", "Gold", "Copper"]
@@ -3712,12 +3807,12 @@ print(metals)
             tier: .extra
         ),
         Challenge(
-            number: 87,
+            number: 89,
             id: "core-extra-boolean-return",
             title: "Boolean Return",
             description: "Return true or false from a function",
             starterCode: """
-                // Challenge 87: Boolean Return
+                // Challenge 89: Boolean Return
                 // Return a Bool from a function.
 
                 // TODO: Create a function 'isOverheated(temp:)' -> Bool
@@ -3742,12 +3837,12 @@ print(isOverheated(temp: 1600))
             tier: .extra
         ),
         Challenge(
-            number: 88,
+            number: 90,
             id: "core-extra-helper-function",
             title: "Helper Function",
             description: "Call one function from another",
             starterCode: """
-                // Challenge 88: Helper Function
+                // Challenge 90: Helper Function
                 // Use a helper to build a message.
 
                 // TODO: Create a function 'label(temp:)' -> String returning "T<temp>"
@@ -3777,12 +3872,12 @@ printLabel(for: 1200)
             tier: .extra
         ),
         Challenge(
-            number: 89,
+            number: 91,
             id: "core-extra-fuel-warning",
             title: "Fuel Warning",
             description: "Branch on a Bool with if/else",
             starterCode: """
-                // Challenge 89: Fuel Warning
+                // Challenge 91: Fuel Warning
                 // Use if/else with a Bool.
 
                 let hasFuel = false
@@ -3807,12 +3902,12 @@ if hasFuel {
             tier: .extra
         ),
         Challenge(
-            number: 90,
+            number: 92,
             id: "core-extra-override-switch",
             title: "Override Switch",
             description: "Combine conditions with ||",
             starterCode: """
-                // Challenge 90: Override Switch
+                // Challenge 92: Override Switch
                 // Use || to allow either condition.
 
                 let hasFuel = false
@@ -3838,12 +3933,12 @@ if hasFuel || emergencyOverride {
             tier: .extra
         ),
         Challenge(
-            number: 91,
+            number: 93,
             id: "core-extra-negation-drill",
             title: "Negation Drill",
             description: "Use ! to invert a Bool",
             starterCode: """
-                // Challenge 91: Negation Drill
+                // Challenge 93: Negation Drill
                 // Use ! to flip a Bool condition.
 
                 let isCooling = false
@@ -3868,12 +3963,12 @@ if !isCooling {
             tier: .extra
         ),
         Challenge(
-            number: 92,
+            number: 94,
             id: "core-extra-ternary-warm-up",
             title: "Ternary Warm-up",
             description: "Use the ternary operator",
             starterCode: """
-                // Challenge 92: Ternary Warm-up
+                // Challenge 94: Ternary Warm-up
                 // Use ?: to choose a value.
 
                 let heatLevel = 2
@@ -3895,12 +3990,12 @@ print(status)
             tier: .extra
         ),
         Challenge(
-            number: 93,
+            number: 95,
             id: "core-extra-heat-steps",
             title: "Heat Steps",
             description: "Loop over a range with for-in",
             starterCode: """
-                // Challenge 93: Heat Steps
+                // Challenge 95: Heat Steps
                 // Use a for-in loop over a range.
 
                 let steps = 3
@@ -3924,12 +4019,12 @@ for step in 1...steps {
             tier: .extra
         ),
         Challenge(
-            number: 94,
+            number: 96,
             id: "core-extra-cooldown-countdown",
             title: "Cooldown Countdown",
             description: "Use a while loop to count down",
             starterCode: """
-                // Challenge 94: Cooldown Countdown
+                // Challenge 96: Cooldown Countdown
                 // Use a while loop to count down.
 
                 var level = 3
@@ -3952,12 +4047,12 @@ while level > 0 {
             tier: .extra
         ),
         Challenge(
-            number: 95,
+            number: 97,
             id: "core-extra-repeat-ignite",
             title: "Repeat Ignite",
             description: "Use repeat-while for at least one run",
             starterCode: """
-                // Challenge 95: Repeat Ignite
+                // Challenge 97: Repeat Ignite
                 // Use repeat-while to run at least once.
 
                 var attempts = 0
@@ -3981,12 +4076,12 @@ repeat {
             tier: .extra
         ),
         Challenge(
-            number: 96,
+            number: 98,
             id: "core-extra-skip-weak-ore",
             title: "Skip Weak Ore",
             description: "Use continue and break",
             starterCode: """
-                // Challenge 96: Skip Weak Ore
+                // Challenge 98: Skip Weak Ore
                 // Use continue and break.
 
                 let strengths = [1, 2, 0, 3]
@@ -4022,12 +4117,12 @@ print(processed)
             tier: .extra
         ),
         Challenge(
-            number: 97,
+            number: 99,
             id: "core-extra-stock-count",
             title: "Stock Count",
             description: "Append to an array and count it",
             starterCode: """
-                // Challenge 97: Stock Count
+                // Challenge 99: Stock Count
                 // Use append and count.
 
                 var metals = ["Iron"]
@@ -4050,12 +4145,12 @@ print(metals.count)
             tier: .extra
         ),
         Challenge(
-            number: 98,
+            number: 100,
             id: "core-extra-first-ore",
             title: "First Ore",
             description: "Use first with a default value",
             starterCode: """
-                // Challenge 98: First Ore
+                // Challenge 100: First Ore
                 // Access the first element safely.
 
                 let metals = ["Iron", "Gold"]
@@ -4077,12 +4172,12 @@ print(firstMetal)
             tier: .extra
         ),
         Challenge(
-            number: 99,
+            number: 101,
             id: "core-extra-unique-ingots",
             title: "Unique Ingots",
             description: "Insert and check a set",
             starterCode: """
-                // Challenge 99: Unique Ingots
+                // Challenge 101: Unique Ingots
                 // Use a set to track unique values.
 
                 var ingots: Set<String> = ["Iron"]
@@ -4106,12 +4201,12 @@ print(ingots.contains("Gold"))
             tier: .extra
         ),
         Challenge(
-            number: 100,
+            number: 102,
             id: "core-extra-fuel-ledger",
             title: "Fuel Ledger",
             description: "Update dictionary values and count keys",
             starterCode: """
-                // Challenge 100: Fuel Ledger
+                // Challenge 102: Fuel Ledger
                 // Update values in a dictionary.
 
                 var fuel = ["Coal": 2]
@@ -4137,12 +4232,12 @@ print(fuel.keys.count)
             tier: .extra
         ),
         Challenge(
-            number: 101,
+            number: 103,
             id: "core-extra-iterate-ores",
             title: "Iterate Ores",
             description: "Build labels while iterating an array",
             starterCode: """
-                // Challenge 101: Iterate Ores
+                // Challenge 103: Iterate Ores
                 // Build a new array while iterating.
 
                 let ores = ["Iron", "Gold"]
@@ -4169,12 +4264,12 @@ print(labels)
             tier: .extra
         ),
         Challenge(
-            number: 102,
+            number: 104,
             id: "core-extra-iterate-ledger",
             title: "Iterate Ledger",
             description: "Sum dictionary values",
             starterCode: """
-                // Challenge 102: Iterate Ledger
+                // Challenge 104: Iterate Ledger
                 // Sum values in a dictionary.
 
                 let ledger = ["Iron": 2, "Gold": 1]
@@ -4201,12 +4296,12 @@ print(total)
             tier: .extra
         ),
         Challenge(
-            number: 103,
+            number: 105,
             id: "core-extra-announce-heat",
             title: "Announce Heat",
             description: "Define a function with one parameter",
             starterCode: """
-                // Challenge 103: Announce Heat
+                // Challenge 105: Announce Heat
                 // Define a function with one parameter.
 
                 // TODO: Create a function 'announceHeat' that takes an Int 'level'
@@ -4231,12 +4326,12 @@ announceHeat(level: 1500)
             tier: .extra
         ),
         Challenge(
-            number: 104,
+            number: 106,
             id: "core-extra-combine-alloy",
             title: "Combine Alloy",
             description: "Define a function with two parameters",
             starterCode: """
-                // Challenge 104: Combine Alloy
+                // Challenge 106: Combine Alloy
                 // Define a function with two parameters.
 
                 // TODO: Create a function 'combine' that takes 'metal' and 'additive' (String)
@@ -4261,12 +4356,12 @@ combine(metal: "Iron", additive: "Carbon")
             tier: .extra
         ),
         Challenge(
-            number: 105,
+            number: 107,
             id: "core-extra-return-weight",
             title: "Return Weight",
             description: "Return a value from a function",
             starterCode: """
-                // Challenge 105: Return Weight
+                // Challenge 107: Return Weight
                 // Return an Int from a function.
 
                 // TODO: Create a function 'totalWeight' that returns 'ingots' * 'weightPerIngot'
@@ -4290,12 +4385,12 @@ print(totalWeight(ingots: 3, weightPerIngot: 5))
             tier: .extra
         ),
         Challenge(
-            number: 106,
+            number: 108,
             id: "core-extra-label-maker",
             title: "Label Maker",
             description: "Use a function that returns a String",
             starterCode: """
-                // Challenge 106: Label Maker
+                // Challenge 108: Label Maker
                 // Return a String from a function.
 
                 // TODO: Create a function 'makeLabel' that returns "Batch-<id>"
@@ -4319,12 +4414,12 @@ print(makeLabel(id: 7))
             tier: .extra
         ),
         Challenge(
-            number: 107,
+            number: 109,
             id: "core-extra-coalesce-default",
             title: "Coalesce Default",
             description: "Use ?? with an optional",
             starterCode: """
-                // Challenge 107: Coalesce Default
+                // Challenge 109: Coalesce Default
                 // Provide a default with ??.
 
                 let reading: Int? = nil
@@ -4347,12 +4442,12 @@ print(value)
             tier: .extra
         ),
         Challenge(
-            number: 108,
+            number: 110,
             id: "core-extra-optional-bool-check",
             title: "Optional Bool Check",
             description: "Unwrap an optional Bool",
             starterCode: """
-                // Challenge 108: Optional Bool Check
+                // Challenge 110: Optional Bool Check
                 // Use if let with an optional Bool.
 
                 let isReady: Bool? = nil
@@ -4378,12 +4473,12 @@ if let ready = isReady {
             tier: .extra
         ),
         Challenge(
-            number: 109,
+            number: 111,
             id: "core-extra-string-count",
             title: "String Count",
             description: "Use count on a String",
             starterCode: """
-                // Challenge 109: String Count
+                // Challenge 111: String Count
                 // Use count on a String.
 
                 let alloyName = "Iron"
@@ -4403,12 +4498,12 @@ print(alloyName.count)
             tier: .extra
         ),
         Challenge(
-            number: 110,
+            number: 112,
             id: "core-extra-string-contains",
             title: "String Contains",
             description: "Check if a String contains text",
             starterCode: """
-                // Challenge 110: String Contains
+                // Challenge 112: String Contains
                 // Use contains to search.
 
                 let label = "Gold Ingot"
@@ -4428,12 +4523,12 @@ print(label.contains("Gold"))
             tier: .extra
         ),
         Challenge(
-            number: 111,
+            number: 113,
             id: "core-extra-case-shift",
             title: "Case Shift",
             description: "Uppercase a String",
             starterCode: """
-                // Challenge 111: Case Shift
+                // Challenge 113: Case Shift
                 // Use uppercased().
 
                 let code = "Forge"
@@ -4453,12 +4548,12 @@ print(code.uppercased())
             tier: .extra
         ),
         Challenge(
-            number: 112,
+            number: 114,
             id: "core-extra-prefix-check",
             title: "Prefix Check",
             description: "Check a String prefix",
             starterCode: """
-                // Challenge 112: Prefix Check
+                // Challenge 114: Prefix Check
                 // Use hasPrefix.
 
                 let line = "TEMP 1500"
@@ -4478,12 +4573,12 @@ print(line.hasPrefix("TEMP"))
             tier: .extra
         ),
         Challenge(
-            number: 113,
+            number: 115,
             id: "core-extra-suffix-check",
             title: "Suffix Check",
             description: "Check a String suffix",
             starterCode: """
-                // Challenge 113: Suffix Check
+                // Challenge 115: Suffix Check
                 // Use hasSuffix.
 
                 let line = "ALLOY-IRON"
@@ -4503,12 +4598,12 @@ print(line.hasSuffix("IRON"))
             tier: .extra
         ),
         Challenge(
-            number: 114,
+            number: 116,
             id: "core-extra-split-words",
             title: "Split Words",
             description: "Split a String and count parts",
             starterCode: """
-                // Challenge 114: Split Words
+                // Challenge 116: Split Words
                 // Split a String into parts.
 
                 let report = "TEMP 1500"
@@ -4529,12 +4624,12 @@ print(parts.count)
             tier: .extra
         ),
         Challenge(
-            number: 115,
+            number: 117,
             id: "core-extra-heat-comparison",
             title: "Heat Comparison",
             description: "Use a comparison operator",
             starterCode: """
-                // Challenge 115: Heat Comparison
+                // Challenge 117: Heat Comparison
                 // Compare numeric values.
 
                 let heatLevel = 1600
@@ -4554,12 +4649,12 @@ print(heatLevel >= 1500)
             tier: .extra
         ),
         Challenge(
-            number: 116,
+            number: 118,
             id: "core-extra-not-equal-check",
             title: "Not Equal Check",
             description: "Compare two Strings",
             starterCode: """
-                // Challenge 116: Not Equal Check
+                // Challenge 118: Not Equal Check
                 // Use != with Strings.
 
                 let a = "Iron"
@@ -4580,12 +4675,12 @@ print(a != b)
             tier: .extra
         ),
         Challenge(
-            number: 117,
+            number: 119,
             id: "core-extra-lower-than",
             title: "Lower Than",
             description: "Use < with Ints",
             starterCode: """
-                // Challenge 117: Lower Than
+                // Challenge 119: Lower Than
                 // Use < with Ints.
 
                 let temp = 1400
@@ -4605,12 +4700,12 @@ print(temp < 1500)
             tier: .extra
         ),
         Challenge(
-            number: 118,
+            number: 120,
             id: "core-extra-open-range-loop",
             title: "Open Range Loop",
             description: "Loop with 1..<n",
             starterCode: """
-                // Challenge 118: Open Range Loop
+                // Challenge 120: Open Range Loop
                 // Use an open range with for-in.
 
                 let end = 3
@@ -4633,12 +4728,12 @@ for value in 1..<end {
             tier: .extra
         ),
         Challenge(
-            number: 119,
+            number: 121,
             id: "core-extra-closed-range-sum",
             title: "Closed Range Sum",
             description: "Sum values in 1...n",
             starterCode: """
-                // Challenge 119: Closed Range Sum
+                // Challenge 121: Closed Range Sum
                 // Sum a closed range.
 
                 let end = 3
@@ -4664,12 +4759,12 @@ print(total)
             tier: .extra
         ),
         Challenge(
-            number: 120,
+            number: 122,
             id: "core-extra-index-range",
             title: "Index Range",
             description: "Use 0..<count with an array",
             starterCode: """
-                // Challenge 120: Index Range
+                // Challenge 122: Index Range
                 // Loop with array indices.
 
                 let metals = ["Iron", "Gold", "Copper"]
@@ -4693,12 +4788,12 @@ print(metals[index])
             tier: .extra
         ),
         Challenge(
-            number: 242,
+            number: 244,
             id: "core-extra-number-conversion",
             title: "Number Conversion",
             description: "Compare integer and floating division",
             starterCode: """
-                // Challenge 242: Number Conversion
+                // Challenge 244: Number Conversion
                 // Compare integer and floating division.
 
                 let a = 7
@@ -4722,12 +4817,12 @@ print(Double(a) / Double(b))
             tier: .extra
         ),
         Challenge(
-            number: 243,
+            number: 245,
             id: "core-extra-string-to-int",
             title: "String to Int",
             description: "Convert a numeric string safely",
             starterCode: """
-                // Challenge 243: String to Int
+                // Challenge 245: String to Int
                 // Convert a numeric string safely.
 
                 let text = "1500"
@@ -4752,12 +4847,12 @@ if let value = Int(text) {
             tier: .extra
         ),
         Challenge(
-            number: 244,
+            number: 246,
             id: "core-extra-dictionary-default-update",
             title: "Dictionary Default Update",
             description: "Update counts with default values",
             starterCode: """
-                // Challenge 244: Dictionary Default Update
+                // Challenge 246: Dictionary Default Update
                 // Update counts with default values.
 
                 var inventory = ["Iron": 2]
@@ -4783,12 +4878,12 @@ print("Gold: \\(inventory["Gold", default: 0])")
             tier: .extra
         ),
         Challenge(
-            number: 245,
+            number: 247,
             id: "core-extra-set-operations",
             title: "Set Operations",
             description: "Combine and intersect sets",
             starterCode: """
-                // Challenge 245: Set Operations
+                // Challenge 247: Set Operations
                 // Combine and intersect sets.
 
                 let a: Set<Int> = [1, 2, 3]
@@ -4812,12 +4907,12 @@ print(a.intersection(b).sorted())
             tier: .extra
         ),
         Challenge(
-            number: 246,
+            number: 248,
             id: "core-extra-sorting-basics",
             title: "Sorting Basics",
             description: "Sort values ascending and descending",
             starterCode: """
-                // Challenge 246: Sorting Basics
+                // Challenge 248: Sorting Basics
                 // Sort values ascending and descending.
 
                 let temps = [1500, 1200, 1600]
@@ -4839,17 +4934,81 @@ print(Array(temps.sorted().reversed()))
             topic: .collections,
             tier: .extra
         ),
+        Challenge(
+            number: 253,
+            id: "core-extra-boolean-flags",
+            title: "Boolean Flags",
+            description: "Combine comparisons with &&",
+            starterCode: """
+                // Challenge 253: Boolean Flags
+                // Combine a Bool with a comparison.
+
+                let temperature = 1500
+                let minTemp = 1400
+                let isIron = true
+
+                // TODO: Create a constant 'ready' that is true only when
+                // isIron is true AND temperature >= minTemp
+                // TODO: Print ready
+                """,
+            expectedOutput: "true",
+            hints: [
+                "Put the readiness rule in a single expression.",
+                "Assign the expression to a constant, then print it.",
+            ],
+            cheatsheet: cheatsheetBooleans,
+            lesson: lessonBooleans,
+            solution: """
+let ready = isIron && temperature >= minTemp
+print(ready)
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .conditionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 254,
+            id: "core-extra-grouped-logic",
+            title: "Grouped Logic",
+            description: "Use parentheses to group conditions",
+            starterCode: """
+                // Challenge 254: Grouped Logic
+                // Group conditions with parentheses.
+
+                let isIron = true
+                let isHot = false
+                let overrideOn = true
+
+                // TODO: Create a constant 'canForge' that is true when
+                // (isIron AND isHot) OR overrideOn is true
+                // TODO: Print canForge
+                """,
+            expectedOutput: "true",
+            hints: [
+                "Group the strongest condition first, then add the fallback.",
+                "Parentheses can clarify how the pieces should combine.",
+            ],
+            cheatsheet: cheatsheetBooleans,
+            lesson: lessonBooleans,
+            solution: """
+let canForge = (isIron && isHot) || overrideOn
+print(canForge)
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .conditionals,
+            tier: .extra
+        ),
     ]
 }
 
 func makeMantleChallenges() -> [Challenge] {
     let challenges = [
         Challenge(
-            number: 121,
+            number: 123,
             title: "Struct Basics",
             description: "Define a struct and create an instance",
             starterCode: """
-                // Challenge 121: Struct Basics
+                // Challenge 123: Struct Basics
                 // Define a struct and create an instance.
 
                 // TODO: Create a struct named 'ForgeItem' with a 'name' property
@@ -4874,11 +5033,11 @@ print(item.name)
             introduces: [.structs, .properties]
         ),
         Challenge(
-            number: 122,
+            number: 124,
             title: "Stored Properties",
             description: "Read and update stored properties",
             starterCode: """
-                // Challenge 122: Stored Properties
+                // Challenge 124: Stored Properties
                 // Read and update stored properties.
 
                 struct Furnace {
@@ -4903,11 +5062,11 @@ print(furnace.heat)
             introduces: [.properties]
         ),
         Challenge(
-            number: 123,
+            number: 125,
             title: "Methods + self",
             description: "Add a method that uses self",
             starterCode: """
-                // Challenge 123: Methods + self
+                // Challenge 125: Methods + self
                 // Add a method that reads state.
 
                 struct Hammer {
@@ -4939,11 +5098,11 @@ print(hammer.summary())
             introduces: [.selfKeyword]
         ),
         Challenge(
-            number: 124,
+            number: 126,
             title: "Custom Init",
             description: "Write a custom initializer",
             starterCode: """
-                // Challenge 124: Custom Init
+                // Challenge 126: Custom Init
                 // Create a custom initializer.
 
                 struct Ingot {
@@ -4979,11 +5138,11 @@ print(ingot.weight)
             introduces: [.initializers]
         ),
         Challenge(
-            number: 125,
+            number: 127,
             title: "Mutating Method",
             description: "Use mutating to update struct state",
             starterCode: """
-                // Challenge 125: Mutating Method
+                // Challenge 127: Mutating Method
                 // Use mutating for state changes.
 
                 struct Crucible {
@@ -5018,11 +5177,11 @@ print(crucible.level)
             introduces: [.mutatingMethods]
         ),
         Challenge(
-            number: 126,
+            number: 128,
             title: "Value Semantics",
             description: "Show independent copies of a struct",
             starterCode: """
-                // Challenge 126: Value Semantics
+                // Challenge 128: Value Semantics
                 // Show that structs are copied on assignment.
 
                 struct Mold {
@@ -5055,11 +5214,11 @@ print(copy.size)
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 127,
+            number: 129,
             title: "Class Basics",
             description: "Define and instantiate a class",
             starterCode: """
-                // Challenge 127: Class Basics
+                // Challenge 129: Class Basics
                 // Define and instantiate a class.
 
                 class Anvil {
@@ -5085,11 +5244,11 @@ print(anvil.weight)
             introduces: [.classes]
         ),
         Challenge(
-            number: 128,
+            number: 130,
             title: "Reference Semantics",
             description: "Show shared state in classes",
             starterCode: """
-                // Challenge 128: Reference Semantics
+                // Challenge 130: Reference Semantics
                 // Show that classes share references.
 
                 class Bellows {
@@ -5117,11 +5276,11 @@ print(primary.power)
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 129,
+            number: 131,
             title: "Deinit",
             description: "Observe deinitialization",
             starterCode: """
-                // Challenge 129: Deinit
+                // Challenge 131: Deinit
                 // Add a deinit message.
 
                 class Torch {
@@ -5157,11 +5316,11 @@ torch = nil
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 130,
+            number: 132,
             title: "Struct vs Class",
             description: "Choose the right type",
             starterCode: """
-                // Challenge 130: Struct vs Class
+                // Challenge 132: Struct vs Class
                 // Decide which type fits the scenario.
 
                 // TODO: Create a struct for a simple 'Tag' (value type)
@@ -5193,11 +5352,11 @@ print(controller.status)
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 131,
+            number: 133,
             title: "Computed Property",
             description: "Add a computed property",
             starterCode: """
-                // Challenge 131: Computed Property
+                // Challenge 133: Computed Property
                 // Use get/set on a computed property.
 
                 struct Press {
@@ -5231,11 +5390,11 @@ print(press.force)
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 132,
+            number: 134,
             title: "Property Observers",
             description: "Use willSet and didSet",
             starterCode: """
-                // Challenge 132: Property Observers
+                // Challenge 134: Property Observers
                 // Observe changes with willSet/didSet.
 
                 struct Gauge {
@@ -5270,11 +5429,11 @@ gauge.pressure = 2
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 133,
+            number: 135,
             title: "Lazy Property",
             description: "Initialize a property lazily",
             starterCode: """
-                // Challenge 133: Lazy Property
+                // Challenge 135: Lazy Property
                 // Use lazy to defer creation.
 
                 struct ForgeReport {
@@ -5302,11 +5461,11 @@ print(report.summary)
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 134,
+            number: 136,
             title: "Static vs Instance",
             description: "Use static properties",
             starterCode: """
-                // Challenge 134: Static vs Instance
+                // Challenge 136: Static vs Instance
                 // Use a static property.
 
                 struct Shift {
@@ -5330,11 +5489,11 @@ print(shift.hours)
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 135,
+            number: 137,
             title: "Protocol Definition",
             description: "Define a protocol",
             starterCode: """
-                // Challenge 135: Protocol Definition
+                // Challenge 137: Protocol Definition
                 // Define a protocol with requirements.
 
                 // TODO: Create a protocol 'Inspectable' with a read-only 'status' String
@@ -5356,11 +5515,11 @@ print("Inspectable ready")
             introduces: [.protocols]
         ),
         Challenge(
-            number: 136,
+            number: 138,
             title: "Conformance",
             description: "Adopt a protocol in a struct",
             starterCode: """
-                // Challenge 136: Conformance
+                // Challenge 138: Conformance
                 // Make a struct conform to a protocol.
 
                 protocol Inspectable {
@@ -5387,11 +5546,11 @@ print(furnace.status)
             introduces: [.protocolConformance]
         ),
         Challenge(
-            number: 137,
+            number: 139,
             title: "Protocol as Type",
             description: "Use a protocol as a parameter type",
             starterCode: """
-                // Challenge 137: Protocol as Type
+                // Challenge 139: Protocol as Type
                 // Use a protocol in a function signature.
 
                 protocol HeatSource {
@@ -5421,11 +5580,11 @@ reportHeat(source: burner)
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 138,
+            number: 140,
             title: "Protocol Composition",
             description: "Use A & B in a parameter",
             starterCode: """
-                // Challenge 138: Protocol Composition
+                // Challenge 140: Protocol Composition
                 // Use multiple protocol requirements.
 
                 protocol Fueling {
@@ -5461,11 +5620,11 @@ report(vent)
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 139,
+            number: 141,
             title: "Protocol Inheritance",
             description: "Refine a protocol",
             starterCode: """
-                // Challenge 139: Protocol Inheritance
+                // Challenge 141: Protocol Inheritance
                 // Inherit requirements from another protocol.
 
                 protocol Component {
@@ -5496,11 +5655,11 @@ print(sensor.status)
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 140,
+            number: 142,
             title: "Extensions",
             description: "Add methods with an extension",
             starterCode: """
-                // Challenge 140: Extensions
+                // Challenge 142: Extensions
                 // Add behavior using an extension.
 
                 struct Ingot {
@@ -5529,11 +5688,11 @@ print(ingot.label())
             introduces: [.extensions]
         ),
         Challenge(
-            number: 141,
+            number: 143,
             title: "Default Implementations",
             description: "Add default behavior with a protocol extension",
             starterCode: """
-                // Challenge 141: Default Implementations
+                // Challenge 143: Default Implementations
                 // Provide default behavior with a protocol extension.
 
                 protocol Reportable {
@@ -5566,11 +5725,11 @@ report.printReport()
             introduces: [.protocolExtensions, .defaultImplementations]
         ),
         Challenge(
-            number: 142,
+            number: 144,
             title: "Access Control 1",
             description: "Use private and internal",
             starterCode: """
-                // Challenge 142: Access Control 1
+                // Challenge 144: Access Control 1
                 // Add private and internal members.
 
                 struct Vault {
@@ -5603,11 +5762,11 @@ print("Vault ready")
             introduces: [.accessControl, .accessControlInternal, .accessControlSetter]
         ),
         Challenge(
-            number: 143,
+            number: 145,
             title: "Access Control 2",
             description: "Use public and open",
             starterCode: """
-                // Challenge 143: Access Control 2
+                // Challenge 145: Access Control 2
                 // Mark APIs public/open in a library.
 
                 // TODO: Add a public struct 'Ledger'
@@ -5633,11 +5792,11 @@ print("Controller")
             introduces: [.accessControlOpen]
         ),
         Challenge(
-            number: 144,
+            number: 146,
             title: "Error Integration",
             description: "Use errors in a protocol-based API",
             starterCode: """
-                // Challenge 144: Error Integration
+                // Challenge 146: Error Integration
                 // Use errors in an API surface.
 
                 enum FurnaceError: Error {
@@ -5675,11 +5834,11 @@ do {
             requires: [.doCatch, .throwKeyword, .tryKeyword, .errorTypes, .throwingFunctions, .doTryCatch]
         ),
         Challenge(
-            number: 145,
+            number: 147,
             title: "Generic Function",
             description: "Write a generic function",
             starterCode: """
-                // Challenge 145: Generic Function
+                // Challenge 147: Generic Function
                 // Create a generic helper.
 
                 // TODO: Write a generic function 'swapPair' that returns a tuple (B, A)
@@ -5701,11 +5860,11 @@ print(swapPair("Iron", 3))
             introduces: [.generics]
         ),
         Challenge(
-            number: 146,
+            number: 148,
             title: "Generic Type",
             description: "Define a generic container",
             starterCode: """
-                // Challenge 146: Generic Type
+                // Challenge 148: Generic Type
                 // Build a simple generic container.
 
                 // TODO: Create a generic struct 'Box<T>' with a value: T
@@ -5727,11 +5886,11 @@ print(box.value)
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 147,
+            number: 149,
             title: "Type Constraints",
             description: "Add a constraint to a generic",
             starterCode: """
-                // Challenge 147: Type Constraints
+                // Challenge 149: Type Constraints
                 // Constrain a generic to Comparable.
 
                 // TODO: Write a generic function 'maxValue' that takes two T: Comparable
@@ -5752,11 +5911,11 @@ print(maxValue(3, 5))
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 148,
+            number: 150,
             title: "Associated Types",
             description: "Use associatedtype in a protocol",
             starterCode: """
-                // Challenge 148: Associated Types
+                // Challenge 150: Associated Types
                 // Define a protocol with an associated type.
 
                 // TODO: Create a protocol 'Storage' with associatedtype 'Item' and var items: [Item]
@@ -5784,11 +5943,11 @@ print(storage.items.count)
             introduces: [.associatedTypes]
         ),
         Challenge(
-            number: 149,
+            number: 151,
             title: "Where Clauses",
             description: "Add a where clause to constrain generics",
             starterCode: """
-                // Challenge 149: Where Clauses
+                // Challenge 151: Where Clauses
                 // Constrain an extension with where.
 
                 // TODO: Extend Array where Element: Equatable and add a method 'allEqual()'
@@ -5813,11 +5972,11 @@ print([2, 2, 2].allEqual())
             introduces: [.whereClauses]
         ),
         Challenge(
-            number: 150,
+            number: 152,
             title: "Constrained Extension",
             description: "Add shared behavior with constraints",
             starterCode: """
-                // Challenge 150: Constrained Extension
+                // Challenge 152: Constrained Extension
                 // Add shared behavior with constraints.
 
                 protocol Describable {
@@ -5849,11 +6008,11 @@ print(tool.description())
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 151,
+            number: 153,
             title: "Conditional Conformance",
             description: "Conform generics conditionally",
             starterCode: """
-                // Challenge 151: Conditional Conformance
+                // Challenge 153: Conditional Conformance
                 // Add conditional conformance to a generic type.
 
                 struct Crate<T> {
@@ -5878,11 +6037,11 @@ print(first == second)
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 152,
+            number: 154,
             title: "Model Layer Exercise",
             description: "Apply protocol-oriented design",
             starterCode: """
-                // Challenge 152: Model Layer Exercise
+                // Challenge 154: Model Layer Exercise
                 // Compose a small model layer with protocols and defaults.
 
                 // TODO: Define a protocol and a default implementation
@@ -5914,11 +6073,11 @@ alloy.report()
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 153,
+            number: 155,
             title: "ARC Safety",
             description: "Avoid reference cycles with weak",
             starterCode: """
-                // Challenge 153: ARC Safety
+                // Challenge 155: ARC Safety
                 // Use weak references to avoid cycles.
 
                 class Operator {
@@ -5963,12 +6122,12 @@ print("Cycle avoided")
             constraintProfile: mantleBaselineProfile,
         ),
         Challenge(
-            number: 154,
+            number: 156,
             id: "mantle-extra-struct-copy-drill",
             title: "Struct Copy Drill",
             description: "Show independent struct copies",
             starterCode: """
-                // Challenge 154: Struct Copy Drill
+                // Challenge 156: Struct Copy Drill
                 // Show independent struct copies.
 
                 struct Plate {
@@ -5996,12 +6155,12 @@ print(copy.thickness)
             tier: .extra
         ),
         Challenge(
-            number: 155,
+            number: 157,
             id: "mantle-extra-mutating-counter",
             title: "Mutating Counter",
             description: "Use a mutating method",
             starterCode: """
-                // Challenge 155: Mutating Counter
+                // Challenge 157: Mutating Counter
                 // Update state with a mutating method.
 
                 struct Counter {
@@ -6037,12 +6196,12 @@ print(counter.value)
             tier: .extra
         ),
         Challenge(
-            number: 156,
+            number: 158,
             id: "mantle-extra-computed-conversion",
             title: "Computed Conversion",
             description: "Use a computed get/set",
             starterCode: """
-                // Challenge 156: Computed Conversion
+                // Challenge 158: Computed Conversion
                 // Convert between units with get/set.
 
                 struct Weight {
@@ -6078,12 +6237,12 @@ print(weight.kg)
             tier: .extra
         ),
         Challenge(
-            number: 157,
+            number: 159,
             id: "mantle-extra-observer-echo",
             title: "Observer Echo",
             description: "Use property observers",
             starterCode: """
-                // Challenge 157: Observer Echo
+                // Challenge 159: Observer Echo
                 // Print before and after changes.
 
                 struct Gauge {
@@ -6120,12 +6279,12 @@ gauge.pressure = 3
             tier: .extra
         ),
         Challenge(
-            number: 158,
+            number: 160,
             id: "mantle-extra-class-shared-state",
             title: "Class Shared State",
             description: "Share state across references",
             starterCode: """
-                // Challenge 158: Class Shared State
+                // Challenge 160: Class Shared State
                 // Show reference semantics.
 
                 class Controller {
@@ -6155,12 +6314,12 @@ print(primary.mode)
             tier: .extra
         ),
         Challenge(
-            number: 159,
+            number: 161,
             id: "mantle-extra-lazy-builder",
             title: "Lazy Builder",
             description: "Use a lazy property",
             starterCode: """
-                // Challenge 159: Lazy Builder
+                // Challenge 161: Lazy Builder
                 // Build a lazy property.
 
                 struct Report {
@@ -6190,12 +6349,12 @@ print(report.title)
             tier: .extra
         ),
         Challenge(
-            number: 160,
+            number: 162,
             id: "mantle-extra-default-label",
             title: "Default Label",
             description: "Add a protocol default method",
             starterCode: """
-                // Challenge 160: Default Label
+                // Challenge 162: Default Label
                 // Add a shared method with a protocol extension.
 
                 protocol Named {
@@ -6228,12 +6387,12 @@ print(Tool(name: "Hammer").label())
             tier: .extra
         ),
         Challenge(
-            number: 161,
+            number: 163,
             id: "mantle-extra-protocol-parameter",
             title: "Protocol Parameter",
             description: "Use a protocol as a parameter",
             starterCode: """
-                // Challenge 161: Protocol Parameter
+                // Challenge 163: Protocol Parameter
                 // Accept a protocol type.
 
                 protocol HeatSource {
@@ -6264,12 +6423,12 @@ reportHeat(source: Furnace(heat: 1500))
             tier: .extra
         ),
         Challenge(
-            number: 162,
+            number: 164,
             id: "mantle-extra-composition-drill",
             title: "Composition Drill",
             description: "Require two protocols",
             starterCode: """
-                // Challenge 162: Composition Drill
+                // Challenge 164: Composition Drill
                 // Require two protocols in one parameter.
 
                 protocol Fueling {
@@ -6306,12 +6465,12 @@ report(Vent(fuel: 2, airflow: 3))
             tier: .extra
         ),
         Challenge(
-            number: 163,
+            number: 165,
             id: "mantle-extra-extension-helper",
             title: "Extension Helper",
             description: "Add a method with an extension",
             starterCode: """
-                // Challenge 163: Extension Helper
+                // Challenge 165: Extension Helper
                 // Add a helper method to Int.
 
                 // TODO: Extend Int with a method squared() -> Int
@@ -6336,12 +6495,12 @@ print(5.squared())
             tier: .extra
         ),
         Challenge(
-            number: 164,
+            number: 166,
             id: "mantle-extra-access-wrapper",
             title: "Access Wrapper",
             description: "Hide data with access control",
             starterCode: """
-                // Challenge 164: Access Wrapper
+                // Challenge 166: Access Wrapper
                 // Use private storage with a public view.
 
                 struct Vault {
@@ -6378,12 +6537,12 @@ print(vault.masked)
             tier: .extra
         ),
         Challenge(
-            number: 165,
+            number: 167,
             id: "mantle-extra-error-route",
             title: "Error Route",
             description: "Throw and catch an error",
             starterCode: """
-                // Challenge 165: Error Route
+                // Challenge 167: Error Route
                 // Throw and catch a custom error.
 
                 enum ForgeError: Error {
@@ -6416,12 +6575,12 @@ do {
             tier: .extra
         ),
         Challenge(
-            number: 166,
+            number: 168,
             id: "mantle-extra-generic-box",
             title: "Generic Box",
             description: "Store a type in a box",
             starterCode: """
-                // Challenge 166: Generic Box
+                // Challenge 168: Generic Box
                 // Create a generic container.
 
                 // TODO: Define struct Box<T> with value: T
@@ -6445,12 +6604,12 @@ print(box.value)
             tier: .extra
         ),
         Challenge(
-            number: 167,
+            number: 169,
             id: "mantle-extra-comparable-min",
             title: "Comparable Min",
             description: "Use a generic constraint",
             starterCode: """
-                // Challenge 167: Comparable Min
+                // Challenge 169: Comparable Min
                 // Use Comparable constraints.
 
                 // TODO: Write minValue(_:_:) for T: Comparable
@@ -6473,12 +6632,12 @@ print(minValue(3, 5))
             tier: .extra
         ),
         Challenge(
-            number: 168,
+            number: 170,
             id: "mantle-extra-associated-storage",
             title: "Associated Storage",
             description: "Use associated types",
             starterCode: """
-                // Challenge 168: Associated Storage
+                // Challenge 170: Associated Storage
                 // Define a protocol with an associated type.
 
                 protocol Stackable {
@@ -6524,12 +6683,12 @@ print(stack.items.count)
             tier: .extra
         ),
         Challenge(
-            number: 169,
+            number: 171,
             id: "mantle-extra-where-clause",
             title: "Where Clause",
             description: "Constrain an extension",
             starterCode: """
-                // Challenge 169: Where Clause
+                // Challenge 171: Where Clause
                 // Add a constrained extension.
 
                 // TODO: Extend Array where Element: Equatable with allSame() -> Bool
@@ -6555,12 +6714,12 @@ print([1, 1, 2].allSame())
             tier: .extra
         ),
         Challenge(
-            number: 170,
+            number: 172,
             id: "mantle-extra-conditional-conformance",
             title: "Conditional Conformance",
             description: "Add Equatable conformance conditionally",
             starterCode: """
-                // Challenge 170: Conditional Conformance
+                // Challenge 172: Conditional Conformance
                 // Conform a generic type when T is Equatable.
 
                 struct Wrapper<T> {
@@ -6587,12 +6746,12 @@ print(first == second)
             tier: .extra
         ),
         Challenge(
-            number: 171,
+            number: 173,
             id: "mantle-extra-weak-capture",
             title: "Weak Capture",
             description: "Use weak in a closure capture list",
             starterCode: """
-                // Challenge 171: Weak Capture
+                // Challenge 173: Weak Capture
                 // Avoid strong capture cycles.
 
                 class Logger {
@@ -6640,12 +6799,12 @@ printer()
             tier: .extra
         ),
         Challenge(
-            number: 247,
+            number: 249,
             id: "mantle-extra-access-control-nuance",
             title: "Access Control Nuance",
             description: "Use fileprivate, internal, and private(set)",
             starterCode: """
-                // Challenge 247: Access Control Nuance
+                // Challenge 249: Access Control Nuance
                 // Use fileprivate, internal, and private(set).
 
                 struct Vault {
@@ -6680,12 +6839,12 @@ print(vault.count)
             tier: .extra
         ),
         Challenge(
-            number: 248,
+            number: 250,
             id: "mantle-extra-protocol-extension-constraint",
             title: "Protocol Extension Constraint",
             description: "Add a constrained default method",
             starterCode: """
-                // Challenge 248: Protocol Extension Constraint
+                // Challenge 250: Protocol Extension Constraint
                 // Add a constrained default method.
 
                 protocol Taggable {
@@ -6732,11 +6891,11 @@ print(tool.describeTag())
 func makeCrustChallenges() -> [Challenge] {
     let challenges = [
         Challenge(
-            number: 172,
+            number: 174,
             title: "Async/Await Basics",
             description: "Write and await a simple async function",
             starterCode: """
-                // Challenge 172: Async/Await Basics
+                // Challenge 174: Async/Await Basics
                 // Write and await a simple async function.
 
                 import Foundation
@@ -6800,11 +6959,11 @@ runAsync {
             topic: .functions
         ),
         Challenge(
-            number: 173,
+            number: 175,
             title: "Task Basics",
             description: "Run async work in a Task",
             starterCode: """
-                // Challenge 173: Task Basics
+                // Challenge 175: Task Basics
                 // Run async work in a Task.
 
                 import Foundation
@@ -6864,11 +7023,11 @@ runAsync {
             topic: .functions
         ),
         Challenge(
-            number: 174,
+            number: 176,
             title: "Structured Concurrency",
             description: "Sum values using a task group",
             starterCode: """
-                // Challenge 174: Structured Concurrency
+                // Challenge 176: Structured Concurrency
                 // Sum values using a task group.
 
                 import Foundation
@@ -6933,11 +7092,11 @@ runAsync {
             topic: .functions
         ),
         Challenge(
-            number: 175,
+            number: 177,
             title: "Async Sequences",
             description: "Iterate an AsyncStream",
             starterCode: """
-                // Challenge 175: Async Sequences
+                // Challenge 177: Async Sequences
                 // Iterate an AsyncStream of values.
 
                 import Foundation
@@ -7015,11 +7174,11 @@ runAsync {
             topic: .functions
         ),
         Challenge(
-            number: 176,
+            number: 178,
             title: "Cancellation",
             description: "Respect Task cancellation",
             starterCode: """
-                // Challenge 176: Cancellation
+                // Challenge 178: Cancellation
                 // Respect Task cancellation.
 
                 import Foundation
@@ -7087,11 +7246,11 @@ runAsync {
             topic: .functions
         ),
         Challenge(
-            number: 177,
+            number: 179,
             title: "Actor Basics",
             description: "Isolate state with an actor",
             starterCode: """
-                // Challenge 177: Actor Basics
+                // Challenge 179: Actor Basics
                 // Isolate state with an actor.
 
                 import Foundation
@@ -7167,11 +7326,11 @@ runAsync {
             topic: .general
         ),
         Challenge(
-            number: 178,
+            number: 180,
             title: "MainActor",
             description: "Run work on the main actor",
             starterCode: """
-                // Challenge 178: MainActor
+                // Challenge 180: MainActor
                 // Run work on the main actor.
 
                 import Foundation
@@ -7217,11 +7376,11 @@ RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
             topic: .general
         ),
         Challenge(
-            number: 179,
+            number: 181,
             title: "Sendable",
             description: "Mark values as safe to send across tasks",
             starterCode: """
-                // Challenge 179: Sendable
+                // Challenge 181: Sendable
                 // Mark values as safe to send across tasks.
 
                 import Foundation
@@ -7258,11 +7417,11 @@ print("Heat: \\(report.value)")
             topic: .general
         ),
         Challenge(
-            number: 180,
+            number: 182,
             title: "Property Wrapper Usage",
             description: "Use a provided property wrapper",
             starterCode: """
-                // Challenge 180: Property Wrapper Usage
+                // Challenge 182: Property Wrapper Usage
                 // Use a provided property wrapper.
 
                 import Foundation
@@ -7331,11 +7490,11 @@ print(furnace.heat)
             topic: .general
         ),
         Challenge(
-            number: 181,
+            number: 183,
             title: "Custom Property Wrapper",
             description: "Build a wrapper that normalizes input",
             starterCode: """
-                // Challenge 181: Custom Property Wrapper
+                // Challenge 183: Custom Property Wrapper
                 // Build a wrapper that normalizes input.
 
                 import Foundation
@@ -7393,11 +7552,11 @@ print(label.name)
             topic: .general
         ),
         Challenge(
-            number: 182,
+            number: 184,
             title: "Projected Values",
             description: "Use projected values from a wrapper",
             starterCode: """
-                // Challenge 182: Projected Values
+                // Challenge 184: Projected Values
                 // Use projected values from a wrapper.
 
                 import Foundation
@@ -7468,11 +7627,11 @@ print("Updates: \\(furnace.$heat)")
             topic: .general
         ),
         Challenge(
-            number: 183,
+            number: 185,
             title: "Key Path Syntax",
             description: "Read a value using a key path",
             starterCode: """
-                // Challenge 183: Key Path Syntax
+                // Challenge 185: Key Path Syntax
                 // Read a value using a key path.
 
                 import Foundation
@@ -7510,11 +7669,11 @@ print(ore[keyPath: nameKey])
             topic: .general
         ),
         Challenge(
-            number: 184,
+            number: 186,
             title: "Key Path Mapping",
             description: "Map values using key paths",
             starterCode: """
-                // Challenge 184: Key Path Mapping
+                // Challenge 186: Key Path Mapping
                 // Map values using key paths.
 
                 import Foundation
@@ -7551,11 +7710,11 @@ print(names.joined(separator: \",\"))
             topic: .general
         ),
         Challenge(
-            number: 185,
+            number: 187,
             title: "Lazy Collections",
             description: "Defer work with lazy",
             starterCode: """
-                // Challenge 185: Lazy Collections
+                // Challenge 187: Lazy Collections
                 // Defer work with lazy.
 
                 import Foundation
@@ -7585,11 +7744,11 @@ print(Array(doubled))
             topic: .collections
         ),
         Challenge(
-            number: 186,
+            number: 188,
             title: "Custom Sequence",
             description: "Create a sequence that counts down",
             starterCode: """
-                // Challenge 186: Custom Sequence
+                // Challenge 188: Custom Sequence
                 // Create a sequence that counts down.
 
                 import Foundation
@@ -7648,11 +7807,11 @@ for value in countdown {
             topic: .collections
         ),
         Challenge(
-            number: 187,
+            number: 189,
             title: "Custom Iterator",
             description: "Implement next() manually",
             starterCode: """
-                // Challenge 187: Custom Iterator
+                // Challenge 189: Custom Iterator
                 // Implement next() manually.
 
                 import Foundation
@@ -7699,11 +7858,11 @@ print(iterator.next()!)
             topic: .collections
         ),
         Challenge(
-            number: 188,
+            number: 190,
             title: "Sequence vs Collection",
             description: "Materialize a sequence to access count",
             starterCode: """
-                // Challenge 188: Sequence vs Collection
+                // Challenge 190: Sequence vs Collection
                 // Materialize a sequence to access count.
 
                 import Foundation
@@ -7765,11 +7924,11 @@ print("Last: \\(items.last ?? 0)")
             topic: .collections
         ),
         Challenge(
-            number: 189,
+            number: 191,
             title: "Integration Challenge",
             description: "Combine async, actors, and wrappers",
             starterCode: """
-                // Challenge 189: Integration Challenge
+                // Challenge 191: Integration Challenge
                 // Combine async, actors, and wrappers.
                 // Prereqs: async/await, actors, property wrappers.
 
@@ -7877,11 +8036,11 @@ runAsync {
             topic: .general
         ),
         Challenge(
-            number: 190,
+            number: 192,
             title: "Opaque Types",
             description: "Return an opaque type with some",
             starterCode: """
-                // Challenge 190: Opaque Types
+                // Challenge 192: Opaque Types
                 // Return an opaque type with some.
 
                 protocol Metal {
@@ -7925,11 +8084,11 @@ print("Metal: \\(metal.name)")
             topic: .general
         ),
         Challenge(
-            number: 191,
+            number: 193,
             title: "Existentials",
             description: "Store mixed conforming types with any",
             starterCode: """
-                // Challenge 191: Existentials
+                // Challenge 193: Existentials
                 // Store mixed conforming types with any.
 
                 protocol Sensor {
@@ -7973,11 +8132,11 @@ report(sensors)
             topic: .general
         ),
         Challenge(
-            number: 192,
+            number: 194,
             title: "Type Erasure",
             description: "Hide concrete types behind a wrapper",
             starterCode: """
-                // Challenge 192: Type Erasure
+                // Challenge 194: Type Erasure
                 // Hide concrete types behind a wrapper.
 
                 protocol Reader {
@@ -8036,11 +8195,11 @@ print("Sum: \\(total)")
             topic: .general
         ),
         Challenge(
-            number: 193,
+            number: 195,
             title: "Primary Associated Types",
             description: "Use generic protocol syntax",
             starterCode: """
-                // Challenge 193: Primary Associated Types
+                // Challenge 195: Primary Associated Types
                 // Use generic protocol syntax.
 
                 protocol Stack<Element> {
@@ -8078,11 +8237,11 @@ print("Top: \\(stack.items.last ?? 0)")
             topic: .general
         ),
         Challenge(
-            number: 194,
+            number: 196,
             title: "Where Clauses",
             description: "Add extra generic constraints",
             starterCode: """
-                // Challenge 194: Where Clauses
+                // Challenge 196: Where Clauses
                 // Add extra generic constraints.
 
                 // TODO: Write areEqual(_:_:), constrained to Equatable, that returns Bool
@@ -8105,11 +8264,11 @@ print(areEqual(4, 4))
             topic: .general
         ),
         Challenge(
-            number: 195,
+            number: 197,
             title: "Copy-on-Write",
             description: "Observe value semantics in collections",
             starterCode: """
-                // Challenge 195: Copy-on-Write
+                // Challenge 197: Copy-on-Write
                 // Observe value semantics in collections.
 
                 var first = [1, 2]
@@ -8137,11 +8296,11 @@ print(second.count)
             topic: .collections
         ),
         Challenge(
-            number: 196,
+            number: 198,
             title: "MemoryLayout",
             description: "Inspect type sizes",
             starterCode: """
-                // Challenge 196: MemoryLayout
+                // Challenge 198: MemoryLayout
                 // Inspect type sizes.
 
                 // TODO: Print MemoryLayout<UInt8>.size
@@ -8161,11 +8320,11 @@ print(MemoryLayout<Bool>.size)
             topic: .general
         ),
         Challenge(
-            number: 197,
+            number: 199,
             title: "Profiling Mindset",
             description: "Measure before optimizing",
             starterCode: """
-                // Challenge 197: Profiling Mindset
+                // Challenge 199: Profiling Mindset
                 // Measure before optimizing.
                 // Use a fixed elapsed value for deterministic output.
                 //
@@ -8208,11 +8367,11 @@ print(String(format: "Elapsed: %.2f", elapsed))
             topic: .general
         ),
         Challenge(
-            number: 198,
+            number: 200,
             title: "Custom Operators",
             description: "Define a new infix operator",
             starterCode: """
-                // Challenge 198: Custom Operators
+                // Challenge 200: Custom Operators
                 // Define a new infix operator.
 
                 // TODO: Declare infix operator +++ with AdditionPrecedence
@@ -8238,11 +8397,11 @@ print(3 +++ 4)
             topic: .general
         ),
         Challenge(
-            number: 199,
+            number: 201,
             title: "Custom Subscripts",
             description: "Add a subscript with two parameters",
             starterCode: """
-                // Challenge 199: Custom Subscripts
+                // Challenge 201: Custom Subscripts
                 // Add a subscript with two parameters.
 
                 struct Grid {
@@ -8274,11 +8433,11 @@ print(grid[1, 0])
             topic: .general
         ),
         Challenge(
-            number: 200,
+            number: 202,
             title: "dynamicMemberLookup",
             description: "Forward unknown members",
             starterCode: """
-                // Challenge 200: dynamicMemberLookup
+                // Challenge 202: dynamicMemberLookup
                 // Forward unknown members.
 
                 @dynamicMemberLookup
@@ -8314,11 +8473,11 @@ print(settings.level)
             topic: .general
         ),
         Challenge(
-            number: 201,
+            number: 203,
             title: "dynamicCallable",
             description: "Forward calls to a type",
             starterCode: """
-                // Challenge 201: dynamicCallable
+                // Challenge 203: dynamicCallable
                 // Forward calls to a type.
 
                 @dynamicCallable
@@ -8350,11 +8509,11 @@ print(multiply(2, 3, 4))
             topic: .general
         ),
         Challenge(
-            number: 202,
+            number: 204,
             title: "Result Builders (Use)",
             description: "Build values with a result builder",
             starterCode: """
-                // Challenge 202: Result Builders (Use)
+                // Challenge 204: Result Builders (Use)
                 // Build values with a result builder.
 
                 @resultBuilder
@@ -8401,11 +8560,11 @@ print(messages.joined(separator: " "))
             topic: .general
         ),
         Challenge(
-            number: 203,
+            number: 205,
             title: "Macros (Usage)",
             description: "Review how macro usage looks in Swift",
             starterCode: """
-                // Challenge 203: Macros (Usage)
+                // Challenge 205: Macros (Usage)
                 // Macros expand at compile time.
                 //
                 // Expected output: Macro: compile-time code generation
@@ -8426,11 +8585,11 @@ print("Macro: compile-time code generation")
             topic: .general
         ),
         Challenge(
-            number: 204,
+            number: 206,
             title: "SwiftPM Basics",
             description: "Read Package.swift for target types",
             starterCode: """
-                // Challenge 204: SwiftPM Basics
+                // Challenge 206: SwiftPM Basics
                 // Expected output: Targets: forge, forgeTests
 
                 // TODO: Print "Targets: forge, forgeTests"
@@ -8449,11 +8608,11 @@ print("Targets: forge, forgeTests")
             topic: .general
         ),
         Challenge(
-            number: 205,
+            number: 207,
             title: "Dependencies & Imports",
             description: "Identify modules and dependencies",
             starterCode: """
-                // Challenge 205: Dependencies & Imports
+                // Challenge 207: Dependencies & Imports
                 // Expected output: Dependencies: none
 
                 // TODO: Print "Dependencies: none"
@@ -8472,11 +8631,11 @@ print("Dependencies: none")
             topic: .general
         ),
         Challenge(
-            number: 206,
+            number: 208,
             title: "Build Configs & Flags",
             description: "Print the active build configuration",
             starterCode: """
-                // Challenge 206: Build Configs & Flags
+                // Challenge 208: Build Configs & Flags
                 // Print the active build configuration.
                 // Note: Running with `swift` uses release-style flags, so DEBUG is not set.
 
@@ -8500,11 +8659,11 @@ print("Dependencies: none")
             topic: .general
         ),
         Challenge(
-            number: 207,
+            number: 209,
             title: "Integration Challenge",
             description: "Plan a SwiftPM feature module",
             starterCode: """
-                // Challenge 207: Integration Challenge
+                // Challenge 209: Integration Challenge
                 // Prereqs: SwiftPM basics, dependencies, build configs.
                 //
                 // Expected output: Module: AnalyticsKit
@@ -8525,11 +8684,11 @@ print("Module: AnalyticsKit")
             topic: .general
         ),
         Challenge(
-            number: 208,
+            number: 210,
             title: "Macro Authoring (Concepts)",
             description: "Review how macro authoring works",
             starterCode: """
-                // Challenge 208: Macro Authoring (Concepts)
+                // Challenge 210: Macro Authoring (Concepts)
                 // Expected output: Macro author: provides expansion code
 
                 // TODO: Print "Macro author: provides expansion code"
@@ -8547,11 +8706,11 @@ print("Macro author: provides expansion code")
             topic: .general
         ),
         Challenge(
-            number: 209,
+            number: 211,
             title: "Reflection",
             description: "Inspect values with Mirror",
             starterCode: """
-                // Challenge 209: Reflection
+                // Challenge 211: Reflection
                 // Inspect values with Mirror.
 
                 struct ForgeLog {
@@ -8589,11 +8748,11 @@ for child in mirror.children {
             topic: .general
         ),
         Challenge(
-            number: 210,
+            number: 212,
             title: "Witness Tables (Concepts)",
             description: "Understand protocol witness tables",
             starterCode: """
-                // Challenge 210: Witness Tables (Concepts)
+                // Challenge 212: Witness Tables (Concepts)
                 // Expected output: Witness tables map protocol implementations
 
                 // TODO: Print "Witness tables map protocol implementations"
@@ -8611,11 +8770,11 @@ print("Witness tables map protocol implementations")
             topic: .general
         ),
         Challenge(
-            number: 211,
+            number: 213,
             title: "MVVM vs MVC",
             description: "Sketch a simple ViewModel",
             starterCode: """
-                // Challenge 211: MVVM vs MVC
+                // Challenge 213: MVVM vs MVC
                 // Sketch a simple ViewModel.
 
                 struct FurnaceModel {
@@ -8655,11 +8814,11 @@ print("Status: \\(viewModel.status)")
             topic: .general
         ),
         Challenge(
-            number: 212,
+            number: 214,
             title: "Dependency Injection",
             description: "Inject a dependency via protocol",
             starterCode: """
-                // Challenge 212: Dependency Injection
+                // Challenge 214: Dependency Injection
                 // Inject a dependency via protocol.
 
                 protocol Logger {
@@ -8712,11 +8871,11 @@ service.start()
             topic: .general
         ),
         Challenge(
-            number: 213,
+            number: 215,
             title: "Coordinator Pattern",
             description: "Centralize navigation flow",
             starterCode: """
-                // Challenge 213: Coordinator Pattern
+                // Challenge 215: Coordinator Pattern
                 // Centralize navigation flow.
 
                 protocol Coordinator {
@@ -8754,11 +8913,11 @@ coordinator.start()
             topic: .general
         ),
         Challenge(
-            number: 214,
+            number: 216,
             title: "Repository Pattern",
             description: "Separate data access from logic",
             starterCode: """
-                // Challenge 214: Repository Pattern
+                // Challenge 216: Repository Pattern
                 // Separate data access from logic.
 
                 protocol InventoryRepository {
@@ -8808,11 +8967,11 @@ print("Count: \\(service.count())")
             topic: .general
         ),
         Challenge(
-            number: 215,
+            number: 217,
             title: "Protocol Mocking",
             description: "Swap in a mock for testing",
             starterCode: """
-                // Challenge 215: Protocol Mocking
+                // Challenge 217: Protocol Mocking
                 // Swap in a mock for testing.
 
                 protocol Clock {
@@ -8857,11 +9016,11 @@ report(MockClock(value: 5))
             topic: .general
         ),
         Challenge(
-            number: 216,
+            number: 218,
             title: "TDD Cycle (Concepts)",
             description: "Recall red/green/refactor",
             starterCode: """
-                // Challenge 216: TDD Cycle (Concepts)
+                // Challenge 218: TDD Cycle (Concepts)
                 // Expected output: TDD: Red, Green, Refactor
 
                 // TODO: Print "TDD: Red, Green, Refactor"
@@ -8879,11 +9038,11 @@ print("TDD: Red, Green, Refactor")
             topic: .general
         ),
         Challenge(
-            number: 217,
+            number: 219,
             title: "Async Testing (Concepts)",
             description: "Review async XCTest patterns",
             starterCode: """
-                // Challenge 217: Async Testing (Concepts)
+                // Challenge 219: Async Testing (Concepts)
                 // Expected output: Async tests can await in XCTest
 
                 // TODO: Print "Async tests can await in XCTest"
@@ -8901,11 +9060,11 @@ print("Async tests can await in XCTest")
             topic: .general
         ),
         Challenge(
-            number: 218,
+            number: 220,
             title: "UI Testing (Concepts)",
             description: "Recall UI testing focus",
             starterCode: """
-                // Challenge 218: UI Testing (Concepts)
+                // Challenge 220: UI Testing (Concepts)
                 // Expected output: UI tests verify user flows
 
                 // TODO: Print "UI tests verify user flows"
@@ -8923,11 +9082,11 @@ print("UI tests verify user flows")
             topic: .general
         ),
         Challenge(
-            number: 219,
+            number: 221,
             title: "Unsafe Pointers",
             description: "Access memory with an unsafe pointer",
             starterCode: """
-                // Challenge 219: Unsafe Pointers
+                // Challenge 221: Unsafe Pointers
                 // Access memory with an unsafe pointer.
 
                 var value = 42
@@ -8951,11 +9110,11 @@ withUnsafePointer(to: &value) { pointer in
             topic: .general
         ),
         Challenge(
-            number: 220,
+            number: 222,
             title: "C Interop (Concepts)",
             description: "Recall how C interop works",
             starterCode: """
-                // Challenge 220: C Interop (Concepts)
+                // Challenge 222: C Interop (Concepts)
                 // Expected output: C interop uses module maps
 
                 // TODO: Print "C interop uses module maps"
@@ -8973,11 +9132,11 @@ print("C interop uses module maps")
             topic: .general
         ),
         Challenge(
-            number: 221,
+            number: 223,
             title: "Objective-C Interop (Concepts)",
             description: "Recall Obj-C bridging basics",
             starterCode: """
-                // Challenge 221: Objective-C Interop (Concepts)
+                // Challenge 223: Objective-C Interop (Concepts)
                 // Expected output: @objc and bridging headers
 
                 // TODO: Print "@objc and bridging headers"
@@ -8995,11 +9154,11 @@ print("@objc and bridging headers")
             topic: .general
         ),
         Challenge(
-            number: 222,
+            number: 224,
             title: "LLDB Tactics (Concepts)",
             description: "Recall common debugger commands",
             starterCode: """
-                // Challenge 222: LLDB Tactics (Concepts)
+                // Challenge 224: LLDB Tactics (Concepts)
                 // Expected output: LLDB: po, bt
 
                 // TODO: Print "LLDB: po, bt"
@@ -9017,11 +9176,11 @@ print("LLDB: po, bt")
             topic: .general
         ),
         Challenge(
-            number: 223,
+            number: 225,
             title: "Diagnostics",
             description: "Surface errors with context",
             starterCode: """
-                // Challenge 223: Diagnostics
+                // Challenge 225: Diagnostics
                 // Surface errors with context.
 
                 enum ForgeError: Error {
@@ -9070,11 +9229,11 @@ func checkHeat(_ value: Int) throws {
             topic: .general
         ),
         Challenge(
-            number: 224,
+            number: 226,
             title: "Git Workflows (Concepts)",
             description: "Recall basic Git workflow steps",
             starterCode: """
-                // Challenge 224: Git Workflows (Concepts)
+                // Challenge 226: Git Workflows (Concepts)
                 // Expected output: Git: branch, commit, push, PR
 
                 // TODO: Print "Git: branch, commit, push, PR"
@@ -9092,11 +9251,11 @@ print("Git: branch, commit, push, PR")
             topic: .general
         ),
         Challenge(
-            number: 225,
+            number: 227,
             title: "Integration Challenge",
             description: "Combine DI and protocol testing",
             starterCode: """
-                // Challenge 225: Integration Challenge
+                // Challenge 227: Integration Challenge
                 // Combine DI and protocol testing.
                 // Prereqs: protocols, dependency injection, protocol mocking.
 
@@ -9148,12 +9307,12 @@ print("Sum: \\(analyzer.sum())")
             topic: .general
         ),
         Challenge(
-            number: 226,
+            number: 228,
             id: "crust-extra-async-sleep",
             title: "Async Sleep",
             description: "Pause an async task before printing",
             starterCode: """
-                // Challenge 226: Async Sleep
+                // Challenge 228: Async Sleep
                 // Pause an async task before printing.
 
                 import Foundation
@@ -9206,12 +9365,12 @@ runAsync {
             tier: .extra
         ),
         Challenge(
-            number: 227,
+            number: 229,
             id: "crust-extra-actor-balance",
             title: "Actor Balance",
             description: "Update actor state safely",
             starterCode: """
-                // Challenge 227: Actor Balance
+                // Challenge 229: Actor Balance
                 // Update actor state safely.
 
                 import Foundation
@@ -9283,12 +9442,12 @@ runAsync {
             tier: .extra
         ),
         Challenge(
-            number: 228,
+            number: 230,
             id: "crust-extra-sendable-snapshot",
             title: "Sendable Snapshot",
             description: "Move values across tasks safely",
             starterCode: """
-                // Challenge 228: Sendable Snapshot
+                // Challenge 230: Sendable Snapshot
                 // Move values across tasks safely.
 
                 struct Snapshot: Sendable {
@@ -9319,12 +9478,12 @@ print("Count: \\(snapshot.values.count)")
             tier: .extra
         ),
         Challenge(
-            number: 229,
+            number: 231,
             id: "crust-extra-keypath-average",
             title: "KeyPath Average",
             description: "Compute an average using key paths",
             starterCode: """
-                // Challenge 229: KeyPath Average
+                // Challenge 231: KeyPath Average
                 // Compute an average using key paths.
 
                 struct Ore {
@@ -9366,12 +9525,12 @@ print("Average: \\(average)")
             tier: .extra
         ),
         Challenge(
-            number: 230,
+            number: 232,
             id: "crust-extra-lazy-even-sum",
             title: "Lazy Even Sum",
             description: "Filter and sum with lazy",
             starterCode: """
-                // Challenge 230: Lazy Even Sum
+                // Challenge 232: Lazy Even Sum
                 // Filter and sum with lazy.
 
                 let numbers = [1, 2, 3, 4, 5, 6]
@@ -9401,12 +9560,12 @@ print("Total: \\(total)")
             tier: .extra
         ),
         Challenge(
-            number: 231,
+            number: 233,
             id: "crust-extra-generic-max",
             title: "Generic Max",
             description: "Compare values with generics",
             starterCode: """
-                // Challenge 231: Generic Max
+                // Challenge 233: Generic Max
                 // Compare values with generics.
 
                 // TODO: Write maxValue<T: Comparable>(_:_:) -> T
@@ -9430,12 +9589,12 @@ print(maxValue(4, 9))
             tier: .extra
         ),
         Challenge(
-            number: 232,
+            number: 234,
             id: "crust-extra-anysequence",
             title: "AnySequence",
             description: "Erase sequence types",
             starterCode: """
-                // Challenge 232: AnySequence
+                // Challenge 234: AnySequence
                 // Erase sequence types.
 
                 func makeSequence() -> AnySequence<Int> {
@@ -9466,12 +9625,12 @@ print("Count: \\(items.count)")
             tier: .extra
         ),
         Challenge(
-            number: 233,
+            number: 235,
             id: "crust-extra-dynamicmemberlookup-extra",
             title: "dynamicMemberLookup Extra",
             description: "Provide default values",
             starterCode: """
-                // Challenge 233: dynamicMemberLookup Extra
+                // Challenge 235: dynamicMemberLookup Extra
                 // Provide default values.
 
                 @dynamicMemberLookup
@@ -9508,12 +9667,12 @@ print("Missing: \\(defaults.missing)")
             tier: .extra
         ),
         Challenge(
-            number: 234,
+            number: 236,
             id: "crust-extra-dynamiccallable-keywords",
             title: "dynamicCallable Keywords",
             description: "Sum keyword arguments",
             starterCode: """
-                // Challenge 234: dynamicCallable Keywords
+                // Challenge 236: dynamicCallable Keywords
                 // Sum keyword arguments.
 
                 @dynamicCallable
@@ -9546,12 +9705,12 @@ print(adder(a: 1, b: 2, c: 3))
             tier: .extra
         ),
         Challenge(
-            number: 235,
+            number: 237,
             id: "crust-extra-memorylayout-stride",
             title: "MemoryLayout Stride",
             description: "Inspect stride and alignment",
             starterCode: """
-                // Challenge 235: MemoryLayout Stride
+                // Challenge 237: MemoryLayout Stride
                 // Inspect stride and alignment.
 
                 // TODO: Print "Stride: 2" and "Alignment: 2" for UInt16
@@ -9571,12 +9730,12 @@ print("Alignment: \\(MemoryLayout<UInt16>.alignment)")
             tier: .extra
         ),
         Challenge(
-            number: 236,
+            number: 238,
             id: "crust-extra-unsafe-mutation",
             title: "Unsafe Mutation",
             description: "Update through a pointer",
             starterCode: """
-                // Challenge 236: Unsafe Mutation
+                // Challenge 238: Unsafe Mutation
                 // Update through a pointer.
 
                 var value = 5
@@ -9604,12 +9763,12 @@ print(value)
             tier: .extra
         ),
         Challenge(
-            number: 237,
+            number: 239,
             id: "crust-extra-where-filter",
             title: "Where Filter",
             description: "Use a constrained extension",
             starterCode: """
-                // Challenge 237: Where Filter
+                // Challenge 239: Where Filter
                 // Use a constrained extension.
 
                 struct Box<T> {
@@ -9648,12 +9807,12 @@ print(box.isEven())
             tier: .extra
         ),
         Challenge(
-            number: 249,
+            number: 251,
             id: "crust-extra-async-let",
             title: "Async Let",
             description: "Run async calls in parallel",
             starterCode: """
-                // Challenge 249: Async Let
+                // Challenge 251: Async Let
                 // Run async calls in parallel.
 
                 import Foundation
@@ -9723,12 +9882,12 @@ runAsync {
             tier: .extra
         ),
         Challenge(
-            number: 250,
+            number: 252,
             id: "crust-extra-xctest-micro",
             title: "XCTest Micro Example",
             description: "Write a minimal XCTest case (simulated)",
             starterCode: """
-                // Challenge 250: XCTest Micro Example
+                // Challenge 252: XCTest Micro Example
                 // Forge includes a tiny XCTest stub so this compiles as a script.
                 // Expected output: XCTest ready
 
@@ -9772,11 +9931,11 @@ print("XCTest ready")
 func makeBridgeChallenges() -> (coreToMantle: [Challenge], mantleToCrust: [Challenge]) {
     let coreToMantle = [
         Challenge(
-            number: 238,
+            number: 240,
             title: "Bridge: Struct Snapshot",
             description: "Move from loose values to a struct",
             starterCode: """
-                // Challenge 238: Bridge: Struct Snapshot
+                // Challenge 240: Bridge: Struct Snapshot
                 // Move from loose values to a struct.
                 //
                 // TODO: Define a struct Snapshot with metal (String) and heat (Int)
@@ -9802,11 +9961,11 @@ print("\\(snapshot.metal) @ \\(snapshot.heat)")
             layer: .mantle
         ),
         Challenge(
-            number: 239,
+            number: 241,
             title: "Bridge: Struct Method",
             description: "Add behavior to a struct",
             starterCode: """
-                // Challenge 239: Bridge: Struct Method
+                // Challenge 241: Bridge: Struct Method
                 // Add behavior to a struct.
                 //
                 // TODO: Define a struct ForgeLog with metal (String) and heat (Int)
@@ -9839,11 +9998,11 @@ print(log.label())
 
     let mantleToCrust = [
         Challenge(
-            number: 240,
+            number: 242,
             title: "Bridge: Async Warmup",
             description: "Call a simple async function",
             starterCode: """
-                // Challenge 240: Bridge: Async Warmup
+                // Challenge 242: Bridge: Async Warmup
                 // Call a simple async function.
 
                 import Foundation
@@ -9904,11 +10063,11 @@ runAsync {
             layer: .crust
         ),
         Challenge(
-            number: 241,
+            number: 243,
             title: "Bridge: Task Result",
             description: "Await a Task value",
             starterCode: """
-                // Challenge 241: Bridge: Task Result
+                // Challenge 243: Bridge: Task Result
                 // Await a Task value.
 
                 import Foundation

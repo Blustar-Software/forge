@@ -1,2 +1,1 @@
-general|pass=8
-strings|pass=2
+loops|compile_fail=1,fail=1,pass=1

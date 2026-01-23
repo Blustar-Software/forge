@@ -137,10 +137,12 @@ func resetProgress(workspacePath: String = "workspace", removeAll: Bool = false)
     setupWorkspace(at: "workspace_projects")
     setupWorkspace(at: "workspace_verify")
     setupWorkspace(at: "workspace_review")
+    setupWorkspace(at: "workspace_practice")
     resetWorkspaceContents(at: "workspace_random", removeAll: removeAll)
     resetWorkspaceContents(at: "workspace_projects", removeAll: removeAll)
     resetWorkspaceContents(at: "workspace_verify", removeAll: removeAll)
     resetWorkspaceContents(at: "workspace_review", removeAll: removeAll)
+    resetWorkspaceContents(at: "workspace_practice", removeAll: removeAll)
     
     print("✓ Progress reset! Starting from Challenge 1.\n")
 }
@@ -170,7 +172,8 @@ func loadChallenge(_ challenge: Challenge, workspacePath: String = "workspace") 
 
         \(prereqBlock)
         \(checkMessage)
-        Type 'h' for a hint, 'c' for a cheatsheet, or 's' for the solution.
+        Type 'h' for a hint, 'c' for a cheatsheet, 'l' for a lesson, or 's' for the solution.
+        Viewing the solution may queue practice when adaptive is enabled.
         """)
 }
 
@@ -213,8 +216,21 @@ func adaptiveChallengeStatsFilePath(workspacePath: String = "workspace") -> Stri
     return "\(workspacePath)/.adaptive_challenge_stats"
 }
 
+func pendingPracticeFilePath(workspacePath: String = "workspace") -> String {
+    return "\(workspacePath)/.pending_practice"
+}
+
+struct PendingPractice {
+    let topic: ChallengeTopic
+    let count: Int
+    let challengeId: String
+    let challengeNumber: Int
+    let layer: ChallengeLayer
+}
+
 struct ChallengeStats {
     var pass: Int = 0
+    var passAssisted: Int = 0
     var fail: Int = 0
     var compileFail: Int = 0
     var manualPass: Int = 0
@@ -239,6 +255,55 @@ func parseKeyValues(_ raw: String) -> [String: String] {
         result[parts[0]] = parts[1]
     }
     return result
+}
+
+func loadPendingPractice(workspacePath: String = "workspace") -> PendingPractice? {
+    let path = pendingPracticeFilePath(workspacePath: workspacePath)
+    guard let content = try? String(contentsOfFile: path, encoding: .utf8) else {
+        return nil
+    }
+    let kv = parseKeyValues(content)
+    guard
+        let topicRaw = kv["topic"],
+        let topic = ChallengeTopic(rawValue: topicRaw),
+        let countRaw = kv["count"],
+        let count = Int(countRaw),
+        let challengeId = kv["id"],
+        let numberRaw = kv["number"],
+        let number = Int(numberRaw),
+        let layerRaw = kv["layer"],
+        let layer = ChallengeLayer(rawValue: layerRaw)
+    else {
+        return nil
+    }
+    return PendingPractice(
+        topic: topic,
+        count: count,
+        challengeId: challengeId,
+        challengeNumber: number,
+        layer: layer
+    )
+}
+
+func savePendingPractice(
+    challenge: Challenge,
+    count: Int,
+    workspacePath: String = "workspace"
+) {
+    let path = pendingPracticeFilePath(workspacePath: workspacePath)
+    let content = [
+        "topic=\(challenge.topic.rawValue)",
+        "count=\(count)",
+        "id=\(challenge.displayId)",
+        "number=\(challenge.number)",
+        "layer=\(challenge.layer.rawValue)",
+    ].joined(separator: ",")
+    try? content.write(toFile: path, atomically: true, encoding: .utf8)
+}
+
+func clearPendingPractice(workspacePath: String = "workspace") {
+    let path = pendingPracticeFilePath(workspacePath: workspacePath)
+    try? FileManager.default.removeItem(atPath: path)
 }
 
 func loadAdaptiveStats(workspacePath: String = "workspace") -> [String: [String: Int]] {
@@ -288,6 +353,7 @@ func loadAdaptiveChallengeStats(workspacePath: String = "workspace") -> [String:
         let counts = parseStatCounts(parts[1])
         var entry = ChallengeStats()
         entry.pass = counts["pass", default: 0]
+        entry.passAssisted = counts["pass_assisted", default: 0]
         entry.fail = counts["fail", default: 0]
         entry.compileFail = counts["compile_fail", default: 0]
         entry.manualPass = counts["manual_pass", default: 0]
@@ -306,6 +372,7 @@ func saveAdaptiveChallengeStats(
         let entry = stats[id] ?? ChallengeStats()
         let entries: [String] = [
             "pass=\(entry.pass)",
+            "pass_assisted=\(entry.passAssisted)",
             "fail=\(entry.fail)",
             "compile_fail=\(entry.compileFail)",
             "manual_pass=\(entry.manualPass)",
@@ -340,6 +407,8 @@ func recordAdaptiveChallengeStat(
     switch result {
     case "pass":
         entry.pass += 1
+    case "pass_assisted":
+        entry.passAssisted += 1
     case "fail":
         entry.fail += 1
     case "compile_fail":
@@ -759,7 +828,7 @@ func logConstraintViolation(
     )
 }
 
-func compileAndRun(file: String, arguments: [String] = [], stdin: String? = nil) -> String? {
+func runSwiftProcess(file: String, arguments: [String] = [], stdin: String? = nil) -> (output: String, exitCode: Int32) {
     let process = Process()
     process.executableURL = URL(fileURLWithPath: "/usr/bin/swift")
     let fileURL = URL(fileURLWithPath: file).standardizedFileURL
@@ -785,9 +854,10 @@ func compileAndRun(file: String, arguments: [String] = [], stdin: String? = nil)
         process.waitUntilExit()
 
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let output = String(data: data, encoding: .utf8) ?? ""
+        return (output, process.terminationStatus)
     } catch {
-        return nil
+        return ("", -1)
     }
 }
 
@@ -3029,14 +3099,51 @@ func diagnosticsForMismatch(_ context: DiagnosticContext) -> [String] {
             diagnostics.append("No print(...) calls detected. Add output to match the expected result.")
         }
 
+        let hintText = "\(context.challenge.description) \(context.challenge.starterCode)"
+        let hintTokens = hintText
+            .lowercased()
+            .split { !$0.isLetter }
+            .map(String.init)
+        let loopConcepts: [ConstraintConcept] = [.forInLoop, .whileLoop, .repeatWhileLoop]
+        let requiresLoop = !context.challenge.introduces
+            .filter { loopConcepts.contains($0) }
+            .isEmpty
+            || !context.challenge.requires
+                .filter { loopConcepts.contains($0) }
+                .isEmpty
+        let wantsLoop = hintTokens.contains("loop")
+            || hintTokens.contains("loops")
+            || hintTokens.contains("repeat")
+            || hintTokens.contains("iterate")
+            || hintTokens.contains("times")
+            || hintTokens.contains("while")
+            || hintTokens.contains("for")
+
         if context.challenge.topic == .loops,
+           (requiresLoop || wantsLoop),
            !hasToken(tokens, "for"),
            !hasToken(tokens, "while"),
            !hasToken(tokens, "repeat") {
             diagnostics.append("This task likely needs a loop to produce repeated output.")
         }
 
+        let branchingConcepts: [ConstraintConcept] = [.ifElse, .switchStatement]
+        let requiresBranching = !context.challenge.introduces
+            .filter { branchingConcepts.contains($0) }
+            .isEmpty
+            || !context.challenge.requires
+                .filter { branchingConcepts.contains($0) }
+                .isEmpty
+        let wantsBranching = hintTokens.contains("if")
+            || hintTokens.contains("else")
+            || hintTokens.contains("switch")
+            || hintTokens.contains("ternary")
+            || hintTokens.contains("conditional")
+            || hintTokens.contains("branch")
+            || hintTokens.contains("branching")
+
         if context.challenge.topic == .conditionals,
+           (requiresBranching || wantsBranching),
            !hasToken(tokens, "if"),
            !hasToken(tokens, "switch"),
            !hasToken(tokens, "?") {
@@ -3071,7 +3178,8 @@ func validateChallenge(
     constraintIndex: ConstraintIndex,
     enableConstraintProfiles: Bool,
     enforceConstraints: Bool = false,
-    enableDiMockHeuristics: Bool = true
+    enableDiMockHeuristics: Bool = true,
+    assistedPass: Bool = false
 ) -> Bool {
     let filePath = "\(workspacePath)/\(challenge.filename)"
     var sourceForDiagnostics: String? = nil
@@ -3084,11 +3192,12 @@ func validateChallenge(
 
     if challenge.manualCheck {
         print("Manual check: forge does not auto-validate this challenge.")
-        recordAdaptiveStat(topic: challenge.topic, result: "manual_pass", workspacePath: workspacePath)
-        recordAdaptiveChallengeStat(challenge: challenge, result: "manual_pass", workspacePath: workspacePath)
+        let result = assistedPass ? "pass_assisted" : "manual_pass"
+        recordAdaptiveStat(topic: challenge.topic, result: result, workspacePath: workspacePath)
+        recordAdaptiveChallengeStat(challenge: challenge, result: result, workspacePath: workspacePath)
         logEvent(
             "challenge_manual_complete",
-            fields: ["id": challenge.displayId],
+            fields: ["id": challenge.displayId, "result": result],
             intFields: ["number": challenge.number],
             workspacePath: workspacePath
         )
@@ -3135,8 +3244,14 @@ func validateChallenge(
 
     let start = Date()
     let (stdin, args) = prepareChallengeEnvironment(challenge, workspacePath: workspacePath)
-    guard let output = compileAndRun(file: filePath, arguments: args, stdin: stdin) else {
-        print("✗ Compilation failed. Check your code.")
+    let runResult = runSwiftProcess(file: filePath, arguments: args, stdin: stdin)
+    if runResult.exitCode != 0 {
+        let errorOutput = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !errorOutput.isEmpty {
+            print(errorOutput)
+            print("")
+        }
+        print("✗ Compile/runtime error. Check your code.")
         recordAdaptiveStat(topic: challenge.topic, result: "compile_fail", workspacePath: workspacePath)
         recordAdaptiveChallengeStat(challenge: challenge, result: "compile_fail", workspacePath: workspacePath)
         logEvent(
@@ -3147,18 +3262,21 @@ func validateChallenge(
         )
         return false
     }
+    let output = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
 
     // Show what the code printed
     print("Output: \(output)\n")
 
     if validateOutputLines(output: output, expected: challenge.expectedOutput) {
-        print("✓ Challenge Complete! Well done.\n")
+        let completionLabel = assistedPass ? "✓ Challenge Complete! (assisted)\n" : "✓ Challenge Complete! Well done.\n"
+        print(completionLabel)
         recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: true, workspacePath: workspacePath)
-        recordAdaptiveStat(topic: challenge.topic, result: "pass", workspacePath: workspacePath)
-        recordAdaptiveChallengeStat(challenge: challenge, result: "pass", workspacePath: workspacePath)
+        let result = assistedPass ? "pass_assisted" : "pass"
+        recordAdaptiveStat(topic: challenge.topic, result: result, workspacePath: workspacePath)
+        recordAdaptiveChallengeStat(challenge: challenge, result: result, workspacePath: workspacePath)
         logEvent(
             "challenge_attempt",
-            fields: ["id": challenge.displayId, "result": "pass"],
+            fields: ["id": challenge.displayId, "result": result],
             intFields: ["number": challenge.number, "seconds": Int(Date().timeIntervalSince(start))],
             workspacePath: workspacePath
         )
@@ -3197,7 +3315,9 @@ func runGateChallenges(
     statsWorkspacePath: String,
     constraintIndex: ConstraintIndex,
     confirmCheckEnabled: Bool,
+    confirmSolutionEnabled: Bool,
     enableConstraintProfiles: Bool,
+    trackAssisted: Bool,
     enforceConstraints: Bool = false,
     enableDiMockHeuristics: Bool = true
 ) -> Bool {
@@ -3205,6 +3325,7 @@ func runGateChallenges(
         loadChallenge(challenge, workspacePath: challengeWorkspacePath)
         var hintIndex = 0
         var challengeComplete = false
+        var solutionViewedBeforePass = false
         var sourceForDiagnostics: String? = nil
         let missingPrereqs = missingPrerequisites(for: challenge, index: constraintIndex)
         let missingPrereqNames = missingPrereqs.map(constraintConceptName).joined(separator: ", ")
@@ -3236,18 +3357,49 @@ func runGateChallenges(
                 continue
             }
 
-            if input == "s" {
-                let solution = challenge.solution.trimmingCharacters(in: .whitespacesAndNewlines)
-                if solution.isEmpty {
-                    print("Solution not available yet.\n")
+            if input == "l" {
+                let lesson = challenge.lesson.trimmingCharacters(in: .whitespacesAndNewlines)
+                if lesson.isEmpty {
+                    print("Lesson not available yet.\n")
                 } else {
-                    print("Solution:\n\(solution)\n")
+                    print("Lesson:\n\(lesson)\n")
                 }
                 continue
             }
 
+                if input == "s" {
+                    let solution = challenge.solution.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if solution.isEmpty {
+                        print("Solution not available yet.\n")
+                    } else {
+                        if trackAssisted {
+                            if !solutionViewedBeforePass {
+                                let prompt = "Viewing the solution now will mark this attempt as assisted."
+                                if !confirmSolutionEnabled || confirmSolutionAccess(prompt: prompt) {
+                                    solutionViewedBeforePass = true
+                                    logSolutionViewed(
+                                        id: challenge.displayId,
+                                        number: challenge.number,
+                                        mode: "stage_review",
+                                        assisted: true,
+                                        workspacePath: statsWorkspacePath
+                                    )
+                                    print("Solution:\n\(solution)\n")
+                                }
+                            } else {
+                                print("Solution:\n\(solution)\n")
+                            }
+                        } else {
+                            if !confirmSolutionEnabled || confirmSolutionAccess(prompt: "View the solution?") {
+                                print("Solution:\n\(solution)\n")
+                            }
+                        }
+                    }
+                    continue
+                }
+
             if !input.isEmpty {
-                print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 's' for solution.\n")
+                print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 'l' for lesson, 's' for solution.\n")
                 continue
             }
 
@@ -3265,10 +3417,11 @@ func runGateChallenges(
                 print("Manual check: forge does not auto-validate this challenge.")
                 print("✓ Challenge marked complete.\n")
                 recordConstraintMastery(topic: challenge.topic, hadWarnings: false, passed: true, workspacePath: statsWorkspacePath)
-                recordAdaptiveStat(topic: challenge.topic, result: "manual_pass", workspacePath: statsWorkspacePath)
+                let result = solutionViewedBeforePass ? "pass_assisted" : "manual_pass"
+                recordAdaptiveStat(topic: challenge.topic, result: result, workspacePath: statsWorkspacePath)
                 logEvent(
                     "challenge_manual_complete",
-                    fields: ["id": challenge.displayId, "mode": "stage_review"],
+                    fields: ["id": challenge.displayId, "mode": "stage_review", "result": result],
                     intFields: ["number": challenge.number],
                     workspacePath: statsWorkspacePath
                 )
@@ -3313,8 +3466,14 @@ func runGateChallenges(
                 }
                 let start = Date()
                 let (stdin, args) = prepareChallengeEnvironment(challenge, workspacePath: challengeWorkspacePath)
-                guard let output = compileAndRun(file: filePath, arguments: args, stdin: stdin) else {
-                    print("✗ Compilation failed. Check your code.")
+                let runResult = runSwiftProcess(file: filePath, arguments: args, stdin: stdin)
+                if runResult.exitCode != 0 {
+                    let errorOutput = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !errorOutput.isEmpty {
+                        print(errorOutput)
+                        print("")
+                    }
+                    print("✗ Compile/runtime error. Check your code.")
                     recordAdaptiveStat(topic: challenge.topic, result: "compile_fail", workspacePath: statsWorkspacePath)
                     logEvent(
                         "challenge_attempt",
@@ -3324,16 +3483,21 @@ func runGateChallenges(
                     )
                     continue
                 }
+                let output = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
 
                 print("Output: \(output)\n")
 
                 if validateOutputLines(output: output, expected: challenge.expectedOutput) {
-                    print("✓ Challenge Complete! Well done.\n")
+                    let completionLabel = solutionViewedBeforePass
+                        ? "✓ Challenge Complete! (assisted)\n"
+                        : "✓ Challenge Complete! Well done.\n"
+                    print(completionLabel)
                     recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: true, workspacePath: statsWorkspacePath)
-                    recordAdaptiveStat(topic: challenge.topic, result: "pass", workspacePath: statsWorkspacePath)
+                    let result = solutionViewedBeforePass ? "pass_assisted" : "pass"
+                    recordAdaptiveStat(topic: challenge.topic, result: result, workspacePath: statsWorkspacePath)
                     logEvent(
                         "challenge_attempt",
-                        fields: ["id": challenge.displayId, "result": "pass", "mode": "stage_review"],
+                        fields: ["id": challenge.displayId, "result": result, "mode": "stage_review"],
                         intFields: ["number": challenge.number, "seconds": Int(Date().timeIntervalSince(start))],
                         workspacePath: statsWorkspacePath
                     )
@@ -3378,6 +3542,7 @@ func runStageGate(
     constraintIndex: ConstraintIndex,
     adaptiveEnabled: Bool,
     confirmCheckEnabled: Bool,
+    confirmSolutionEnabled: Bool,
     enableConstraintProfiles: Bool,
     enforceConstraints: Bool = false,
     enableDiMockHeuristics: Bool = true
@@ -3390,7 +3555,13 @@ func runStageGate(
     let review: [Challenge]
     if adaptiveEnabled {
         let stats = loadAdaptiveStats(workspacePath: progressWorkspacePath)
-        review = pickStageReviewChallengesAdaptive(from: gate.pool, count: gate.count, stats: stats)
+        let challengeStats = loadAdaptiveChallengeStats(workspacePath: progressWorkspacePath)
+        review = pickStageReviewChallengesAdaptive(
+            from: gate.pool,
+            count: gate.count,
+            stats: stats,
+            challengeStats: challengeStats
+        )
     } else {
         review = pickStageReviewChallenges(from: gate.pool, count: gate.count)
     }
@@ -3406,7 +3577,9 @@ func runStageGate(
             statsWorkspacePath: progressWorkspacePath,
             constraintIndex: constraintIndex,
             confirmCheckEnabled: confirmCheckEnabled,
+            confirmSolutionEnabled: confirmSolutionEnabled,
             enableConstraintProfiles: enableConstraintProfiles,
+            trackAssisted: adaptiveEnabled,
             enforceConstraints: enforceConstraints,
             enableDiMockHeuristics: enableDiMockHeuristics
         )
@@ -3453,6 +3626,7 @@ func runSteps(
     adaptiveEnabled: Bool,
     enableConstraintProfiles: Bool,
     confirmCheckEnabled: Bool,
+    confirmSolutionEnabled: Bool,
     enforceConstraints: Bool,
     enableDiMockHeuristics: Bool
 ) {
@@ -3466,6 +3640,53 @@ func runSteps(
     var adaptiveCooldownRemaining = 0
     var currentIndex = startingAt - 1
 
+    if adaptiveEnabled, let pending = loadPendingPractice(workspacePath: "workspace") {
+        let allChallenges = steps.compactMap { step -> Challenge? in
+            if case .challenge(let stepChallenge) = step {
+                return stepChallenge
+            }
+            return nil
+        }
+        let pendingChallenge = allChallenges.first { $0.displayId == pending.challengeId }
+        let fallbackPool = practicePool.filter { candidate in
+            guard candidate.topic == pending.topic else { return false }
+            guard candidate.layer == pending.layer else { return false }
+            guard candidate.number <= pending.challengeNumber else { return false }
+            return candidate.progressId != pending.challengeId
+        }
+        let scopedPool: [Challenge]
+        if let pendingChallenge = pendingChallenge {
+            let scoped = adaptivePracticePool(for: pendingChallenge, from: practicePool)
+            scopedPool = scoped.isEmpty ? fallbackPool : scoped
+        } else {
+            scopedPool = fallbackPool
+        }
+
+        if !scopedPool.isEmpty {
+            let stats = loadAdaptiveStats(workspacePath: "workspace")
+            let challengeStats = loadAdaptiveChallengeStats(workspacePath: "workspace")
+            print("Resuming assisted practice for \(pending.topic.rawValue). Press Enter to start.")
+            _ = readLine()
+            runAdaptiveGate(
+                topic: pending.topic,
+                pool: scopedPool,
+                stats: stats,
+                challengeStats: challengeStats,
+                count: max(1, pending.count),
+                workspacePath: practiceWorkspace,
+                constraintIndex: constraintIndex,
+                confirmCheckEnabled: confirmCheckEnabled,
+                confirmSolutionEnabled: confirmSolutionEnabled,
+                enableConstraintProfiles: enableConstraintProfiles,
+                enforceConstraints: enforceConstraints,
+                enableDiMockHeuristics: enableDiMockHeuristics
+            )
+            clearPendingPractice(workspacePath: "workspace")
+            adaptiveCooldownRemaining = adaptiveCooldownSteps
+            justRanAdaptivePractice = true
+        }
+    }
+
     while currentIndex < steps.count {
         let step = steps[currentIndex]
 
@@ -3474,6 +3695,7 @@ func runSteps(
             loadChallenge(challenge)
             var hintIndex = 0
             var challengeComplete = false
+            var solutionViewedBeforePass = false
             while !challengeComplete {
                 print("> ", terminator: "")
                 let input = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
@@ -3501,18 +3723,49 @@ func runSteps(
                     continue
                 }
 
+                if input == "l" {
+                    let lesson = challenge.lesson.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if lesson.isEmpty {
+                        print("Lesson not available yet.\n")
+                    } else {
+                        print("Lesson:\n\(lesson)\n")
+                    }
+                    continue
+                }
+
                 if input == "s" {
                     let solution = challenge.solution.trimmingCharacters(in: .whitespacesAndNewlines)
                     if solution.isEmpty {
                         print("Solution not available yet.\n")
                     } else {
-                        print("Solution:\n\(solution)\n")
+                        if adaptiveEnabled {
+                            if !solutionViewedBeforePass {
+                                let prompt = "Viewing the solution now will mark this attempt as assisted and queue a short practice set after completion."
+                                if !confirmSolutionEnabled || confirmSolutionAccess(prompt: prompt) {
+                                    solutionViewedBeforePass = true
+                                    logSolutionViewed(
+                                        id: challenge.displayId,
+                                        number: challenge.number,
+                                        mode: "main",
+                                        assisted: true,
+                                        workspacePath: "workspace"
+                                    )
+                                    print("Solution:\n\(solution)\n")
+                                }
+                            } else {
+                                print("Solution:\n\(solution)\n")
+                            }
+                        } else {
+                            if !confirmSolutionEnabled || confirmSolutionAccess(prompt: "View the solution?") {
+                                print("Solution:\n\(solution)\n")
+                            }
+                        }
                     }
                     continue
                 }
 
                 if !input.isEmpty {
-                    print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 's' for solution.\n")
+                    print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 'l' for lesson, 's' for solution.\n")
                     continue
                 }
 
@@ -3533,9 +3786,55 @@ func runSteps(
                     constraintIndex: constraintIndex,
                     enableConstraintProfiles: enableConstraintProfiles,
                     enforceConstraints: enforceConstraints,
-                    enableDiMockHeuristics: enableDiMockHeuristics
+                    enableDiMockHeuristics: enableDiMockHeuristics,
+                    assistedPass: solutionViewedBeforePass
                 )
                 if didPass {
+                    if solutionViewedBeforePass, adaptiveEnabled {
+                        if pendingAdaptiveTopic == challenge.topic {
+                            pendingAdaptiveTopic = nil
+                            pendingAdaptivePool = []
+                        }
+                        let practiceCount = max(1, min(2, adaptiveCount))
+                        let scopedPool = adaptivePracticePool(for: challenge, from: practicePool)
+                        let eligiblePool = steps.prefix(currentIndex + 1).compactMap { step -> Challenge? in
+                            if case .challenge(let stepChallenge) = step {
+                                return stepChallenge
+                            }
+                            return nil
+                        }
+                        let pool = scopedPool.isEmpty ? eligiblePool : scopedPool
+                        if !pool.isEmpty {
+                            savePendingPractice(challenge: challenge, count: practiceCount, workspacePath: "workspace")
+                            logPracticeQueued(
+                                challenge: challenge,
+                                mode: "main",
+                                count: practiceCount,
+                                workspacePath: "workspace"
+                            )
+                            let stats = loadAdaptiveStats(workspacePath: "workspace")
+                            let challengeStats = loadAdaptiveChallengeStats(workspacePath: "workspace")
+                            print("Assisted practice for \(challenge.topic.rawValue). Press Enter to start.")
+                            _ = readLine()
+                            runAdaptiveGate(
+                                topic: challenge.topic,
+                                pool: pool,
+                                stats: stats,
+                                challengeStats: challengeStats,
+                                count: practiceCount,
+                                workspacePath: practiceWorkspace,
+                                constraintIndex: constraintIndex,
+                                confirmCheckEnabled: confirmCheckEnabled,
+                                confirmSolutionEnabled: confirmSolutionEnabled,
+                                enableConstraintProfiles: enableConstraintProfiles,
+                                enforceConstraints: enforceConstraints,
+                                enableDiMockHeuristics: enableDiMockHeuristics
+                            )
+                            clearPendingPractice(workspacePath: "workspace")
+                            adaptiveCooldownRemaining = adaptiveCooldownSteps
+                            justRanAdaptivePractice = true
+                        }
+                    }
                     challengeFailureCounts[challenge.displayId] = 0
                     if lastFailedTopic == challenge.topic {
                         lastFailedTopic = nil
@@ -3544,7 +3843,7 @@ func runSteps(
                     if adaptiveCooldownRemaining > 0 {
                         adaptiveCooldownRemaining -= 1
                     }
-                    if adaptiveEnabled, pendingAdaptiveTopic == challenge.topic {
+                    if !solutionViewedBeforePass, adaptiveEnabled, pendingAdaptiveTopic == challenge.topic {
                         let practicePool = pendingAdaptivePool
                         pendingAdaptiveTopic = nil
                         pendingAdaptivePool = []
@@ -3561,6 +3860,7 @@ func runSteps(
                             workspacePath: practiceWorkspace,
                             constraintIndex: constraintIndex,
                             confirmCheckEnabled: confirmCheckEnabled,
+                            confirmSolutionEnabled: confirmSolutionEnabled,
                             enableConstraintProfiles: enableConstraintProfiles,
                             enforceConstraints: enforceConstraints,
                             enableDiMockHeuristics: enableDiMockHeuristics
@@ -3630,7 +3930,12 @@ func runSteps(
                 }
             }
         case .project(let project):
-            if runProject(project, confirmCheckEnabled: confirmCheckEnabled) {
+            if runProject(
+                project,
+                confirmCheckEnabled: confirmCheckEnabled,
+                confirmSolutionEnabled: confirmSolutionEnabled,
+                trackAssisted: adaptiveEnabled
+            ) {
                 currentIndex += 1
                 if currentIndex < steps.count {
                     saveProgress(currentIndex + 1)
@@ -3665,6 +3970,7 @@ func runSteps(
                 constraintIndex: constraintIndex,
                 adaptiveEnabled: adaptiveEnabled,
                 confirmCheckEnabled: confirmCheckEnabled,
+                confirmSolutionEnabled: confirmSolutionEnabled,
                 enableConstraintProfiles: enableConstraintProfiles,
                 enforceConstraints: enforceConstraints,
                 enableDiMockHeuristics: enableDiMockHeuristics
@@ -3709,17 +4015,28 @@ func loadProject(_ project: Project, workspacePath: String = "workspace") -> Str
 
         This project is checked against expected outputs. Build something that works!
         Press Enter to check your work.
-        Type 'h' for a hint, 'c' for a cheatsheet, or 's' for the solution.
+        Type 'h' for a hint, 'c' for a cheatsheet, 'l' for a lesson, or 's' for the solution.
+        Viewing the solution is allowed.
         """)
     return filePath
 }
 
-func validateProject(_ project: Project, workspacePath: String = "workspace") -> Bool {
+func validateProject(
+    _ project: Project,
+    workspacePath: String = "workspace",
+    assistedPass: Bool = false
+) -> Bool {
     let filePath = "\(workspacePath)/\(project.filename)"
 
     let start = Date()
-    guard let output = compileAndRun(file: filePath) else {
-        print("✗ Compilation failed. Check your code.")
+    let runResult = runSwiftProcess(file: filePath)
+    if runResult.exitCode != 0 {
+        let errorOutput = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !errorOutput.isEmpty {
+            print(errorOutput)
+            print("")
+        }
+        print("✗ Compile/runtime error. Check your code.")
         logEvent(
             "project_attempt",
             fields: ["id": project.id, "result": "compile_fail"],
@@ -3728,6 +4045,7 @@ func validateProject(_ project: Project, workspacePath: String = "workspace") ->
         )
         return false
     }
+    let output = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
 
     // Show what the code printed
     print("Output: \(output)\n")
@@ -3765,10 +4083,12 @@ func validateProject(_ project: Project, workspacePath: String = "workspace") ->
     }
     
     if allPassed {
-        print("✓ Project Complete! Excellent work.\n")
+        let completionLabel = assistedPass ? "✓ Project Complete! (assisted)\n" : "✓ Project Complete! Excellent work.\n"
+        print(completionLabel)
+        let result = assistedPass ? "pass_assisted" : "pass"
         logEvent(
             "project_attempt",
-            fields: ["id": project.id, "result": "pass"],
+            fields: ["id": project.id, "result": result],
             intFields: ["seconds": Int(Date().timeIntervalSince(start))],
             workspacePath: workspacePath
         )
@@ -3884,9 +4204,28 @@ func makeSteps(
     return steps
 }
 
+func stageReviewPool(for id: String, challenges: [Challenge]) -> [Challenge] {
+    let curated: [String: [Int]] = [
+        "core1": [5, 8, 9, 10, 12, 13, 14, 15, 16, 18, 19, 20],
+        "core2": [21, 22, 23, 24, 25, 29, 30, 33, 35, 37, 39, 41, 42],
+        "core3": [43, 46, 47, 48, 50, 52, 58, 62, 63, 69, 71, 76, 80],
+        "mantle1": [123, 125, 127, 130, 131, 132, 134],
+        "mantle2": [135, 137, 139, 140, 142, 144],
+        "mantle3": [145, 147, 149, 150, 151, 153],
+        "crust1": [174, 175, 176, 179, 180, 181, 185, 187, 190, 191],
+        "crust2": [192, 193, 194, 195, 196, 197, 198, 199, 200, 209],
+        "crust3": [210, 211, 213, 214, 216, 218, 219, 221, 224, 227]
+    ]
+    guard let numbers = curated[id] else { return challenges }
+    let index = Dictionary(uniqueKeysWithValues: challenges.map { ($0.number, $0) })
+    let pool = numbers.compactMap { index[$0] }
+    return pool.isEmpty ? challenges : pool
+}
+
 func makeStageGate(id: String, title: String, challenges: [Challenge], requiredPasses: Int, count: Int) -> StageGate? {
-    guard !challenges.isEmpty else { return nil }
-    return StageGate(id: id, title: title, pool: challenges, requiredPasses: requiredPasses, count: count)
+    let pool = stageReviewPool(for: id, challenges: challenges)
+    guard !pool.isEmpty else { return nil }
+    return StageGate(id: id, title: title, pool: pool, requiredPasses: requiredPasses, count: count)
 }
 
 func pickStageReviewChallenges(from challenges: [Challenge], count: Int) -> [Challenge] {
@@ -3909,15 +4248,17 @@ func pickStageReviewChallenges(from challenges: [Challenge], count: Int) -> [Cha
 func pickStageReviewChallengesAdaptive(
     from challenges: [Challenge],
     count: Int,
-    stats: [String: [String: Int]]
+    stats: [String: [String: Int]],
+    challengeStats: [String: ChallengeStats]
 ) -> [Challenge] {
     let selectionCount = min(count, challenges.count)
     if selectionCount <= 1 {
         return Array(challenges.prefix(selectionCount))
     }
+    let now = Int(Date().timeIntervalSince1970)
     return weightedRandomSelection(
         from: challenges,
-        weight: { topicScore(for: $0.topic, stats: stats) },
+        weight: { adaptiveChallengeWeight(challenge: $0, topicStats: stats, challengeStats: challengeStats, now: now) },
         count: selectionCount
     )
 }
@@ -3980,6 +4321,7 @@ func runAdaptiveGate(
     workspacePath: String,
     constraintIndex: ConstraintIndex,
     confirmCheckEnabled: Bool,
+    confirmSolutionEnabled: Bool,
     enableConstraintProfiles: Bool,
     enforceConstraints: Bool,
     enableDiMockHeuristics: Bool
@@ -4002,7 +4344,9 @@ func runAdaptiveGate(
         workspacePath: workspacePath,
         constraintIndex: constraintIndex,
         confirmCheckEnabled: confirmCheckEnabled,
+        confirmSolutionEnabled: confirmSolutionEnabled,
         enableConstraintProfiles: enableConstraintProfiles,
+        trackAssisted: true,
         enforceConstraints: enforceConstraints,
         enableDiMockHeuristics: enableDiMockHeuristics,
         completionTitle: "Adaptive practice complete!",
@@ -4036,6 +4380,46 @@ func confirmCheckIfNeeded(_ enabled: Bool) -> Bool {
     return input.isEmpty
 }
 
+func confirmSolutionAccess(prompt: String) -> Bool {
+    print(prompt)
+    print("Press 's' again to confirm, or press Enter to cancel.")
+    let input = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
+    if input == "s" {
+        return true
+    }
+    print("Solution not shown.\n")
+    return false
+}
+
+func logSolutionViewed(
+    id: String,
+    number: Int?,
+    mode: String,
+    assisted: Bool,
+    workspacePath: String
+) {
+    let fields: [String: String] = ["id": id, "mode": mode, "assisted": assisted ? "true" : "false"]
+    var intFields: [String: Int] = [:]
+    if let number = number {
+        intFields["number"] = number
+    }
+    logEvent("solution_viewed", fields: fields, intFields: intFields, workspacePath: workspacePath)
+}
+
+func logPracticeQueued(
+    challenge: Challenge,
+    mode: String,
+    count: Int,
+    workspacePath: String
+) {
+    logEvent(
+        "practice_queued",
+        fields: ["id": challenge.displayId, "mode": mode, "reason": "solution"],
+        intFields: ["number": challenge.number, "count": count],
+        workspacePath: workspacePath
+    )
+}
+
 func printMainUsage() {
     print("""
     Usage:
@@ -4044,6 +4428,8 @@ func printMainUsage() {
     Core commands:
       swift run forge reset [--all] [--start]
       swift run forge stats [--reset]
+      swift run forge remap-progress [target]
+      swift run forge practice [count] [topic] [tier] [layer]
       swift run forge random [count] [topic] [tier] [layer]
       swift run forge project <id>
       swift run forge progress <target>
@@ -4063,6 +4449,7 @@ func printMainUsage() {
       --gate-count <n>
       --allow-early-concepts
       --confirm-check
+      --confirm-solution
       --disable-constraint-profiles
       --disable-di-mock-heuristics
 
@@ -4077,12 +4464,16 @@ func printMainUsage() {
 
     Help:
       swift run forge --help
+      swift run forge remap-progress --help
+      swift run forge practice --help
       swift run forge random --help
       swift run forge project --help
       swift run forge stats --help
       swift run forge report --help
 
     Examples:
+      swift run forge practice 8
+      swift run forge practice optionals
       swift run forge random 8
       swift run forge random adaptive
       swift run forge project --list core
@@ -4091,6 +4482,7 @@ func printMainUsage() {
       swift run forge progress challenge:36
       swift run forge progress project:core2a
       swift run forge progress step:19
+      swift run forge remap-progress challenge:18
       swift run forge verify-solutions crust
       swift run forge verify-solutions core --constraints-only
       swift run forge review-progression 1-80
@@ -4102,7 +4494,11 @@ func printMainUsage() {
       - Stage review uses workspace_review/.
       - Adaptive gating is off by default; enable with --adaptive-on.
       - Adaptive practice is weighted by per-topic performance and per-challenge recency.
+      - Practice mode uses workspace_practice/ and adaptive weighting when stats are available.
+      - Viewing a solution may queue short practice when adaptive is enabled.
+      - Assisted practice resumes after restart if it was interrupted.
       - Use --confirm-check to require a second Enter before running checks.
+      - Use --confirm-solution to require confirmation before showing solutions.
       - Use --disable-constraint-profiles to skip Phase 2 constraint profiles.
       - Constraint profiles can require specific constructs (like functions or collections).
     """)
@@ -4123,6 +4519,29 @@ func printProgressUsage() {
       swift run forge progress project:core1a
       swift run forge progress step:19
       swift run forge progress 20
+    """)
+}
+
+func printRemapProgressUsage() {
+    print("""
+    Usage:
+      swift run forge remap-progress [target]
+
+    Targets:
+      challenge:<number>
+      challenge:<id>
+      project:<id>
+      step:<number>
+
+    Notes:
+      - This helper is intended to translate legacy challenge numbers after renumbering.
+      - If no target is provided, the command will read workspace/.progress.
+      - If workspace/.progress is a plain number, it may be a step index; provide an explicit target to avoid ambiguity.
+
+    Examples:
+      swift run forge remap-progress challenge:18
+      swift run forge remap-progress project:core1a
+      swift run forge remap-progress step:42
     """)
 }
 
@@ -4184,6 +4603,17 @@ func printStatsUsage() {
     """)
 }
 
+func printPracticeUsage() {
+    print("""
+    Usage:
+      swift run forge practice [count] [topic] [tier] [layer]
+      swift run forge practice --help
+
+    Practice mode always uses adaptive weighting when stats are available.
+    Filters match random mode: topics, tiers, layers.
+    """)
+}
+
 func printReportUsage() {
     print("""
     Usage:
@@ -4216,12 +4646,13 @@ func printAdaptiveStats(workspacePath: String = "workspace", statsLimit: Int?) {
         for topic in stats.keys.sorted() {
             let counts = stats[topic, default: [:]]
             let pass = counts["pass", default: 0]
+            let passAssisted = counts["pass_assisted", default: 0]
             let fail = counts["fail", default: 0]
             let compileFail = counts["compile_fail", default: 0]
             let manualPass = counts["manual_pass", default: 0]
             let score = max(1, 1 + (fail + compileFail) - (pass + manualPass))
             topicScores.append((topic, score))
-            print("- \(topic): pass=\(pass), fail=\(fail), compile_fail=\(compileFail), manual_pass=\(manualPass)")
+            print("- \(topic): pass=\(pass), pass_assisted=\(passAssisted), fail=\(fail), compile_fail=\(compileFail), manual_pass=\(manualPass)")
         }
         let weakTopics = topicScores.sorted { $0.score > $1.score }.prefix(3)
         if !weakTopics.isEmpty {
@@ -4251,7 +4682,7 @@ func printAdaptiveStats(workspacePath: String = "workspace", statsLimit: Int?) {
                 let title = titleIndex[item.id] ?? "Unknown"
                 let entry = item.entry
                 let failCount = entry.fail + entry.compileFail
-                print("- \(item.id): \(title) (fail=\(entry.fail), compile_fail=\(entry.compileFail), pass=\(entry.pass), total_fail=\(failCount))")
+                print("- \(item.id): \(title) (fail=\(entry.fail), compile_fail=\(entry.compileFail), pass=\(entry.pass), pass_assisted=\(entry.passAssisted), total_fail=\(failCount))")
             }
         }
     }
@@ -4401,7 +4832,7 @@ func parseRandomArguments(
 func parseGateSettings(
     _ args: [String]
 ) -> (passes: Int, count: Int, remaining: [String]) {
-    var passes = 2
+    var passes = 1
     var count = 3
     var remaining: [String] = []
     var index = 0
@@ -4505,8 +4936,9 @@ func parseAdaptiveSettings(
 
 func parseConfirmSettings(
     _ args: [String]
-) -> (enabled: Bool, remaining: [String]) {
+) -> (enabled: Bool, confirmSolution: Bool, remaining: [String]) {
     var enabled = false
+    var confirmSolution = false
     var remaining: [String] = []
     var index = 0
 
@@ -4517,11 +4949,16 @@ func parseConfirmSettings(
             index += 1
             continue
         }
+        if arg == "--confirm-solution" {
+            confirmSolution = true
+            index += 1
+            continue
+        }
         remaining.append(arg)
         index += 1
     }
 
-    return (enabled, remaining)
+    return (enabled, confirmSolution, remaining)
 }
 
 func parseConstraintSettings(
@@ -4793,7 +5230,9 @@ func runPracticeChallenges(
     workspacePath: String,
     constraintIndex: ConstraintIndex,
     confirmCheckEnabled: Bool,
+    confirmSolutionEnabled: Bool,
     enableConstraintProfiles: Bool,
+    trackAssisted: Bool = false,
     enforceConstraints: Bool = false,
     enableDiMockHeuristics: Bool = true,
     completionTitle: String = "✅ Random set complete!",
@@ -4805,6 +5244,7 @@ func runPracticeChallenges(
         loadChallenge(challenge, workspacePath: workspacePath)
         var hintIndex = 0
         var challengeComplete = false
+        var solutionViewedBeforePass = false
         var sourceForDiagnostics: String? = nil
         let missingPrereqs = missingPrerequisites(for: challenge, index: constraintIndex)
         let missingPrereqNames = missingPrereqs.map(constraintConceptName).joined(separator: ", ")
@@ -4836,18 +5276,49 @@ func runPracticeChallenges(
                 continue
             }
 
+            if input == "l" {
+                let lesson = challenge.lesson.trimmingCharacters(in: .whitespacesAndNewlines)
+                if lesson.isEmpty {
+                    print("Lesson not available yet.\n")
+                } else {
+                    print("Lesson:\n\(lesson)\n")
+                }
+                continue
+            }
+
             if input == "s" {
                 let solution = challenge.solution.trimmingCharacters(in: .whitespacesAndNewlines)
                 if solution.isEmpty {
                     print("Solution not available yet.\n")
                 } else {
-                    print("Solution:\n\(solution)\n")
+                    if trackAssisted {
+                        if !solutionViewedBeforePass {
+                            let prompt = "Viewing the solution now will mark this attempt as assisted."
+                            if !confirmSolutionEnabled || confirmSolutionAccess(prompt: prompt) {
+                                solutionViewedBeforePass = true
+                                logSolutionViewed(
+                                    id: challenge.displayId,
+                                    number: challenge.number,
+                                    mode: "random",
+                                    assisted: true,
+                                    workspacePath: workspacePath
+                                )
+                                print("Solution:\n\(solution)\n")
+                            }
+                        } else {
+                            print("Solution:\n\(solution)\n")
+                        }
+                    } else {
+                        if !confirmSolutionEnabled || confirmSolutionAccess(prompt: "View the solution?") {
+                            print("Solution:\n\(solution)\n")
+                        }
+                    }
                 }
                 continue
             }
 
             if !input.isEmpty {
-                print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 's' for solution.\n")
+                print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 'l' for lesson, 's' for solution.\n")
                 continue
             }
 
@@ -4865,11 +5336,12 @@ func runPracticeChallenges(
                 print("Manual check: forge does not auto-validate this challenge.")
                 print("✓ Challenge marked complete.\n")
                 recordConstraintMastery(topic: challenge.topic, hadWarnings: false, passed: true, workspacePath: workspacePath)
-                recordAdaptiveStat(topic: challenge.topic, result: "manual_pass", workspacePath: workspacePath)
-                recordAdaptiveChallengeStat(challenge: challenge, result: "manual_pass", workspacePath: workspacePath)
+                let result = solutionViewedBeforePass ? "pass_assisted" : "manual_pass"
+                recordAdaptiveStat(topic: challenge.topic, result: result, workspacePath: workspacePath)
+                recordAdaptiveChallengeStat(challenge: challenge, result: result, workspacePath: workspacePath)
                 logEvent(
                     "challenge_manual_complete",
-                    fields: ["id": challenge.displayId, "mode": "random"],
+                    fields: ["id": challenge.displayId, "mode": "random", "result": result],
                     intFields: ["number": challenge.number],
                     workspacePath: workspacePath
                 )
@@ -4915,8 +5387,14 @@ func runPracticeChallenges(
                 }
                 let start = Date()
                 let (stdin, args) = prepareChallengeEnvironment(challenge, workspacePath: workspacePath)
-                guard let output = compileAndRun(file: filePath, arguments: args, stdin: stdin) else {
-                    print("✗ Compilation failed. Check your code.")
+                let runResult = runSwiftProcess(file: filePath, arguments: args, stdin: stdin)
+                if runResult.exitCode != 0 {
+                    let errorOutput = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !errorOutput.isEmpty {
+                        print(errorOutput)
+                        print("")
+                    }
+                    print("✗ Compile/runtime error. Check your code.")
                     recordAdaptiveStat(topic: challenge.topic, result: "compile_fail", workspacePath: workspacePath)
                     recordAdaptiveChallengeStat(challenge: challenge, result: "compile_fail", workspacePath: workspacePath)
                     logEvent(
@@ -4927,17 +5405,22 @@ func runPracticeChallenges(
                     )
                     continue
                 }
+                let output = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
 
                 print("Output: \(output)\n")
 
                 if validateOutputLines(output: output, expected: challenge.expectedOutput) {
-                    print("✓ Challenge Complete! Well done.\n")
+                    let completionLabel = solutionViewedBeforePass
+                        ? "✓ Challenge Complete! (assisted)\n"
+                        : "✓ Challenge Complete! Well done.\n"
+                    print(completionLabel)
                     recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: true, workspacePath: workspacePath)
-                    recordAdaptiveStat(topic: challenge.topic, result: "pass", workspacePath: workspacePath)
-                    recordAdaptiveChallengeStat(challenge: challenge, result: "pass", workspacePath: workspacePath)
+                    let result = solutionViewedBeforePass ? "pass_assisted" : "pass"
+                    recordAdaptiveStat(topic: challenge.topic, result: result, workspacePath: workspacePath)
+                    recordAdaptiveChallengeStat(challenge: challenge, result: result, workspacePath: workspacePath)
                     logEvent(
                         "challenge_attempt",
-                        fields: ["id": challenge.displayId, "result": "pass", "mode": "random"],
+                        fields: ["id": challenge.displayId, "result": result, "mode": "random"],
                         intFields: ["number": challenge.number, "seconds": Int(Date().timeIntervalSince(start))],
                         workspacePath: workspacePath
                     )
@@ -4990,11 +5473,14 @@ func runPracticeChallenges(
 func runProject(
     _ project: Project,
     workspacePath: String = "workspace",
-    confirmCheckEnabled: Bool
+    confirmCheckEnabled: Bool,
+    confirmSolutionEnabled: Bool,
+    trackAssisted: Bool = false
 ) -> Bool {
     _ = loadProject(project, workspacePath: workspacePath)
 
     var hintIndex = 0
+    var solutionViewedBeforePass = false
     while true {
         print("> ", terminator: "")
         let input = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
@@ -5022,18 +5508,49 @@ func runProject(
             continue
         }
 
+        if input == "l" {
+            let lesson = project.lesson.trimmingCharacters(in: .whitespacesAndNewlines)
+            if lesson.isEmpty {
+                print("Lesson not available yet.\n")
+            } else {
+                print("Lesson:\n\(lesson)\n")
+            }
+            continue
+        }
+
         if input == "s" {
             let solution = project.solution.trimmingCharacters(in: .whitespacesAndNewlines)
             if solution.isEmpty {
                 print("Solution not available yet.\n")
             } else {
-                print("Solution:\n\(solution)\n")
+                if trackAssisted {
+                    if !solutionViewedBeforePass {
+                        let prompt = "Viewing the solution now will mark this attempt as assisted."
+                        if !confirmSolutionEnabled || confirmSolutionAccess(prompt: prompt) {
+                            solutionViewedBeforePass = true
+                            logSolutionViewed(
+                                id: project.id,
+                                number: nil,
+                                mode: "project",
+                                assisted: true,
+                                workspacePath: workspacePath
+                            )
+                            print("Solution:\n\(solution)\n")
+                        }
+                    } else {
+                        print("Solution:\n\(solution)\n")
+                    }
+                } else {
+                    if !confirmSolutionEnabled || confirmSolutionAccess(prompt: "View the solution?") {
+                        print("Solution:\n\(solution)\n")
+                    }
+                }
             }
             continue
         }
 
         if !input.isEmpty {
-            print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 's' for solution.\n")
+            print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 'l' for lesson, 's' for solution.\n")
             continue
         }
 
@@ -5043,7 +5560,7 @@ func runProject(
 
         print("\n--- Testing your project... ---\n")
 
-        if validateProject(project, workspacePath: workspacePath) {
+        if validateProject(project, workspacePath: workspacePath, assistedPass: solutionViewedBeforePass) {
             sleep(2)
             return true
         }
@@ -5183,11 +5700,19 @@ func stepIndexForChallenge(
     return challengeStepIndex[challengeNumber] ?? 1
 }
 
+func remapLegacyChallengeNumber(_ number: Int) -> Int {
+    if number >= 14 {
+        return number + 2
+    }
+    return number
+}
+
 @main
 struct Forge {
     static func main() {
         let practiceWorkspace = "workspace_random"
         let projectWorkspace = "workspace_projects"
+        let explicitPracticeWorkspace = "workspace_practice"
         let parsed = parseGateSettings(Array(CommandLine.arguments.dropFirst()))
         let gatePasses = parsed.passes
         let gateCount = parsed.count
@@ -5204,6 +5729,7 @@ struct Forge {
         let adaptiveCooldownSteps = adaptiveParsed.cooldownSteps
         let confirmParsed = parseConfirmSettings(adaptiveParsed.remaining)
         let confirmCheckEnabled = confirmParsed.enabled
+        let confirmSolutionEnabled = confirmParsed.confirmSolution
         let args = confirmParsed.remaining
         if !enforceConstraints {
             print("Note: Early-concept usage will warn only (--allow-early-concepts).\n")
@@ -5227,7 +5753,7 @@ struct Forge {
             guard !args.isEmpty else { return nil }
             let arg = args[0]
             let lowered = arg.lowercased()
-            if ["reset", "random", "project", "progress", "verify-solutions", "verify", "review-progression", "review", "stats", "audit", "report"].contains(lowered) {
+            if ["reset", "practice", "random", "project", "progress", "remap-progress", "verify-solutions", "verify", "review-progression", "review", "stats", "audit", "report"].contains(lowered) {
                 return nil
             }
             if ["help", "-h", "--help"].contains(lowered) {
@@ -5354,6 +5880,55 @@ struct Forge {
                 )
                 return
             }
+            if ["practice"].contains(firstArg) {
+                let practiceArgs = Array(args.dropFirst())
+                if practiceArgs.first?.lowercased() == "help" || practiceArgs.first == "--help" {
+                    printPracticeUsage()
+                    return
+                }
+                setupWorkspace(at: explicitPracticeWorkspace)
+                clearWorkspaceContents(at: explicitPracticeWorkspace)
+                let (count, topic, tier, layer, _) = parseRandomArguments(practiceArgs)
+                var pool = allChallenges
+                if let topic = topic {
+                    pool = pool.filter { $0.topic == topic }
+                }
+                if let tier = tier {
+                    pool = pool.filter { $0.tier == tier }
+                }
+                if let layer = layer {
+                    pool = pool.filter { $0.layer == layer }
+                }
+                if pool.isEmpty {
+                    print("No challenges match those filters.")
+                    return
+                }
+                let selectionCount = min(count, pool.count)
+                let stats = loadAdaptiveStats(workspacePath: "workspace")
+                let challengeStats = loadAdaptiveChallengeStats(workspacePath: "workspace")
+                let selection = pickAdaptivePracticeSet(
+                    from: pool,
+                    stats: stats,
+                    challengeStats: challengeStats,
+                    count: selectionCount
+                )
+                print("Practice mode: \(selection.count) challenge(s).")
+                print("Workspace: \(explicitPracticeWorkspace)\n")
+                runPracticeChallenges(
+                    selection,
+                    workspacePath: explicitPracticeWorkspace,
+                    constraintIndex: constraintIndex,
+                    confirmCheckEnabled: confirmCheckEnabled,
+                    confirmSolutionEnabled: confirmSolutionEnabled,
+                    enableConstraintProfiles: enableConstraintProfiles,
+                    trackAssisted: false,
+                    enforceConstraints: enforceConstraints,
+                    enableDiMockHeuristics: enableDiMockHeuristics,
+                    completionTitle: "✅ Practice set complete!",
+                    finishPrompt: "Press Enter to finish."
+                )
+                return
+            }
             if ["audit"].contains(firstArg) {
                 let auditArgs = Array(args.dropFirst())
                 if auditArgs.first?.lowercased() == "help" || auditArgs.first == "--help" {
@@ -5436,7 +6011,9 @@ struct Forge {
                 workspacePath: practiceWorkspace,
                 constraintIndex: constraintIndex,
                 confirmCheckEnabled: confirmCheckEnabled,
+                confirmSolutionEnabled: confirmSolutionEnabled,
                 enableConstraintProfiles: enableConstraintProfiles,
+                trackAssisted: false,
                 enforceConstraints: enforceConstraints,
                 enableDiMockHeuristics: enableDiMockHeuristics
             )
@@ -5476,7 +6053,9 @@ struct Forge {
                 let completed = runProject(
                     project,
                     workspacePath: projectWorkspace,
-                    confirmCheckEnabled: confirmCheckEnabled
+                    confirmCheckEnabled: confirmCheckEnabled,
+                    confirmSolutionEnabled: confirmSolutionEnabled,
+                    trackAssisted: false
                 )
                 print("Press Enter to finish.\n")
                 _ = readLine()
@@ -5497,7 +6076,9 @@ struct Forge {
             let completed = runProject(
                 project,
                 workspacePath: projectWorkspace,
-                confirmCheckEnabled: confirmCheckEnabled
+                confirmCheckEnabled: confirmCheckEnabled,
+                confirmSolutionEnabled: confirmSolutionEnabled,
+                trackAssisted: false
             )
             print("Press Enter to finish.\n")
             _ = readLine()
@@ -5530,6 +6111,113 @@ struct Forge {
             }.max() ?? 1,
             1
         )
+        if !args.isEmpty && args[0].lowercased() == "remap-progress" {
+            let remapArgs = Array(args.dropFirst())
+            if remapArgs.first?.lowercased() == "help" || remapArgs.first == "--help" || remapArgs.first == "-h" {
+                printRemapProgressUsage()
+                return
+            }
+            let rawToken: String? = remapArgs.first ?? getProgressToken()
+            guard let tokenRaw = rawToken?.trimmingCharacters(in: .whitespacesAndNewlines), !tokenRaw.isEmpty else {
+                print("No progress token found.")
+                printRemapProgressUsage()
+                return
+            }
+            if remapArgs.isEmpty, Int(tokenRaw) != nil {
+                print("Progress file contains a step index. Provide an explicit target to remap (e.g., challenge:18).")
+                printRemapProgressUsage()
+                return
+            }
+
+            let lowered = tokenRaw.lowercased()
+            let startIndex: Int
+            var messagePrefix = ""
+
+            if lowered.hasPrefix("challenge:") {
+                let value = String(tokenRaw.dropFirst("challenge:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
+                if let number = Int(value) {
+                    let remapped = remapLegacyChallengeNumber(number)
+                    if let extraChallenge = allChallengeNumberMap[remapped], extraChallenge.tier == .extra {
+                        print("Challenge \(extraChallenge.progressId) is an extra. Use random/adaptive mode to practice extras.")
+                        return
+                    }
+                    guard let index = challengeIndexMap[remapped] else {
+                        print("Unknown challenge number: \(remapped)")
+                        return
+                    }
+                    startIndex = index
+                    messagePrefix = "Progress remapped from challenge \(number) -> \(remapped)"
+                } else if !value.isEmpty {
+                    let id = value.lowercased()
+                    if let extraChallenge = allChallengeIdMap[id], extraChallenge.tier == .extra {
+                        print("Challenge \(extraChallenge.progressId) is an extra. Use random/adaptive mode to practice extras.")
+                        return
+                    }
+                    guard let index = challengeIdIndexMap[id] else {
+                        print("Unknown challenge id: \(value)")
+                        return
+                    }
+                    startIndex = index
+                    messagePrefix = "Progress set to challenge \(value)"
+                } else {
+                    print("Invalid remap target.")
+                    printRemapProgressUsage()
+                    return
+                }
+            } else if lowered.hasPrefix("project:") {
+                let value = String(tokenRaw.dropFirst("project:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
+                let id = value.lowercased()
+                if let index = projectIndexMap[id] {
+                    startIndex = index
+                    messagePrefix = "Progress set to project \(id)"
+                } else if projects.contains(where: { $0.id.lowercased() == id }) {
+                    print("Project \(id) is not part of the main flow. Use project mode instead.")
+                    return
+                } else {
+                    print("Unknown project id: \(value)")
+                    return
+                }
+            } else if lowered.hasPrefix("step:") {
+                let value = String(tokenRaw.dropFirst("step:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
+                guard let number = Int(value) else {
+                    print("Invalid step number.")
+                    printRemapProgressUsage()
+                    return
+                }
+                startIndex = normalizedStepIndex(number, stepsCount: steps.count)
+                messagePrefix = "Progress set to step \(startIndex)"
+            } else if let number = Int(tokenRaw) {
+                let remapped = remapLegacyChallengeNumber(number)
+                if let extraChallenge = allChallengeNumberMap[remapped], extraChallenge.tier == .extra {
+                    print("Challenge \(extraChallenge.progressId) is an extra. Use random/adaptive mode to practice extras.")
+                    return
+                }
+                guard let index = challengeIndexMap[remapped] else {
+                    print("Unknown challenge number: \(remapped)")
+                    return
+                }
+                startIndex = index
+                messagePrefix = "Progress remapped from challenge \(number) -> \(remapped)"
+            } else if let index = projectIndexMap[lowered] {
+                startIndex = index
+                messagePrefix = "Progress set to project \(lowered)"
+            } else if let extraChallenge = allChallengeIdMap[lowered], extraChallenge.tier == .extra {
+                print("Challenge \(extraChallenge.progressId) is an extra. Use random/adaptive mode to practice extras.")
+                return
+            } else if let index = challengeIdIndexMap[lowered] {
+                startIndex = index
+                messagePrefix = "Progress set to challenge \(lowered)"
+            } else {
+                print("Invalid remap target.")
+                printRemapProgressUsage()
+                return
+            }
+
+            setupWorkspace()
+            saveProgress(startIndex)
+            print("\(messagePrefix) (step \(startIndex): \(stepLabel(for: steps, index: startIndex))).")
+            return
+        }
         if !args.isEmpty && args[0].lowercased() == "progress" {
             let progressArgs = Array(args.dropFirst())
             if progressArgs.isEmpty || ["help", "-h", "--help"].contains(progressArgs[0].lowercased()) {
@@ -5626,6 +6314,9 @@ struct Forge {
 
         clearScreen()
         print("Let's forge something great.\n")
+        if adaptiveEnabled, let pending = loadPendingPractice(workspacePath: "workspace") {
+            print("Pending assisted practice detected for \(pending.topic.rawValue). You'll resume it before continuing.\n")
+        }
 
         if startIndex <= steps.count {
             runSteps(
@@ -5642,6 +6333,7 @@ struct Forge {
                 adaptiveEnabled: adaptiveEnabled,
                 enableConstraintProfiles: enableConstraintProfiles,
                 confirmCheckEnabled: confirmCheckEnabled,
+                confirmSolutionEnabled: confirmSolutionEnabled,
                 enforceConstraints: enforceConstraints,
                 enableDiMockHeuristics: enableDiMockHeuristics
             )

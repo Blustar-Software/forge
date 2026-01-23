@@ -6,16 +6,17 @@ Forge is a beginner-friendly Swift CLI that serves interactive coding challenges
 ```sh
 swift run forge
 ```
-Edit the generated file in `workspace/`, then press Enter to check. Use `h` for a hint, `c` for a cheatsheet, and `s` for a solution.
+Edit the generated file in `workspace/`, then press Enter to check. Use `h` for a hint, `c` for a cheatsheet, `l` for a lesson, and `s` for a solution.
 
 ## How it works
 - Generates a challenge file in `workspace/` and waits for you to press Enter to check.
 - Runs your edited Swift file and compares its output to the expected answer.
 - Tracks progress in `workspace/.progress` so you can resume later.
-- Current curriculum includes Challenges 1–250 in `Sources/forge/Challenges.swift`.
+- Current curriculum includes Challenges 1–254 in `Sources/forge/Challenges.swift`.
 - Each stage ends with a brief stage review (three challenges repeated twice) before its project unlocks.
   - You can tune the review with `--gate-passes <n>` and `--gate-count <n>`.
 - Stage review selection is deterministic by default; enable adaptive weighting with `--adaptive-on`.
+- Stage review challenges are drawn from a curated pool per stage (trivial early items are excluded).
 - Forge blocks early-concept usage by default using heuristic checks; use `--allow-early-concepts` to warn only.
 - Use `--disable-di-mock-heuristics` to ignore DI/mock heuristic checks.
 
@@ -30,13 +31,26 @@ Edit the generated file in `workspace/`, then press Enter to check. Use `h` for 
 ```sh
 swift run forge
 ```
-When prompted, press Enter to check your work. Type `h` for a hint, `c` for a cheatsheet, or `s` for a solution (challenges and projects).
+When prompted, press Enter to check your work. Type `h` for a hint, `c` for a cheatsheet, `l` for a lesson, or `s` for a solution (challenges and projects).
 Use `swift run forge --help` for usage and `swift run forge <command> --help` for subcommands.
+
+Progress helpers:
+- `swift run forge progress <target>` sets `.progress` using a challenge/project/step target.
+- `swift run forge remap-progress <target>` translates legacy challenge numbers after renumbering (e.g., `challenge:18` → `challenge:20`).
+
+## Practice mode
+```sh
+swift run forge practice
+swift run forge practice 8
+swift run forge practice optionals
+```
+Practice mode runs an adaptive‑weighted set (when stats exist) and uses `workspace_practice/`.
 
 ## Flags and options
 Flow control:
-- `--gate-passes <n>`: set the number of stage review passes (default 2).
+- `--gate-passes <n>`: set the number of stage review passes (default 1).
 - `--gate-count <n>`: set the number of challenges per stage review (default 3).
+- `--confirm-solution`: require confirmation before showing a solution.
 
 Constraints:
 - `--allow-early-concepts`: warn instead of block early-concept usage.
@@ -238,13 +252,14 @@ Forge stores the last stage review summary in `workspace/.stage_gate_summary` wi
 
 ## Performance log (Phase 2+ stub)
 Forge appends JSON lines to `workspace/.performance_log` for stage reviews and challenge/project attempts (event name, identifiers, result, elapsed time, timestamp).
+Solution views are logged when accessed before passing, and may queue short practice that resumes after restart if interrupted.
 
 ## Adaptive stats (Phase 2+ stub)
 Forge stores per-topic attempt counts in `workspace/.adaptive_stats` and per-challenge attempts in `workspace/.adaptive_challenge_stats` to support adaptive progression.
 
 Format:
 ```
-topic|pass=0,fail=0,compile_fail=0,manual_pass=0
+topic|pass=0,fail=0,compile_fail=0,manual_pass=0,pass_assisted=0
 ```
 
 Random mode now weights topic selection using these stats (more fails → higher weight), and adaptive random selection uses per-challenge recency + failures.
