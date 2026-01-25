@@ -4908,7 +4908,7 @@ func printRandomUsage() {
     Topics: conditionals, loops, optionals, collections, functions, strings, structs, general
     Tiers: mainline, extra
     Layers: core, mantle, crust
-    Bridge: use 'bridge' to focus on bridge challenges
+    Bridge: use 'bridge' to focus on bridge challenges (otherwise excluded)
     Adaptive: use 'adaptive' to bias toward weaker topics and stale challenges
 
     Examples:
@@ -4968,6 +4968,7 @@ func printPracticeUsage() {
 
     Practice mode always uses adaptive weighting when stats are available.
     Filters match random mode: topics, tiers, layers, bridge.
+    Bridge challenges are excluded unless you include the 'bridge' filter.
     By default, practice is limited to challenges you've already reached in the main flow,
     plus relevant extra challenges for layers you've reached.
     Use --all to practice across the entire curriculum.
@@ -6498,6 +6499,8 @@ struct Forge {
                 var pool = allChallenges
                 if bridgeOnly {
                     pool = pool.filter { $0.displayId.hasPrefix("bridge:") }
+                } else {
+                    pool = pool.filter { !$0.displayId.hasPrefix("bridge:") }
                 }
                 if let range = range {
                     pool = pool.filter { range.contains(layerIndex(for: $0)) }
@@ -6699,6 +6702,8 @@ struct Forge {
             var pool = allChallenges
             if bridgeOnly {
                 pool = pool.filter { $0.displayId.hasPrefix("bridge:") }
+            } else {
+                pool = pool.filter { !$0.displayId.hasPrefix("bridge:") }
             }
 
             if let topic = topic {
