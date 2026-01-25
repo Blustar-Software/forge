@@ -79,11 +79,13 @@ final class ForgeTests: XCTestCase {
             let challengePath = tempDir.appendingPathComponent(".adaptive_challenge_stats")
             let logPath = tempDir.appendingPathComponent(".performance_log")
             let masteryPath = tempDir.appendingPathComponent(".constraint_mastery")
+            let pendingPath = tempDir.appendingPathComponent(".pending_practice")
 
             try "topic,pass=1".write(to: adaptivePath, atomically: true, encoding: .utf8)
             try "1|pass=1,fail=0,last=1".write(to: challengePath, atomically: true, encoding: .utf8)
             try "{\"event\":\"constraint_violation\"}".write(to: logPath, atomically: true, encoding: .utf8)
             try "conditionals|state=block,warn=1,clean=0".write(to: masteryPath, atomically: true, encoding: .utf8)
+            try "topic=loops,count=2,id=5,number=5,layer=core".write(to: pendingPath, atomically: true, encoding: .utf8)
 
             resetAllStats(workspacePath: workspacePath)
 
@@ -91,9 +93,613 @@ final class ForgeTests: XCTestCase {
             XCTAssertFalse(FileManager.default.fileExists(atPath: challengePath.path))
             XCTAssertFalse(FileManager.default.fileExists(atPath: logPath.path))
             XCTAssertFalse(FileManager.default.fileExists(atPath: masteryPath.path))
+            XCTAssertFalse(FileManager.default.fileExists(atPath: pendingPath.path))
         } catch {
             XCTFail("Failed to set up temp workspace: \(error)")
         }
+    }
+
+    func testRemapLegacyChallengeNumber() {
+        XCTAssertEqual(remapLegacyChallengeNumber(1), 1)
+        XCTAssertEqual(remapLegacyChallengeNumber(13), 13)
+        XCTAssertEqual(remapLegacyChallengeNumber(14), 16)
+        XCTAssertEqual(remapLegacyChallengeNumber(100), 102)
+    }
+
+    func testParseProgressInput() {
+        if case .challenge(let value)? = parseProgressInput(["challenge:18"]) {
+            XCTAssertEqual(value, 18)
+        } else {
+            XCTFail("Expected challenge input")
+        }
+
+        if case .project(let value)? = parseProgressInput(["project:core2a"]) {
+            XCTAssertEqual(value, "core2a")
+        } else {
+            XCTFail("Expected project input")
+        }
+
+        if case .step(let value)? = parseProgressInput(["step:42"]) {
+            XCTAssertEqual(value, 42)
+        } else {
+            XCTFail("Expected step input")
+        }
+
+        if case .challenge(let value)? = parseProgressInput(["12"]) {
+            XCTAssertEqual(value, 12)
+        } else {
+            XCTFail("Expected numeric input to be a challenge")
+        }
+    }
+
+    func testParseProgressTarget() {
+        let projects = [
+            Project(
+                id: "core1a",
+                pass: 1,
+                title: "Core 1 Project A",
+                description: "",
+                starterCode: "",
+                testCases: [],
+                completionTitle: "",
+                completionMessage: ""
+            )
+        ]
+
+        switch parseProgressTarget("999", projects: projects) {
+        case .completed:
+            break
+        default:
+            XCTFail("Expected completed token")
+        }
+
+        switch parseProgressTarget("challenge:18", projects: projects) {
+        case .challenge(let number):
+            XCTAssertEqual(number, 18)
+        default:
+            XCTFail("Expected challenge number token")
+        }
+
+        switch parseProgressTarget("challenge:crust-extra-async-sleep", projects: projects) {
+        case .challengeId(let id):
+            XCTAssertEqual(id, "crust-extra-async-sleep")
+        default:
+            XCTFail("Expected challenge id token")
+        }
+
+        switch parseProgressTarget("project:core1a", projects: projects) {
+        case .project(let id):
+            XCTAssertEqual(id, "core1a")
+        default:
+            XCTFail("Expected project token")
+        }
+
+        switch parseProgressTarget("core1a", projects: projects) {
+        case .project(let id):
+            XCTAssertEqual(id, "core1a")
+        default:
+            XCTFail("Expected bare project id to be recognized")
+        }
+    }
+
+    func testStepIndexForChallengeBounds() {
+        let map = [1: 1, 5: 5]
+        XCTAssertEqual(stepIndexForChallenge(0, challengeStepIndex: map, maxChallengeNumber: 5, stepsCount: 10), 1)
+        XCTAssertEqual(stepIndexForChallenge(6, challengeStepIndex: map, maxChallengeNumber: 5, stepsCount: 10), 11)
+        XCTAssertEqual(stepIndexForChallenge(1, challengeStepIndex: map, maxChallengeNumber: 5, stepsCount: 10), 1)
+        XCTAssertEqual(stepIndexForChallenge(3, challengeStepIndex: map, maxChallengeNumber: 5, stepsCount: 10), 1)
+    }
+
+    func testRemapProgressTokenChallengeRemap() {
+        let mainChallenge = Challenge(
+            number: 16,
+            title: "Main",
+            description: "",
+            starterCode: "",
+            expectedOutput: ""
+        )
+        let extraChallenge = Challenge(
+            number: 200,
+            id: "crust-extra-async-sleep",
+            title: "Extra",
+            description: "",
+            starterCode: "",
+            expectedOutput: "",
+            tier: .extra
+        )
+        let challengeIndexMap = [16: 4]
+        let challengeIdIndexMap = ["crust-extra-async-sleep": 9]
+        let allChallengeIdMap = [
+            mainChallenge.progressId.lowercased(): mainChallenge,
+            extraChallenge.progressId.lowercased(): extraChallenge
+        ]
+        let allChallengeNumberMap = [16: mainChallenge, 200: extraChallenge]
+        let projectIndexMap: [String: Int] = [:]
+        let projects: [Project] = []
+
+        let outcome = remapProgressToken(
+            "challenge:14",
+            challengeIndexMap: challengeIndexMap,
+            challengeIdIndexMap: challengeIdIndexMap,
+            allChallengeIdMap: allChallengeIdMap,
+            allChallengeNumberMap: allChallengeNumberMap,
+            projectIndexMap: projectIndexMap,
+            projects: projects,
+            stepsCount: 10
+        )
+
+        switch outcome {
+        case .success(let startIndex, let messagePrefix):
+            XCTAssertEqual(startIndex, 4)
+            XCTAssertEqual(messagePrefix, "Progress remapped from challenge 14 -> 16")
+        default:
+            XCTFail("Expected success outcome")
+        }
+    }
+
+    func testRemapProgressTokenRejectsExtraChallenge() {
+        let extraChallenge = Challenge(
+            number: 200,
+            id: "crust-extra-async-sleep",
+            title: "Extra",
+            description: "",
+            starterCode: "",
+            expectedOutput: "",
+            tier: .extra
+        )
+        let outcome = remapProgressToken(
+            "challenge:crust-extra-async-sleep",
+            challengeIndexMap: [:],
+            challengeIdIndexMap: ["crust-extra-async-sleep": 2],
+            allChallengeIdMap: [extraChallenge.progressId.lowercased(): extraChallenge],
+            allChallengeNumberMap: [200: extraChallenge],
+            projectIndexMap: [:],
+            projects: [],
+            stepsCount: 10
+        )
+
+        switch outcome {
+        case .info(let message):
+            XCTAssertTrue(message.contains("is an extra"))
+        default:
+            XCTFail("Expected info outcome")
+        }
+    }
+
+    func testRemapProgressTokenRejectsExtraProject() {
+        let extraProject = Project(
+            id: "core1b",
+            pass: 1,
+            title: "Extra Project",
+            description: "",
+            starterCode: "",
+            testCases: [],
+            completionTitle: "",
+            completionMessage: "",
+            tier: .extra
+        )
+        let outcome = remapProgressToken(
+            "project:core1b",
+            challengeIndexMap: [:],
+            challengeIdIndexMap: [:],
+            allChallengeIdMap: [:],
+            allChallengeNumberMap: [:],
+            projectIndexMap: [:],
+            projects: [extraProject],
+            stepsCount: 10
+        )
+
+        switch outcome {
+        case .info(let message):
+            XCTAssertTrue(message.contains("not part of the main flow"))
+        default:
+            XCTFail("Expected info outcome")
+        }
+    }
+
+    func testRemapProgressTokenInvalidStep() {
+        let outcome = remapProgressToken(
+            "step:abc",
+            challengeIndexMap: [:],
+            challengeIdIndexMap: [:],
+            allChallengeIdMap: [:],
+            allChallengeNumberMap: [:],
+            projectIndexMap: [:],
+            projects: [],
+            stepsCount: 10
+        )
+
+        switch outcome {
+        case .error(let message, let showUsage):
+            XCTAssertEqual(message, "Invalid step number.")
+            XCTAssertTrue(showUsage)
+        default:
+            XCTFail("Expected error outcome")
+        }
+    }
+
+    func testRemapProgressTokenIntegrationWithSteps() {
+        let challengeOne = Challenge(
+            number: 1,
+            title: "One",
+            description: "",
+            starterCode: "",
+            expectedOutput: ""
+        )
+        let challengeTwo = Challenge(
+            number: 2,
+            title: "Two",
+            description: "",
+            starterCode: "",
+            expectedOutput: ""
+        )
+        let project = Project(
+            id: "core1a",
+            pass: 1,
+            title: "Core 1 Project A",
+            description: "",
+            starterCode: "",
+            testCases: [],
+            completionTitle: "",
+            completionMessage: ""
+        )
+        let gate = StageGate(
+            id: "gate1",
+            title: "Gate 1",
+            pool: [],
+            requiredPasses: 1,
+            count: 1
+        )
+        let steps: [Step] = [
+            .challenge(challengeOne),
+            .project(project),
+            .stageGate(gate),
+            .challenge(challengeTwo)
+        ]
+        let challengeIndexMap = challengeStepIndexMap(for: steps)
+        let challengeIdIndexMap = challengeIdStepIndexMap(for: steps)
+        let projectIndexMap = projectStepIndexMap(for: steps)
+        let allChallengeIdMap = Dictionary(uniqueKeysWithValues: [challengeOne, challengeTwo].map {
+            ($0.progressId.lowercased(), $0)
+        })
+        let allChallengeNumberMap = Dictionary(uniqueKeysWithValues: [challengeOne, challengeTwo].map {
+            ($0.number, $0)
+        })
+
+        let projectOutcome = remapProgressToken(
+            "project:core1a",
+            challengeIndexMap: challengeIndexMap,
+            challengeIdIndexMap: challengeIdIndexMap,
+            allChallengeIdMap: allChallengeIdMap,
+            allChallengeNumberMap: allChallengeNumberMap,
+            projectIndexMap: projectIndexMap,
+            projects: [project],
+            stepsCount: steps.count
+        )
+
+        switch projectOutcome {
+        case .success(let startIndex, _):
+            XCTAssertEqual(startIndex, 2)
+        default:
+            XCTFail("Expected project remap success")
+        }
+
+        let stepOutcome = remapProgressToken(
+            "step:999",
+            challengeIndexMap: challengeIndexMap,
+            challengeIdIndexMap: challengeIdIndexMap,
+            allChallengeIdMap: allChallengeIdMap,
+            allChallengeNumberMap: allChallengeNumberMap,
+            projectIndexMap: projectIndexMap,
+            projects: [project],
+            stepsCount: steps.count
+        )
+
+        switch stepOutcome {
+        case .success(let startIndex, _):
+            XCTAssertEqual(startIndex, steps.count + 1)
+        default:
+            XCTFail("Expected step remap success")
+        }
+
+        let challengeOutcome = remapProgressToken(
+            "challenge:2",
+            challengeIndexMap: challengeIndexMap,
+            challengeIdIndexMap: challengeIdIndexMap,
+            allChallengeIdMap: allChallengeIdMap,
+            allChallengeNumberMap: allChallengeNumberMap,
+            projectIndexMap: projectIndexMap,
+            projects: [project],
+            stepsCount: steps.count
+        )
+
+        switch challengeOutcome {
+        case .success(let startIndex, _):
+            XCTAssertEqual(startIndex, 4)
+        default:
+            XCTFail("Expected challenge remap success")
+        }
+    }
+
+    func testCurriculumIntegrity() {
+        let core1 = makeCore1Challenges()
+        let core2 = makeCore2Challenges()
+        let core3 = makeCore3Challenges()
+        let mantle = makeMantleChallenges()
+        let crust = makeCrustChallenges()
+        let bridge = makeBridgeChallenges()
+        let allChallenges = core1 + core2 + core3 + mantle + crust + bridge.coreToMantle + bridge.mantleToCrust
+
+        let numbers = allChallenges.map { $0.number }
+        XCTAssertEqual(numbers.count, Set(numbers).count, "Duplicate challenge numbers found.")
+
+        let progressIds = allChallenges.map { $0.progressId.lowercased() }
+        XCTAssertEqual(progressIds.count, Set(progressIds).count, "Duplicate challenge progress ids found.")
+
+        let maxNumber = numbers.max() ?? 0
+        let numberSet = Set(numbers)
+        for number in 1...maxNumber {
+            XCTAssertTrue(numberSet.contains(number), "Missing challenge number \(number).")
+        }
+
+        let introIndex = buildConstraintIndex(from: allChallenges)
+        for challenge in allChallenges {
+            for concept in challenge.requires {
+                let introNumber = introductionNumber(for: concept, index: introIndex)
+                XCTAssertNotEqual(introNumber, Int.max, "No introduction found for \(concept).")
+            }
+        }
+    }
+
+    func testParseGateSettingsAndRemaining() {
+        let args = ["--gate-passes", "2", "--gate-count", "5", "random", "adaptive"]
+        let parsed = parseGateSettings(args)
+        XCTAssertEqual(parsed.passes, 2)
+        XCTAssertEqual(parsed.count, 5)
+        XCTAssertEqual(parsed.remaining, ["random", "adaptive"])
+    }
+
+    func testParseConstraintSettingsFlags() {
+        let args = ["--allow-early-concepts", "--disable-constraint-profiles", "--disable-di-mock-heuristics", "extra"]
+        let parsed = parseConstraintSettings(args)
+        XCTAssertFalse(parsed.enforce)
+        XCTAssertFalse(parsed.enableConstraintProfiles)
+        XCTAssertFalse(parsed.enableDiMockHeuristics)
+        XCTAssertEqual(parsed.remaining, ["extra"])
+    }
+
+    func testParseAdaptiveSettingsToggleOrder() {
+        let args = ["--adaptive-on", "--adaptive-threshold", "5"]
+        let parsed = parseAdaptiveSettings(args)
+        XCTAssertTrue(parsed.enabled)
+        XCTAssertEqual(parsed.threshold, 5)
+    }
+
+    func testParseConfirmSettingsAndRemaining() {
+        let args = ["--confirm-check", "random", "--confirm-solution"]
+        let parsed = parseConfirmSettings(args)
+        XCTAssertTrue(parsed.enabled)
+        XCTAssertTrue(parsed.confirmSolution)
+        XCTAssertEqual(parsed.remaining, ["random"])
+    }
+
+    func testEnforceAdaptiveConfirmPolicy() {
+        XCTAssertTrue(enforceAdaptiveConfirmPolicy(adaptiveEnabled: true, confirmSolutionEnabled: false))
+        XCTAssertTrue(enforceAdaptiveConfirmPolicy(adaptiveEnabled: true, confirmSolutionEnabled: true))
+        XCTAssertFalse(enforceAdaptiveConfirmPolicy(adaptiveEnabled: false, confirmSolutionEnabled: false))
+        XCTAssertTrue(enforceAdaptiveConfirmPolicy(adaptiveEnabled: false, confirmSolutionEnabled: true))
+    }
+
+    func testParseRandomArgumentsAdaptiveAndFilters() {
+        let parsed = parseRandomArguments(["10", "adaptive", "loops", "extra", "mantle"])
+        XCTAssertEqual(parsed.count, 10)
+        XCTAssertTrue(parsed.adaptive)
+        XCTAssertEqual(parsed.topic, .loops)
+        XCTAssertEqual(parsed.tier, .extra)
+        XCTAssertEqual(parsed.layer, .mantle)
+    }
+
+    func testParsePracticeArgumentsRangeAndAll() {
+        let parsed = parsePracticeArguments(["core2", "optionals", "--all", "12"])
+        XCTAssertEqual(parsed.count, 12)
+        XCTAssertEqual(parsed.topic, .optionals)
+        XCTAssertEqual(parsed.layer, .core)
+        XCTAssertEqual(parsed.range, 21...42)
+        XCTAssertTrue(parsed.includeAll)
+    }
+
+    func testParseFlagPipelineRemainders() {
+        let args = [
+            "--gate-passes", "2",
+            "--disable-constraint-profiles",
+            "--adaptive-on",
+            "--confirm-check",
+            "random",
+            "adaptive"
+        ]
+        let gateParsed = parseGateSettings(args)
+        let constraintParsed = parseConstraintSettings(gateParsed.remaining)
+        let adaptiveParsed = parseAdaptiveSettings(constraintParsed.remaining)
+        let confirmParsed = parseConfirmSettings(adaptiveParsed.remaining)
+
+        XCTAssertEqual(gateParsed.passes, 2)
+        XCTAssertFalse(constraintParsed.enableConstraintProfiles)
+        XCTAssertTrue(adaptiveParsed.enabled)
+        XCTAssertTrue(confirmParsed.enabled)
+        XCTAssertEqual(confirmParsed.remaining, ["random", "adaptive"])
+    }
+
+    func testParseVerifySettingsAndArguments() {
+        let settings = parseVerifySettings(["--constraints-only", "10-12", "loops", "extra", "mantle"])
+        XCTAssertTrue(settings.constraintsOnly)
+        XCTAssertEqual(settings.remaining, ["10-12", "loops", "extra", "mantle"])
+
+        let parsed = parseVerifyArguments(settings.remaining)
+        XCTAssertEqual(parsed.range, 10...12)
+        XCTAssertEqual(parsed.topic, .loops)
+        XCTAssertEqual(parsed.tier, .extra)
+        XCTAssertEqual(parsed.layer, .mantle)
+    }
+
+    func testParseVerifyArgumentsSingleNumber() {
+        let parsed = parseVerifyArguments(["42"])
+        XCTAssertEqual(parsed.range, 42...42)
+    }
+
+    func testParseStatsSettings() {
+        let parsed = parseStatsSettings(["--reset", "--stats-limit", "5"])
+        XCTAssertTrue(parsed.reset)
+        XCTAssertFalse(parsed.resetAll)
+        XCTAssertEqual(parsed.limit, 5)
+
+        let parsedResetAll = parseStatsSettings(["--reset-all"])
+        XCTAssertTrue(parsedResetAll.resetAll)
+        XCTAssertFalse(parsedResetAll.reset)
+    }
+
+    func testParseProjectListAndRandomArguments() {
+        let listParsed = parseProjectListArguments(["extra", "mantle"])
+        XCTAssertEqual(listParsed.tier, .extra)
+        XCTAssertEqual(listParsed.layer, .mantle)
+
+        let randomParsed = parseProjectRandomArguments(["mainline", "core"])
+        XCTAssertEqual(randomParsed.tier, .mainline)
+        XCTAssertEqual(randomParsed.layer, .core)
+    }
+
+    func testDiagnosticsDetectMissingOutput() {
+        let challenge = Challenge(
+            number: 1,
+            title: "Output",
+            description: "",
+            starterCode: "",
+            expectedOutput: "Hello\n",
+            topic: .general
+        )
+        let context = DiagnosticContext(
+            challenge: challenge,
+            output: "",
+            expected: challenge.expectedOutput,
+            source: nil
+        )
+        let diagnostics = diagnosticsForMismatch(context)
+        XCTAssertTrue(diagnostics.contains { $0.contains("No output detected") })
+    }
+
+    func testDiagnosticsDetectLineCountMismatch() {
+        let challenge = Challenge(
+            number: 1,
+            title: "Lines",
+            description: "",
+            starterCode: "",
+            expectedOutput: "A\nB",
+            topic: .general
+        )
+        let context = DiagnosticContext(
+            challenge: challenge,
+            output: "A",
+            expected: challenge.expectedOutput,
+            source: nil
+        )
+        let diagnostics = diagnosticsForMismatch(context)
+        XCTAssertTrue(diagnostics.contains { $0.contains("Line count differs") })
+    }
+
+    func testDiagnosticsDetectOptionalPrinting() {
+        let challenge = Challenge(
+            number: 1,
+            title: "Optional",
+            description: "",
+            starterCode: "",
+            expectedOutput: "1",
+            topic: .general
+        )
+        let context = DiagnosticContext(
+            challenge: challenge,
+            output: "Optional(1)",
+            expected: challenge.expectedOutput,
+            source: nil
+        )
+        let diagnostics = diagnosticsForMismatch(context)
+        XCTAssertTrue(diagnostics.contains { $0.contains("printing an optional") })
+    }
+
+    func testDiagnosticsDetectMissingPrintCall() {
+        let challenge = Challenge(
+            number: 1,
+            title: "Print",
+            description: "",
+            starterCode: "",
+            expectedOutput: "Hello",
+            topic: .general
+        )
+        let context = DiagnosticContext(
+            challenge: challenge,
+            output: "Hello",
+            expected: challenge.expectedOutput,
+            source: "let value = \"Hello\""
+        )
+        let diagnostics = diagnosticsForMismatch(context)
+        XCTAssertTrue(diagnostics.contains { $0.contains("No print(") })
+    }
+
+    func testDiagnosticsLoopHint() {
+        let challenge = Challenge(
+            number: 1,
+            title: "Loop",
+            description: "Use a loop to print values.",
+            starterCode: "",
+            expectedOutput: "1\n2\n3",
+            introduces: [.forInLoop],
+            topic: .loops
+        )
+        let context = DiagnosticContext(
+            challenge: challenge,
+            output: "1\n2\n3",
+            expected: challenge.expectedOutput,
+            source: "print(1)\nprint(2)\nprint(3)"
+        )
+        let diagnostics = diagnosticsForMismatch(context)
+        XCTAssertTrue(diagnostics.contains { $0.contains("likely needs a loop") })
+    }
+
+    func testDiagnosticsBranchingHint() {
+        let challenge = Challenge(
+            number: 1,
+            title: "Branch",
+            description: "Use a conditional.",
+            starterCode: "",
+            expectedOutput: "Yes",
+            introduces: [.ifElse],
+            topic: .conditionals
+        )
+        let context = DiagnosticContext(
+            challenge: challenge,
+            output: "Yes",
+            expected: challenge.expectedOutput,
+            source: "print(\"Yes\")"
+        )
+        let diagnostics = diagnosticsForMismatch(context)
+        XCTAssertTrue(diagnostics.contains { $0.contains("expects branching") })
+    }
+
+    func testDiagnosticsFunctionCallHint() {
+        let challenge = Challenge(
+            number: 1,
+            title: "Function",
+            description: "",
+            starterCode: "",
+            expectedOutput: "Hi",
+            topic: .functions
+        )
+        let context = DiagnosticContext(
+            challenge: challenge,
+            output: "Hi",
+            expected: challenge.expectedOutput,
+            source: "func greet() { print(\"Hi\") }"
+        )
+        let diagnostics = diagnosticsForMismatch(context)
+        XCTAssertTrue(diagnostics.contains { $0.contains("may not be called") })
     }
 
     func testStatsLimitAppliesToSummaryTable() {

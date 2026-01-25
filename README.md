@@ -43,8 +43,14 @@ Progress helpers:
 swift run forge practice
 swift run forge practice 8
 swift run forge practice optionals
+swift run forge practice core2
+swift run forge practice --all
 ```
 Practice mode runs an adaptive‑weighted set (when stats exist) and uses `workspace_practice/`.
+By default, practice is limited to challenges you've already reached in the main flow, plus
+relevant extra challenges for layers you've reached.
+Use `--all` to practice across the entire curriculum.
+You can also target sublayers with `core1|core2|core3|mantle1|mantle2|mantle3|crust1|crust2|crust3`.
 
 ## Flags and options
 Flow control:
@@ -66,7 +72,6 @@ Adaptive gating:
 - `--adaptive-topic-failures <n>`: require N consecutive failures on the same topic before queueing (default 2).
 - `--adaptive-challenge-failures <n>`: require N failures on the same challenge before queueing (default 2).
 - `--adaptive-cooldown <n>`: cooldown in steps between adaptive queues (default 2).
-- `--adaptive-off`: explicitly disable adaptive gating.
 
 Confirmation:
 - `--confirm-check`: require a second Enter before running checks.
@@ -128,6 +133,9 @@ To clear stats and the performance log, use `swift run forge stats --reset-all`.
 
 ## Constraint smoke checks
 Use `scripts/constraints_check.sh` to run a constraint-only sweep for core, mantle, and crust.
+
+## Testing commands
+- `scripts/check.sh` runs `swift test` and does not touch `workspace/` (no stats/progress reset).
 
 ## Progress shortcuts
 You can set `workspace/.progress` manually to jump ahead.

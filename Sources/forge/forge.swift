@@ -3667,6 +3667,7 @@ func runSteps(
             let challengeStats = loadAdaptiveChallengeStats(workspacePath: "workspace")
             print("Resuming assisted practice for \(pending.topic.rawValue). Press Enter to start.")
             _ = readLine()
+            clearScreen()
             runAdaptiveGate(
                 topic: pending.topic,
                 pool: scopedPool,
@@ -3816,6 +3817,7 @@ func runSteps(
                             let challengeStats = loadAdaptiveChallengeStats(workspacePath: "workspace")
                             print("Assisted practice for \(challenge.topic.rawValue). Press Enter to start.")
                             _ = readLine()
+                            clearScreen()
                             runAdaptiveGate(
                                 topic: challenge.topic,
                                 pool: pool,
@@ -3851,6 +3853,7 @@ func runSteps(
                         let challengeStats = loadAdaptiveChallengeStats(workspacePath: "workspace")
                         print("Adaptive practice for \(challenge.topic.rawValue). Press Enter to start.")
                         _ = readLine()
+                        clearScreen()
                         runAdaptiveGate(
                             topic: challenge.topic,
                             pool: practicePool,
@@ -4433,10 +4436,8 @@ func printMainUsage() {
       swift run forge random [count] [topic] [tier] [layer]
       swift run forge project <id>
       swift run forge progress <target>
-      swift run forge verify-solutions [filters] [--constraints-only]
-      swift run forge review-progression [filters]
-      swift run forge audit [filters]
       swift run forge report
+
 
     Progress shortcuts:
       swift run forge challenge:<number>
@@ -4460,7 +4461,6 @@ func printMainUsage() {
       --adaptive-topic-failures <n>
       --adaptive-challenge-failures <n>
       --adaptive-cooldown <n>
-      --adaptive-off
 
     Help:
       swift run forge --help
@@ -4474,6 +4474,8 @@ func printMainUsage() {
     Examples:
       swift run forge practice 8
       swift run forge practice optionals
+      swift run forge practice core2
+      swift run forge practice --all
       swift run forge random 8
       swift run forge random adaptive
       swift run forge project --list core
@@ -4501,6 +4503,14 @@ func printMainUsage() {
       - Use --confirm-solution to require confirmation before showing solutions.
       - Use --disable-constraint-profiles to skip Phase 2 constraint profiles.
       - Constraint profiles can require specific constructs (like functions or collections).
+
+    Testing commands:
+      swift run forge verify-solutions [filters] [--constraints-only]
+      swift run forge review-progression [filters]
+      swift run forge audit [filters]
+      swift run forge verify-solutions --help
+      swift run forge review-progression --help
+      swift run forge audit --help
     """)
 }
 
@@ -4606,11 +4616,14 @@ func printStatsUsage() {
 func printPracticeUsage() {
     print("""
     Usage:
-      swift run forge practice [count] [topic] [tier] [layer]
+      swift run forge practice [count] [topic] [tier] [layer] [core1|core2|core3|mantle1|mantle2|mantle3|crust1|crust2|crust3] [--all]
       swift run forge practice --help
 
     Practice mode always uses adaptive weighting when stats are available.
     Filters match random mode: topics, tiers, layers.
+    By default, practice is limited to challenges you've already reached in the main flow,
+    plus relevant extra challenges for layers you've reached.
+    Use --all to practice across the entire curriculum.
     """)
 }
 
@@ -4758,6 +4771,7 @@ func resetAllStats(workspacePath: String = "workspace") {
     let challengePath = adaptiveChallengeStatsFilePath(workspacePath: workspacePath)
     try? FileManager.default.removeItem(atPath: challengePath)
     try? FileManager.default.removeItem(atPath: constraintMasteryPath(workspacePath: workspacePath))
+    clearPendingPractice(workspacePath: workspacePath)
     resetPerformanceLog(workspacePath: workspacePath)
     print("✓ Performance log reset.")
 }
@@ -4829,6 +4843,84 @@ func parseRandomArguments(
     return (count, topic, tier, layer, adaptive)
 }
 
+func practiceRangeToken(_ raw: String) -> (layer: ChallengeLayer, range: ClosedRange<Int>)? {
+    switch raw.lowercased() {
+    case "core1":
+        return (.core, 1...20)
+    case "core2":
+        return (.core, 21...42)
+    case "core3":
+        return (.core, 43...80)
+    case "mantle1":
+        return (.mantle, 123...133)
+    case "mantle2":
+        return (.mantle, 134...144)
+    case "mantle3":
+        return (.mantle, 145...155)
+    case "crust1":
+        return (.crust, 174...191)
+    case "crust2":
+        return (.crust, 192...209)
+    case "crust3":
+        return (.crust, 210...227)
+    default:
+        return nil
+    }
+}
+
+func parsePracticeArguments(
+    _ args: [String]
+) -> (
+    count: Int,
+    topic: ChallengeTopic?,
+    tier: ChallengeTier?,
+    layer: ChallengeLayer?,
+    range: ClosedRange<Int>?,
+    includeAll: Bool
+) {
+    var count = 5
+    var topic: ChallengeTopic?
+    var tier: ChallengeTier?
+    var layer: ChallengeLayer?
+    var range: ClosedRange<Int>?
+    var includeAll = false
+
+    for value in args {
+        if let number = Int(value) {
+            count = max(number, 1)
+            continue
+        }
+        let lowered = value.lowercased()
+        if lowered == "help" || lowered == "-h" || lowered == "--help" {
+            continue
+        }
+        if lowered == "--all" {
+            includeAll = true
+            continue
+        }
+        if let sublayer = practiceRangeToken(lowered) {
+            range = sublayer.range
+            if layer == nil {
+                layer = sublayer.layer
+            }
+            continue
+        }
+        if let parsedTopic = ChallengeTopic(rawValue: lowered) {
+            topic = parsedTopic
+            continue
+        }
+        if let parsedTier = ChallengeTier(rawValue: lowered) {
+            tier = parsedTier
+            continue
+        }
+        if let parsedLayer = ChallengeLayer(rawValue: lowered) {
+            layer = parsedLayer
+        }
+    }
+
+    return (count, topic, tier, layer, range, includeAll)
+}
+
 func parseGateSettings(
     _ args: [String]
 ) -> (passes: Int, count: Int, remaining: [String]) {
@@ -4884,11 +4976,6 @@ func parseAdaptiveSettings(
         let arg = args[index]
         if arg == "--adaptive-on" {
             enabled = true
-            index += 1
-            continue
-        }
-        if arg == "--adaptive-off" {
-            enabled = false
             index += 1
             continue
         }
@@ -4961,6 +5048,13 @@ func parseConfirmSettings(
     return (enabled, confirmSolution, remaining)
 }
 
+func enforceAdaptiveConfirmPolicy(adaptiveEnabled: Bool, confirmSolutionEnabled: Bool) -> Bool {
+    if adaptiveEnabled {
+        return true
+    }
+    return confirmSolutionEnabled
+}
+
 func parseConstraintSettings(
     _ args: [String]
 ) -> (enforce: Bool, enableDiMockHeuristics: Bool, enableConstraintProfiles: Bool, remaining: [String]) {
@@ -4972,11 +5066,6 @@ func parseConstraintSettings(
 
     while index < args.count {
         let arg = args[index]
-        if arg == "--enforce-constraints" {
-            enforce = true
-            index += 1
-            continue
-        }
         if arg == "--allow-early-concepts" {
             enforce = false
             index += 1
@@ -5729,7 +5818,10 @@ struct Forge {
         let adaptiveCooldownSteps = adaptiveParsed.cooldownSteps
         let confirmParsed = parseConfirmSettings(adaptiveParsed.remaining)
         let confirmCheckEnabled = confirmParsed.enabled
-        let confirmSolutionEnabled = confirmParsed.confirmSolution
+        let confirmSolutionEnabled = enforceAdaptiveConfirmPolicy(
+            adaptiveEnabled: adaptiveEnabled,
+            confirmSolutionEnabled: confirmParsed.confirmSolution
+        )
         let args = confirmParsed.remaining
         if !enforceConstraints {
             print("Note: Early-concept usage will warn only (--allow-early-concepts).\n")
@@ -5791,6 +5883,7 @@ struct Forge {
                 resetAdaptiveStats()
                 return
             }
+            clearScreen()
             printAdaptiveStats(statsLimit: settings.limit)
             return
         }
@@ -5803,6 +5896,7 @@ struct Forge {
                     return
                 }
             }
+            clearScreen()
             printForgeReport()
             return
         }
@@ -5888,7 +5982,7 @@ struct Forge {
                 }
                 setupWorkspace(at: explicitPracticeWorkspace)
                 clearWorkspaceContents(at: explicitPracticeWorkspace)
-                let (count, topic, tier, layer, _) = parseRandomArguments(practiceArgs)
+                let (count, topic, tier, layer, range, includeAll) = parsePracticeArguments(practiceArgs)
                 var pool = allChallenges
                 if let topic = topic {
                     pool = pool.filter { $0.topic == topic }
@@ -5898,6 +5992,51 @@ struct Forge {
                 }
                 if let layer = layer {
                     pool = pool.filter { $0.layer == layer }
+                }
+                if !includeAll {
+                    let steps = makeSteps(
+                        core1Challenges: core1Challenges,
+                        core2Challenges: core2Challenges,
+                        core3Challenges: core3Challenges,
+                        mantleChallenges: mantleChallenges,
+                        crustChallenges: crustChallenges,
+                        bridgeChallenges: bridgeChallenges,
+                        projects: projects,
+                        gatePasses: gatePasses,
+                        gateCount: gateCount
+                    )
+                    let progressStep = normalizedStepIndex(getCurrentProgress(), stepsCount: steps.count)
+                    let coveredSteps = progressStep > 1 ? steps.prefix(progressStep - 1) : []
+                    let currentStep = (1...steps.count).contains(progressStep) ? steps[progressStep - 1] : nil
+                    let maxCovered = coveredSteps.compactMap { step -> Int? in
+                        if case .challenge(let challenge) = step { return challenge.number }
+                        return nil
+                    }.max() ?? 0
+                    var eligibleExtraLayers: Set<ChallengeLayer> = []
+                    for step in coveredSteps {
+                        if case .challenge(let challenge) = step {
+                            eligibleExtraLayers.insert(challenge.layer)
+                        }
+                    }
+                    if progressStep > 1, let currentStep = currentStep, case .challenge(let challenge) = currentStep {
+                        eligibleExtraLayers.insert(challenge.layer)
+                    }
+                    if progressStep > steps.count {
+                        eligibleExtraLayers = [.core, .mantle, .crust]
+                    }
+                    pool = pool.filter { challenge in
+                        if challenge.tier == .extra {
+                            guard eligibleExtraLayers.contains(challenge.layer) else { return false }
+                            if range != nil {
+                                return challenge.layer == layer
+                            }
+                            return true
+                        }
+                        if let range = range {
+                            return challenge.number <= maxCovered && range.contains(challenge.number)
+                        }
+                        return challenge.number <= maxCovered
+                    }
                 }
                 if pool.isEmpty {
                     print("No challenges match those filters.")
@@ -6313,7 +6452,7 @@ struct Forge {
         }
 
         clearScreen()
-        print("Let's forge something great.\n")
+        print("Heat. Pressure. Repetition.\n")
         if adaptiveEnabled, let pending = loadPendingPractice(workspacePath: "workspace") {
             print("Pending assisted practice detected for \(pending.topic.rawValue). You'll resume it before continuing.\n")
         }

@@ -1,1 +1,7 @@
-loops|compile_fail=1,fail=1,pass=1
+collections|compile_fail=1,fail=2,pass=3,pass_assisted=1
+conditionals|pass=1
+functions|compile_fail=1,fail=1,pass=1
+general|pass=1
+loops|pass=1
+optionals|compile_fail=1,pass=4
+strings|pass=1

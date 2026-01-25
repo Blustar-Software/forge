@@ -297,3 +297,23 @@
 - Crust: add Crust challenge + project layer, then extras; run sequencing, quality, and overall assessments.
 - FTS: apply standards across content/engine and audit for robustness.
 - Extras: consider a full curriculum lesson database for deeper, self-contained learning.
+
+- Tightened constraint detection (macro ignores build directives, network string literals, file IO patterns) and added tests.
+- Added remap-progress helper function, integration coverage, and curriculum integrity tests.
+- Added extensive flag parsing tests and diagnostics tests for common mismatch feedback.
+- Made adaptive mode always require confirmation before showing solutions.
+- `stats --reset-all` now clears pending assisted practice (`.pending_practice`).
+- Added root `Package.resolved` and `.swiftpm/Package.resolved` placeholder (empty pins).
+- Removed unstable GitHub Actions CI workflow; local `scripts/ci.sh` remains for manual runs.
+- Core 2 arrays: Challenge 30 now requires explicit array type annotation.
+- Core 2 sequencing fix: swapped Challenge 34 (Dictionaries) and 35 (Collection Properties), added default-value hint in Challenge 34.
+- Collection Properties hints now acknowledge prior count usage.
+- Ran `scripts/check.sh`; all tests pass (note: resets adaptive stats/performance log/progress).
+- Practice mode now defaults to covered challenges only; use --all to practice across the entire curriculum.
+- Practice mode supports sublayer filters: core1/core2/core3, mantle1/2/3, crust1/2/3.
+- Practice mode help/examples updated and new parsePracticeArguments test added; ran scripts/check.sh (all tests pass).
+- Adaptive/assisted practice now clears screen before starting.
+- Removed redundant flags: --adaptive-off and --enforce-constraints.
+- Updated adaptive settings test to reflect remaining flags.
+- Practice mode now includes extras for reached layers and fixes sublayer ranges for core/mantle/crust practice filters.
+- Documented that scripts/check.sh runs swift test and does not reset workspace stats/progress.

@@ -1880,22 +1880,24 @@ for i in 1..<3 {
         Challenge(
             number: 30,
             title: "Arrays",
-            description: "Create an array of values",
+            description: "Create an array with a type annotation",
             starterCode: """
                 // Challenge 30: Arrays
                 // Create an array before modifying it
 
                 // TODO: Create an array named 'ingots' with values 1, 2, 3
+                // TODO: Use an explicit type annotation for the array
                 // TODO: Print the array
                 """,
             expectedOutput: "[1, 2, 3]",
             hints: [
                 "Array literals use brackets with comma-separated values.",
+                "Annotate the type: let ingots: [Int] = ...",
                 "Printing shows array contents.",
             ],
             cheatsheet: cheatsheetArrays,
             solution: """
-let ingots = [1, 2, 3]
+let ingots: [Int] = [1, 2, 3]
 print(ingots)
 """,
             constraintProfile: core2BaselineProfile,
@@ -2013,10 +2015,38 @@ print("Heavy: \(heavyCount)")
         ),
         Challenge(
             number: 34,
+            title: "Dictionaries",
+            description: "Store key-value pairs",
+            starterCode: """
+                // Challenge 34: Dictionaries
+                // Look up an item count
+
+                let inventory = ["Iron": 3, "Gold": 1]
+
+                // TODO: Read the count for 'Iron' (default to 0 if missing)
+                // Hint: inventory["Iron", default: 0] reads the count with a fallback.
+                // TODO: Print the count
+                """,
+            expectedOutput: "3",
+            hints: [
+                "Use a dictionary subscript with a default value.",
+                "Choose a default that makes sense if the key is missing.",
+            ],
+            cheatsheet: cheatsheetDictionaries,
+            solution: #"""
+let count = inventory["Iron", default: 0]
+print(count)
+"""#,
+            constraintProfile: core2BaselineProfile,
+            topic: .collections,
+
+        ),
+        Challenge(
+            number: 35,
             title: "Collection Properties",
             description: "Use built-in collection properties",
             starterCode: """
-                // Challenge 34: Collection Properties
+                // Challenge 35: Collection Properties
                 // Use properties to reduce manual work
 
                 let ingots = [1, 2, 3, 4]
@@ -2030,6 +2060,7 @@ print("Heavy: \(heavyCount)")
                 """,
             expectedOutput: "4\nfalse\n2\n2\n2",
             hints: [
+                "You've seen count; now apply it to arrays and dictionaries.",
                 "Collections expose properties like count and isEmpty.",
                 "Dictionary keys are a collection too.",
                 "Dictionary values are also a collection.",
@@ -2042,33 +2073,6 @@ print(inventory.count)
 print(inventory.keys.count)
 print(inventory.values.count)
 """,
-            constraintProfile: core2BaselineProfile,
-            topic: .collections,
-
-        ),
-        Challenge(
-            number: 35,
-            title: "Dictionaries",
-            description: "Store key-value pairs",
-            starterCode: """
-                // Challenge 35: Dictionaries
-                // Look up an item count
-
-                let inventory = ["Iron": 3, "Gold": 1]
-
-                // TODO: Read the count for 'Iron' (default to 0 if missing)
-                // TODO: Print the count
-                """,
-            expectedOutput: "3",
-            hints: [
-                "Use a dictionary subscript with a default value.",
-                "Choose a default that makes sense if the key is missing.",
-            ],
-            cheatsheet: cheatsheetDictionaries,
-            solution: #"""
-let count = inventory["Iron", default: 0]
-print(count)
-"""#,
             constraintProfile: core2BaselineProfile,
             topic: .collections,
 
@@ -2111,7 +2115,7 @@ print(unique.count)
                 let report = (min: 1200, max: 1600, average: 1425)
                 let temps = (1200, 1600)
 
-                // TODO: Print the first value using temps.0
+                // TODO: Print the first value of 'temps' using temps.0
                 // TODO: Print the second value using temps.1
 
                 // TODO: Print "Min: 1200" using report.min
@@ -10282,7 +10286,7 @@ func totalIngots(base: Int, batches: Int) -> Int {
                 //
                 // Requirements:
                 // - Function name: analyzeTemperatures
-                // - Takes one [Int] parameter labeled temperatures
+                // - Takes one [Int] parameter labeled 'temperatures'
                 // - Returns a tuple: (min: Int, max: Int, average: Int, overheatCount: Int)
                 // - average should use integer division
                 // - overheatCount should count values >= 1500
@@ -10315,6 +10319,7 @@ func totalIngots(base: Int, batches: Int) -> Int {
             completionTitle: "🏗️ Core 2 Complete!",
             completionMessage: "Control flow and collections are now in your toolkit.",
             hints: [
+                "The parameter should be an array: temperatures: [Int].",
                 "Track min, max, sum, and overheat count as you iterate.",
                 "Use integer division when computing the average.",
                 "Return a tuple with named fields for readability.",

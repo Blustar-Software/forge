@@ -144,3 +144,9 @@
 - Inserted mainline boolean challenges 14–15 (Comparison Flags, Metal Readiness) and renumbered challenges 14+ by +2.
 - Core 1 integration challenges now use a custom integration cheatsheet and no lesson.
 - Stage reviews now pull from curated per-stage pools; default passes reduced to 1.
+
+## 2026-01-24 (Core 2 Arrays & Collections Sequencing)
+- Challenge 30 now requires an explicit array type annotation (e.g., `[Int]`).
+- Swapped Challenge 34 and 35 so Dictionaries are introduced before Collection Properties.
+- Added a default-value hint for dictionary subscripts in Challenge 34.
+- Collection Properties hints now acknowledge prior count usage.
