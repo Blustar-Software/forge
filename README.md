@@ -52,6 +52,7 @@ Practice mode runs an adaptive‑weighted set (when stats exist) and uses `works
 By default, practice is limited to challenges you've already reached in the main flow, plus
 relevant extra challenges for layers you've reached.
 Use `--all` to practice across the entire curriculum.
+Bridge challenges are excluded unless you include `bridge`.
 You can also target sublayers with `core1|core2|core3|mantle1|mantle2|mantle3|crust1|crust2|crust3` or use `bridge` to focus on bridge challenges.
 
 ## Flags and options

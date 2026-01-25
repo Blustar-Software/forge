@@ -3965,7 +3965,17 @@ func runSteps(
     enforceConstraints: Bool,
     enableDiMockHeuristics: Bool
 ) {
-    let filteredPracticePool = practicePool.filter { !$0.displayId.hasPrefix("bridge:") }
+    let practicePoolFiltered = filteredPracticePool(
+        from: practicePool,
+        steps: [],
+        progressStep: 0,
+        topic: nil,
+        tier: nil,
+        layer: nil,
+        range: nil,
+        includeAll: true,
+        bridgeOnly: false
+    )
     var adaptiveGateScores: [ChallengeTopic: Int] = [:]
     var pendingAdaptiveTopic: ChallengeTopic? = nil
     var pendingAdaptivePool: [Challenge] = []
@@ -3985,7 +3995,7 @@ func runSteps(
         }
         let pendingChallenge = allChallenges.first { $0.displayId == pending.challengeId }
         let pendingIndex = pendingChallenge.map { layerIndex(for: $0) } ?? pending.challengeNumber
-        let fallbackPool = filteredPracticePool.filter { candidate in
+        let fallbackPool = practicePoolFiltered.filter { candidate in
             guard candidate.topic == pending.topic else { return false }
             guard candidate.layer == pending.layer else { return false }
             guard layerIndex(for: candidate) <= pendingIndex else { return false }
@@ -3993,7 +4003,7 @@ func runSteps(
         }
         let scopedPool: [Challenge]
         if let pendingChallenge = pendingChallenge {
-            let scoped = adaptivePracticePool(for: pendingChallenge, from: filteredPracticePool)
+            let scoped = adaptivePracticePool(for: pendingChallenge, from: practicePoolFiltered)
             scopedPool = scoped.isEmpty ? fallbackPool : scoped
         } else {
             scopedPool = fallbackPool
@@ -4134,7 +4144,7 @@ func runSteps(
                             pendingAdaptivePool = []
                         }
                         let practiceCount = max(1, min(2, adaptiveCount))
-                        let scopedPool = adaptivePracticePool(for: challenge, from: filteredPracticePool)
+                        let scopedPool = adaptivePracticePool(for: challenge, from: practicePoolFiltered)
                         let eligiblePool = steps.prefix(currentIndex + 1).compactMap { step -> Challenge? in
                             if case .challenge(let stepChallenge) = step {
                                 return stepChallenge
@@ -4260,7 +4270,7 @@ func runSteps(
                                 }
                                 return nil
                             }
-                            let scopedPool = adaptivePracticePool(for: challenge, from: filteredPracticePool)
+                            let scopedPool = adaptivePracticePool(for: challenge, from: practicePoolFiltered)
                             pendingAdaptiveTopic = challenge.topic
                             pendingAdaptivePool = scopedPool.isEmpty ? eligiblePool : scopedPool
                             print("Adaptive practice queued for \(challenge.topic.rawValue) (score \(score)).")
@@ -5288,6 +5298,76 @@ func parsePracticeArguments(
     }
 
     return (count, topic, tier, layer, range, includeAll, bridge)
+}
+
+func filteredPracticePool(
+    from pool: [Challenge],
+    steps: [Step],
+    progressStep: Int,
+    topic: ChallengeTopic?,
+    tier: ChallengeTier?,
+    layer: ChallengeLayer?,
+    range: ClosedRange<Int>?,
+    includeAll: Bool,
+    bridgeOnly: Bool
+) -> [Challenge] {
+    var filtered = pool
+    if bridgeOnly {
+        filtered = filtered.filter { $0.displayId.hasPrefix("bridge:") }
+    } else {
+        filtered = filtered.filter { !$0.displayId.hasPrefix("bridge:") }
+    }
+    if let topic = topic {
+        filtered = filtered.filter { $0.topic == topic }
+    }
+    if let tier = tier {
+        filtered = filtered.filter { $0.tier == tier }
+    }
+    if let layer = layer {
+        filtered = filtered.filter { $0.layer == layer }
+    }
+    guard !includeAll else {
+        return filtered
+    }
+
+    let coveredSteps = progressStep > 1 ? steps.prefix(progressStep - 1) : []
+    let currentStep = (1...steps.count).contains(progressStep) ? steps[progressStep - 1] : nil
+    var maxCoveredByLayer: [ChallengeLayer: Int] = [:]
+    for step in coveredSteps {
+        if case .challenge(let challenge) = step {
+            let index = layerIndex(for: challenge)
+            guard index > 0 else { continue }
+            let currentMax = maxCoveredByLayer[challenge.layer] ?? 0
+            maxCoveredByLayer[challenge.layer] = max(currentMax, index)
+        }
+    }
+    var eligibleExtraLayers: Set<ChallengeLayer> = Set(maxCoveredByLayer.keys)
+    if progressStep > 1, let currentStep = currentStep, case .challenge(let challenge) = currentStep {
+        if layerIndex(for: challenge) > 0 {
+            eligibleExtraLayers.insert(challenge.layer)
+        }
+    }
+    if progressStep > steps.count {
+        eligibleExtraLayers = [.core, .mantle, .crust]
+    }
+
+    return filtered.filter { challenge in
+        let challengeIndex = layerIndex(for: challenge)
+        let maxCovered = maxCoveredByLayer[challenge.layer] ?? 0
+        if challenge.tier == .extra {
+            guard eligibleExtraLayers.contains(challenge.layer) else { return false }
+            let parentIndex = challenge.extraParent ?? challengeIndex
+            guard parentIndex <= maxCovered else { return false }
+            if range != nil {
+                return challenge.layer == layer
+            }
+            return true
+        }
+        if let range = range {
+            return challengeIndex <= maxCovered && range.contains(challengeIndex)
+        }
+        return challengeIndex <= maxCovered
+    }
 }
 
 func parseGateSettings(
@@ -6566,62 +6646,18 @@ struct Forge {
                 setupWorkspace(at: explicitPracticeWorkspace)
                 clearWorkspaceContents(at: explicitPracticeWorkspace)
                 let (count, topic, tier, layer, range, includeAll, bridgeOnly) = parsePracticeArguments(practiceArgs)
-                var pool = allChallenges
-                if bridgeOnly {
-                    pool = pool.filter { $0.displayId.hasPrefix("bridge:") }
-                }
-                if let topic = topic {
-                    pool = pool.filter { $0.topic == topic }
-                }
-                if let tier = tier {
-                    pool = pool.filter { $0.tier == tier }
-                }
-                if let layer = layer {
-                    pool = pool.filter { $0.layer == layer }
-                }
-                if !includeAll {
-                    let progressStep = normalizedStepIndex(getCurrentProgress(), stepsCount: steps.count)
-                    let coveredSteps = progressStep > 1 ? steps.prefix(progressStep - 1) : []
-                    let currentStep = (1...steps.count).contains(progressStep) ? steps[progressStep - 1] : nil
-                    var maxCoveredByLayer: [ChallengeLayer: Int] = [:]
-                    for step in coveredSteps {
-                        if case .challenge(let challenge) = step {
-                            let index = layerIndex(for: challenge)
-                            guard index > 0 else { continue }
-                            let currentMax = maxCoveredByLayer[challenge.layer] ?? 0
-                            maxCoveredByLayer[challenge.layer] = max(currentMax, index)
-                        }
-                    }
-                    var eligibleExtraLayers: Set<ChallengeLayer> = Set(maxCoveredByLayer.keys)
-                    if progressStep > 1, let currentStep = currentStep, case .challenge(let challenge) = currentStep {
-                        if layerIndex(for: challenge) > 0 {
-                            eligibleExtraLayers.insert(challenge.layer)
-                        }
-                    }
-                    if progressStep > steps.count {
-                        eligibleExtraLayers = [.core, .mantle, .crust]
-                    }
-                    pool = pool.filter { challenge in
-                        let challengeIndex = layerIndex(for: challenge)
-                        let maxCovered = maxCoveredByLayer[challenge.layer] ?? 0
-                        if challenge.tier == .extra {
-                            guard eligibleExtraLayers.contains(challenge.layer) else { return false }
-                            let parentIndex = challenge.extraParent ?? challengeIndex
-                            guard parentIndex <= maxCovered else { return false }
-                            if range != nil {
-                                return challenge.layer == layer
-                            }
-                            return true
-                        }
-                        if let range = range {
-                            return challengeIndex <= maxCovered && range.contains(challengeIndex)
-                        }
-                        return challengeIndex <= maxCovered
-                    }
-                }
-                if !bridgeOnly {
-                    pool = pool.filter { !$0.displayId.hasPrefix("bridge:") }
-                }
+                let progressStep = normalizedStepIndex(getCurrentProgress(), stepsCount: steps.count)
+                let pool = filteredPracticePool(
+                    from: allChallenges,
+                    steps: steps,
+                    progressStep: progressStep,
+                    topic: topic,
+                    tier: tier,
+                    layer: layer,
+                    range: range,
+                    includeAll: includeAll,
+                    bridgeOnly: bridgeOnly
+                )
                 if pool.isEmpty {
                     print("No challenges match those filters.")
                     return
@@ -6706,22 +6742,17 @@ struct Forge {
                 return
             }
             let (count, topic, tier, layer, adaptive, bridgeOnly) = parseRandomArguments(randomArgs)
-            var pool = allChallenges
-            if bridgeOnly {
-                pool = pool.filter { $0.displayId.hasPrefix("bridge:") }
-            } else {
-                pool = pool.filter { !$0.displayId.hasPrefix("bridge:") }
-            }
-
-            if let topic = topic {
-                pool = pool.filter { $0.topic == topic }
-            }
-            if let tier = tier {
-                pool = pool.filter { $0.tier == tier }
-            }
-            if let layer = layer {
-                pool = pool.filter { $0.layer == layer }
-            }
+            let pool = filteredPracticePool(
+                from: allChallenges,
+                steps: [],
+                progressStep: 0,
+                topic: topic,
+                tier: tier,
+                layer: layer,
+                range: nil,
+                includeAll: true,
+                bridgeOnly: bridgeOnly
+            )
 
             if pool.isEmpty {
                 print("No challenges match those filters.")
