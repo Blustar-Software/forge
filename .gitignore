@@ -6,3 +6,9 @@ DerivedData/
 .swiftpm/configuration/registries.json
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
 .netrc
+workspace/
+workspace_practice/
+workspace_projects/
+workspace_random/
+workspace_review/
+workspace_verify/
