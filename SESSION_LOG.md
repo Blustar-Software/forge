@@ -317,3 +317,8 @@
 - Updated adaptive settings test to reflect remaining flags.
 - Practice mode now includes extras for reached layers and fixes sublayer ranges for core/mantle/crust practice filters.
 - Documented that scripts/check.sh runs swift test and does not reset workspace stats/progress.
+- Switched to layered canonical challenge IDs (e.g., core:18, core:18.1), updated practice ranges and help text, and added migrations for progress/stats/logs.
+- Bridge challenges now use a dedicated `bridge:<layer>:<n>` namespace and are excluded from covered/practice counts by default (layerIndex=0); added a bridge filter for practice/random/verify/review/audit.
+- Challenge filenames now use canonical IDs (e.g., `challenge-core-18.1.swift`, `challenge-bridge-mantle-1.swift`).
+- Added `report-overrides` command to suggest extra-parent override candidates, with `--threshold` to tune distance sensitivity.
+- Added canonical ID uniqueness test and updated parsing/migration tests for canonical and bridge IDs.

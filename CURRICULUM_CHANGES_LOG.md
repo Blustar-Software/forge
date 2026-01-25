@@ -150,3 +150,9 @@
 - Swapped Challenge 34 and 35 so Dictionaries are introduced before Collection Properties.
 - Added a default-value hint for dictionary subscripts in Challenge 34.
 - Collection Properties hints now acknowledge prior count usage.
+
+## 2026-01-25 (Layered Challenge IDs)
+- Mainline challenges now use layered canonical IDs (e.g., `core:18`, `mantle:7`) while extras use decimal suffixes (e.g., `core:18.1`).
+- Bridge challenges now use their own namespace (`bridge:<layer>:<n>`) and are excluded from covered/practice counts by default.
+- Challenge filenames now use canonical IDs (e.g., `challenge-core-18.1.swift`, `challenge-bridge-mantle-1.swift`).
+- Added migrations for progress, stats, pending practice, and performance logs to the new canonical IDs.
