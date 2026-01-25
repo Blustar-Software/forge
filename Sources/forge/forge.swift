@@ -3965,6 +3965,7 @@ func runSteps(
     enforceConstraints: Bool,
     enableDiMockHeuristics: Bool
 ) {
+    let filteredPracticePool = practicePool.filter { !$0.displayId.hasPrefix("bridge:") }
     var adaptiveGateScores: [ChallengeTopic: Int] = [:]
     var pendingAdaptiveTopic: ChallengeTopic? = nil
     var pendingAdaptivePool: [Challenge] = []
@@ -3984,7 +3985,7 @@ func runSteps(
         }
         let pendingChallenge = allChallenges.first { $0.displayId == pending.challengeId }
         let pendingIndex = pendingChallenge.map { layerIndex(for: $0) } ?? pending.challengeNumber
-        let fallbackPool = practicePool.filter { candidate in
+        let fallbackPool = filteredPracticePool.filter { candidate in
             guard candidate.topic == pending.topic else { return false }
             guard candidate.layer == pending.layer else { return false }
             guard layerIndex(for: candidate) <= pendingIndex else { return false }
@@ -3992,7 +3993,7 @@ func runSteps(
         }
         let scopedPool: [Challenge]
         if let pendingChallenge = pendingChallenge {
-            let scoped = adaptivePracticePool(for: pendingChallenge, from: practicePool)
+            let scoped = adaptivePracticePool(for: pendingChallenge, from: filteredPracticePool)
             scopedPool = scoped.isEmpty ? fallbackPool : scoped
         } else {
             scopedPool = fallbackPool
@@ -4133,7 +4134,7 @@ func runSteps(
                             pendingAdaptivePool = []
                         }
                         let practiceCount = max(1, min(2, adaptiveCount))
-                        let scopedPool = adaptivePracticePool(for: challenge, from: practicePool)
+                        let scopedPool = adaptivePracticePool(for: challenge, from: filteredPracticePool)
                         let eligiblePool = steps.prefix(currentIndex + 1).compactMap { step -> Challenge? in
                             if case .challenge(let stepChallenge) = step {
                                 return stepChallenge
@@ -4259,7 +4260,7 @@ func runSteps(
                                 }
                                 return nil
                             }
-                            let scopedPool = adaptivePracticePool(for: challenge, from: practicePool)
+                            let scopedPool = adaptivePracticePool(for: challenge, from: filteredPracticePool)
                             pendingAdaptiveTopic = challenge.topic
                             pendingAdaptivePool = scopedPool.isEmpty ? eligiblePool : scopedPool
                             print("Adaptive practice queued for \(challenge.topic.rawValue) (score \(score)).")
@@ -6618,6 +6619,9 @@ struct Forge {
                         return challengeIndex <= maxCovered
                     }
                 }
+                if !bridgeOnly {
+                    pool = pool.filter { !$0.displayId.hasPrefix("bridge:") }
+                }
                 if pool.isEmpty {
                     print("No challenges match those filters.")
                     return
@@ -6669,13 +6673,16 @@ struct Forge {
                 if let tier = tier {
                     pool = pool.filter { $0.tier == tier }
                 }
-                if let layer = layer {
-                    pool = pool.filter { $0.layer == layer }
-                }
-                if pool.isEmpty {
-                    print("No challenges match those filters.")
-                    return
-                }
+            if let layer = layer {
+                pool = pool.filter { $0.layer == layer }
+            }
+            if !bridgeOnly {
+                pool = pool.filter { !$0.displayId.hasPrefix("bridge:") }
+            }
+            if pool.isEmpty {
+                print("No challenges match those filters.")
+                return
+            }
                 let reviewOk = reviewProgression(
                     pool,
                     constraintIndex: constraintIndex,
