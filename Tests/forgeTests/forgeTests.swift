@@ -130,6 +130,12 @@ final class ForgeTests: XCTestCase {
         } else {
             XCTFail("Expected numeric input to be a challenge")
         }
+
+        if case .challengeId(let value)? = parseProgressInput(["core:18.1"]) {
+            XCTAssertEqual(value, "core:18.1")
+        } else {
+            XCTFail("Expected canonical challenge id input")
+        }
     }
 
     func testParseProgressTarget() {
@@ -165,6 +171,13 @@ final class ForgeTests: XCTestCase {
             XCTAssertEqual(id, "crust-extra-async-sleep")
         default:
             XCTFail("Expected challenge id token")
+        }
+
+        switch parseProgressTarget("core:18.1", projects: projects) {
+        case .challengeId(let id):
+            XCTAssertEqual(id, "core:18.1")
+        default:
+            XCTFail("Expected canonical challenge id token")
         }
 
         switch parseProgressTarget("project:core1a", projects: projects) {
@@ -451,6 +464,12 @@ final class ForgeTests: XCTestCase {
         }
     }
 
+    func testCanonicalChallengeIdsUnique() {
+        let sets = buildChallengeSets()
+        let ids = sets.allChallenges.map { $0.displayId.lowercased() }
+        XCTAssertEqual(ids.count, Set(ids).count, "Duplicate canonical challenge ids found.")
+    }
+
     func testParseGateSettingsAndRemaining() {
         let args = ["--gate-passes", "2", "--gate-count", "5", "random", "adaptive"]
         let parsed = parseGateSettings(args)
@@ -491,21 +510,23 @@ final class ForgeTests: XCTestCase {
     }
 
     func testParseRandomArgumentsAdaptiveAndFilters() {
-        let parsed = parseRandomArguments(["10", "adaptive", "loops", "extra", "mantle"])
+        let parsed = parseRandomArguments(["10", "adaptive", "loops", "extra", "mantle", "bridge"])
         XCTAssertEqual(parsed.count, 10)
         XCTAssertTrue(parsed.adaptive)
+        XCTAssertTrue(parsed.bridge)
         XCTAssertEqual(parsed.topic, .loops)
         XCTAssertEqual(parsed.tier, .extra)
         XCTAssertEqual(parsed.layer, .mantle)
     }
 
     func testParsePracticeArgumentsRangeAndAll() {
-        let parsed = parsePracticeArguments(["core2", "optionals", "--all", "12"])
+        let parsed = parsePracticeArguments(["core2", "optionals", "--all", "12", "bridge"])
         XCTAssertEqual(parsed.count, 12)
         XCTAssertEqual(parsed.topic, .optionals)
         XCTAssertEqual(parsed.layer, .core)
         XCTAssertEqual(parsed.range, 21...42)
         XCTAssertTrue(parsed.includeAll)
+        XCTAssertTrue(parsed.bridge)
     }
 
     func testParseFlagPipelineRemainders() {

@@ -18,8 +18,15 @@ enum ProgressTarget {
 
 enum ProgressInput {
     case challenge(Int)
+    case challengeId(String)
     case project(String)
     case step(Int)
+}
+
+enum RemapProgressOutcome {
+    case success(startIndex: Int, messagePrefix: String)
+    case info(message: String)
+    case error(message: String, showUsage: Bool)
 }
 
 struct ConstraintIndex {
@@ -161,11 +168,11 @@ func loadChallenge(_ challenge: Challenge, workspacePath: String = "workspace") 
     let prereqLine = prerequisiteLine(for: challenge) ?? ""
     let prereqBlock = prereqLine.isEmpty ? "" : "\n\(prereqLine)\n"
 
-    let idLabel = challenge.id.isEmpty ? "" : " (\(challenge.id))"
+    let idLabel = challenge.id.isEmpty || challenge.id == challenge.displayId ? "" : " (\(challenge.id))"
     print(
         """
 
-        Challenge \(challenge.number)\(idLabel): \(challenge.title)
+        Challenge \(challenge.displayId)\(idLabel): \(challenge.title)
         └─ \(challenge.description)
 
         Edit: \(filePath)
@@ -175,6 +182,13 @@ func loadChallenge(_ challenge: Challenge, workspacePath: String = "workspace") 
         Type 'h' for a hint, 'c' for a cheatsheet, 'l' for a lesson, or 's' for the solution.
         Viewing the solution may queue practice when adaptive is enabled.
         """)
+}
+
+func layerIndex(for challenge: Challenge) -> Int {
+    if challenge.displayId.hasPrefix("bridge:") {
+        return 0
+    }
+    return challenge.layerNumber ?? challenge.number
 }
 
 func stageGateFilePath(workspacePath: String) -> String {
@@ -291,11 +305,13 @@ func savePendingPractice(
     workspacePath: String = "workspace"
 ) {
     let path = pendingPracticeFilePath(workspacePath: workspacePath)
+    let layerNumber = layerIndex(for: challenge)
     let content = [
         "topic=\(challenge.topic.rawValue)",
         "count=\(count)",
         "id=\(challenge.displayId)",
-        "number=\(challenge.number)",
+        "number=\(layerNumber)",
+        "legacy=\(challenge.number)",
         "layer=\(challenge.layer.rawValue)",
     ].joined(separator: ",")
     try? content.write(toFile: path, atomically: true, encoding: .utf8)
@@ -471,12 +487,14 @@ func adaptivePracticePool(
     from pool: [Challenge],
     windowSize: Int = 8
 ) -> [Challenge] {
-    let minNumber = max(1, challenge.number - windowSize)
+    let challengeIndex = max(1, layerIndex(for: challenge))
+    let minNumber = max(1, challengeIndex - windowSize)
     return pool.filter { candidate in
         guard candidate.topic == challenge.topic else { return false }
         guard candidate.layer == challenge.layer else { return false }
-        guard candidate.number <= challenge.number else { return false }
-        guard candidate.number >= minNumber else { return false }
+        let candidateIndex = max(1, layerIndex(for: candidate))
+        guard candidateIndex <= challengeIndex else { return false }
+        guard candidateIndex >= minNumber else { return false }
         return candidate.progressId != challenge.progressId
     }
 }
@@ -720,19 +738,8 @@ func printStageReviewDebrief(startedAt: Date, workspacePath: String = "workspace
 }
 
 func buildChallengeTopicIndex() -> [String: String] {
-    let core1Challenges = makeCore1Challenges()
-    let core2Challenges = makeCore2Challenges()
-    let core3Challenges = makeCore3Challenges()
-    let mantleChallenges = makeMantleChallenges()
-    let crustChallenges = makeCrustChallenges()
-    let bridgeChallenges = makeBridgeChallenges()
-    let allChallenges = core1Challenges
-        + core2Challenges
-        + core3Challenges
-        + mantleChallenges
-        + crustChallenges
-        + bridgeChallenges.coreToMantle
-        + bridgeChallenges.mantleToCrust
+    let sets = buildChallengeSets()
+    let allChallenges = sets.allChallenges
 
     var index: [String: String] = [:]
     for challenge in allChallenges {
@@ -742,25 +749,353 @@ func buildChallengeTopicIndex() -> [String: String] {
 }
 
 func buildChallengeTitleIndex() -> [String: String] {
-    let core1Challenges = makeCore1Challenges()
-    let core2Challenges = makeCore2Challenges()
-    let core3Challenges = makeCore3Challenges()
-    let mantleChallenges = makeMantleChallenges()
-    let crustChallenges = makeCrustChallenges()
-    let bridgeChallenges = makeBridgeChallenges()
-    let allChallenges = core1Challenges
-        + core2Challenges
-        + core3Challenges
-        + mantleChallenges
-        + crustChallenges
-        + bridgeChallenges.coreToMantle
-        + bridgeChallenges.mantleToCrust
+    let sets = buildChallengeSets()
+    let allChallenges = sets.allChallenges
 
     var index: [String: String] = [:]
     for challenge in allChallenges {
         index[challenge.displayId] = challenge.title
     }
     return index
+}
+
+struct ChallengeSets {
+    let core1Challenges: [Challenge]
+    let core2Challenges: [Challenge]
+    let core3Challenges: [Challenge]
+    let mantleChallenges: [Challenge]
+    let crustChallenges: [Challenge]
+    let bridgeChallenges: (coreToMantle: [Challenge], mantleToCrust: [Challenge])
+    let allChallenges: [Challenge]
+}
+
+func assignCanonicalIds(
+    for challenges: [Challenge],
+    layer: ChallengeLayer,
+    overrideParents: [Int: Int] = [:]
+) -> [Challenge] {
+    var nextLayerNumber = 0
+    var mainlineEntries: [(index: Int, topic: ChallengeTopic, number: Int)] = []
+    var baseNumbers: [Int?] = Array(repeating: nil, count: challenges.count)
+
+    for (index, challenge) in challenges.enumerated() {
+        if challenge.tier == .mainline, overrideParents[challenge.number] == nil {
+            nextLayerNumber += 1
+            let baseNumber = nextLayerNumber
+            baseNumbers[index] = baseNumber
+            mainlineEntries.append((index: index, topic: challenge.topic, number: baseNumber))
+        }
+    }
+
+    func nearestPriorMainlineNumber(for index: Int, topic: ChallengeTopic) -> Int? {
+        let priorTopic = mainlineEntries
+            .filter { $0.topic == topic && $0.index < index }
+            .max(by: { $0.index < $1.index })
+        if let candidate = priorTopic {
+            return candidate.number
+        }
+        let priorAny = mainlineEntries
+            .filter { $0.index < index }
+            .max(by: { $0.index < $1.index })
+        if let candidate = priorAny {
+            return candidate.number
+        }
+        return mainlineEntries.first?.number
+    }
+
+    var extraCounts: [Int: Int] = [:]
+    return challenges.enumerated().map { index, challenge in
+        if challenge.tier == .mainline, overrideParents[challenge.number] == nil {
+            let baseNumber = baseNumbers[index] ?? 1
+            let canonicalId = "\(layer.rawValue):\(baseNumber)"
+            return challenge.withCanonicalId(
+                canonicalId,
+                layerNumber: baseNumber,
+                extraParent: nil,
+                extraIndex: nil
+            )
+        }
+        let overrideParent = overrideParents[challenge.number]
+        let parent = overrideParent ?? nearestPriorMainlineNumber(for: index, topic: challenge.topic) ?? 1
+        let nextIndex = (extraCounts[parent] ?? 0) + 1
+        extraCounts[parent] = nextIndex
+        let canonicalId = "\(layer.rawValue):\(parent).\(nextIndex)"
+        return challenge.withCanonicalId(
+            canonicalId,
+            layerNumber: parent,
+            extraParent: parent,
+            extraIndex: nextIndex
+        )
+    }
+}
+
+func assignBridgeIds(
+    for challenges: [Challenge],
+    layer: ChallengeLayer
+) -> [Challenge] {
+    return challenges.enumerated().map { index, challenge in
+        let ordinal = index + 1
+        let canonicalId = "bridge:\(layer.rawValue):\(ordinal)"
+        return challenge.withCanonicalId(
+            canonicalId,
+            layerNumber: 0,
+            extraParent: nil,
+            extraIndex: nil
+        )
+    }
+}
+
+func buildChallengeSets() -> ChallengeSets {
+    let core1Challenges = makeCore1Challenges()
+    let core2Challenges = makeCore2Challenges()
+    let core3Challenges = makeCore3Challenges()
+    let mantleChallenges = makeMantleChallenges()
+    let crustChallenges = makeCrustChallenges()
+    let bridgeChallenges = makeBridgeChallenges()
+
+    let coreAll = core1Challenges + core2Challenges + core3Challenges
+    let mantleAll = mantleChallenges
+    let crustAll = crustChallenges
+
+    let extraParentOverridesCore: [Int: Int] = [:]
+    let extraParentOverridesMantle: [Int: Int] = [:]
+    let extraParentOverridesCrust: [Int: Int] = [:]
+
+    let canonicalCore = assignCanonicalIds(for: coreAll, layer: .core, overrideParents: extraParentOverridesCore)
+    let canonicalMantle = assignCanonicalIds(for: mantleAll, layer: .mantle, overrideParents: extraParentOverridesMantle)
+    let canonicalCrust = assignCanonicalIds(for: crustAll, layer: .crust, overrideParents: extraParentOverridesCrust)
+    let canonicalBridgeMantle = assignBridgeIds(for: bridgeChallenges.coreToMantle, layer: .mantle)
+    let canonicalBridgeCrust = assignBridgeIds(for: bridgeChallenges.mantleToCrust, layer: .crust)
+
+    let canonicalMap = Dictionary(
+        uniqueKeysWithValues: (canonicalCore + canonicalMantle + canonicalCrust + canonicalBridgeMantle + canonicalBridgeCrust)
+            .map { ($0.number, $0) }
+    )
+
+    let mappedCore1 = core1Challenges.map { canonicalMap[$0.number] ?? $0 }
+    let mappedCore2 = core2Challenges.map { canonicalMap[$0.number] ?? $0 }
+    let mappedCore3 = core3Challenges.map { canonicalMap[$0.number] ?? $0 }
+    let mappedMantle = mantleChallenges.map { canonicalMap[$0.number] ?? $0 }
+    let mappedCrust = crustChallenges.map { canonicalMap[$0.number] ?? $0 }
+    let mappedBridge = (
+        coreToMantle: bridgeChallenges.coreToMantle.map { canonicalMap[$0.number] ?? $0 },
+        mantleToCrust: bridgeChallenges.mantleToCrust.map { canonicalMap[$0.number] ?? $0 }
+    )
+    let allChallenges = mappedCore1
+        + mappedCore2
+        + mappedCore3
+        + mappedMantle
+        + mappedCrust
+        + mappedBridge.coreToMantle
+        + mappedBridge.mantleToCrust
+
+    return ChallengeSets(
+        core1Challenges: mappedCore1,
+        core2Challenges: mappedCore2,
+        core3Challenges: mappedCore3,
+        mantleChallenges: mappedMantle,
+        crustChallenges: mappedCrust,
+        bridgeChallenges: mappedBridge,
+        allChallenges: allChallenges
+    )
+}
+
+func legacyChallengeIdMap(for challenges: [Challenge]) -> [String: String] {
+    var map: [String: String] = [:]
+    for challenge in challenges {
+        let canonical = challenge.displayId
+        map[String(challenge.number)] = canonical
+        if !challenge.id.isEmpty {
+            map[challenge.id.lowercased()] = canonical
+        } else if challenge.tier == .extra {
+            map["\(challenge.number)a"] = canonical
+        }
+    }
+    return map
+}
+
+func mergeChallengeStats(_ base: ChallengeStats, _ incoming: ChallengeStats) -> ChallengeStats {
+    var merged = ChallengeStats()
+    merged.pass = base.pass + incoming.pass
+    merged.passAssisted = base.passAssisted + incoming.passAssisted
+    merged.fail = base.fail + incoming.fail
+    merged.compileFail = base.compileFail + incoming.compileFail
+    merged.manualPass = base.manualPass + incoming.manualPass
+    merged.lastAttempt = max(base.lastAttempt, incoming.lastAttempt)
+    return merged
+}
+
+func migrateAdaptiveChallengeStatsIfNeeded(
+    legacyIdMap: [String: String],
+    workspacePath: String = "workspace"
+) {
+    let path = adaptiveChallengeStatsFilePath(workspacePath: workspacePath)
+    guard let content = try? String(contentsOfFile: path, encoding: .utf8) else {
+        return
+    }
+    var migrated: [String: ChallengeStats] = [:]
+    var changed = false
+    for line in content.split(separator: "\n") {
+        let parts = line.split(separator: "|", maxSplits: 1).map(String.init)
+        guard parts.count == 2 else { continue }
+        let rawId = parts[0]
+        let mappedId = legacyIdMap[rawId.lowercased()] ?? rawId
+        if mappedId != rawId {
+            changed = true
+        }
+        let counts = parseStatCounts(parts[1])
+        var entry = ChallengeStats()
+        entry.pass = counts["pass", default: 0]
+        entry.passAssisted = counts["pass_assisted", default: 0]
+        entry.fail = counts["fail", default: 0]
+        entry.compileFail = counts["compile_fail", default: 0]
+        entry.manualPass = counts["manual_pass", default: 0]
+        entry.lastAttempt = counts["last", default: 0]
+        let existing = migrated[mappedId] ?? ChallengeStats()
+        migrated[mappedId] = mergeChallengeStats(existing, entry)
+    }
+    guard changed else { return }
+    let backupPath = "\(path).bak"
+    if !FileManager.default.fileExists(atPath: backupPath) {
+        try? content.write(toFile: backupPath, atomically: true, encoding: .utf8)
+    }
+    saveAdaptiveChallengeStats(migrated, workspacePath: workspacePath)
+}
+
+func migratePendingPracticeIfNeeded(
+    legacyIdMap: [String: String],
+    legacyNumberMap: [Int: Challenge],
+    workspacePath: String = "workspace"
+) {
+    let path = pendingPracticeFilePath(workspacePath: workspacePath)
+    guard let content = try? String(contentsOfFile: path, encoding: .utf8) else {
+        return
+    }
+    var kv = parseKeyValues(content)
+    var changed = false
+    if let rawId = kv["id"], let mapped = legacyIdMap[rawId.lowercased()], mapped != rawId {
+        kv["id"] = mapped
+        changed = true
+    }
+    if let numberRaw = kv["number"], let number = Int(numberRaw), let challenge = legacyNumberMap[number] {
+        let mappedNumber = layerIndex(for: challenge)
+        if mappedNumber != number {
+            kv["number"] = String(mappedNumber)
+            kv["legacy"] = String(challenge.number)
+            changed = true
+        }
+    }
+    guard changed else { return }
+    let updated = kv.keys.sorted().map { "\($0)=\(kv[$0] ?? "")" }.joined(separator: ",")
+    try? updated.write(toFile: path, atomically: true, encoding: .utf8)
+}
+
+func migratePerformanceLogIfNeeded(
+    legacyIdMap: [String: String],
+    legacyNumberMap: [Int: Challenge],
+    workspacePath: String = "workspace"
+) {
+    let path = performanceLogPath(workspacePath: workspacePath)
+    guard let content = try? String(contentsOfFile: path, encoding: .utf8) else {
+        return
+    }
+    var changed = false
+    var outputLines: [String] = []
+    for line in content.split(separator: "\n", omittingEmptySubsequences: false) {
+        guard let data = line.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: data),
+              var object = json as? [String: Any]
+        else {
+            outputLines.append(String(line))
+            continue
+        }
+        if let rawId = object["id"] as? String, let mapped = legacyIdMap[rawId.lowercased()], mapped != rawId {
+            object["id"] = mapped
+            changed = true
+        }
+        if let number = object["number"] as? Int, let challenge = legacyNumberMap[number] {
+            let mappedNumber = layerIndex(for: challenge)
+            if mappedNumber != number {
+                object["number"] = mappedNumber
+                object["legacy_number"] = challenge.number
+                changed = true
+            }
+        }
+        if let dataOut = try? JSONSerialization.data(withJSONObject: object, options: []),
+           let lineOut = String(data: dataOut, encoding: .utf8) {
+            outputLines.append(lineOut)
+        } else {
+            outputLines.append(String(line))
+        }
+    }
+    guard changed else { return }
+    let backupPath = "\(path).bak"
+    if !FileManager.default.fileExists(atPath: backupPath) {
+        try? content.write(toFile: backupPath, atomically: true, encoding: .utf8)
+    }
+    let output = outputLines.joined(separator: "\n")
+    try? output.write(toFile: path, atomically: true, encoding: .utf8)
+}
+
+func migrateProgressTokenIfNeeded(
+    token: String?,
+    steps: [Step],
+    challengeIndexMap: [Int: Int],
+    challengeIdIndexMap: [String: Int],
+    projectIndexMap: [String: Int],
+    maxChallengeNumber: Int,
+    legacyIdMap: [String: String],
+    allChallengeIdMap: [String: Challenge],
+    allChallengeNumberMap: [Int: Challenge]
+) {
+    guard let raw = token?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else {
+        return
+    }
+    if Int(raw) != nil {
+        return
+    }
+    let lowered = raw.lowercased()
+    var startIndex: Int? = nil
+
+    if lowered.hasPrefix("challenge:") {
+        let value = String(raw.dropFirst("challenge:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
+        if let number = Int(value) {
+            let remapped = remapLegacyChallengeNumber(number)
+            startIndex = challengeIndexMap[remapped]
+        } else if !value.isEmpty {
+            let id = value.lowercased()
+            let mappedId = legacyIdMap[id] ?? id
+            startIndex = challengeIdIndexMap[mappedId]
+        }
+    } else if lowered.hasPrefix("project:") {
+        let value = String(raw.dropFirst("project:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
+        startIndex = projectIndexMap[value.lowercased()]
+    } else if lowered.hasPrefix("step:") {
+        let value = String(raw.dropFirst("step:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
+        if let number = Int(value) {
+            startIndex = normalizedStepIndex(number, stepsCount: steps.count)
+        }
+    } else if let number = Int(raw) {
+        startIndex = stepIndexForChallenge(
+            number,
+            challengeStepIndex: challengeIndexMap,
+            maxChallengeNumber: maxChallengeNumber,
+            stepsCount: steps.count
+        )
+    } else if let index = projectIndexMap[lowered] {
+        startIndex = index
+    } else if let mappedId = legacyIdMap[lowered], let index = challengeIdIndexMap[mappedId] {
+        startIndex = index
+    } else if let index = challengeIdIndexMap[lowered] {
+        startIndex = index
+    } else if let extraChallenge = allChallengeIdMap[lowered], extraChallenge.tier == .extra {
+        startIndex = nil
+    } else if let number = Int(raw), allChallengeNumberMap[number]?.tier == .extra {
+        startIndex = nil
+    }
+
+    guard let resolved = startIndex else { return }
+    saveProgress(resolved)
 }
 
 func constraintTopicTableLines(
@@ -823,7 +1158,7 @@ func logConstraintViolation(
     logEvent(
         "constraint_violation",
         fields: fields,
-        intFields: ["number": challenge.number],
+        intFields: ["number": layerIndex(for: challenge)],
         workspacePath: workspacePath
     )
 }
@@ -3198,7 +3533,7 @@ func validateChallenge(
         logEvent(
             "challenge_manual_complete",
             fields: ["id": challenge.displayId, "result": result],
-            intFields: ["number": challenge.number],
+            intFields: ["number": layerIndex(for: challenge)],
             workspacePath: workspacePath
         )
         saveProgress(nextStepIndex)
@@ -3257,7 +3592,7 @@ func validateChallenge(
         logEvent(
             "challenge_attempt",
             fields: ["id": challenge.displayId, "result": "compile_fail"],
-            intFields: ["number": challenge.number, "seconds": Int(Date().timeIntervalSince(start))],
+            intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
             workspacePath: workspacePath
         )
         return false
@@ -3277,7 +3612,7 @@ func validateChallenge(
         logEvent(
             "challenge_attempt",
             fields: ["id": challenge.displayId, "result": result],
-            intFields: ["number": challenge.number, "seconds": Int(Date().timeIntervalSince(start))],
+            intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
             workspacePath: workspacePath
         )
 
@@ -3302,7 +3637,7 @@ func validateChallenge(
         logEvent(
             "challenge_attempt",
             fields: ["id": challenge.displayId, "result": "fail"],
-            intFields: ["number": challenge.number, "seconds": Int(Date().timeIntervalSince(start))],
+            intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
             workspacePath: workspacePath
         )
         return false
@@ -3379,7 +3714,7 @@ func runGateChallenges(
                                     solutionViewedBeforePass = true
                                     logSolutionViewed(
                                         id: challenge.displayId,
-                                        number: challenge.number,
+                                        number: layerIndex(for: challenge),
                                         mode: "stage_review",
                                         assisted: true,
                                         workspacePath: statsWorkspacePath
@@ -3422,7 +3757,7 @@ func runGateChallenges(
                 logEvent(
                     "challenge_manual_complete",
                     fields: ["id": challenge.displayId, "mode": "stage_review", "result": result],
-                    intFields: ["number": challenge.number],
+                    intFields: ["number": layerIndex(for: challenge)],
                     workspacePath: statsWorkspacePath
                 )
                 challengeComplete = true
@@ -3478,7 +3813,7 @@ func runGateChallenges(
                     logEvent(
                         "challenge_attempt",
                         fields: ["id": challenge.displayId, "result": "compile_fail", "mode": "stage_review"],
-                        intFields: ["number": challenge.number, "seconds": Int(Date().timeIntervalSince(start))],
+                        intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
                         workspacePath: statsWorkspacePath
                     )
                     continue
@@ -3498,7 +3833,7 @@ func runGateChallenges(
                     logEvent(
                         "challenge_attempt",
                         fields: ["id": challenge.displayId, "result": result, "mode": "stage_review"],
-                        intFields: ["number": challenge.number, "seconds": Int(Date().timeIntervalSince(start))],
+                        intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
                         workspacePath: statsWorkspacePath
                     )
                     challengeComplete = true
@@ -3518,7 +3853,7 @@ func runGateChallenges(
                     logEvent(
                         "challenge_attempt",
                         fields: ["id": challenge.displayId, "result": "fail", "mode": "stage_review"],
-                        intFields: ["number": challenge.number, "seconds": Int(Date().timeIntervalSince(start))],
+                        intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
                         workspacePath: statsWorkspacePath
                     )
                 }
@@ -3648,10 +3983,11 @@ func runSteps(
             return nil
         }
         let pendingChallenge = allChallenges.first { $0.displayId == pending.challengeId }
+        let pendingIndex = pendingChallenge.map { layerIndex(for: $0) } ?? pending.challengeNumber
         let fallbackPool = practicePool.filter { candidate in
             guard candidate.topic == pending.topic else { return false }
             guard candidate.layer == pending.layer else { return false }
-            guard candidate.number <= pending.challengeNumber else { return false }
+            guard layerIndex(for: candidate) <= pendingIndex else { return false }
             return candidate.progressId != pending.challengeId
         }
         let scopedPool: [Challenge]
@@ -3746,7 +4082,7 @@ func runSteps(
                                     solutionViewedBeforePass = true
                                     logSolutionViewed(
                                         id: challenge.displayId,
-                                        number: challenge.number,
+                                        number: layerIndex(for: challenge),
                                         mode: "main",
                                         assisted: true,
                                         workspacePath: "workspace"
@@ -4418,7 +4754,7 @@ func logPracticeQueued(
     logEvent(
         "practice_queued",
         fields: ["id": challenge.displayId, "mode": mode, "reason": "solution"],
-        intFields: ["number": challenge.number, "count": count],
+        intFields: ["number": layerIndex(for: challenge), "count": count],
         workspacePath: workspacePath
     )
 }
@@ -4437,10 +4773,12 @@ func printMainUsage() {
       swift run forge project <id>
       swift run forge progress <target>
       swift run forge report
+      swift run forge report-overrides
 
 
     Progress shortcuts:
-      swift run forge challenge:<number>
+      swift run forge challenge:<layer>:<number>
+      swift run forge challenge:<layer>:<number>.<extra>
       swift run forge challenge:<id>
       swift run forge project:<id>
       swift run forge <project-id>
@@ -4470,6 +4808,7 @@ func printMainUsage() {
       swift run forge project --help
       swift run forge stats --help
       swift run forge report --help
+      swift run forge report-overrides --help
 
     Examples:
       swift run forge practice 8
@@ -4480,14 +4819,15 @@ func printMainUsage() {
       swift run forge random adaptive
       swift run forge project --list core
       swift run forge project:core2a
-      swift run forge challenge:36
-      swift run forge progress challenge:36
+      swift run forge challenge:core:36
+      swift run forge challenge:core:18.1
+      swift run forge progress challenge:core:36
       swift run forge progress project:core2a
       swift run forge progress step:19
       swift run forge remap-progress challenge:18
       swift run forge verify-solutions crust
       swift run forge verify-solutions core --constraints-only
-      swift run forge review-progression 1-80
+      swift run forge review-progression core 1-80
       swift run forge audit core
       swift run forge report
 
@@ -4505,9 +4845,9 @@ func printMainUsage() {
       - Constraint profiles can require specific constructs (like functions or collections).
 
     Testing commands:
-      swift run forge verify-solutions [filters] [--constraints-only]
-      swift run forge review-progression [filters]
-      swift run forge audit [filters]
+      swift run forge verify-solutions [filters] [bridge] [--constraints-only]
+      swift run forge review-progression [filters] [bridge]
+      swift run forge audit [filters] [bridge]
       swift run forge verify-solutions --help
       swift run forge review-progression --help
       swift run forge audit --help
@@ -4520,12 +4860,15 @@ func printProgressUsage() {
       swift run forge progress <target>
 
     Targets:
-      challenge:<number>
+      challenge:<layer>:<number>
+      challenge:<layer>:<number>.<extra>
+      challenge:<id>
       project:<id>
       step:<number>
 
     Examples:
-      swift run forge progress challenge:20
+      swift run forge progress challenge:core:20
+      swift run forge progress challenge:core:18.1
       swift run forge progress project:core1a
       swift run forge progress step:19
       swift run forge progress 20
@@ -4539,6 +4882,8 @@ func printRemapProgressUsage() {
 
     Targets:
       challenge:<number>
+      challenge:<layer>:<number>
+      challenge:<layer>:<number>.<extra>
       challenge:<id>
       project:<id>
       step:<number>
@@ -4550,6 +4895,7 @@ func printRemapProgressUsage() {
 
     Examples:
       swift run forge remap-progress challenge:18
+      swift run forge remap-progress challenge:core:18.1
       swift run forge remap-progress project:core1a
       swift run forge remap-progress step:42
     """)
@@ -4557,11 +4903,12 @@ func printRemapProgressUsage() {
 
 func printRandomUsage() {
     print("""
-    Usage: swift run forge random [count] [topic] [tier] [layer]
+    Usage: swift run forge random [count] [topic] [tier] [layer] [bridge]
 
     Topics: conditionals, loops, optionals, collections, functions, strings, structs, general
     Tiers: mainline, extra
     Layers: core, mantle, crust
+    Bridge: use 'bridge' to focus on bridge challenges
     Adaptive: use 'adaptive' to bias toward weaker topics and stale challenges
 
     Examples:
@@ -4616,11 +4963,11 @@ func printStatsUsage() {
 func printPracticeUsage() {
     print("""
     Usage:
-      swift run forge practice [count] [topic] [tier] [layer] [core1|core2|core3|mantle1|mantle2|mantle3|crust1|crust2|crust3] [--all]
+      swift run forge practice [count] [topic] [tier] [layer] [core1|core2|core3|mantle1|mantle2|mantle3|crust1|crust2|crust3] [bridge] [--all]
       swift run forge practice --help
 
     Practice mode always uses adaptive weighting when stats are available.
-    Filters match random mode: topics, tiers, layers.
+    Filters match random mode: topics, tiers, layers, bridge.
     By default, practice is limited to challenges you've already reached in the main flow,
     plus relevant extra challenges for layers you've reached.
     Use --all to practice across the entire curriculum.
@@ -4636,16 +4983,25 @@ func printReportUsage() {
     """)
 }
 
+func printOverrideReportUsage() {
+    print("""
+    Usage:
+      swift run forge report-overrides [--threshold <n>]
+
+    Prints suggested extra parent overrides when an extra is far from its parent.
+    """)
+}
+
 func printAuditUsage() {
     print("""
     Usage:
-      swift run forge audit [filters]
+      swift run forge audit [filters] [bridge]
 
     Runs:
       - Sequencing review (early-concept warnings)
       - Constraint profile verification
       - Fixture presence audit
-    Filters match verify-solutions/review-progression (range/topic/tier/layer).
+    Filters match verify-solutions/review-progression (range/topic/tier/layer/bridge).
     """)
 }
 
@@ -4807,12 +5163,13 @@ func parseStatsSettings(_ args: [String]) -> (reset: Bool, resetAll: Bool, limit
 
 func parseRandomArguments(
     _ args: [String]
-) -> (count: Int, topic: ChallengeTopic?, tier: ChallengeTier?, layer: ChallengeLayer?, adaptive: Bool) {
+) -> (count: Int, topic: ChallengeTopic?, tier: ChallengeTier?, layer: ChallengeLayer?, adaptive: Bool, bridge: Bool) {
     var count = 5
     var topic: ChallengeTopic?
     var tier: ChallengeTier?
     var layer: ChallengeLayer?
     var adaptive = false
+    var bridge = false
 
     for value in args {
         if let number = Int(value) {
@@ -4825,6 +5182,10 @@ func parseRandomArguments(
         }
         if lowered == "adaptive" {
             adaptive = true
+            continue
+        }
+        if lowered == "bridge" {
+            bridge = true
             continue
         }
         if let parsedTopic = ChallengeTopic(rawValue: lowered) {
@@ -4840,7 +5201,7 @@ func parseRandomArguments(
         }
     }
 
-    return (count, topic, tier, layer, adaptive)
+    return (count, topic, tier, layer, adaptive, bridge)
 }
 
 func practiceRangeToken(_ raw: String) -> (layer: ChallengeLayer, range: ClosedRange<Int>)? {
@@ -4852,17 +5213,17 @@ func practiceRangeToken(_ raw: String) -> (layer: ChallengeLayer, range: ClosedR
     case "core3":
         return (.core, 43...80)
     case "mantle1":
-        return (.mantle, 123...133)
+        return (.mantle, 1...11)
     case "mantle2":
-        return (.mantle, 134...144)
+        return (.mantle, 12...22)
     case "mantle3":
-        return (.mantle, 145...155)
+        return (.mantle, 23...33)
     case "crust1":
-        return (.crust, 174...191)
+        return (.crust, 1...18)
     case "crust2":
-        return (.crust, 192...209)
+        return (.crust, 19...36)
     case "crust3":
-        return (.crust, 210...227)
+        return (.crust, 37...54)
     default:
         return nil
     }
@@ -4876,7 +5237,8 @@ func parsePracticeArguments(
     tier: ChallengeTier?,
     layer: ChallengeLayer?,
     range: ClosedRange<Int>?,
-    includeAll: Bool
+    includeAll: Bool,
+    bridge: Bool
 ) {
     var count = 5
     var topic: ChallengeTopic?
@@ -4884,6 +5246,7 @@ func parsePracticeArguments(
     var layer: ChallengeLayer?
     var range: ClosedRange<Int>?
     var includeAll = false
+    var bridge = false
 
     for value in args {
         if let number = Int(value) {
@@ -4896,6 +5259,10 @@ func parsePracticeArguments(
         }
         if lowered == "--all" {
             includeAll = true
+            continue
+        }
+        if lowered == "bridge" {
+            bridge = true
             continue
         }
         if let sublayer = practiceRangeToken(lowered) {
@@ -4918,7 +5285,7 @@ func parsePracticeArguments(
         }
     }
 
-    return (count, topic, tier, layer, range, includeAll)
+    return (count, topic, tier, layer, range, includeAll, bridge)
 }
 
 func parseGateSettings(
@@ -5257,6 +5624,66 @@ func printForgeReport(workspacePath: String = "workspace") {
     printAdaptiveStats(workspacePath: workspacePath, statsLimit: 5)
 }
 
+func reportOverrideSuggestions(
+    sets: ChallengeSets,
+    threshold: Int
+) {
+    struct LayerReport {
+        let name: String
+        let challenges: [Challenge]
+    }
+
+    let layers = [
+        LayerReport(name: "core", challenges: sets.core1Challenges + sets.core2Challenges + sets.core3Challenges),
+        LayerReport(name: "mantle", challenges: sets.mantleChallenges),
+        LayerReport(name: "crust", challenges: sets.crustChallenges),
+    ]
+
+    var findings: [String] = []
+
+    for layer in layers {
+        var mainlinePositions: [Int: Int] = [:]
+        var topicPositions: [ChallengeTopic: [(index: Int, number: Int)]] = [:]
+        for (index, challenge) in layer.challenges.enumerated() {
+            if challenge.tier == .mainline, let layerNumber = challenge.layerNumber {
+                mainlinePositions[layerNumber] = index
+                topicPositions[challenge.topic, default: []].append((index: index, number: layerNumber))
+            }
+        }
+
+        for (index, challenge) in layer.challenges.enumerated() where challenge.tier == .extra {
+            guard let parent = challenge.extraParent else { continue }
+            guard let parentIndex = mainlinePositions[parent] else { continue }
+            let distance = abs(index - parentIndex)
+            guard distance >= threshold else { continue }
+            var suggestion = ""
+            if let topicList = topicPositions[challenge.topic] {
+                let priorTopic = topicList.last(where: { $0.index < index })
+                if priorTopic == nil, let nextTopic = topicList.first(where: { $0.index > index }), nextTopic.number != parent {
+                    suggestion = " (suggest \(layer.name):\(nextTopic.number))"
+                } else if let priorTopic = priorTopic {
+                    let priorDistance = abs(index - priorTopic.index)
+                    if priorDistance < distance && priorTopic.number != parent {
+                        suggestion = " (suggest \(layer.name):\(priorTopic.number))"
+                    }
+                }
+            }
+            findings.append(
+                "\(layer.name): \(challenge.displayId) (topic \(challenge.topic.rawValue)) -> parent \(layer.name):\(parent) distance \(distance)\(suggestion)"
+            )
+        }
+    }
+
+    if findings.isEmpty {
+        print("No override suggestions (threshold \(threshold)).")
+        return
+    }
+    print("Override suggestions (threshold \(threshold)):")
+    for line in findings {
+        print("- \(line)")
+    }
+}
+
 func parseProjectListArguments(_ args: [String]) -> (tier: ProjectTier?, layer: ProjectLayer?) {
     var tier: ProjectTier?
     var layer: ProjectLayer?
@@ -5387,7 +5814,7 @@ func runPracticeChallenges(
                                 solutionViewedBeforePass = true
                                 logSolutionViewed(
                                     id: challenge.displayId,
-                                    number: challenge.number,
+                                    number: layerIndex(for: challenge),
                                     mode: "random",
                                     assisted: true,
                                     workspacePath: workspacePath
@@ -5431,7 +5858,7 @@ func runPracticeChallenges(
                 logEvent(
                     "challenge_manual_complete",
                     fields: ["id": challenge.displayId, "mode": "random", "result": result],
-                    intFields: ["number": challenge.number],
+                    intFields: ["number": layerIndex(for: challenge)],
                     workspacePath: workspacePath
                 )
                 completedFiles.append("\(workspacePath)/\(challenge.filename)")
@@ -5489,7 +5916,7 @@ func runPracticeChallenges(
                     logEvent(
                         "challenge_attempt",
                         fields: ["id": challenge.displayId, "result": "compile_fail", "mode": "random"],
-                        intFields: ["number": challenge.number, "seconds": Int(Date().timeIntervalSince(start))],
+                        intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
                         workspacePath: workspacePath
                     )
                     continue
@@ -5510,7 +5937,7 @@ func runPracticeChallenges(
                     logEvent(
                         "challenge_attempt",
                         fields: ["id": challenge.displayId, "result": result, "mode": "random"],
-                        intFields: ["number": challenge.number, "seconds": Int(Date().timeIntervalSince(start))],
+                        intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
                         workspacePath: workspacePath
                     )
                     completedFiles.append("\(workspacePath)/\(challenge.filename)")
@@ -5532,7 +5959,7 @@ func runPracticeChallenges(
                     logEvent(
                         "challenge_attempt",
                         fields: ["id": challenge.displayId, "result": "fail", "mode": "random"],
-                        intFields: ["number": challenge.number, "seconds": Int(Date().timeIntervalSince(start))],
+                        intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
                         workspacePath: workspacePath
                     )
                 }
@@ -5695,6 +6122,9 @@ func parseProgressTarget(_ token: String, projects: [Project]) -> ProgressTarget
     if projects.contains(where: { $0.id.lowercased() == projectId }) {
         return .project(projectId)
     }
+    if lowered.hasPrefix("core:") || lowered.hasPrefix("mantle:") || lowered.hasPrefix("crust:") {
+        return .challengeId(lowered)
+    }
     return .step(1)
 }
 
@@ -5705,8 +6135,12 @@ func parseProgressInput(_ args: [String]) -> ProgressInput? {
     let lowered = raw.lowercased()
     if lowered.hasPrefix("challenge:") {
         let value = String(raw.dropFirst("challenge:".count))
-        if let number = Int(value.trimmingCharacters(in: .whitespacesAndNewlines)) {
+        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let number = Int(trimmedValue) {
             return .challenge(number)
+        }
+        if !trimmedValue.isEmpty {
+            return .challengeId(trimmedValue.lowercased())
         }
         return nil
     }
@@ -5726,6 +6160,9 @@ func parseProgressInput(_ args: [String]) -> ProgressInput? {
     }
     if let number = Int(raw) {
         return .challenge(number)
+    }
+    if lowered.hasPrefix("core:") || lowered.hasPrefix("mantle:") || lowered.hasPrefix("crust:") {
+        return .challengeId(lowered)
     }
     return nil
 }
@@ -5794,6 +6231,86 @@ func remapLegacyChallengeNumber(_ number: Int) -> Int {
         return number + 2
     }
     return number
+}
+
+func remapProgressToken(
+    _ tokenRaw: String,
+    challengeIndexMap: [Int: Int],
+    challengeIdIndexMap: [String: Int],
+    allChallengeIdMap: [String: Challenge],
+    allChallengeNumberMap: [Int: Challenge],
+    projectIndexMap: [String: Int],
+    projects: [Project],
+    stepsCount: Int
+) -> RemapProgressOutcome {
+    let token = tokenRaw.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !token.isEmpty else {
+        return .error(message: "Invalid remap target.", showUsage: true)
+    }
+    let lowered = token.lowercased()
+    if lowered.hasPrefix("challenge:") {
+        let value = String(token.dropFirst("challenge:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
+        if let number = Int(value) {
+            let remapped = remapLegacyChallengeNumber(number)
+            if let extraChallenge = allChallengeNumberMap[remapped], extraChallenge.tier == .extra {
+                return .info(message: "Challenge \(extraChallenge.progressId) is an extra. Use random/adaptive mode to practice extras.")
+            }
+            guard let index = challengeIndexMap[remapped] else {
+                return .error(message: "Unknown challenge number: \(remapped)", showUsage: false)
+            }
+            return .success(startIndex: index, messagePrefix: "Progress remapped from challenge \(number) -> \(remapped)")
+        }
+        if !value.isEmpty {
+            let id = value.lowercased()
+            if let extraChallenge = allChallengeIdMap[id], extraChallenge.tier == .extra {
+                return .info(message: "Challenge \(extraChallenge.progressId) is an extra. Use random/adaptive mode to practice extras.")
+            }
+            guard let index = challengeIdIndexMap[id] else {
+                return .error(message: "Unknown challenge id: \(value)", showUsage: false)
+            }
+            return .success(startIndex: index, messagePrefix: "Progress set to challenge \(value)")
+        }
+        return .error(message: "Invalid remap target.", showUsage: true)
+    }
+    if lowered.hasPrefix("project:") {
+        let value = String(token.dropFirst("project:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
+        let id = value.lowercased()
+        if let index = projectIndexMap[id] {
+            return .success(startIndex: index, messagePrefix: "Progress set to project \(id)")
+        }
+        if let project = projects.first(where: { $0.id.lowercased() == id }), project.tier == .extra {
+            return .info(message: "Project \(id) is not part of the main flow. Use project mode instead.")
+        }
+        return .error(message: "Unknown project id: \(value)", showUsage: false)
+    }
+    if lowered.hasPrefix("step:") {
+        let value = String(token.dropFirst("step:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let number = Int(value) else {
+            return .error(message: "Invalid step number.", showUsage: true)
+        }
+        let startIndex = normalizedStepIndex(number, stepsCount: stepsCount)
+        return .success(startIndex: startIndex, messagePrefix: "Progress set to step \(startIndex)")
+    }
+    if let number = Int(token) {
+        let remapped = remapLegacyChallengeNumber(number)
+        if let extraChallenge = allChallengeNumberMap[remapped], extraChallenge.tier == .extra {
+            return .info(message: "Challenge \(extraChallenge.progressId) is an extra. Use random/adaptive mode to practice extras.")
+        }
+        guard let index = challengeIndexMap[remapped] else {
+            return .error(message: "Unknown challenge number: \(remapped)", showUsage: false)
+        }
+        return .success(startIndex: index, messagePrefix: "Progress remapped from challenge \(number) -> \(remapped)")
+    }
+    if let index = projectIndexMap[lowered] {
+        return .success(startIndex: index, messagePrefix: "Progress set to project \(lowered)")
+    }
+    if let extraChallenge = allChallengeIdMap[lowered], extraChallenge.tier == .extra {
+        return .info(message: "Challenge \(extraChallenge.progressId) is an extra. Use random/adaptive mode to practice extras.")
+    }
+    if let index = challengeIdIndexMap[lowered] {
+        return .success(startIndex: index, messagePrefix: "Progress set to challenge \(lowered)")
+    }
+    return .error(message: "Invalid remap target.", showUsage: true)
 }
 
 @main
@@ -5866,6 +6383,55 @@ struct Forge {
             }
         }
 
+        let sets = buildChallengeSets()
+        let core1Challenges = sets.core1Challenges
+        let core2Challenges = sets.core2Challenges
+        let core3Challenges = sets.core3Challenges
+        let mantleChallenges = sets.mantleChallenges
+        let crustChallenges = sets.crustChallenges
+        let bridgeChallenges = sets.bridgeChallenges
+        let projects = makeProjects()
+        let allChallenges = sets.allChallenges
+        let constraintIndex = buildConstraintIndex(from: allChallenges)
+        let steps = makeSteps(
+            core1Challenges: core1Challenges,
+            core2Challenges: core2Challenges,
+            core3Challenges: core3Challenges,
+            mantleChallenges: mantleChallenges,
+            crustChallenges: crustChallenges,
+            bridgeChallenges: bridgeChallenges,
+            projects: projects,
+            gatePasses: gatePasses,
+            gateCount: gateCount
+        )
+        let challengeIndexMap = challengeStepIndexMap(for: steps)
+        let challengeIdIndexMap = challengeIdStepIndexMap(for: steps)
+        let allChallengeIdMap = Dictionary(uniqueKeysWithValues: allChallenges.map { ($0.progressId.lowercased(), $0) })
+        let allChallengeNumberMap = Dictionary(uniqueKeysWithValues: allChallenges.map { ($0.number, $0) })
+        let projectIndexMap = projectStepIndexMap(for: steps)
+        let maxChallengeNumber = max(
+            steps.compactMap { step in
+                if case .challenge(let challenge) = step { return challenge.number }
+                return nil
+            }.max() ?? 1,
+            1
+        )
+        let legacyIdMap = legacyChallengeIdMap(for: allChallenges)
+        migrateAdaptiveChallengeStatsIfNeeded(legacyIdMap: legacyIdMap)
+        migratePendingPracticeIfNeeded(legacyIdMap: legacyIdMap, legacyNumberMap: allChallengeNumberMap)
+        migratePerformanceLogIfNeeded(legacyIdMap: legacyIdMap, legacyNumberMap: allChallengeNumberMap)
+        migrateProgressTokenIfNeeded(
+            token: getProgressToken(),
+            steps: steps,
+            challengeIndexMap: challengeIndexMap,
+            challengeIdIndexMap: challengeIdIndexMap,
+            projectIndexMap: projectIndexMap,
+            maxChallengeNumber: maxChallengeNumber,
+            legacyIdMap: legacyIdMap,
+            allChallengeIdMap: allChallengeIdMap,
+            allChallengeNumberMap: allChallengeNumberMap
+        )
+
         if !args.isEmpty && args[0] == "stats" {
             if args.count > 1 {
                 let flag = args[1].lowercased()
@@ -5888,6 +6454,27 @@ struct Forge {
             return
         }
 
+        if !args.isEmpty && args[0] == "report-overrides" {
+            if args.count > 1 {
+                let flag = args[1].lowercased()
+                if ["--help", "-h", "help"].contains(flag) {
+                    printOverrideReportUsage()
+                    return
+                }
+            }
+            var threshold = 12
+            if args.count > 2 {
+                let lowerArgs = args.map { $0.lowercased() }
+                if let idx = lowerArgs.firstIndex(of: "--threshold"), idx + 1 < lowerArgs.count {
+                    if let value = Int(lowerArgs[idx + 1]) {
+                        threshold = max(1, value)
+                    }
+                }
+            }
+            reportOverrideSuggestions(sets: sets, threshold: threshold)
+            return
+        }
+
         if !args.isEmpty && args[0] == "report" {
             if args.count > 1 {
                 let flag = args[1].lowercased()
@@ -5901,31 +6488,19 @@ struct Forge {
             return
         }
 
-        let core1Challenges = makeCore1Challenges()
-        let core2Challenges = makeCore2Challenges()
-        let core3Challenges = makeCore3Challenges()
-        let mantleChallenges = makeMantleChallenges()
-        let crustChallenges = makeCrustChallenges()
-        let bridgeChallenges = makeBridgeChallenges()
-        let projects = makeProjects()
-        let allChallenges = core1Challenges
-            + core2Challenges
-            + core3Challenges
-            + mantleChallenges
-            + crustChallenges
-            + bridgeChallenges.coreToMantle
-            + bridgeChallenges.mantleToCrust
-        let constraintIndex = buildConstraintIndex(from: allChallenges)
-
         if !args.isEmpty {
             let firstArg = args[0].lowercased()
             if ["verify-solutions", "verify"].contains(firstArg) {
                 let verifyArgs = Array(args.dropFirst())
+                let bridgeOnly = verifyArgs.contains { $0.lowercased() == "bridge" }
                 let verifySettings = parseVerifySettings(verifyArgs)
                 let (range, topic, tier, layer) = parseVerifyArguments(verifySettings.remaining)
                 var pool = allChallenges
+                if bridgeOnly {
+                    pool = pool.filter { $0.displayId.hasPrefix("bridge:") }
+                }
                 if let range = range {
-                    pool = pool.filter { range.contains($0.number) }
+                    pool = pool.filter { range.contains(layerIndex(for: $0)) }
                 }
                 if let topic = topic {
                     pool = pool.filter { $0.topic == topic }
@@ -5949,10 +6524,14 @@ struct Forge {
             }
             if ["review-progression", "review"].contains(firstArg) {
                 let reviewArgs = Array(args.dropFirst())
+                let bridgeOnly = reviewArgs.contains { $0.lowercased() == "bridge" }
                 let (range, topic, tier, layer) = parseVerifyArguments(reviewArgs)
                 var pool = core1Challenges + core2Challenges + core3Challenges + mantleChallenges + crustChallenges + bridgeChallenges.coreToMantle + bridgeChallenges.mantleToCrust
+                if bridgeOnly {
+                    pool = pool.filter { $0.displayId.hasPrefix("bridge:") }
+                }
                 if let range = range {
-                    pool = pool.filter { range.contains($0.number) }
+                    pool = pool.filter { range.contains(layerIndex(for: $0)) }
                 }
                 if let topic = topic {
                     pool = pool.filter { $0.topic == topic }
@@ -5982,8 +6561,11 @@ struct Forge {
                 }
                 setupWorkspace(at: explicitPracticeWorkspace)
                 clearWorkspaceContents(at: explicitPracticeWorkspace)
-                let (count, topic, tier, layer, range, includeAll) = parsePracticeArguments(practiceArgs)
+                let (count, topic, tier, layer, range, includeAll, bridgeOnly) = parsePracticeArguments(practiceArgs)
                 var pool = allChallenges
+                if bridgeOnly {
+                    pool = pool.filter { $0.displayId.hasPrefix("bridge:") }
+                }
                 if let topic = topic {
                     pool = pool.filter { $0.topic == topic }
                 }
@@ -5994,48 +6576,43 @@ struct Forge {
                     pool = pool.filter { $0.layer == layer }
                 }
                 if !includeAll {
-                    let steps = makeSteps(
-                        core1Challenges: core1Challenges,
-                        core2Challenges: core2Challenges,
-                        core3Challenges: core3Challenges,
-                        mantleChallenges: mantleChallenges,
-                        crustChallenges: crustChallenges,
-                        bridgeChallenges: bridgeChallenges,
-                        projects: projects,
-                        gatePasses: gatePasses,
-                        gateCount: gateCount
-                    )
                     let progressStep = normalizedStepIndex(getCurrentProgress(), stepsCount: steps.count)
                     let coveredSteps = progressStep > 1 ? steps.prefix(progressStep - 1) : []
                     let currentStep = (1...steps.count).contains(progressStep) ? steps[progressStep - 1] : nil
-                    let maxCovered = coveredSteps.compactMap { step -> Int? in
-                        if case .challenge(let challenge) = step { return challenge.number }
-                        return nil
-                    }.max() ?? 0
-                    var eligibleExtraLayers: Set<ChallengeLayer> = []
+                    var maxCoveredByLayer: [ChallengeLayer: Int] = [:]
                     for step in coveredSteps {
                         if case .challenge(let challenge) = step {
-                            eligibleExtraLayers.insert(challenge.layer)
+                            let index = layerIndex(for: challenge)
+                            guard index > 0 else { continue }
+                            let currentMax = maxCoveredByLayer[challenge.layer] ?? 0
+                            maxCoveredByLayer[challenge.layer] = max(currentMax, index)
                         }
                     }
+                    var eligibleExtraLayers: Set<ChallengeLayer> = Set(maxCoveredByLayer.keys)
                     if progressStep > 1, let currentStep = currentStep, case .challenge(let challenge) = currentStep {
-                        eligibleExtraLayers.insert(challenge.layer)
+                        if layerIndex(for: challenge) > 0 {
+                            eligibleExtraLayers.insert(challenge.layer)
+                        }
                     }
                     if progressStep > steps.count {
                         eligibleExtraLayers = [.core, .mantle, .crust]
                     }
                     pool = pool.filter { challenge in
+                        let challengeIndex = layerIndex(for: challenge)
+                        let maxCovered = maxCoveredByLayer[challenge.layer] ?? 0
                         if challenge.tier == .extra {
                             guard eligibleExtraLayers.contains(challenge.layer) else { return false }
+                            let parentIndex = challenge.extraParent ?? challengeIndex
+                            guard parentIndex <= maxCovered else { return false }
                             if range != nil {
                                 return challenge.layer == layer
                             }
                             return true
                         }
                         if let range = range {
-                            return challenge.number <= maxCovered && range.contains(challenge.number)
+                            return challengeIndex <= maxCovered && range.contains(challengeIndex)
                         }
-                        return challenge.number <= maxCovered
+                        return challengeIndex <= maxCovered
                     }
                 }
                 if pool.isEmpty {
@@ -6070,14 +6647,18 @@ struct Forge {
             }
             if ["audit"].contains(firstArg) {
                 let auditArgs = Array(args.dropFirst())
+                let bridgeOnly = auditArgs.contains { $0.lowercased() == "bridge" }
                 if auditArgs.first?.lowercased() == "help" || auditArgs.first == "--help" {
                     printAuditUsage()
                     return
                 }
                 let (range, topic, tier, layer) = parseVerifyArguments(auditArgs)
                 var pool = allChallenges
+                if bridgeOnly {
+                    pool = pool.filter { $0.displayId.hasPrefix("bridge:") }
+                }
                 if let range = range {
-                    pool = pool.filter { range.contains($0.number) }
+                    pool = pool.filter { range.contains(layerIndex(for: $0)) }
                 }
                 if let topic = topic {
                     pool = pool.filter { $0.topic == topic }
@@ -6114,8 +6695,11 @@ struct Forge {
                 printRandomUsage()
                 return
             }
-            let (count, topic, tier, layer, adaptive) = parseRandomArguments(randomArgs)
+            let (count, topic, tier, layer, adaptive, bridgeOnly) = parseRandomArguments(randomArgs)
             var pool = allChallenges
+            if bridgeOnly {
+                pool = pool.filter { $0.displayId.hasPrefix("bridge:") }
+            }
 
             if let topic = topic {
                 pool = pool.filter { $0.topic == topic }
@@ -6227,29 +6811,6 @@ struct Forge {
             return
         }
 
-        let steps = makeSteps(
-            core1Challenges: core1Challenges,
-            core2Challenges: core2Challenges,
-            core3Challenges: core3Challenges,
-            mantleChallenges: mantleChallenges,
-            crustChallenges: crustChallenges,
-            bridgeChallenges: bridgeChallenges,
-            projects: projects,
-            gatePasses: gatePasses,
-            gateCount: gateCount
-        )
-        let challengeIndexMap = challengeStepIndexMap(for: steps)
-        let challengeIdIndexMap = challengeIdStepIndexMap(for: steps)
-        let allChallengeIdMap = Dictionary(uniqueKeysWithValues: allChallenges.map { ($0.progressId.lowercased(), $0) })
-        let allChallengeNumberMap = Dictionary(uniqueKeysWithValues: allChallenges.map { ($0.number, $0) })
-        let projectIndexMap = projectStepIndexMap(for: steps)
-        let maxChallengeNumber = max(
-            steps.compactMap { step in
-                if case .challenge(let challenge) = step { return challenge.number }
-                return nil
-            }.max() ?? 1,
-            1
-        )
         if !args.isEmpty && args[0].lowercased() == "remap-progress" {
             let remapArgs = Array(args.dropFirst())
             if remapArgs.first?.lowercased() == "help" || remapArgs.first == "--help" || remapArgs.first == "-h" {
@@ -6263,7 +6824,7 @@ struct Forge {
                 return
             }
             if remapArgs.isEmpty, Int(tokenRaw) != nil {
-                print("Progress file contains a step index. Provide an explicit target to remap (e.g., challenge:18).")
+                print("Progress file contains a step index. Provide an explicit target to remap (e.g., challenge:core:18).")
                 printRemapProgressUsage()
                 return
             }
@@ -6396,6 +6957,17 @@ struct Forge {
                         stepsCount: steps.count
                     )
                 }
+            case .challengeId(let rawId):
+                let id = rawId.lowercased()
+                if let extraChallenge = allChallengeIdMap[id], extraChallenge.tier == .extra {
+                    print("Challenge \(extraChallenge.progressId) is an extra. Use random/adaptive mode to practice extras.")
+                    return
+                }
+                guard let index = challengeIdIndexMap[id] else {
+                    print("Unknown challenge id: \(rawId)")
+                    return
+                }
+                startIndex = index
             }
             setupWorkspace()
             saveProgress(startIndex)

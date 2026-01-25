@@ -169,6 +169,10 @@ struct Challenge {
     let topic: ChallengeTopic
     let tier: ChallengeTier
     let layer: ChallengeLayer
+    let layerNumber: Int?
+    let extraParent: Int?
+    let extraIndex: Int?
+    let canonicalId: String
 
     init(
         number: Int,
@@ -190,7 +194,11 @@ struct Challenge {
         requires: [ConstraintConcept] = [],
         topic: ChallengeTopic = .general,
         tier: ChallengeTier = .mainline,
-        layer: ChallengeLayer = .core
+        layer: ChallengeLayer = .core,
+        layerNumber: Int? = nil,
+        extraParent: Int? = nil,
+        extraIndex: Int? = nil,
+        canonicalId: String = ""
     ) {
         self.number = number
         self.id = id
@@ -212,13 +220,24 @@ struct Challenge {
         self.topic = topic
         self.tier = tier
         self.layer = layer
+        self.layerNumber = layerNumber
+        self.extraParent = extraParent
+        self.extraIndex = extraIndex
+        self.canonicalId = canonicalId
     }
 
     var filename: String {
+        if !canonicalId.isEmpty {
+            let safeId = canonicalId.replacingOccurrences(of: ":", with: "-")
+            return "challenge-\(safeId).swift"
+        }
         return "challenge\(number).swift"
     }
 
     var progressId: String {
+        if !canonicalId.isEmpty {
+            return canonicalId
+        }
         if !id.isEmpty {
             return id
         }
@@ -230,6 +249,40 @@ struct Challenge {
 
     var displayId: String {
         return progressId
+    }
+
+    func withCanonicalId(
+        _ canonicalId: String,
+        layerNumber: Int?,
+        extraParent: Int?,
+        extraIndex: Int?
+    ) -> Challenge {
+        return Challenge(
+            number: number,
+            id: id,
+            title: title,
+            description: description,
+            starterCode: starterCode,
+            expectedOutput: expectedOutput,
+            hints: hints,
+            cheatsheet: cheatsheet,
+            lesson: lesson,
+            solution: solution,
+            manualCheck: manualCheck,
+            stdinFixture: stdinFixture,
+            argsFixture: argsFixture,
+            fixtureFiles: fixtureFiles,
+            constraintProfile: constraintProfile,
+            introduces: introduces,
+            requires: requires,
+            topic: topic,
+            tier: tier,
+            layer: layer,
+            layerNumber: layerNumber,
+            extraParent: extraParent,
+            extraIndex: extraIndex,
+            canonicalId: canonicalId
+        )
     }
 
     func withLayer(_ layer: ChallengeLayer) -> Challenge {
@@ -252,7 +305,11 @@ struct Challenge {
             requires: requires,
             topic: topic,
             tier: tier,
-            layer: layer
+            layer: layer,
+            layerNumber: layerNumber,
+            extraParent: extraParent,
+            extraIndex: extraIndex,
+            canonicalId: canonicalId
         )
     }
 }

@@ -10,9 +10,10 @@ Edit the generated file in `workspace/`, then press Enter to check. Use `h` for 
 
 ## How it works
 - Generates a challenge file in `workspace/` and waits for you to press Enter to check.
+- Challenge files use layered IDs (e.g., `challenge-core-18.swift`, `challenge-core-18.1.swift`).
 - Runs your edited Swift file and compares its output to the expected answer.
 - Tracks progress in `workspace/.progress` so you can resume later.
-- Current curriculum includes Challenges 1–254 in `Sources/forge/Challenges.swift`.
+- Current curriculum is defined in `Sources/forge/Challenges.swift` (mainline + extras).
 - Each stage ends with a brief stage review (three challenges repeated twice) before its project unlocks.
   - You can tune the review with `--gate-passes <n>` and `--gate-count <n>`.
 - Stage review selection is deterministic by default; enable adaptive weighting with `--adaptive-on`.
@@ -36,7 +37,8 @@ Use `swift run forge --help` for usage and `swift run forge <command> --help` fo
 
 Progress helpers:
 - `swift run forge progress <target>` sets `.progress` using a challenge/project/step target.
-- `swift run forge remap-progress <target>` translates legacy challenge numbers after renumbering (e.g., `challenge:18` → `challenge:20`).
+- `swift run forge remap-progress <target>` translates legacy numeric challenge targets to layered IDs (e.g., `challenge:18` → `challenge:core:18`).
+- `swift run forge report-overrides [--threshold <n>]` prints suggested extra-parent overrides when an extra is far from its parent.
 
 ## Practice mode
 ```sh
@@ -50,7 +52,7 @@ Practice mode runs an adaptive‑weighted set (when stats exist) and uses `works
 By default, practice is limited to challenges you've already reached in the main flow, plus
 relevant extra challenges for layers you've reached.
 Use `--all` to practice across the entire curriculum.
-You can also target sublayers with `core1|core2|core3|mantle1|mantle2|mantle3|crust1|crust2|crust3`.
+You can also target sublayers with `core1|core2|core3|mantle1|mantle2|mantle3|crust1|crust2|crust3` or use `bridge` to focus on bridge challenges.
 
 ## Flags and options
 Flow control:
@@ -140,22 +142,27 @@ Use `scripts/constraints_check.sh` to run a constraint-only sweep for core, mant
 ## Progress shortcuts
 You can set `workspace/.progress` manually to jump ahead.
 You can also use `swift run forge progress <target>` to update it for you.
-You can also pass the same tokens directly to Forge (for example, `swift run forge challenge:36`).
+You can also pass the same tokens directly to Forge (for example, `swift run forge challenge:core:36`).
 
-- Challenge number: use `challenge:<number>` (e.g., `challenge:36`).
-- Challenge id: use `challenge:<id>` for extras (e.g., `challenge:crust-extra-async-sleep`).
+- Challenge (layered): use `challenge:<layer>:<number>` (e.g., `challenge:core:36`).
+- Extra challenge (layered): use `challenge:<layer>:<number>.<extra>` (e.g., `challenge:core:18.1`).
+- Layered numbers are per layer (core/mantle/crust).
+- Legacy challenge number: use `challenge:<number>` (e.g., `challenge:36`).
+- Challenge id: use `challenge:<id>` (e.g., `challenge:crust-extra-async-sleep`).
 - Project id: use `project:<id>` or just `<id>` (case-insensitive).
 
 Examples:
 ```
-swift run forge challenge:36
+swift run forge challenge:core:36
+swift run forge challenge:core:18.1
 swift run forge project:core2a
 swift run forge core2a
-swift run forge progress challenge:36
+swift run forge progress challenge:core:36
 swift run forge progress project:core2a
 swift run forge progress step:19
 swift run forge verify-solutions core --constraints-only
-challenge:36
+challenge:core:36
+challenge:core:18.1
 challenge:crust-extra-async-sleep
 project:core3a
 core2a

@@ -4,7 +4,7 @@
 - `Package.swift` defines a single Swift Package Manager executable target named `forge`.
 - `Sources/forge/forge.swift` contains the CLI entry point and all challenge logic.
 - `Sources/forge/Challenges.swift` defines `Challenge` data and the curriculum (currently 1–254).
-- `workspace/` holds generated challenge files (`challenge1.swift`, etc.) and the `.progress` marker used to resume.
+- `workspace/` holds generated challenge files (`challenge-core-1.swift`, etc.) and the `.progress` marker used to resume.
   - Core 3 includes a stepped closure sequence from full syntax to shorthand.
 
 ## Build, Test, and Development Commands
