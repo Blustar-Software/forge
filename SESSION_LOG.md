@@ -1,7 +1,7 @@
 # Session Log
 
 ## Current State
-- Forge is a SwiftPM CLI with challenges defined in `Sources/forge/Challenges.swift` (now 1–241, including bridge challenges).
+- Forge is a SwiftPM CLI with challenges defined in `Sources/forge/Challenges.swift` (now 1–255, including bridge challenges).
 - Challenge headers live inside each `starterCode`; the CLI no longer prepends headers when writing files.
 - Output validation trims whitespace/newlines before comparison.
 - Challenge and project checks are triggered manually by pressing Enter.
@@ -272,7 +272,7 @@
 - Tweaked Core 1 hints to avoid solution leakage and remove optional terminology before it's introduced.
 - Ran `swift test`; all tests pass.
 - Added lesson sheets support (`l` command) and a Booleans & Logic lesson.
-- Added Core extra challenges 253–254 for boolean logic practice; updated README and curriculum docs.
+- Added Core extra challenges 254–255 for boolean logic practice; updated README and curriculum docs.
 - Inserted mainline boolean challenges 14–15 (Comparison Flags, Metal Readiness) and renumbered challenges 14+.
 - Core 1 integration challenges now use a custom integration cheatsheet and no lesson.
 - Challenge numbering shifted by +2 starting at 14 due to new mainline boolean challenges; update any references accordingly.
@@ -320,6 +320,8 @@
 - Switched to layered canonical challenge IDs (e.g., core:18, core:18.1), updated practice ranges and help text, and added migrations for progress/stats/logs.
 - Bridge challenges now use a dedicated `bridge:<layer>:<n>` namespace and are excluded from covered/practice counts by default (layerIndex=0); added a bridge filter for practice/random/verify/review/audit.
 - Centralized practice/random/adaptive pool filtering to avoid bridge/extras drift across code paths.
+- Core 3 dictionary iteration now focuses on looping and aggregation (Challenge 44), with a new ordered-keys step added next and later Core 3 challenges renumbered by +1.
+- Converted Core mainline/extra TODOs to be more descriptive and moved concrete API/property names into hints where appropriate.
 - Challenge filenames now use canonical IDs (e.g., `challenge-core-18.1.swift`, `challenge-bridge-mantle-1.swift`).
 - Added `report-overrides` command to suggest extra-parent override candidates, with `--threshold` to tune distance sensitivity.
 - Added canonical ID uniqueness test and updated parsing/migration tests for canonical and bridge IDs.

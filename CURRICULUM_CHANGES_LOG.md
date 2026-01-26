@@ -127,7 +127,7 @@
 - Added 5 Core extra challenges for numeric conversion, string-to-int conversion, dictionary default updates, set operations, and sorting.
 - Added 2 Mantle extra challenges for access control nuance and protocol extension constraints.
 - Added 2 Crust extra challenges for async let and a minimal XCTest example.
-- Expanded total challenges to 1–254.
+- Expanded total challenges to 1–255.
 
 ## 2026-01-16 (Core 1 Functions)
 - Added a Function Basics challenge before parameters.
@@ -140,7 +140,7 @@
 
 ## 2026-01-23 (Core Boolean Support)
 - Added lesson sheets support with a Booleans & Logic lesson.
-- Added Core extra challenges 253–254 for boolean logic practice (Boolean Flags, Grouped Logic).
+- Added Core extra challenges 254–255 for boolean logic practice (Boolean Flags, Grouped Logic).
 - Inserted mainline boolean challenges 14–15 (Comparison Flags, Metal Readiness) and renumbered challenges 14+ by +2.
 - Core 1 integration challenges now use a custom integration cheatsheet and no lesson.
 - Stage reviews now pull from curated per-stage pools; default passes reduced to 1.
@@ -156,3 +156,12 @@
 - Bridge challenges now use their own namespace (`bridge:<layer>:<n>`) and are excluded from covered/practice counts by default.
 - Challenge filenames now use canonical IDs (e.g., `challenge-core-18.1.swift`, `challenge-bridge-mantle-1.swift`).
 - Added migrations for progress, stats, pending practice, and performance logs to the new canonical IDs.
+
+## 2026-01-26 (Core 3 Dictionary Iteration)
+- Challenge 44 now focuses on iterating a dictionary and aggregating totals (order-independent).
+- Added a new Challenge 45 for stable ordering via sorted dictionary keys.
+- Shifted subsequent Core 3 challenge numbers by +1.
+- Total challenges now 1–255.
+
+## 2026-01-26 (Core TODO Wording)
+- Made Core TODO prompts more descriptive and moved explicit API/property names into hints to reduce copy-paste behavior.

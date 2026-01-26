@@ -4558,13 +4558,13 @@ func stageReviewPool(for id: String, challenges: [Challenge]) -> [Challenge] {
     let curated: [String: [Int]] = [
         "core1": [5, 8, 9, 10, 12, 13, 14, 15, 16, 18, 19, 20],
         "core2": [21, 22, 23, 24, 25, 29, 30, 33, 35, 37, 39, 41, 42],
-        "core3": [43, 46, 47, 48, 50, 52, 58, 62, 63, 69, 71, 76, 80],
-        "mantle1": [123, 125, 127, 130, 131, 132, 134],
-        "mantle2": [135, 137, 139, 140, 142, 144],
-        "mantle3": [145, 147, 149, 150, 151, 153],
-        "crust1": [174, 175, 176, 179, 180, 181, 185, 187, 190, 191],
-        "crust2": [192, 193, 194, 195, 196, 197, 198, 199, 200, 209],
-        "crust3": [210, 211, 213, 214, 216, 218, 219, 221, 224, 227]
+        "core3": [43, 47, 48, 49, 51, 53, 59, 63, 64, 70, 72, 77, 81],
+        "mantle1": [124, 126, 128, 131, 132, 133, 135],
+        "mantle2": [136, 138, 140, 141, 143, 145],
+        "mantle3": [146, 148, 150, 151, 152, 154],
+        "crust1": [175, 176, 177, 180, 181, 182, 186, 188, 191, 192],
+        "crust2": [193, 194, 195, 196, 197, 198, 199, 200, 201, 210],
+        "crust3": [211, 212, 214, 215, 217, 219, 220, 222, 225, 228]
     ]
     guard let numbers = curated[id] else { return challenges }
     let index = Dictionary(uniqueKeysWithValues: challenges.map { ($0.number, $0) })
@@ -5223,7 +5223,7 @@ func practiceRangeToken(_ raw: String) -> (layer: ChallengeLayer, range: ClosedR
     case "core2":
         return (.core, 21...42)
     case "core3":
-        return (.core, 43...80)
+        return (.core, 43...81)
     case "mantle1":
         return (.mantle, 1...11)
     case "mantle2":
