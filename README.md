@@ -1,5 +1,7 @@
 # forge
 
+![forge_swift](assets/forge_swift.PNG)
+
 Forge is a beginner-friendly Swift CLI that serves interactive coding challenges and checks your output.
 
 ## Quickstart
