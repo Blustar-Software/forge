@@ -154,14 +154,7 @@ func resetProgress(workspacePath: String = "workspace", removeAll: Bool = false)
     print("✓ Progress reset! Starting from Challenge 1.\n")
 }
 
-func loadChallenge(_ challenge: Challenge, workspacePath: String = "workspace") {
-    let filePath = "\(workspacePath)/\(challenge.filename)"
-
-    // Write challenge file
-    let content = "\(challenge.starterCode)\n"
-
-    try? content.write(toFile: filePath, atomically: true, encoding: .utf8)
-
+func challengePromptText(for challenge: Challenge, filePath: String) -> String {
     let checkMessage = challenge.manualCheck
         ? "Manual check: run 'swift \(filePath)' yourself, then press Enter to mark complete."
         : "Press Enter to check your work."
@@ -169,8 +162,7 @@ func loadChallenge(_ challenge: Challenge, workspacePath: String = "workspace") 
     let prereqBlock = prereqLine.isEmpty ? "" : "\n\(prereqLine)\n"
 
     let idLabel = challenge.id.isEmpty || challenge.id == challenge.displayId ? "" : " (\(challenge.id))"
-    print(
-        """
+    return """
 
         Challenge \(challenge.displayId)\(idLabel): \(challenge.title)
         └─ \(challenge.description)
@@ -181,7 +173,18 @@ func loadChallenge(_ challenge: Challenge, workspacePath: String = "workspace") 
         \(checkMessage)
         Type 'h' for a hint, 'c' for a cheatsheet, 'l' for a lesson, or 's' for the solution.
         Viewing the solution may queue practice when adaptive is enabled.
-        """)
+        """
+}
+
+func loadChallenge(_ challenge: Challenge, workspacePath: String = "workspace") {
+    let filePath = "\(workspacePath)/\(challenge.filename)"
+
+    // Write challenge file
+    let content = "\(challenge.starterCode)\n"
+
+    try? content.write(toFile: filePath, atomically: true, encoding: .utf8)
+
+    print(challengePromptText(for: challenge, filePath: filePath))
 }
 
 func layerIndex(for challenge: Challenge) -> Int {
@@ -3616,7 +3619,8 @@ func validateChallenge(
     enableConstraintProfiles: Bool,
     enforceConstraints: Bool = false,
     enableDiMockHeuristics: Bool = true,
-    assistedPass: Bool = false
+    assistedPass: Bool = false,
+    saveProgressOnPass: Bool = true
 ) -> Bool {
     let filePath = "\(workspacePath)/\(challenge.filename)"
     var sourceForDiagnostics: String? = nil
@@ -3638,7 +3642,9 @@ func validateChallenge(
             intFields: ["number": layerIndex(for: challenge)],
             workspacePath: workspacePath
         )
-        saveProgress(nextStepIndex)
+        if saveProgressOnPass {
+            saveProgress(nextStepIndex)
+        }
         print("✓ Challenge marked complete.\n")
         return true
     }
@@ -3718,8 +3724,9 @@ func validateChallenge(
             workspacePath: workspacePath
         )
 
-        // Save progress to next step
-        saveProgress(nextStepIndex)
+        if saveProgressOnPass {
+            saveProgress(nextStepIndex)
+        }
 
         return true
     } else {
@@ -4237,9 +4244,18 @@ func runSteps(
                     enableConstraintProfiles: enableConstraintProfiles,
                     enforceConstraints: enforceConstraints,
                     enableDiMockHeuristics: enableDiMockHeuristics,
-                    assistedPass: solutionViewedBeforePass
+                    assistedPass: solutionViewedBeforePass,
+                    saveProgressOnPass: false
                 )
                 if didPass {
+                    if shouldRepeatChallenge() {
+                        hintIndex = 0
+                        solutionViewedBeforePass = false
+                        clearScreen()
+                        loadChallenge(challenge)
+                        continue
+                    }
+                    saveProgress(nextStepIndex)
                     if solutionViewedBeforePass, adaptiveEnabled {
                         if pendingAdaptiveTopic == challenge.topic {
                             pendingAdaptiveTopic = nil
@@ -4333,7 +4349,6 @@ func runSteps(
                             if justRanAdaptivePractice {
                                 justRanAdaptivePractice = false
                             } else {
-                                waitForEnterToContinue()
                                 clearScreen()
                             }
                         case .project:
@@ -4715,16 +4730,20 @@ func pickStageReviewChallengesAdaptive(
     )
 }
 
-func topAdaptiveTopics(
+func adaptiveTopicRanking(
     from challenges: [Challenge],
-    stats: [String: [String: Int]],
-    limit: Int = 2
-) -> [ChallengeTopic] {
+    stats: [String: [String: Int]]
+) -> [(topic: ChallengeTopic, score: Int, count: Int)] {
+    guard !stats.isEmpty else { return [] }
     let topics = Set(challenges.map { $0.topic })
-    let ranked = topics.map { topic in
-        (topic, topicScore(for: topic, stats: stats))
-    }.sorted { $0.1 > $1.1 }
-    return ranked.prefix(limit).map { $0.0 }
+    let counts = Dictionary(grouping: challenges, by: { $0.topic }).mapValues { $0.count }
+    return topics.map { topic in
+        (topic, topicScore(for: topic, stats: stats), counts[topic] ?? 0)
+    }.sorted {
+        if $0.score != $1.score { return $0.score > $1.score }
+        if $0.count != $1.count { return $0.count > $1.count }
+        return $0.topic.rawValue < $1.topic.rawValue
+    }
 }
 
 func pickAdaptivePracticeSet(
@@ -4733,20 +4752,187 @@ func pickAdaptivePracticeSet(
     challengeStats: [String: ChallengeStats],
     count: Int
 ) -> [Challenge] {
-    let topTopics = topAdaptiveTopics(from: challenges, stats: stats, limit: 2)
-    guard !topTopics.isEmpty else {
-        return Array(challenges.shuffled().prefix(count))
-    }
-    let filtered = challenges.filter { topTopics.contains($0.topic) }
-    if filtered.isEmpty {
-        return Array(challenges.shuffled().prefix(count))
-    }
     let now = Int(Date().timeIntervalSince1970)
-    return weightedRandomSelection(
-        from: filtered,
-        weight: { adaptiveChallengeWeight(challenge: $0, topicStats: stats, challengeStats: challengeStats, now: now) },
-        count: min(count, filtered.count)
+    let basePool: [Challenge]
+    var preferredTopics: [ChallengeTopic] = []
+    if stats.isEmpty {
+        basePool = challenges
+    } else {
+        let ranked = adaptiveTopicRanking(from: challenges, stats: stats)
+        if ranked.isEmpty {
+            basePool = challenges
+        } else {
+            let topScore = ranked[0].score
+            let allSameScore = ranked.allSatisfy { $0.score == topScore }
+            let limit = allSameScore ? min(4, ranked.count) : min(2, ranked.count)
+            preferredTopics = ranked.prefix(limit).map { $0.topic }
+            basePool = challenges.filter { preferredTopics.contains($0.topic) }
+        }
+    }
+    if basePool.isEmpty {
+        return Array(challenges.shuffled().prefix(count))
+    }
+    return pickPracticeSetWithSpread(
+        from: basePool,
+        stats: stats,
+        challengeStats: challengeStats,
+        count: count,
+        now: now,
+        preferredTopics: preferredTopics
     )
+}
+
+func pickPracticeSetWithSpread(
+    from challenges: [Challenge],
+    stats: [String: [String: Int]],
+    challengeStats: [String: ChallengeStats],
+    count: Int,
+    now: Int,
+    preferredTopics: [ChallengeTopic] = []
+) -> [Challenge] {
+    let selectionCount = min(count, challenges.count)
+    guard selectionCount > 0 else { return [] }
+
+    func practiceIndex(for challenge: Challenge) -> Int {
+        let base = layerIndex(for: challenge)
+        return challenge.extraParent ?? base
+    }
+
+    let maxIndex = challenges.map(practiceIndex).max() ?? 1
+    let lowCutoff = max(1, maxIndex / 3)
+    let midCutoff = max(1, (maxIndex * 2) / 3)
+    var buckets: [[Challenge]] = [[], [], []]
+    for challenge in challenges {
+        let index = practiceIndex(for: challenge)
+        if index <= lowCutoff {
+            buckets[0].append(challenge)
+        } else if index <= midCutoff {
+            buckets[1].append(challenge)
+        } else {
+            buckets[2].append(challenge)
+        }
+    }
+
+    var remaining = challenges
+    var selection: [Challenge] = []
+    var usedParents: Set<String> = []
+
+    func parentKey(for challenge: Challenge) -> String? {
+        guard challenge.tier == .extra else { return nil }
+        let parent = challenge.extraParent ?? layerIndex(for: challenge)
+        return "\(challenge.layer.rawValue):\(parent)"
+    }
+
+    func rangeBonus(for challenge: Challenge, maxIndex: Int) -> Int {
+        let index = practiceIndex(for: challenge)
+        if maxIndex <= 0 { return 0 }
+        let lowCutoff = max(1, maxIndex / 3)
+        let midCutoff = max(1, (maxIndex * 2) / 3)
+        if index <= lowCutoff { return 0 }
+        if index <= midCutoff { return 1 }
+        return 2
+    }
+
+    func pickOne(from pool: [Challenge]) -> Challenge? {
+        if pool.isEmpty { return nil }
+        let filtered = pool.filter { candidate in
+            guard let key = parentKey(for: candidate) else { return true }
+            return !usedParents.contains(key)
+        }
+        let candidates = filtered.isEmpty ? pool : filtered
+        let maxIndex = candidates.map(practiceIndex).max() ?? 1
+        return weightedRandomSelection(
+            from: candidates,
+            weight: {
+                adaptiveChallengeWeight(challenge: $0, topicStats: stats, challengeStats: challengeStats, now: now)
+                + rangeBonus(for: $0, maxIndex: maxIndex)
+            },
+            count: 1
+        ).first
+    }
+
+    if selectionCount >= 2 {
+        let topicsToSeed = preferredTopics.isEmpty
+            ? Array(Set(challenges.map { $0.topic })).sorted { $0.rawValue < $1.rawValue }
+            : preferredTopics
+        for topic in topicsToSeed {
+            if selection.count >= selectionCount { break }
+            let topicPool = remaining.filter { $0.topic == topic }
+            if let picked = pickOne(from: topicPool) {
+                selection.append(picked)
+                if let key = parentKey(for: picked) { usedParents.insert(key) }
+                remaining.removeAll { $0.displayId == picked.displayId }
+                for index in buckets.indices {
+                    buckets[index].removeAll { $0.displayId == picked.displayId }
+                }
+            }
+        }
+    }
+
+    if selectionCount >= 3 {
+        for bucket in buckets {
+            if selection.count >= selectionCount { break }
+            if let picked = pickOne(from: bucket) {
+                selection.append(picked)
+                if let key = parentKey(for: picked) { usedParents.insert(key) }
+                remaining.removeAll { $0.displayId == picked.displayId }
+                for index in buckets.indices {
+                    buckets[index].removeAll { $0.displayId == picked.displayId }
+                }
+            }
+        }
+    }
+
+    while selection.count < selectionCount {
+        if let picked = pickOne(from: remaining) {
+            selection.append(picked)
+            if let key = parentKey(for: picked) { usedParents.insert(key) }
+            remaining.removeAll { $0.displayId == picked.displayId }
+        } else {
+            break
+        }
+    }
+
+    return selection
+}
+
+func practiceAdaptiveSummary(
+    from pool: [Challenge],
+    stats: [String: [String: Int]],
+    limit: Int = 2
+) -> String? {
+    guard !stats.isEmpty else { return nil }
+    let ranked = adaptiveTopicRanking(from: pool, stats: stats)
+    let topTopics = ranked.prefix(limit).map { $0.topic }
+    guard !topTopics.isEmpty else { return nil }
+    let parts = topTopics.map { topic in
+        "\(topic.rawValue) (score \(topicScore(for: topic, stats: stats)))"
+    }
+    return "Adaptive focus: \(parts.joined(separator: ", "))."
+}
+
+func printPracticeReport(
+    pool: [Challenge],
+    stats: [String: [String: Int]],
+    challengeStats: [String: ChallengeStats]
+) {
+    let counts = Dictionary(grouping: pool, by: { $0.topic }).mapValues { $0.count }
+    let sortedCounts = counts.sorted {
+        if $0.value != $1.value { return $0.value > $1.value }
+        return $0.key.rawValue < $1.key.rawValue
+    }
+    print("Practice report")
+    print("Eligible challenges: \(pool.count)")
+    print("Adaptive stats entries: \(stats.count)")
+    print("Challenge stats entries: \(challengeStats.count)")
+    print("Topic counts + scores:")
+    for (topic, count) in sortedCounts {
+        let score = topicScore(for: topic, stats: stats)
+        print("- \(topic.rawValue): \(count) (score \(score))")
+    }
+    if let summary = practiceAdaptiveSummary(from: pool, stats: stats, limit: 3) {
+        print(summary)
+    }
 }
 
 func shouldTriggerAdaptiveGate(
@@ -4794,6 +4980,7 @@ func runAdaptiveGate(
     runPracticeChallenges(
         selection,
         workspacePath: workspacePath,
+        statsWorkspacePath: "workspace",
         constraintIndex: constraintIndex,
         confirmCheckEnabled: confirmCheckEnabled,
         confirmSolutionEnabled: confirmSolutionEnabled,
@@ -4821,6 +5008,12 @@ func nextStepPrompt(for step: Step) -> String {
 func waitForEnterToContinue() {
     print("Press Enter to continue.")
     _ = readLine()
+}
+
+func shouldRepeatChallenge() -> Bool {
+    print("Press Enter to continue, or type 'r' to repeat this challenge.")
+    let input = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
+    return input == "r"
 }
 
 func confirmCheckIfNeeded(_ enabled: Bool) -> Bool {
@@ -6185,6 +6378,7 @@ func pickRandomProject(
 func runPracticeChallenges(
     _ challenges: [Challenge],
     workspacePath: String,
+    statsWorkspacePath: String = "workspace",
     constraintIndex: ConstraintIndex,
     confirmCheckEnabled: Bool,
     confirmSolutionEnabled: Bool,
@@ -6292,15 +6486,15 @@ func runPracticeChallenges(
                 print("\n--- Manual check ---\n")
                 print("Manual check: forge does not auto-validate this challenge.")
                 print("✓ Challenge marked complete.\n")
-                recordConstraintMastery(topic: challenge.topic, hadWarnings: false, passed: true, workspacePath: workspacePath)
+                recordConstraintMastery(topic: challenge.topic, hadWarnings: false, passed: true, workspacePath: statsWorkspacePath)
                 let result = solutionViewedBeforePass ? "pass_assisted" : "manual_pass"
-                recordAdaptiveStat(topic: challenge.topic, result: result, workspacePath: workspacePath)
-                recordAdaptiveChallengeStat(challenge: challenge, result: result, workspacePath: workspacePath)
+                recordAdaptiveStat(topic: challenge.topic, result: result, workspacePath: statsWorkspacePath)
+                recordAdaptiveChallengeStat(challenge: challenge, result: result, workspacePath: statsWorkspacePath)
                 logEvent(
                     "challenge_manual_complete",
                     fields: ["id": challenge.displayId, "mode": "random", "result": result],
                     intFields: ["number": layerIndex(for: challenge)],
-                    workspacePath: workspacePath
+                    workspacePath: statsWorkspacePath
                 )
                 completedFiles.append("\(workspacePath)/\(challenge.filename)")
                 challengeComplete = true
@@ -6321,7 +6515,7 @@ func runPracticeChallenges(
                             print(violation)
                         }
                         print("\n✗ Constraint violation. Fix and retry.")
-                        logConstraintViolation(challenge, mode: "random", workspacePath: workspacePath)
+                        logConstraintViolation(challenge, mode: "random", workspacePath: statsWorkspacePath)
                         continue
                     }
                     let warnings = constraintWarnings(
@@ -6336,7 +6530,7 @@ func runPracticeChallenges(
                             print(warning)
                         }
                         print("")
-                        if effectiveConstraintEnforcement(for: challenge.topic, enforceConstraints: enforceConstraints, workspacePath: workspacePath) {
+                        if effectiveConstraintEnforcement(for: challenge.topic, enforceConstraints: enforceConstraints, workspacePath: statsWorkspacePath) {
                             print("✗ Constraint violation. Remove early concepts and retry.")
                             continue
                         }
@@ -6352,13 +6546,13 @@ func runPracticeChallenges(
                         print("")
                     }
                     print("✗ Compile/runtime error. Check your code.")
-                    recordAdaptiveStat(topic: challenge.topic, result: "compile_fail", workspacePath: workspacePath)
-                    recordAdaptiveChallengeStat(challenge: challenge, result: "compile_fail", workspacePath: workspacePath)
+                    recordAdaptiveStat(topic: challenge.topic, result: "compile_fail", workspacePath: statsWorkspacePath)
+                    recordAdaptiveChallengeStat(challenge: challenge, result: "compile_fail", workspacePath: statsWorkspacePath)
                     logEvent(
                         "challenge_attempt",
                         fields: ["id": challenge.displayId, "result": "compile_fail", "mode": "random"],
                         intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
-                        workspacePath: workspacePath
+                        workspacePath: statsWorkspacePath
                     )
                     continue
                 }
@@ -6371,15 +6565,15 @@ func runPracticeChallenges(
                         ? "✓ Challenge Complete! (assisted)\n"
                         : "✓ Challenge Complete! Well done.\n"
                     print(completionLabel)
-                    recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: true, workspacePath: workspacePath)
+                    recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: true, workspacePath: statsWorkspacePath)
                     let result = solutionViewedBeforePass ? "pass_assisted" : "pass"
-                    recordAdaptiveStat(topic: challenge.topic, result: result, workspacePath: workspacePath)
-                    recordAdaptiveChallengeStat(challenge: challenge, result: result, workspacePath: workspacePath)
+                    recordAdaptiveStat(topic: challenge.topic, result: result, workspacePath: statsWorkspacePath)
+                    recordAdaptiveChallengeStat(challenge: challenge, result: result, workspacePath: statsWorkspacePath)
                     logEvent(
                         "challenge_attempt",
                         fields: ["id": challenge.displayId, "result": result, "mode": "random"],
                         intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
-                        workspacePath: workspacePath
+                        workspacePath: statsWorkspacePath
                     )
                     completedFiles.append("\(workspacePath)/\(challenge.filename)")
                     challengeComplete = true
@@ -6394,14 +6588,14 @@ func runPracticeChallenges(
                         )
                     )
                     printDiagnostics(diagnostics)
-                    recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: false, workspacePath: workspacePath)
-                    recordAdaptiveStat(topic: challenge.topic, result: "fail", workspacePath: workspacePath)
-                    recordAdaptiveChallengeStat(challenge: challenge, result: "fail", workspacePath: workspacePath)
+                    recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: false, workspacePath: statsWorkspacePath)
+                    recordAdaptiveStat(topic: challenge.topic, result: "fail", workspacePath: statsWorkspacePath)
+                    recordAdaptiveChallengeStat(challenge: challenge, result: "fail", workspacePath: statsWorkspacePath)
                     logEvent(
                         "challenge_attempt",
                         fields: ["id": challenge.displayId, "result": "fail", "mode": "random"],
                         intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
-                        workspacePath: workspacePath
+                        workspacePath: statsWorkspacePath
                     )
                 }
             }
@@ -7028,11 +7222,13 @@ struct Forge {
                 return
             }
             if ["practice"].contains(firstArg) {
-                let practiceArgs = Array(args.dropFirst())
+                var practiceArgs = Array(args.dropFirst())
                 if practiceArgs.first?.lowercased() == "help" || practiceArgs.first == "--help" {
                     printPracticeUsage()
                     return
                 }
+                let reportOnly = practiceArgs.contains { ["--report", "report"].contains($0.lowercased()) }
+                practiceArgs = practiceArgs.filter { !["--report", "report"].contains($0.lowercased()) }
                 setupWorkspace(at: explicitPracticeWorkspace)
                 clearWorkspaceContents(at: explicitPracticeWorkspace)
                 let (count, topic, tier, layer, range, includeAll, bridgeOnly) = parsePracticeArguments(practiceArgs)
@@ -7055,6 +7251,10 @@ struct Forge {
                 let selectionCount = min(count, pool.count)
                 let stats = loadAdaptiveStats(workspacePath: "workspace")
                 let challengeStats = loadAdaptiveChallengeStats(workspacePath: "workspace")
+                if reportOnly {
+                    printPracticeReport(pool: pool, stats: stats, challengeStats: challengeStats)
+                    return
+                }
                 let selection = pickAdaptivePracticeSet(
                     from: pool,
                     stats: stats,
@@ -7062,10 +7262,14 @@ struct Forge {
                     count: selectionCount
                 )
                 print("Practice mode: \(selection.count) challenge(s).")
+                if let summary = practiceAdaptiveSummary(from: pool, stats: stats) {
+                    print(summary)
+                }
                 print("Workspace: \(explicitPracticeWorkspace)\n")
                 runPracticeChallenges(
                     selection,
                     workspacePath: explicitPracticeWorkspace,
+                    statsWorkspacePath: "workspace",
                     constraintIndex: constraintIndex,
                     confirmCheckEnabled: confirmCheckEnabled,
                     confirmSolutionEnabled: confirmSolutionEnabled,
@@ -7165,6 +7369,7 @@ struct Forge {
             runPracticeChallenges(
                 selection,
                 workspacePath: practiceWorkspace,
+                statsWorkspacePath: "workspace",
                 constraintIndex: constraintIndex,
                 confirmCheckEnabled: confirmCheckEnabled,
                 confirmSolutionEnabled: confirmSolutionEnabled,

@@ -616,6 +616,9 @@ Unwrap safely:
 
 Fallback:
 - optional ?? defaultValue
+
+Conversion:
+- Int("123") returns Int? and must be unwrapped
 """
 
 let lessonStringsAdvanced = """
@@ -1137,6 +1140,7 @@ Optionals
 - if let unwraps optionals safely
 - guard let unwraps with early exit
 - ?? provides a default value
+- Int("123") returns Int? (optional)
 """
 
 let cheatsheetErrors = """
