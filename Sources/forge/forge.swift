@@ -4779,6 +4779,7 @@ func printMainUsage() {
       swift run forge reset [--all] [--start]
       swift run forge stats [--reset]
       swift run forge remap-progress [target]
+      swift run forge catalog
       swift run forge practice [count] [topic] [tier] [layer]
       swift run forge random [count] [topic] [tier] [layer]
       swift run forge project <id>
@@ -4820,6 +4821,7 @@ func printMainUsage() {
       swift run forge stats --help
       swift run forge report --help
       swift run forge report-overrides --help
+      swift run forge catalog --help
 
     Examples:
       swift run forge practice 8
@@ -4841,6 +4843,7 @@ func printMainUsage() {
       swift run forge review-progression core 1-80
       swift run forge audit core
       swift run forge report
+      swift run forge catalog
 
     Notes:
       - Random mode uses workspace_random/. Project mode uses workspace_projects/.
@@ -4862,6 +4865,7 @@ func printMainUsage() {
       swift run forge verify-solutions --help
       swift run forge review-progression --help
       swift run forge audit --help
+      swift run forge catalog --help
     """)
 }
 
@@ -4909,6 +4913,16 @@ func printRemapProgressUsage() {
       swift run forge remap-progress challenge:core:18.1
       swift run forge remap-progress project:core1a
       swift run forge remap-progress step:42
+    """)
+}
+
+func printCatalogUsage() {
+    print("""
+    Usage:
+      swift run forge catalog
+
+    Output:
+      - Prints a table to stdout
     """)
 }
 
@@ -5605,7 +5619,7 @@ func reviewProgression(
 
     print("Reviewing \(sorted.count) challenge solution(s)...")
 
-    for challenge in sorted {
+    for challenge in challenges {
         let solution = challenge.solution.trimmingCharacters(in: .whitespacesAndNewlines)
         if solution.isEmpty {
             skipped += 1
@@ -5704,6 +5718,138 @@ func printForgeReport(workspacePath: String = "workspace") {
 
     print("")
     printAdaptiveStats(workspacePath: workspacePath, statsLimit: 5)
+}
+
+func csvEscape(_ value: String) -> String {
+    if value.contains(",") || value.contains("\"") || value.contains("\n") || value.contains("\r") {
+        let escaped = value.replacingOccurrences(of: "\"", with: "\"\"")
+        return "\"\(escaped)\""
+    }
+    return value
+}
+
+func truncate(_ value: String, limit: Int) -> String {
+    guard value.count > limit else { return value }
+    let index = value.index(value.startIndex, offsetBy: max(0, limit - 1))
+    return String(value[..<index]) + "..."
+}
+
+func challengeCatalogLines(_ challenges: [Challenge]) -> [String] {
+    let sorted = challenges.sorted { lhs, rhs in
+        let layerOrder: [ChallengeLayer: Int] = [.core: 0, .mantle: 1, .crust: 2]
+        let lhsLayer = layerOrder[lhs.layer] ?? 99
+        let rhsLayer = layerOrder[rhs.layer] ?? 99
+        if lhsLayer != rhsLayer { return lhsLayer < rhsLayer }
+        if lhs.tier != rhs.tier { return lhs.tier == .mainline }
+        let lhsNumber = lhs.layerNumber ?? lhs.number
+        let rhsNumber = rhs.layerNumber ?? rhs.number
+        if lhsNumber != rhsNumber { return lhsNumber < rhsNumber }
+        let lhsExtra = lhs.extraIndex ?? 0
+        let rhsExtra = rhs.extraIndex ?? 0
+        if lhsExtra != rhsExtra { return lhsExtra < rhsExtra }
+        return lhs.displayId < rhs.displayId
+    }
+
+    let idWidth = min(28, max(6, challenges.map { $0.displayId.count }.max() ?? 6))
+    let layerWidth = 6
+    let tierWidth = 7
+    let topicWidth = 12
+    let numberWidth = 4
+    let extraWidth = 5
+    let titleWidth = 52
+
+    func pad(_ value: String, to width: Int) -> String {
+        if value.count >= width {
+            return value
+        }
+        return value + String(repeating: " ", count: width - value.count)
+    }
+
+    let header = [
+        pad("ID", to: idWidth),
+        pad("Layer", to: layerWidth),
+        pad("Tier", to: tierWidth),
+        pad("Topic", to: topicWidth),
+        pad("#", to: numberWidth),
+        pad("Extra", to: extraWidth),
+        pad("Title", to: titleWidth)
+    ].joined(separator: "  ")
+    var lines: [String] = []
+    lines.append(header)
+    lines.append(String(repeating: "-", count: header.count))
+    for challenge in sorted {
+        let title = truncate(challenge.title, limit: titleWidth)
+        let number = challenge.layerNumber ?? challenge.number
+        let extra = challenge.extraIndex.map(String.init) ?? ""
+        let row = [
+            pad(challenge.displayId, to: idWidth),
+            pad(challenge.layer.rawValue, to: layerWidth),
+            pad(challenge.tier.rawValue, to: tierWidth),
+            pad(challenge.topic.rawValue, to: topicWidth),
+            pad(String(number), to: numberWidth),
+            pad(extra, to: extraWidth),
+            pad(title, to: titleWidth)
+        ].joined(separator: "  ")
+        lines.append(row)
+    }
+    return lines
+}
+
+func printChallengeCatalogTable(_ challenges: [Challenge]) {
+    let lines = challengeCatalogLines(challenges)
+    for line in lines {
+        print(line)
+    }
+}
+
+func writeChallengeCatalogText(_ challenges: [Challenge], path: String) {
+    let lines = challengeCatalogLines(challenges)
+    let content = lines.joined(separator: "\n") + "\n"
+    try? content.write(toFile: path, atomically: true, encoding: .utf8)
+}
+
+func writeChallengeCatalogCSV(_ challenges: [Challenge], path: String) {
+    var lines: [String] = []
+    lines.append("displayId,canonicalId,id,number,layerNumber,extraParent,extraIndex,tier,layer,topic,title")
+    for challenge in challenges {
+        let fields = [
+            challenge.displayId,
+            challenge.canonicalId,
+            challenge.id,
+            String(challenge.number),
+            challenge.layerNumber.map(String.init) ?? "",
+            challenge.extraParent.map(String.init) ?? "",
+            challenge.extraIndex.map(String.init) ?? "",
+            challenge.tier.rawValue,
+            challenge.layer.rawValue,
+            challenge.topic.rawValue,
+            challenge.title
+        ].map(csvEscape)
+        lines.append(fields.joined(separator: ","))
+    }
+    let content = lines.joined(separator: "\n") + "\n"
+    try? content.write(toFile: path, atomically: true, encoding: .utf8)
+}
+
+func writeChallengeCatalogJSON(_ challenges: [Challenge], path: String) {
+    let payload = challenges.map { challenge -> [String: Any] in
+        [
+            "displayId": challenge.displayId,
+            "canonicalId": challenge.canonicalId,
+            "id": challenge.id,
+            "number": challenge.number,
+            "layerNumber": challenge.layerNumber as Any,
+            "extraParent": challenge.extraParent as Any,
+            "extraIndex": challenge.extraIndex as Any,
+            "tier": challenge.tier.rawValue,
+            "layer": challenge.layer.rawValue,
+            "topic": challenge.topic.rawValue,
+            "title": challenge.title
+        ]
+    }
+    if let data = try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys]) {
+        try? data.write(to: URL(fileURLWithPath: path))
+    }
 }
 
 func reportOverrideSuggestions(
@@ -6444,7 +6590,7 @@ struct Forge {
             guard !args.isEmpty else { return nil }
             let arg = args[0]
             let lowered = arg.lowercased()
-            if ["reset", "practice", "random", "project", "progress", "remap-progress", "verify-solutions", "verify", "review-progression", "review", "stats", "audit", "report"].contains(lowered) {
+            if ["reset", "practice", "random", "project", "progress", "remap-progress", "verify-solutions", "verify", "review-progression", "review", "stats", "audit", "report", "catalog"].contains(lowered) {
                 return nil
             }
             if ["help", "-h", "--help"].contains(lowered) {
@@ -6475,6 +6621,7 @@ struct Forge {
         let projects = makeProjects()
         let allChallenges = sets.allChallenges
         let constraintIndex = buildConstraintIndex(from: allChallenges)
+        writeChallengeCatalogText(allChallenges, path: "challenge_catalog.txt")
         let steps = makeSteps(
             core1Challenges: core1Challenges,
             core2Challenges: core2Challenges,
@@ -6554,6 +6701,21 @@ struct Forge {
                 }
             }
             reportOverrideSuggestions(sets: sets, threshold: threshold)
+            return
+        }
+
+        if !args.isEmpty && args[0] == "catalog" {
+            let catalogArgs = Array(args.dropFirst())
+            if catalogArgs.contains("--help") || catalogArgs.contains("-h") || catalogArgs.contains("help") {
+                printCatalogUsage()
+                return
+            }
+            if !catalogArgs.isEmpty {
+                print("Catalog does not accept flags.")
+                printCatalogUsage()
+                return
+            }
+            printChallengeCatalogTable(allChallenges)
             return
         }
 
