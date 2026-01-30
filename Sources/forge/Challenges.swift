@@ -448,6 +448,53 @@ Core 1 Integration
 - Interpolation: "Value: \\(value)"
 """
 
+let lessonComments = """
+Lesson: Comments
+Comments are ignored by the compiler and help humans read code.
+
+Types:
+- Single-line: // comment
+- Multi-line: /* comment */
+
+Use comments to explain intent, not obvious syntax.
+"""
+
+let lessonVariablesAndTypes = """
+Lesson: Constants, Variables, and Types
+Use let for values that never change and var for values you will update.
+
+Types:
+- Swift is type-safe: once a type is set, it does not change.
+- You can annotate: let count: Int = 3
+- Or infer: let count = 3
+
+Common types:
+Int (whole numbers), Double (decimals), String (text), Bool (true/false).
+"""
+
+let lessonMathAndAssignment = """
+Lesson: Math & Assignment
+Arithmetic operators:
+- +, -, *, /, % (remainder)
+
+Integer division:
+- Int / Int produces an Int (truncates decimals).
+
+Compound assignment:
+- +=, -=, *=, /= update a variable in place.
+"""
+
+let lessonStrings = """
+Lesson: Strings
+Strings store text.
+
+Concatenation:
+- "Forge" + " Ready" → "Forge Ready"
+
+Interpolation:
+- "Level: \\(value)" inserts a value into text.
+"""
+
 let lessonBooleans = """
 Lesson: Booleans & Logic
 A Bool stores true or false. Comparisons (==, !=, <, >, <=, >=) produce Bool values.
@@ -463,6 +510,447 @@ Grouping:
 
 Pattern:
 let ready = (metal == "Iron" && temp >= 1400) || temp >= 1200
+"""
+
+let lessonFunctionsBasics = """
+Lesson: Functions
+Define a reusable action with func.
+
+Syntax:
+- func name(param: Type) -> ReturnType { ... }
+- If there is no return value, omit the return type.
+
+Calling:
+- Use argument labels by default: greet(name: "Forge")
+
+Return values:
+- Use return to send a value back to the caller.
+"""
+
+let lessonCore1Integration = """
+Lesson: Core 1 Integration
+Combine the basics into a single flow:
+- Setup: constants/variables
+- Compute: math and functions
+- Decide: comparisons and boolean logic
+- Report: string interpolation
+
+Keep steps clear and store intermediate results when helpful.
+"""
+
+let lessonConditionalsFlow = """
+Lesson: Conditionals
+Use if/else if/else to pick between multiple paths.
+
+Tips:
+- Check the most specific cases first.
+- The final else is your fallback.
+
+Ternary:
+- condition ? valueIfTrue : valueIfFalse
+"""
+
+let lessonSwitchAndRanges = """
+Lesson: Switch & Ranges
+Switch matches one value against multiple cases.
+
+Ranges:
+- Closed: 1...3 includes both ends
+- Half-open: 1..<3 excludes the upper bound
+
+Use ranges inside switch cases to match numeric bands.
+"""
+
+let lessonLoopsBasics = """
+Lesson: Loops
+Use loops to repeat work.
+
+Types:
+- for-in over ranges or collections
+- while when the condition is checked first
+- repeat-while when the body must run at least once
+
+Control:
+- continue skips the current iteration
+- break exits the loop
+"""
+
+let lessonCollectionsBasics = """
+Lesson: Collections
+Arrays and dictionaries store multiple values.
+
+Arrays:
+- [Int], [String], etc.
+- count and isEmpty
+- append to add
+
+Dictionaries:
+- ["Key": Value]
+- access with subscript and a default
+"""
+
+let lessonSetsBasics = """
+Lesson: Sets
+Sets keep unique values only and have no fixed order.
+Use Set(array) to remove duplicates.
+"""
+
+let lessonTuplesBasics = """
+Lesson: Tuples
+Tuples group related values without a new type.
+
+Access:
+- By index: value.0, value.1
+- By name: (min: Int, max: Int) then value.min
+
+Functions can return tuples to send multiple values back.
+"""
+
+let lessonOptionalsBasics = """
+Lesson: Optionals
+An Optional may be nil (missing).
+
+Unwrap safely:
+- if let value = optional { ... }
+- guard let value = optional else { return }
+
+Fallback:
+- optional ?? defaultValue
+"""
+
+let lessonStringsAdvanced = """
+Lesson: String Inspection
+Strings have helpful properties and methods.
+
+Common tools:
+- count for length
+- lowercased() for lowercase
+- contains("text") to search
+- hasPrefix("pre") and hasSuffix("suf")
+"""
+
+let lessonCollectionsAdvanced = """
+Lesson: Collection Iteration
+Iterate arrays and dictionaries to summarize data.
+
+Dictionary loops:
+- for (key, value) in dict { ... }
+- Use dict.keys.sorted() for stable order
+"""
+
+let lessonFunctionsAdvanced = """
+Lesson: Functions (Advanced)
+Customize function signatures for clarity and flexibility.
+
+Topics:
+- External/internal labels: func label(at value: Int)
+- Omit labels with _: func announce(_ value: String)
+- Default params: intensity: Int = 1
+- Variadics: func average(_ values: Int...)
+- inout: mutate caller values with &
+- Nested helper functions for validation
+"""
+
+let lessonClosuresBasics = """
+Lesson: Closures
+Closures are inline functions you can store or pass around.
+
+Progression:
+- Full syntax: { (value: Int) -> Int in ... }
+- Implicit return for single expressions
+- Type inference to drop types
+- Shorthand args: $0
+- Trailing closure syntax with function calls
+"""
+
+let lessonCollectionTransforms = """
+Lesson: Collection Transforms
+Use higher-order functions to transform data.
+
+Tools:
+- map: transform each element
+- filter: keep matching values
+- reduce: combine into one value
+- compactMap: unwrap + drop nils
+- flatMap: flatten nested collections
+- min/max return Optionals
+"""
+
+let lessonTypealiases = """
+Lesson: Typealias
+Typealiases give long types a readable name.
+Example: typealias Reading = (temp: Int, time: Int)
+"""
+
+let lessonEnumsBasics = """
+Lesson: Enums
+Enums define a fixed set of cases.
+
+Variants:
+- Raw values: enum Metal: String { case iron }
+- Associated values: case temperature(Int)
+- Pattern matching in switch, including where clauses
+"""
+
+let lessonErrorsBasics = """
+Lesson: Errors
+Throwing functions signal failure.
+
+Flow:
+- Define Error types
+- throw in invalid cases
+- do/try/catch to handle
+- try? converts errors to nil
+"""
+
+let lessonInputOutputBasics = """
+Lesson: Input & Files
+Read input from different sources.
+
+Sources:
+- readLine() for stdin
+- CommandLine.arguments for CLI args
+- String(contentsOfFile:) for files (Foundation)
+"""
+
+let lessonCore3Integration = """
+Lesson: Core 3 Integration
+Combine strings, collections, and transforms into a pipeline.
+Break the task into stages and verify each stage’s output.
+"""
+
+let lessonStructsBasics = """
+Lesson: Structs
+Structs are value types. Copies are independent.
+
+Focus:
+- Stored properties
+- Methods (use self when needed)
+- Custom init and mutating methods
+"""
+
+let lessonClassesBasics = """
+Lesson: Classes
+Classes are reference types. Copies share the same instance.
+
+Focus:
+- Initializers
+- Shared state
+- deinit for cleanup
+"""
+
+let lessonPropertiesAdvanced = """
+Lesson: Properties
+Swift supports computed, observed, lazy, and static properties.
+
+Patterns:
+- Computed get/set
+- willSet/didSet observers
+- lazy for deferred creation
+- static for type-wide values
+"""
+
+let lessonProtocolsBasics = """
+Lesson: Protocols
+Protocols define required properties or methods.
+
+Patterns:
+- Conformance in structs/classes
+- Protocols as parameter types
+- Composition with A & B
+- Inheritance to refine requirements
+"""
+
+let lessonExtensionsBasics = """
+Lesson: Extensions
+Extensions add behavior to existing types.
+
+Patterns:
+- Add methods or computed properties
+- Provide protocol default implementations
+- Constrained extensions for specific cases
+"""
+
+let lessonAccessControlBasics = """
+Lesson: Access Control
+Access levels control visibility of APIs.
+
+Levels:
+- private, internal (default), public, open
+- private(set) for controlled mutation
+"""
+
+let lessonGenericsBasics = """
+Lesson: Generics
+Generics let code work across many types.
+
+Patterns:
+- Generic functions and types
+- Constraints with : Comparable
+- Associated types in protocols
+- Where clauses and conditional conformance
+"""
+
+let lessonMemoryBasics = """
+Lesson: Memory & ARC
+ARC manages class lifetime with reference counting.
+
+Tip:
+- Use weak to avoid reference cycles.
+"""
+
+let lessonConcurrencyBasics = """
+Lesson: Concurrency Basics
+Swift concurrency uses async/await and Tasks.
+
+Tools:
+- async functions + await calls
+- Task for async work
+- Task groups for parallel work
+- AsyncStream for async sequences
+- Task cancellation via Task.isCancelled
+"""
+
+let lessonActorsBasics = """
+Lesson: Actors
+Actors protect mutable state from data races.
+
+Notes:
+- Access actor state with await
+- @MainActor isolates work to the main actor
+"""
+
+let lessonPropertyWrappersBasics = """
+Lesson: Property Wrappers
+Wrappers encapsulate storage behavior.
+
+Patterns:
+- @Wrapper on a property
+- wrappedValue controls get/set
+- projectedValue exposed with $name
+"""
+
+let lessonKeyPathsBasics = """
+Lesson: Key Paths
+Key paths refer to properties as values.
+
+Usage:
+- let path = \\Type.property
+- value[keyPath: path]
+- map(\\.property) for arrays
+"""
+
+let lessonSequencesBasics = """
+Lesson: Sequences
+Sequences provide one-pass iteration.
+
+Patterns:
+- Sequence + IteratorProtocol
+- lazy for deferred work
+- Array(sequence) to materialize
+"""
+
+let lessonAdvancedGenericsBasics = """
+Lesson: Advanced Generics
+Use protocols and generics to hide concrete types.
+
+Concepts:
+- Opaque types: some Protocol
+- Existentials: any Protocol
+- Type erasure wrappers
+- Primary associated types
+- where clauses for constraints
+"""
+
+let lessonPerformanceBasics = """
+Lesson: Performance & Layout
+Measure before optimizing and understand value semantics.
+
+Concepts:
+- Copy-on-write collections
+- MemoryLayout size/stride/alignment
+- Profiling with elapsed time
+"""
+
+let lessonAdvancedFeaturesBasics = """
+Lesson: Advanced Features
+Swift includes power features for expressive APIs.
+
+Examples:
+- Custom operators and subscripts
+- @dynamicMemberLookup and @dynamicCallable
+- Result builders
+- Reflection and runtime concepts
+"""
+
+let lessonMacrosBasics = """
+Lesson: Macros
+Macros expand code at compile time.
+
+Notes:
+- Usage is at call sites
+- Authoring provides expansion logic
+"""
+
+let lessonSwiftPMBasics = """
+Lesson: SwiftPM
+Swift Package Manager defines targets and dependencies.
+
+Notes:
+- Package.swift declares products and targets
+- Build configs affect #if DEBUG
+"""
+
+let lessonArchitecturePatterns = """
+Lesson: Architecture Patterns
+Organize code for testability and clarity.
+
+Patterns:
+- MVVM for view logic
+- Dependency injection
+- Coordinator and repository patterns
+- Protocol-based mocking
+"""
+
+let lessonTestingBasics = """
+Lesson: Testing Concepts
+Tests validate behavior and prevent regressions.
+
+Notes:
+- TDD: Red → Green → Refactor
+- Async tests can await
+- UI tests verify user flows
+"""
+
+let lessonInteropBasics = """
+Lesson: Interop Concepts
+Swift can interoperate with C and Objective-C.
+
+Notes:
+- C via module maps
+- Objective-C via @objc and bridging headers
+"""
+
+let lessonDebuggingBasics = """
+Lesson: Debugging Concepts
+Debuggers help inspect state and control execution.
+
+Notes:
+- LLDB common commands: po, bt
+"""
+
+let lessonGitBasics = """
+Lesson: Git Workflow
+Git tracks changes and coordinates collaboration.
+
+Typical flow:
+- branch → commit → push → PR
+"""
+
+let lessonCrustIntegration = """
+Lesson: Crust Integration
+Combine concurrency, actors, and wrappers in one flow.
+Focus on safe state updates and clear async boundaries.
 """
 
 let cheatsheetFunctionsBasics = """
@@ -1054,6 +1542,7 @@ print("Hello, Forge")
                 "Make sure the program prints two lines total.",
             ],
             cheatsheet: cheatsheetComments,
+            lesson: lessonComments,
             solution: #"""
 // This line prints a greeting to the console
 print("Hello, Forge")
@@ -1086,6 +1575,7 @@ print("Comments complete")
                 "print(...) outputs a value to the console.",
             ],
             cheatsheet: cheatsheetVariables,
+            lesson: lessonVariablesAndTypes,
             solution: """
 let forgeTemperature = 1500
 print(forgeTemperature)
@@ -1116,6 +1606,7 @@ print(forgeTemperature)
                 "Reassignment updates the stored value.",
             ],
             cheatsheet: cheatsheetVariables,
+            lesson: lessonVariablesAndTypes,
             solution: """
 var hammerWeight = 10
 print(hammerWeight)
@@ -1147,6 +1638,7 @@ print(hammerWeight)
                 "Use Int for whole numbers and Double for decimals.",
             ],
             cheatsheet: cheatsheetVariables,
+            lesson: lessonVariablesAndTypes,
             solution: """
 let metalCount: Int = 5
 let temperature: Double = 1500.5
@@ -1178,6 +1670,7 @@ print(temperature)
                 "print(...) outputs a value to the console.",
             ],
             cheatsheet: cheatsheetVariables,
+            lesson: lessonVariablesAndTypes,
             solution: #"""
 let ingotCount = 4
 let forgeName = "Forge"
@@ -1212,6 +1705,7 @@ print(forgeName)
                 "Integer division uses / on Int values.",
             ],
             cheatsheet: cheatsheetMathOperators,
+            lesson: lessonMathAndAssignment,
             solution: """
 print(a + b)
 print(a - b)
@@ -1244,6 +1738,7 @@ print(a % b)
                 "print(...) outputs a value to the console.",
             ],
             cheatsheet: cheatsheetMathOperators,
+            lesson: lessonMathAndAssignment,
             solution: """
 heat += 5
 print(heat)
@@ -1282,6 +1777,7 @@ print(heat)
                 "Include a space so the two words don't run together.",
             ],
             cheatsheet: cheatsheetStringBasics,
+            lesson: lessonStrings,
             solution: #"""
 let forgeWord = "Forge"
 let statusWord = "Ready"
@@ -1310,6 +1806,7 @@ print(message)
                 "String interpolation uses \\(value) inside a string.",
             ],
             cheatsheet: cheatsheetStringBasics,
+            lesson: lessonStrings,
             solution: #"""
 let forgeLevel = 3
 print("Forge level: \(forgeLevel)")
@@ -1498,6 +1995,7 @@ print(ready)
                 "The function body should print the word.",
             ],
             cheatsheet: cheatsheetFunctionsBasics,
+            lesson: lessonFunctionsBasics,
             solution: #"""
 func greet() {
     print("Forge")
@@ -1536,6 +2034,7 @@ greet()
             "Call both functions in order.",
         ],
         cheatsheet: cheatsheetFunctionsBasics,
+        lesson: lessonFunctionsBasics,
         solution: #"""
 func announce(message: String) {
     print(message)
@@ -1573,6 +2072,7 @@ mix(metal: "Iron", weight: 3)
                 "Returned values can be stored for later use.",
             ],
             cheatsheet: cheatsheetFunctionsBasics,
+            lesson: lessonFunctionsBasics,
             solution: """
 func addHeat(value: Int) -> Int {
     return value + 200
@@ -1606,6 +2106,7 @@ print(result)
                 "Formatted output can include values inside the text.",
             ],
             cheatsheet: cheatsheetCore1Integration,
+            lesson: lessonCore1Integration,
             solution: #"""
 var hammerHits = 2
 
@@ -1648,6 +2149,7 @@ print("Total hits: \(result)")
                 "The final output should summarize the chosen rule’s result.",
             ],
             cheatsheet: cheatsheetCore1Integration,
+            lesson: lessonCore1Integration,
             solution: #"""
 let metal = "Iron"
 var temperature = 1200
@@ -1693,6 +2195,7 @@ func makeCore2Challenges() -> [Challenge] {
                 "Put the fallback in the final else branch.",
             ],
             cheatsheet: cheatsheetConditionals,
+            lesson: lessonConditionalsFlow,
             solution: #"""
 if heatLevel >= 3 {
     print("Hot")
@@ -1726,6 +2229,7 @@ if heatLevel >= 3 {
                 "A ternary result can be stored in a variable before output.",
             ],
             cheatsheet: cheatsheetConditionals,
+            lesson: lessonConditionalsFlow,
             solution: #"""
 let status = heatLevel >= 3 ? "Hot" : "Warm"
 print(status)
@@ -1752,6 +2256,7 @@ print(status)
                 "Include a default case for anything not matched.",
             ],
             cheatsheet: cheatsheetConditionals,
+            lesson: lessonSwitchAndRanges,
             solution: #"""
 switch metal {
 case "Iron":
@@ -1788,6 +2293,7 @@ default:
                 "A final case can cover values outside earlier ranges.",
             ],
             cheatsheet: cheatsheetRanges,
+            lesson: lessonSwitchAndRanges,
             solution: #"""
 switch temperature {
 case 0...1199:
@@ -1822,6 +2328,7 @@ default:
                 "Accumulate into total before printing.",
             ],
             cheatsheet: cheatsheetLoops,
+            lesson: lessonLoopsBasics,
             solution: """
 for i in 1...5 {
     total += i
@@ -1851,6 +2358,7 @@ print(total)
                 "Update the counter each pass so it eventually stops.",
             ],
             cheatsheet: cheatsheetLoops,
+            lesson: lessonLoopsBasics,
             solution: """
 while count > 0 {
     print(count)
@@ -1881,6 +2389,7 @@ while count > 0 {
                 "Update the value, then check the condition.",
             ],
             cheatsheet: cheatsheetLoops,
+            lesson: lessonLoopsBasics,
             solution: """
 repeat {
     value += 1
@@ -1912,6 +2421,7 @@ print(value)
                 "break exits the loop entirely.",
             ],
             cheatsheet: cheatsheetLoops,
+            lesson: lessonLoopsBasics,
             solution: """
 for i in 1...5 {
     if i == 3 {
@@ -1945,6 +2455,7 @@ for i in 1...5 {
                 "Half-open ranges use 1..<3 and stop before the end value.",
             ],
             cheatsheet: cheatsheetRanges,
+            lesson: lessonSwitchAndRanges,
             solution: """
 for i in 1...3 {
     print(i)
@@ -1976,6 +2487,7 @@ for i in 1..<3 {
                 "Printing shows array contents.",
             ],
             cheatsheet: cheatsheetArrays,
+            lesson: lessonCollectionsBasics,
             solution: """
 let ingots: [Int] = [1, 2, 3]
 print(ingots)
@@ -2004,6 +2516,7 @@ print(ingots)
                 "Use the count property to get the number of elements.",
             ],
             cheatsheet: cheatsheetArrays,
+            lesson: lessonCollectionsBasics,
             solution: """
 ingots.append(4)
 print(ingots.count)
@@ -2032,6 +2545,7 @@ print(ingots.count)
                 "Accumulate a running total, then print it.",
             ],
             cheatsheet: cheatsheetLoops,
+            lesson: lessonLoopsBasics,
             solution: """
 for weight in weights {
     total += weight
@@ -2069,6 +2583,7 @@ print(total)
                 "Average uses integer division by the count (weights.count).",
             ],
             cheatsheet: cheatsheetLoops,
+            lesson: lessonLoopsBasics,
             solution: #"""
 var minWeight = weights[0]
 var maxWeight = weights[0]
@@ -2112,6 +2627,7 @@ print("Heavy: \(heavyCount)")
                 "Example: inventory[\"Iron\", default: 0].",
             ],
             cheatsheet: cheatsheetDictionaries,
+            lesson: lessonCollectionsBasics,
             solution: #"""
 let count = inventory["Iron", default: 0]
 print(count)
@@ -2145,6 +2661,7 @@ print(count)
                 "Dictionary values are also a collection (`.values`).",
             ],
             cheatsheet: cheatsheetCollectionsBasics,
+            lesson: lessonCollectionsBasics,
             solution: """
 print(ingots.count)
 print(ingots.isEmpty)
@@ -2175,6 +2692,7 @@ print(inventory.values.count)
                 "Use the count property to measure unique values.",
             ],
             cheatsheet: cheatsheetSets,
+            lesson: lessonSetsBasics,
             solution: """
 let unique = Set(batch)
 print(unique.count)
@@ -2209,6 +2727,7 @@ print(unique.count)
                 "String interpolation formats labeled values.",
             ],
             cheatsheet: cheatsheetTuples,
+            lesson: lessonTuplesBasics,
             solution: #"""
 print(temps.0)
 print(temps.1)
@@ -2243,6 +2762,7 @@ print("Average: \(report.average)")
                 "Return a named tuple like (min: Int, max: Int).",
             ],
             cheatsheet: cheatsheetTuples,
+            lesson: lessonTuplesBasics,
             solution: """
 func minMax(values: [Int]) -> (min: Int, max: Int) {
     var minValue = values[0]
@@ -2282,6 +2802,7 @@ print(\"Max: \\(report.max)\")
                 "Provide a fallback when the value is nil.",
             ],
             cheatsheet: cheatsheetOptionals,
+            lesson: lessonOptionalsBasics,
             solution: #"""
 if let level = heatLevel {
     print(level)
@@ -2314,6 +2835,7 @@ if let level = heatLevel {
                 "Only print when both values are available.",
             ],
             cheatsheet: cheatsheetOptionals,
+            lesson: lessonOptionalsBasics,
             solution: #"""
 if let smithName = smithName, let metal = metal {
     print("\(smithName) works \(metal)")
@@ -2345,6 +2867,7 @@ if let smithName = smithName, let metal = metal {
                 "Place the fallback print inside the guard's else block.",
             ],
             cheatsheet: cheatsheetOptionals,
+            lesson: lessonOptionalsBasics,
             solution: #"""
 func printHeat(value: Int?) {
     guard let value = value else {
@@ -2380,6 +2903,7 @@ printHeat(value: nil)
                 "A fallback value can be used when the optional is nil.",
             ],
             cheatsheet: cheatsheetOptionals,
+            lesson: lessonOptionalsBasics,
             solution: #"""
 let level = optionalLevel ?? 1
 print("Level \(level)")
@@ -2415,6 +2939,7 @@ func makeCore3Challenges() -> [Challenge] {
                 "Use phrase.contains(\"Ready\") to check for a substring.",
             ],
             cheatsheet: cheatsheetStrings,
+            lesson: lessonStringsAdvanced,
             solution: """
 print(phrase.count)
 print(phrase.lowercased())
@@ -2444,6 +2969,7 @@ print(phrase.contains(\"Ready\"))
                 "Use Int variables to track totals as you iterate.",
             ],
             cheatsheet: cheatsheetDictionaries,
+            lesson: lessonCollectionsAdvanced,
             solution: """
 var total = 0
 var metalCount = 0
@@ -2479,6 +3005,7 @@ print(total)
                 "Read values through the subscript (inventory[key]).",
             ],
             cheatsheet: cheatsheetDictionaries,
+            lesson: lessonCollectionsAdvanced,
             solution: """
 for key in inventory.keys.sorted() {
     if let count = inventory[key] {
@@ -2507,6 +3034,7 @@ for key in inventory.keys.sorted() {
                 "hasPrefix and hasSuffix return Bool values.",
             ],
             cheatsheet: cheatsheetStrings,
+            lesson: lessonStringsAdvanced,
             solution: """
 print(code.hasPrefix("Forge"))
 print(code.hasSuffix("01"))
@@ -2535,6 +3063,7 @@ print(code.hasSuffix("01"))
                 "External labels appear at call sites.",
             ],
             cheatsheet: cheatsheetFunctions,
+            lesson: lessonFunctionsAdvanced,
             solution: #"""
 func forgeHeat(at temperature: Int) {
     print("Heat: \(temperature)")
@@ -2565,6 +3094,7 @@ forgeHeat(at: 1500)
                 "When underscore is used, call it like announce(\"Iron\").",
             ],
             cheatsheet: cheatsheetFunctions,
+            lesson: lessonFunctionsAdvanced,
             solution: #"""
 func announce(_ metal: String) {
     print("Metal: \(metal)")
@@ -2599,6 +3129,7 @@ announce("Iron")
                 "Default parameters can be omitted at the call site.",
             ],
             cheatsheet: cheatsheetFunctions,
+            lesson: lessonFunctionsAdvanced,
             solution: #"""
 func strike(_ metal: String, intensity: Int = 1) {
     print("Striking \(metal) with intensity \(intensity)")
@@ -2631,6 +3162,7 @@ strike("Gold", intensity: 3)
                 "The average uses the total divided by temps.count.",
             ],
             cheatsheet: cheatsheetFunctions,
+            lesson: lessonFunctionsAdvanced,
             solution: """
 func averageTemp(_ temps: Int...) {
     var total = 0
@@ -2667,6 +3199,7 @@ averageTemp(1000, 1200, 1400)
                 "inout arguments are passed with &.",
             ],
             cheatsheet: cheatsheetFunctions,
+            lesson: lessonFunctionsAdvanced,
             solution: """
 func wear(_ durability: inout Int) {
     durability -= 1
@@ -2701,6 +3234,7 @@ print(durability)
                 "A helper Bool can drive the output choice.",
             ],
             cheatsheet: cheatsheetFunctions,
+            lesson: lessonFunctionsAdvanced,
             solution: #"""
 func process(_ value: Int) {
     func isValid(_ value: Int) -> Bool {
@@ -2736,6 +3270,7 @@ process(-1)
                 "Invoke the closure like a function.",
             ],
             cheatsheet: cheatsheetClosures,
+            lesson: lessonClosuresBasics,
             solution: #"""
 let strike = { () -> Void in
     print("Strike")
@@ -2766,6 +3301,7 @@ strike()
                 "Closures are invoked like functions to produce a result.",
             ],
             cheatsheet: cheatsheetClosures,
+            lesson: lessonClosuresBasics,
             solution: """
 let doubleHeat = { (value: Int) -> Int in
     return value * 2
@@ -2795,6 +3331,7 @@ print(doubleHeat(750))
                 "Keep the same parameter and return types.",
             ],
             cheatsheet: cheatsheetClosures,
+            lesson: lessonClosuresBasics,
             solution: """
 let doubleHeat = { (value: Int) -> Int in
     value * 2
@@ -2824,6 +3361,7 @@ print(doubleHeat(600))
                 "Let Swift infer the return type from the expression.",
             ],
             cheatsheet: cheatsheetClosures,
+            lesson: lessonClosuresBasics,
             solution: """
 let doubleHeat = { value in
     value * 2
@@ -2853,6 +3391,7 @@ print(doubleHeat(750))
                 "After defining it, call the closure like a function to produce a value.",
             ],
             cheatsheet: cheatsheetClosures,
+            lesson: lessonClosuresBasics,
             solution: """
 let doubleHeat = { $0 * 2 }
 print(doubleHeat(700))
@@ -2880,6 +3419,7 @@ print(doubleHeat(700))
                 "Shorthand closure syntax can compute the result.",
             ],
             cheatsheet: cheatsheetClosures,
+            lesson: lessonClosuresBasics,
             solution: """
 let doubleHeat: (Int) -> Int = { $0 * 2 }
 print(doubleHeat(900))
@@ -2909,6 +3449,7 @@ print(doubleHeat(900))
                 "Provide a closure that multiplies the input.",
             ],
             cheatsheet: cheatsheetClosures,
+            lesson: lessonClosuresBasics,
             solution: """
 transform(5, using: { (value: Int) -> Int in
     return value * 3
@@ -2939,6 +3480,7 @@ transform(5, using: { (value: Int) -> Int in
                 "Keep the same multiplication logic as before.",
             ],
             cheatsheet: cheatsheetClosures,
+            lesson: lessonClosuresBasics,
             solution: """
 transform(5) { (value: Int) -> Int in
     return value * 3
@@ -2970,6 +3512,7 @@ transform(5) { (value: Int) -> Int in
                 "Keep the expression to a single line.",
             ],
             cheatsheet: cheatsheetClosures,
+            lesson: lessonClosuresBasics,
             solution: """
 transform(6) { value in
     return value * 4
@@ -2999,6 +3542,7 @@ transform(6) { value in
                 "The result adds a constant to the input.",
             ],
             cheatsheet: cheatsheetClosures,
+            lesson: lessonClosuresBasics,
             solution: "apply(4) { $0 + 6 }",
             constraintProfile: core3ClosureProfile,
             topic: .functions,
@@ -3023,6 +3567,7 @@ transform(6) { value in
                 "Each call should update the stored count.",
             ],
             cheatsheet: cheatsheetClosures,
+            lesson: lessonClosuresBasics,
             solution: """
 func makeCounter() -> () -> Void {
     var count = 0
@@ -3060,6 +3605,7 @@ counter()
                 "Build a string that combines a prefix with the value.",
             ],
             cheatsheet: cheatsheetCollectionTransforms,
+            lesson: lessonCollectionTransforms,
             solution: #"""
 let labels = temps.map { "T\($0)" }
 print(labels)
@@ -3088,6 +3634,7 @@ print(labels)
                 "A comparison can filter for hot temperatures.",
             ],
             cheatsheet: cheatsheetCollectionTransforms,
+            lesson: lessonCollectionTransforms,
             solution: """
 let hot = temps.filter { $0 >= 1500 }
 print(hot)
@@ -3116,6 +3663,7 @@ print(hot)
                 "Start from 0 and add each element.",
             ],
             cheatsheet: cheatsheetCollectionTransforms,
+            lesson: lessonCollectionTransforms,
             solution: """
 let total = temps.reduce(0) { partial, temp in
     partial + temp
@@ -3147,6 +3695,7 @@ print(total)
                 "Provide a fallback with ?? before printing.",
             ],
             cheatsheet: cheatsheetCollectionTransforms,
+            lesson: lessonCollectionTransforms,
             solution: """
 let minTemp = temps.min() ?? 0
 let maxTemp = temps.max() ?? 0
@@ -3175,6 +3724,7 @@ print(maxTemp)
                 "Use compactMap to remove nils while unwrapping values.",
             ],
             cheatsheet: cheatsheetCollectionTransforms,
+            lesson: lessonCollectionTransforms,
             solution: """
 let cleaned = readings.compactMap { $0 }
 print(cleaned)
@@ -3202,6 +3752,7 @@ print(cleaned)
                 "Use flatMap to flatten arrays of arrays into one array.",
             ],
             cheatsheet: cheatsheetCollectionTransforms,
+            lesson: lessonCollectionTransforms,
             solution: """
 let flat = batches.flatMap { $0 }
 print(flat)
@@ -3229,6 +3780,7 @@ print(flat)
                 "Named tuple fields are accessed with dot syntax (reading.temp).",
             ],
             cheatsheet: cheatsheetTypealiases,
+            lesson: lessonTypealiases,
             solution: """
 typealias ForgeReading = (temp: Int, time: Int)
 let reading: ForgeReading = (temp: 1200, time: 1)
@@ -3256,6 +3808,7 @@ print(reading.temp)
                 "switch handles each enum case.",
             ],
             cheatsheet: cheatsheetEnums,
+            lesson: lessonEnumsBasics,
             solution: #"""
 enum Metal {
     case iron
@@ -3292,6 +3845,7 @@ case .gold:
                 "Declare the enum as Metal: String and use .rawValue to print.",
             ],
             cheatsheet: cheatsheetEnums,
+            lesson: lessonEnumsBasics,
             solution: """
 enum Metal: String {
     case iron
@@ -3327,6 +3881,7 @@ print(Metal.iron.rawValue)
                 "Value bindings in switch extract associated data.",
             ],
             cheatsheet: cheatsheetEnums,
+            lesson: lessonEnumsBasics,
             solution: #"""
 enum Event {
     case temperature(Int)
@@ -3379,6 +3934,7 @@ case .error(let message):
                 "Handle temperature and error cases separately.",
             ],
             cheatsheet: cheatsheetEnums,
+            lesson: lessonEnumsBasics,
             solution: #"""
 switch event {
 case .temperature(let temp) where temp >= 1500:
@@ -3414,6 +3970,7 @@ case .error:
                 "do/try/catch handles thrown errors.",
             ],
             cheatsheet: cheatsheetErrors,
+            lesson: lessonErrorsBasics,
             solution: #"""
 enum TempError: Error {
     case outOfRange
@@ -3455,6 +4012,7 @@ do {
                 "Printing the optional should show nil when the call fails.",
             ],
             cheatsheet: cheatsheetErrors,
+            lesson: lessonErrorsBasics,
             solution: """
 enum TempError: Error {
     case outOfRange
@@ -3498,6 +4056,7 @@ print(String(describing: result))
                 "Handle nil with an else branch.",
             ],
             cheatsheet: cheatsheetInputOutput,
+            lesson: lessonInputOutputBasics,
             solution: #"""
 if let input = readLine() {
     let message = "You entered \(input)"
@@ -3537,6 +4096,7 @@ if let input = readLine() {
                 "Check the count before accessing args[1].",
             ],
             cheatsheet: cheatsheetInputOutput,
+            lesson: lessonInputOutputBasics,
             solution: #"""
 if args.count >= 2 {
     print(args[1])
@@ -3580,6 +4140,7 @@ if args.count >= 2 {
                 "Split the contents on newline characters.",
             ],
             cheatsheet: cheatsheetInputOutput,
+            lesson: lessonInputOutputBasics,
             solution: #"""
 if let fileContents = try? String(contentsOfFile: path, encoding: .utf8) {
     let lines = fileContents.split(separator: "\n")
@@ -3617,6 +4178,7 @@ if let fileContents = try? String(contentsOfFile: path, encoding: .utf8) {
                 "A basic condition can gate a success message.",
             ],
             cheatsheet: cheatsheetConditionals,
+            lesson: lessonConditionalsFlow,
             solution: #"""
 if 2 + 2 == 4 {
     print("Test passed")
@@ -3649,6 +4211,7 @@ if 2 + 2 == 4 {
                 "Use Int($0), compactMap, filter, and reduce in stages.",
             ],
             cheatsheet: cheatsheetCollectionTransforms,
+            lesson: lessonCore3Integration,
             solution: """
 let values = lines.map { Int($0) }
 let temps = values.compactMap { $0 }
@@ -5801,6 +6364,95 @@ counter()
             topic: .functions,
             tier: .extra
         ),
+        Challenge(
+            number: 303,
+            id: "core-extra-shift-status",
+            title: "Shift Status",
+            description: "Combine math with a labeled report",
+            starterCode: """
+                // Challenge 303: Shift Status
+                // Combine math with a labeled report.
+
+                let shift = 2
+                let baseHeat = 1200
+                let boost = 150
+
+                // TODO: Compute totalHeat as baseHeat + boost
+                // TODO: Print "Shift 2: 1350"
+                """,
+            expectedOutput: "Shift 2: 1350",
+            hints: [
+                "Compute the total before formatting the string.",
+                "Use interpolation to include both values.",
+            ],
+            cheatsheet: cheatsheetCore1Integration,
+            solution: """
+let totalHeat = baseHeat + boost
+print("Shift \\(shift): \\(totalHeat)")
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 304,
+            id: "core-extra-calibration-report",
+            title: "Calibration Report",
+            description: "Return a calculated value from a function",
+            starterCode: """
+                // Challenge 304: Calibration Report
+                // Return a calculated value from a function.
+
+                // TODO: Create a function 'calibrate' that returns base + offset
+                // TODO: Call calibrate with 1200 and 80
+                // TODO: Print "Calibrated: 1280"
+                """,
+            expectedOutput: "Calibrated: 1280",
+            hints: [
+                "Functions that return values use -> Int.",
+                "Store the returned value before printing.",
+            ],
+            cheatsheet: cheatsheetCore1Integration,
+            solution: """
+func calibrate(base: Int, offset: Int) -> Int {
+    return base + offset
+}
+
+let result = calibrate(base: 1200, offset: 80)
+print("Calibrated: \\(result)")
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 305,
+            id: "core-extra-heat-adjustment",
+            title: "Heat Adjustment",
+            description: "Update a value in place and report it",
+            starterCode: """
+                // Challenge 305: Heat Adjustment
+                // Update a value in place and report it.
+
+                var heat = 1000
+
+                // TODO: Increase heat by 250 using +=
+                // TODO: Print "Heat now: 1250"
+                """,
+            expectedOutput: "Heat now: 1250",
+            hints: [
+                "Compound assignment updates the variable directly.",
+                "Use interpolation in the output.",
+            ],
+            cheatsheet: cheatsheetCore1Integration,
+            solution: """
+heat += 250
+print("Heat now: \\(heat)")
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .general,
+            tier: .extra
+        ),
     ]
 }
 
@@ -5824,6 +6476,7 @@ func makeMantleChallenges() -> [Challenge] {
                 "Use dot syntax to read the property for output.",
             ],
             cheatsheet: cheatsheetStructs,
+            lesson: lessonStructsBasics,
             solution: """
 struct ForgeItem {
     var name: String
@@ -5858,6 +6511,7 @@ print(item.name)
                 "Stored properties can be updated on a var instance.",
             ],
             cheatsheet: cheatsheetStructs,
+            lesson: lessonStructsBasics,
             solution: """
 furnace.heat = 1500
 print(furnace.heat)
@@ -5887,6 +6541,7 @@ print(furnace.heat)
                 "Use self to build the return string from the property.",
             ],
             cheatsheet: cheatsheetStructs,
+            lesson: lessonStructsBasics,
             solution: """
 struct Hammer {
     var strikes: Int
@@ -5925,6 +6580,7 @@ print(hammer.summary())
                 "Custom initializers can set default values.",
             ],
             cheatsheet: cheatsheetStructs,
+            lesson: lessonStructsBasics,
             solution: """
 struct Ingot {
     var metal: String
@@ -5966,6 +6622,7 @@ print(ingot.weight)
                 "Use mutating when a struct method changes properties.",
             ],
             cheatsheet: cheatsheetStructs,
+            lesson: lessonStructsBasics,
             solution: """
 struct Crucible {
     var level: Int
@@ -6007,6 +6664,7 @@ print(crucible.level)
                 "Changing a copy does not affect the original.",
             ],
             cheatsheet: cheatsheetStructs,
+            lesson: lessonStructsBasics,
             solution: """
 struct Mold {
     var size: Int
@@ -6045,6 +6703,7 @@ print(copy.size)
                 "Classes need an initializer if they have stored properties.",
             ],
             cheatsheet: cheatsheetClasses,
+            lesson: lessonClassesBasics,
             solution: """
 let anvil = Anvil(weight: 10)
 print(anvil.weight)
@@ -6079,6 +6738,7 @@ print(anvil.weight)
                 "Changing a reference affects all references to the same instance.",
             ],
             cheatsheet: cheatsheetClasses,
+            lesson: lessonClassesBasics,
             solution: """
 secondary.power = 3
 print(primary.power)
@@ -6109,6 +6769,7 @@ print(primary.power)
                 "deinit runs when the last strong reference is released.",
             ],
             cheatsheet: cheatsheetClasses,
+            lesson: lessonClassesBasics,
             solution: """
 class Torch {
     let id: Int
@@ -6144,6 +6805,7 @@ torch = nil
                 "Use a struct for independent values and a class for shared state.",
             ],
             cheatsheet: cheatsheetClasses,
+            lesson: lessonClassesBasics,
             solution: """
 struct Tag {
     var label: String
@@ -6186,6 +6848,7 @@ print(controller.status)
                 "Computed properties can translate values in get/set.",
             ],
             cheatsheet: cheatsheetProperties,
+            lesson: lessonPropertiesAdvanced,
             solution: """
 struct Press {
     var force: Int
@@ -6225,6 +6888,7 @@ print(press.force)
                 "Observers can print before and after changes.",
             ],
             cheatsheet: cheatsheetProperties,
+            lesson: lessonPropertiesAdvanced,
             solution: """
 struct Gauge {
     var pressure: Int {
@@ -6264,6 +6928,7 @@ gauge.pressure = 2
                 "Lazy properties are created the first time they are accessed.",
             ],
             cheatsheet: cheatsheetProperties,
+            lesson: lessonPropertiesAdvanced,
             solution: """
 struct ForgeReport {
     var id: Int
@@ -6298,6 +6963,7 @@ print(report.summary)
                 "Static properties live on the type, not the instance.",
             ],
             cheatsheet: cheatsheetProperties,
+            lesson: lessonPropertiesAdvanced,
             solution: """
 print(Shift.maxHours)
 print(shift.hours)
@@ -6321,6 +6987,7 @@ print(shift.hours)
                 "Protocols define required properties or methods.",
             ],
             cheatsheet: cheatsheetProtocols,
+            lesson: lessonProtocolsBasics,
             solution: """
 protocol Inspectable {
     var status: String { get }
@@ -6352,6 +7019,7 @@ print("Inspectable ready")
                 "Provide the required property to conform.",
             ],
             cheatsheet: cheatsheetProtocols,
+            lesson: lessonProtocolsBasics,
             solution: """
 struct Furnace: Inspectable {
     let status: String
@@ -6388,6 +7056,7 @@ print(furnace.status)
                 "Protocol types let you accept a conforming type.",
             ],
             cheatsheet: cheatsheetProtocols,
+            lesson: lessonProtocolsBasics,
             solution: """
 func reportHeat(source: HeatSource) {
     print(source.heat)
@@ -6428,6 +7097,7 @@ reportHeat(source: burner)
                 "Use protocol composition to require both capabilities.",
             ],
             cheatsheet: cheatsheetProtocols,
+            lesson: lessonProtocolsBasics,
             solution: """
 func report(_ source: Fueling & Venting) {
     print(source.fuel)
@@ -6460,6 +7130,7 @@ report(vent)
                 "Protocol inheritance adds requirements on top of another protocol.",
             ],
             cheatsheet: cheatsheetProtocols,
+            lesson: lessonProtocolsBasics,
             solution: """
 protocol InspectableComponent: Component {
     var status: String { get }
@@ -6496,6 +7167,7 @@ print(sensor.status)
                 "Extensions can add computed properties and methods.",
             ],
             cheatsheet: cheatsheetExtensions,
+            lesson: lessonExtensionsBasics,
             solution: """
 extension Ingot {
     func label() -> String {
@@ -6530,6 +7202,7 @@ print(ingot.label())
                 "Use a protocol extension to add a default method.",
             ],
             cheatsheet: cheatsheetExtensions,
+            lesson: lessonExtensionsBasics,
             solution: """
 extension Reportable {
     func printReport() {
@@ -6569,6 +7242,7 @@ report.printReport()
                 "private limits access to the type; internal is the default.",
             ],
             cheatsheet: cheatsheetAccessControl,
+            lesson: lessonAccessControlBasics,
             solution: """
 struct Vault {
     private var code: Int
@@ -6603,6 +7277,7 @@ print("Vault ready")
                 "public exposes types outside the module; open allows subclassing.",
             ],
             cheatsheet: cheatsheetAccessControl,
+            lesson: lessonAccessControlBasics,
             solution: """
 public struct Ledger {}
 
@@ -6641,6 +7316,7 @@ print("Controller")
                 "Throw errors when constraints are not met.",
             ],
             cheatsheet: cheatsheetErrors,
+            lesson: lessonErrorsBasics,
             solution: """
 struct Furnace: Heatable {
     func heat(to level: Int) throws {
@@ -6676,6 +7352,7 @@ do {
                 "Generics let you reuse logic across types.",
             ],
             cheatsheet: cheatsheetGenerics,
+            lesson: lessonGenericsBasics,
             solution: """
 func swapPair<A, B>(_ first: A, _ second: B) -> (B, A) {
     return (second, first)
@@ -6703,6 +7380,7 @@ print(swapPair("Iron", 3))
                 "Generic types store values of a type parameter.",
             ],
             cheatsheet: cheatsheetGenerics,
+            lesson: lessonGenericsBasics,
             solution: """
 struct Box<T> {
     let value: T
@@ -6730,6 +7408,7 @@ print(box.value)
                 "Constraints allow you to use protocol requirements on T.",
             ],
             cheatsheet: cheatsheetGenerics,
+            lesson: lessonGenericsBasics,
             solution: """
 func maxValue<T: Comparable>(_ first: T, _ second: T) -> T {
     return first >= second ? first : second
@@ -6756,6 +7435,7 @@ print(maxValue(3, 5))
                 "associatedtype lets protocols describe generic placeholders.",
             ],
             cheatsheet: cheatsheetGenerics,
+            lesson: lessonGenericsBasics,
             solution: """
 protocol Storage {
     associatedtype Item
@@ -6789,6 +7469,7 @@ print(storage.items.count)
                 "where adds extra constraints for a generic extension.",
             ],
             cheatsheet: cheatsheetGenerics,
+            lesson: lessonGenericsBasics,
             solution: """
 extension Array where Element: Equatable {
     func allEqual() -> Bool {
@@ -6823,6 +7504,7 @@ print([2, 2, 2].allEqual())
                 "Constrain the shared behavior so it applies only to types that support equality checks.",
             ],
             cheatsheet: cheatsheetExtensions,
+            lesson: lessonGenericsBasics,
             solution: """
 extension Describable where Self: Equatable {
     func description() -> String {
@@ -6860,6 +7542,7 @@ print(tool.description())
                 "Conditional conformance lives in an extension with a type constraint.",
             ],
             cheatsheet: cheatsheetGenerics,
+            lesson: lessonGenericsBasics,
             solution: """
 extension Crate: Equatable where T: Equatable {}
 
@@ -6886,6 +7569,7 @@ print(first == second)
                 "Use protocols to define behavior and extensions for defaults.",
             ],
             cheatsheet: cheatsheetProtocols,
+            lesson: lessonProtocolsBasics,
             solution: """
 protocol StatusProviding {
     var status: String { get }
@@ -6934,6 +7618,7 @@ alloy.report()
                 "Weak references prevent strong reference cycles.",
             ],
             cheatsheet: cheatsheetMemory,
+            lesson: lessonMemoryBasics,
             solution: """
 class Operator {
     var name: String
@@ -8172,6 +8857,146 @@ print(crate.firstItem())
             topic: .generics,
             tier: .extra
         ),
+        Challenge(
+            number: 309,
+            id: "mantle-extra-weak-release",
+            title: "Weak Release",
+            description: "Avoid retain cycles in closures",
+            starterCode: """
+                // Challenge 309: Weak Release
+                // Avoid retain cycles in closures.
+
+                class Forge {
+                    let id: Int
+                    init(id: Int) { self.id = id }
+                }
+
+                var forge: Forge? = Forge(id: 1)
+                let report = { [weak forge] in
+                    // TODO: Print forge?.id or "nil" if it’s gone
+                }
+
+                // TODO: Set forge = nil
+                // TODO: Call report()
+                """,
+            expectedOutput: "nil",
+            hints: [
+                "Capture weakly to avoid a strong cycle.",
+                "Use nil coalescing to print \"nil\" when missing.",
+            ],
+            cheatsheet: cheatsheetMemory,
+            solution: """
+class Forge {
+    let id: Int
+    init(id: Int) { self.id = id }
+}
+
+var forge: Forge? = Forge(id: 1)
+let report = { [weak forge] in
+    print(forge?.id ?? "nil")
+}
+
+forge = nil
+report()
+""",
+            constraintProfile: mantleBaselineProfile,
+            topic: .memory,
+            tier: .extra
+        ),
+        Challenge(
+            number: 310,
+            id: "mantle-extra-extension-computed",
+            title: "Extension Computed",
+            description: "Add a computed property via extension",
+            starterCode: """
+                // Challenge 310: Extension Computed
+                // Add a computed property via extension.
+
+                struct Ingot {
+                    let weight: Int
+                }
+
+                // TODO: Add an extension with a computed property isHeavy (>= 10)
+                // TODO: Create an Ingot(weight: 12) and print isHeavy
+                """,
+            expectedOutput: "true",
+            hints: [
+                "Extensions can add computed properties.",
+                "Return a Bool based on weight.",
+            ],
+            cheatsheet: cheatsheetExtensions,
+            solution: """
+struct Ingot {
+    let weight: Int
+}
+
+extension Ingot {
+    var isHeavy: Bool {
+        return weight >= 10
+    }
+}
+
+let ingot = Ingot(weight: 12)
+print(ingot.isHeavy)
+""",
+            constraintProfile: mantleBaselineProfile,
+            topic: .extensions,
+            tier: .extra
+        ),
+        Challenge(
+            number: 311,
+            id: "mantle-extra-error-rethrow",
+            title: "Rethrow",
+            description: "Pass through a throwing closure",
+            starterCode: """
+                // Challenge 311: Rethrow
+                // Pass through a throwing closure.
+
+                enum HeatError: Error {
+                    case tooHot
+                }
+
+                func run(_ operation: () throws -> String) rethrows -> String {
+                    // TODO: Call the operation and return the result
+                }
+
+                do {
+                    let value = try run {
+                        throw HeatError.tooHot
+                    }
+                    print(value)
+                } catch {
+                    // TODO: Print "Caught"
+                }
+                """,
+            expectedOutput: "Caught",
+            hints: [
+                "rethrows forwards errors from the closure.",
+                "Handle the error in the catch block.",
+            ],
+            cheatsheet: cheatsheetErrors,
+            solution: """
+enum HeatError: Error {
+    case tooHot
+}
+
+func run(_ operation: () throws -> String) rethrows -> String {
+    return try operation()
+}
+
+do {
+    let value = try run {
+        throw HeatError.tooHot
+    }
+    print(value)
+} catch {
+    print("Caught")
+}
+""",
+            constraintProfile: mantleBaselineProfile,
+            topic: .errors,
+            tier: .extra
+        ),
     ]
     return challenges.map { $0.withLayer(.mantle) }
 }
@@ -8213,6 +9038,7 @@ func makeCrustChallenges() -> [Challenge] {
                 "runAsync uses a Task to bridge async work in a script.",
             ],
             cheatsheet: cheatsheetConcurrency,
+            lesson: lessonConcurrencyBasics,
             solution: """
 import Foundation
 
@@ -8243,6 +9069,7 @@ runAsync {
                 allowConcurrency: true
             ),
             introduces: [.asyncAwait, .task],
+            topic: .concurrency,
         ),
         Challenge(
             number: 176,
@@ -8278,6 +9105,7 @@ runAsync {
                 "task.value returns the Task result.",
             ],
             cheatsheet: cheatsheetConcurrency,
+            lesson: lessonConcurrencyBasics,
             solution: """
 import Foundation
 
@@ -8306,6 +9134,7 @@ runAsync {
                 allowedImports: ["Foundation"],
                 allowConcurrency: true
             ),
+            topic: .concurrency,
         ),
         Challenge(
             number: 177,
@@ -8339,6 +9168,7 @@ runAsync {
                 "Return the sum from the task group scope.",
             ],
             cheatsheet: cheatsheetConcurrency,
+            lesson: lessonConcurrencyBasics,
             solution: """
 import Foundation
 
@@ -8374,6 +9204,7 @@ runAsync {
                 allowConcurrency: true
             ),
             introduces: [.taskGroup],
+            topic: .concurrency,
         ),
         Challenge(
             number: 178,
@@ -8417,6 +9248,7 @@ runAsync {
                 "for await iterates async sequences.",
             ],
             cheatsheet: cheatsheetConcurrency,
+            lesson: lessonConcurrencyBasics,
             solution: """
 import Foundation
 
@@ -8455,6 +9287,7 @@ runAsync {
                 allowedImports: ["Foundation"],
                 allowConcurrency: true
             ),
+            topic: .concurrency,
         ),
         Challenge(
             number: 179,
@@ -8494,6 +9327,7 @@ runAsync {
                 "Cancel the task before awaiting task.value.",
             ],
             cheatsheet: cheatsheetConcurrency,
+            lesson: lessonConcurrencyBasics,
             solution: """
 import Foundation
 
@@ -8526,6 +9360,7 @@ runAsync {
                 allowedImports: ["Foundation"],
                 allowConcurrency: true
             ),
+            topic: .concurrency,
         ),
         Challenge(
             number: 180,
@@ -8566,6 +9401,7 @@ runAsync {
                 "Store the result from current() before printing.",
             ],
             cheatsheet: cheatsheetActors,
+            lesson: lessonActorsBasics,
             solution: """
 import Foundation
 
@@ -8605,6 +9441,7 @@ runAsync {
                 allowConcurrency: true
             ),
             introduces: [.actors],
+            topic: .actors,
         ),
         Challenge(
             number: 181,
@@ -8632,6 +9469,7 @@ runAsync {
                 "Run the main run loop briefly so the task can execute.",
             ],
             cheatsheet: cheatsheetActors,
+            lesson: lessonActorsBasics,
             solution: """
 import Foundation
 
@@ -8654,6 +9492,7 @@ RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
             ),
             introduces: [.mainActor],
             requires: [.task],
+            topic: .actors,
         ),
         Challenge(
             number: 182,
@@ -8679,6 +9518,7 @@ RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
                 "Use the stored value in the output.",
             ],
             cheatsheet: cheatsheetConcurrency,
+            lesson: lessonConcurrencyBasics,
             solution: """
 import Foundation
 
@@ -8694,6 +9534,7 @@ print("Heat: \\(report.value)")
                 allowedImports: ["Foundation"]
             ),
             introduces: [.sendable],
+            topic: .concurrency,
         ),
         Challenge(
             number: 183,
@@ -8735,6 +9576,7 @@ print("Heat: \\(report.value)")
                 "Declare the wrapped property on a type, then print it.",
             ],
             cheatsheet: cheatsheetPropertyWrappers,
+            lesson: lessonPropertyWrappersBasics,
             solution: """
 import Foundation
 
@@ -8766,6 +9608,7 @@ print(furnace.heat)
                 allowedImports: ["Foundation"]
             ),
             introduces: [.propertyWrappers],
+            topic: .propertyWrappers,
         ),
         Challenge(
             number: 184,
@@ -8799,6 +9642,7 @@ print(furnace.heat)
                 "Lowercase the initial wrappedValue in the initializer.",
             ],
             cheatsheet: cheatsheetPropertyWrappers,
+            lesson: lessonPropertyWrappersBasics,
             solution: """
 import Foundation
 
@@ -8827,6 +9671,7 @@ print(label.name)
             constraintProfile: ConstraintProfile(
                 allowedImports: ["Foundation"]
             ),
+            topic: .propertyWrappers,
         ),
         Challenge(
             number: 185,
@@ -8869,6 +9714,7 @@ print(label.name)
                 "Use the projected value on the instance after two assignments.",
             ],
             cheatsheet: cheatsheetPropertyWrappers,
+            lesson: lessonPropertyWrappersBasics,
             solution: """
 import Foundation
 
@@ -8901,6 +9747,7 @@ print("Updates: \\(furnace.$heat)")
                 allowedImports: ["Foundation"]
             ),
             introduces: [.projectedValues],
+            topic: .propertyWrappers,
         ),
         Challenge(
             number: 186,
@@ -8927,6 +9774,7 @@ print("Updates: \\(furnace.$heat)")
                 "Access with value[keyPath: path].",
             ],
             cheatsheet: cheatsheetKeyPaths,
+            lesson: lessonKeyPathsBasics,
             solution: """
 import Foundation
 
@@ -8942,6 +9790,7 @@ print(ore[keyPath: nameKey])
             constraintProfile: ConstraintProfile(
                 allowedImports: ["Foundation"]
             ),
+            topic: .keyPaths,
         ),
         Challenge(
             number: 187,
@@ -8968,6 +9817,7 @@ print(ore[keyPath: nameKey])
                 "Use joined(separator:) to format the array.",
             ],
             cheatsheet: cheatsheetKeyPaths,
+            lesson: lessonKeyPathsBasics,
             solution: """
 import Foundation
 
@@ -8982,6 +9832,7 @@ print(names.joined(separator: \",\"))
             constraintProfile: ConstraintProfile(
                 allowedImports: ["Foundation"]
             ),
+            topic: .keyPaths,
         ),
         Challenge(
             number: 188,
@@ -9004,6 +9855,7 @@ print(names.joined(separator: \",\"))
                 "Wrap the lazy result in Array(...) to print it.",
             ],
             cheatsheet: cheatsheetSequences,
+            lesson: lessonSequencesBasics,
             solution: """
 import Foundation
 
@@ -9015,6 +9867,7 @@ print(Array(doubled))
                 allowedImports: ["Foundation"],
                 requireCollectionUsage: false
             ),
+            topic: .sequences,
         ),
         Challenge(
             number: 189,
@@ -9049,6 +9902,7 @@ print(Array(doubled))
                 "Use defer or manual decrement to update current.",
             ],
             cheatsheet: cheatsheetSequences,
+            lesson: lessonSequencesBasics,
             solution: """
 import Foundation
 
@@ -9077,6 +9931,7 @@ for value in countdown {
                 allowedImports: ["Foundation"],
                 requireCollectionUsage: false
             ),
+            topic: .sequences,
         ),
         Challenge(
             number: 190,
@@ -9105,6 +9960,7 @@ for value in countdown {
                 "Update current after returning the old value.",
             ],
             cheatsheet: cheatsheetSequences,
+            lesson: lessonSequencesBasics,
             solution: """
 import Foundation
 
@@ -9127,6 +9983,7 @@ print(iterator.next()!)
                 allowedImports: ["Foundation"],
                 requireCollectionUsage: false
             ),
+            topic: .sequences,
         ),
         Challenge(
             number: 191,
@@ -9164,6 +10021,7 @@ print(iterator.next()!)
                 "Use items.count and items.last to format output.",
             ],
             cheatsheet: cheatsheetSequences,
+            lesson: lessonSequencesBasics,
             solution: """
 import Foundation
 
@@ -9192,6 +10050,7 @@ print("Last: \\(items.last ?? 0)")
                 allowedImports: ["Foundation"],
                 requireCollectionUsage: false
             ),
+            topic: .sequences,
         ),
         Challenge(
             number: 192,
@@ -9249,6 +10108,7 @@ print("Last: \\(items.last ?? 0)")
                 "Use await to call actor methods.",
             ],
             cheatsheet: cheatsheetActors,
+            lesson: lessonCrustIntegration,
             solution: """
 import Foundation
 
@@ -9303,6 +10163,7 @@ runAsync {
                 allowConcurrency: true
             ),
             requires: [.asyncAwait, .task, .actors, .propertyWrappers],
+            topic: .concurrency,
         ),
         Challenge(
             number: 193,
@@ -9333,6 +10194,7 @@ runAsync {
                 "Use the name property when printing.",
             ],
             cheatsheet: cheatsheetAdvancedGenerics,
+            lesson: lessonAdvancedGenericsBasics,
             solution: """
 protocol Metal {
     var name: String { get }
@@ -9350,6 +10212,7 @@ let metal = makeMetal()
 print("Metal: \\(metal.name)")
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .generics,
         ),
         Challenge(
             number: 194,
@@ -9379,6 +10242,7 @@ print("Metal: \\(metal.name)")
                 "Loop and print the name for each sensor.",
             ],
             cheatsheet: cheatsheetAdvancedGenerics,
+            lesson: lessonAdvancedGenericsBasics,
             solution: """
 protocol Sensor {
     var name: String { get }
@@ -9397,6 +10261,7 @@ let sensors: [any Sensor] = [TempSensor(), PressureSensor()]
 report(sensors)
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .generics,
         ),
         Challenge(
             number: 195,
@@ -9432,6 +10297,7 @@ report(sensors)
                 "read() should call the stored closure.",
             ],
             cheatsheet: cheatsheetAdvancedGenerics,
+            lesson: lessonAdvancedGenericsBasics,
             solution: """
 protocol Reader {
     func read() -> Int
@@ -9459,6 +10325,7 @@ let total = readers.reduce(0) { $0 + $1.read() }
 print("Sum: \\(total)")
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .generics,
         ),
         Challenge(
             number: 196,
@@ -9486,6 +10353,7 @@ print("Sum: \\(total)")
                 "Use items.last to get the top value.",
             ],
             cheatsheet: cheatsheetAdvancedGenerics,
+            lesson: lessonAdvancedGenericsBasics,
             solution: """
 protocol Stack<Element> {
     associatedtype Element
@@ -9500,6 +10368,7 @@ let stack: any Stack<Int> = IntStack(items: [1, 2, 3])
 print("Top: \\(stack.items.last ?? 0)")
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .generics,
         ),
         Challenge(
             number: 197,
@@ -9518,6 +10387,7 @@ print("Top: \\(stack.items.last ?? 0)")
                 "Return the equality check result.",
             ],
             cheatsheet: cheatsheetAdvancedGenerics,
+            lesson: lessonAdvancedGenericsBasics,
             solution: """
 func areEqual<T>(_ a: T, _ b: T) -> Bool where T: Equatable {
     return a == b
@@ -9526,6 +10396,7 @@ func areEqual<T>(_ a: T, _ b: T) -> Bool where T: Equatable {
 print(areEqual(4, 4))
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .generics,
         ),
         Challenge(
             number: 198,
@@ -9547,6 +10418,7 @@ print(areEqual(4, 4))
                 "Update second, then print both counts.",
             ],
             cheatsheet: cheatsheetPerformance,
+            lesson: lessonPerformanceBasics,
             solution: """
 var first = [1, 2]
 var second = first
@@ -9557,6 +10429,7 @@ print(first.count)
 print(second.count)
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .performance,
         ),
         Challenge(
             number: 199,
@@ -9575,11 +10448,13 @@ print(second.count)
                 "Use the same pattern for both types.",
             ],
             cheatsheet: cheatsheetPerformance,
+            lesson: lessonPerformanceBasics,
             solution: """
 print(MemoryLayout<UInt8>.size)
 print(MemoryLayout<Bool>.size)
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .memory,
         ),
         Challenge(
             number: 200,
@@ -9611,6 +10486,7 @@ print(MemoryLayout<Bool>.size)
                 "Print the total first, then the elapsed line.",
             ],
             cheatsheet: cheatsheetPerformance,
+            lesson: lessonPerformanceBasics,
             solution: """
 import Foundation
 
@@ -9626,6 +10502,7 @@ print(String(format: "Elapsed: %.2f", elapsed))
             constraintProfile: ConstraintProfile(
                 allowedImports: ["Foundation"]
             ),
+            topic: .performance,
         ),
         Challenge(
             number: 201,
@@ -9645,6 +10522,7 @@ print(String(format: "Elapsed: %.2f", elapsed))
                 "The operator function should return an Int.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonAdvancedFeaturesBasics,
             solution: """
 infix operator +++: AdditionPrecedence
 
@@ -9655,6 +10533,7 @@ func +++ (lhs: Int, rhs: Int) -> Int {
 print(3 +++ 4)
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .advancedFeatures,
         ),
         Challenge(
             number: 202,
@@ -9678,6 +10557,7 @@ print(3 +++ 4)
                 "Return values[row][col] inside the subscript.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonAdvancedFeaturesBasics,
             solution: """
 struct Grid {
     let values: [[Int]]
@@ -9690,6 +10570,7 @@ let grid = Grid(values: [[1, 2], [4, 5]])
 print(grid[1, 0])
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .advancedFeatures,
         ),
         Challenge(
             number: 203,
@@ -9715,6 +10596,7 @@ print(grid[1, 0])
                 "Return values[member] with a default if missing.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonAdvancedFeaturesBasics,
             solution: """
 @dynamicMemberLookup
 struct Settings {
@@ -9729,6 +10611,7 @@ print(settings.mode)
 print(settings.level)
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .advancedFeatures,
         ),
         Challenge(
             number: 204,
@@ -9752,6 +10635,7 @@ print(settings.level)
                 "Multiply all values in the array.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonAdvancedFeaturesBasics,
             solution: """
 @dynamicCallable
 struct Multiplier {
@@ -9764,6 +10648,7 @@ let multiply = Multiplier()
 print(multiply(2, 3, 4))
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .advancedFeatures,
         ),
         Challenge(
             number: 205,
@@ -9793,6 +10678,7 @@ print(multiply(2, 3, 4))
                 "Join the pieces with a separator before printing.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonAdvancedFeaturesBasics,
             solution: """
 @resultBuilder
 struct MessageBuilder {
@@ -9814,6 +10700,7 @@ print(messages.joined(separator: " "))
 """,
             constraintProfile: crustBaselineProfile,
             introduces: [.resultBuilders],
+            topic: .advancedFeatures,
         ),
         Challenge(
             number: 206,
@@ -9833,11 +10720,13 @@ print(messages.joined(separator: " "))
                 "Output a short summary of what macros do.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonMacrosBasics,
             solution: """
 print("Macro: compile-time code generation")
 """,
             constraintProfile: crustBaselineProfile,
             introduces: [.macros],
+            topic: .macros,
         ),
         Challenge(
             number: 207,
@@ -9855,11 +10744,13 @@ print("Macro: compile-time code generation")
                 "Report the target names in a single line.",
             ],
             cheatsheet: cheatsheetSwiftPM,
+            lesson: lessonSwiftPMBasics,
             solution: """
 print("Targets: forge, forgeTests")
 """,
             constraintProfile: crustBaselineProfile,
             introduces: [.swiftpmBasics],
+            topic: .swiftpm,
         ),
         Challenge(
             number: 208,
@@ -9877,11 +10768,13 @@ print("Targets: forge, forgeTests")
                 "Summarize the dependency situation in one line.",
             ],
             cheatsheet: cheatsheetSwiftPM,
+            lesson: lessonSwiftPMBasics,
             solution: """
 print("Dependencies: none")
 """,
             constraintProfile: crustBaselineProfile,
             introduces: [.swiftpmDependencies],
+            topic: .swiftpm,
         ),
         Challenge(
             number: 209,
@@ -9900,6 +10793,7 @@ print("Dependencies: none")
                 "Scripts run without DEBUG, so the release branch should print.",
             ],
             cheatsheet: cheatsheetPerformance,
+            lesson: lessonSwiftPMBasics,
             solution: """
                 #if DEBUG
                 print("Debug")
@@ -9909,6 +10803,7 @@ print("Dependencies: none")
                 """,
             constraintProfile: crustBaselineProfile,
             introduces: [.buildConfigs],
+            topic: .swiftpm,
         ),
         Challenge(
             number: 210,
@@ -9928,11 +10823,13 @@ print("Dependencies: none")
                 "Use the provided module name.",
             ],
             cheatsheet: cheatsheetSwiftPM,
+            lesson: lessonSwiftPMBasics,
             solution: """
 print("Module: AnalyticsKit")
 """,
             constraintProfile: crustBaselineProfile,
             requires: [.swiftpmBasics, .swiftpmDependencies, .buildConfigs],
+            topic: .swiftpm,
         ),
         Challenge(
             number: 211,
@@ -9950,10 +10847,12 @@ print("Module: AnalyticsKit")
                 "Provide a concise summary of the authoring role.",
             ],
             cheatsheet: cheatsheetMacros,
+            lesson: lessonMacrosBasics,
             solution: """
 print("Macro author: provides expansion code")
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .macros,
         ),
         Challenge(
             number: 212,
@@ -9979,6 +10878,7 @@ print("Macro author: provides expansion code")
                 "Print the label for each child.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonAdvancedFeaturesBasics,
             solution: """
 struct ForgeLog {
     let metal: String
@@ -9995,6 +10895,7 @@ for child in mirror.children {
 }
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .advancedFeatures,
         ),
         Challenge(
             number: 213,
@@ -10012,10 +10913,12 @@ for child in mirror.children {
                 "Provide a one-line summary of the concept.",
             ],
             cheatsheet: cheatsheetAdvancedGenerics,
+            lesson: lessonAdvancedGenericsBasics,
             solution: """
 print("Witness tables map protocol implementations")
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .generics,
         ),
         Challenge(
             number: 214,
@@ -10043,6 +10946,7 @@ print("Witness tables map protocol implementations")
                 "Return a string based on the model's heat.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonArchitecturePatterns,
             solution: """
 struct FurnaceModel {
     let heat: Int
@@ -10059,6 +10963,7 @@ let viewModel = FurnaceViewModel(model: FurnaceModel(heat: 1300))
 print("Status: \\(viewModel.status)")
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .advancedFeatures,
         ),
         Challenge(
             number: 215,
@@ -10092,6 +10997,7 @@ print("Status: \\(viewModel.status)")
                 "Use logger.log inside start().",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonArchitecturePatterns,
             solution: """
 protocol Logger {
     func log(_ message: String)
@@ -10115,6 +11021,7 @@ service.start()
 """,
             constraintProfile: crustBaselineProfile,
             introduces: [.dependencyInjection],
+            topic: .advancedFeatures,
         ),
         Challenge(
             number: 216,
@@ -10141,6 +11048,7 @@ service.start()
                 "Print a simple marker string.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonArchitecturePatterns,
             solution: """
 protocol Coordinator {
     func start()
@@ -10156,6 +11064,7 @@ let coordinator = AppCoordinator()
 coordinator.start()
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .advancedFeatures,
         ),
         Challenge(
             number: 217,
@@ -10188,6 +11097,7 @@ coordinator.start()
                 "Return the count of the items array.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonArchitecturePatterns,
             solution: """
 protocol InventoryRepository {
     func loadItems() -> [String]
@@ -10209,6 +11119,7 @@ let service = InventoryService(repository: MemoryInventoryRepository(items: ["Ir
 print("Count: \\(service.count())")
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .advancedFeatures,
         ),
         Challenge(
             number: 218,
@@ -10239,6 +11150,7 @@ print("Count: \\(service.count())")
                 "Call clock.now() inside report().",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonArchitecturePatterns,
             solution: """
 protocol Clock {
     func now() -> Int
@@ -10257,6 +11169,7 @@ report(MockClock(value: 5))
 """,
             constraintProfile: crustBaselineProfile,
             introduces: [.protocolMocking],
+            topic: .protocols,
         ),
         Challenge(
             number: 219,
@@ -10274,10 +11187,12 @@ report(MockClock(value: 5))
                 "Output the phase names in order.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonTestingBasics,
             solution: """
 print("TDD: Red, Green, Refactor")
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .testing,
         ),
         Challenge(
             number: 220,
@@ -10295,10 +11210,12 @@ print("TDD: Red, Green, Refactor")
                 "Summarize the async testing capability in one line.",
             ],
             cheatsheet: cheatsheetMacros,
+            lesson: lessonTestingBasics,
             solution: """
 print("Async tests can await in XCTest")
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .testing,
         ),
         Challenge(
             number: 221,
@@ -10316,10 +11233,12 @@ print("Async tests can await in XCTest")
                 "Summarize the UI testing focus in one line.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonTestingBasics,
             solution: """
 print("UI tests verify user flows")
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .testing,
         ),
         Challenge(
             number: 222,
@@ -10339,6 +11258,7 @@ print("UI tests verify user flows")
                 "Use pointer.pointee to read the value.",
             ],
             cheatsheet: cheatsheetPerformance,
+            lesson: lessonPerformanceBasics,
             solution: """
 var value = 42
 
@@ -10347,6 +11267,7 @@ withUnsafePointer(to: &value) { pointer in
 }
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .memory,
         ),
         Challenge(
             number: 223,
@@ -10364,10 +11285,12 @@ withUnsafePointer(to: &value) { pointer in
                 "Summarize how C interop is wired.",
             ],
             cheatsheet: cheatsheetSwiftPM,
+            lesson: lessonInteropBasics,
             solution: """
 print("C interop uses module maps")
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .interop,
         ),
         Challenge(
             number: 224,
@@ -10385,10 +11308,12 @@ print("C interop uses module maps")
                 "Summarize the interop mechanism in one line.",
             ],
             cheatsheet: cheatsheetSwiftPM,
+            lesson: lessonInteropBasics,
             solution: """
 print("@objc and bridging headers")
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .interop,
         ),
         Challenge(
             number: 225,
@@ -10406,10 +11331,12 @@ print("@objc and bridging headers")
                 "Provide a short list of common commands.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonDebuggingBasics,
             solution: """
 print("LLDB: po, bt")
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .advancedFeatures,
         ),
         Challenge(
             number: 226,
@@ -10442,6 +11369,7 @@ print("LLDB: po, bt")
                 "Print a clear message for the failure case.",
             ],
             cheatsheet: cheatsheetErrors,
+            lesson: lessonErrorsBasics,
             solution: """
 enum ForgeError: Error {
     case overheated
@@ -10462,6 +11390,7 @@ func checkHeat(_ value: Int) throws {
 """,
             constraintProfile: crustBaselineProfile,
             requires: [.doCatch, .throwKeyword, .tryKeyword],
+            topic: .errors,
         ),
         Challenge(
             number: 227,
@@ -10479,10 +11408,12 @@ func checkHeat(_ value: Int) throws {
                 "Summarize the workflow sequence.",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonGitBasics,
             solution: """
 print("Git: branch, commit, push, PR")
 """,
             constraintProfile: crustBaselineProfile,
+            topic: .advancedFeatures,
         ),
         Challenge(
             number: 228,
@@ -10516,6 +11447,7 @@ print("Git: branch, commit, push, PR")
                 "Return the total from sum().",
             ],
             cheatsheet: cheatsheetAdvancedGenerics,
+            lesson: lessonArchitecturePatterns,
             solution: """
 protocol DataSource {
     func values() -> [Int]
@@ -10538,6 +11470,7 @@ print("Sum: \\(analyzer.sum())")
 """,
             constraintProfile: crustBaselineProfile,
             requires: [.protocols, .dependencyInjection, .protocolMocking, .reduce],
+            topic: .protocols,
         ),
         Challenge(
             number: 229,
@@ -11138,6 +12071,7 @@ runAsync {
                 "Use XCTAssertEqual inside testSum().",
             ],
             cheatsheet: cheatsheetAdvancedFeatures,
+            lesson: lessonTestingBasics,
             solution: """
 class XCTestCase {}
 func XCTAssertEqual<T: Equatable>(_ lhs: T, _ rhs: T) {}
@@ -11592,6 +12526,131 @@ assertEqual(3 + 2, 5)
 """,
             constraintProfile: crustBaselineProfile,
             topic: .testing,
+            tier: .extra
+        ),
+        Challenge(
+            number: 306,
+            id: "crust-extra-error-context",
+            title: "Error Context",
+            description: "Attach context to a thrown error",
+            starterCode: """
+                // Challenge 306: Error Context
+                // Attach context to a thrown error.
+
+                enum HeatError: Error {
+                    case tooLow(Int)
+                }
+
+                func checkHeat(_ value: Int) throws {
+                    // TODO: Throw tooLow(value) when value < 1000
+                }
+
+                do {
+                    try checkHeat(900)
+                } catch HeatError.tooLow(let value) {
+                    // TODO: Print "Too low: 900"
+                }
+                """,
+            expectedOutput: "Too low: 900",
+            hints: [
+                "Throw the error with the value as context.",
+                "Use a specific catch to extract the value.",
+            ],
+            cheatsheet: cheatsheetErrors,
+            solution: """
+enum HeatError: Error {
+    case tooLow(Int)
+}
+
+func checkHeat(_ value: Int) throws {
+    if value < 1000 {
+        throw HeatError.tooLow(value)
+    }
+}
+
+do {
+    try checkHeat(900)
+} catch HeatError.tooLow(let value) {
+    print("Too low: \\(value)")
+}
+""",
+            constraintProfile: crustBaselineProfile,
+            topic: .errors,
+            tier: .extra
+        ),
+        Challenge(
+            number: 307,
+            id: "crust-extra-performance-loop",
+            title: "Performance Loop",
+            description: "Compare loop costs deterministically",
+            starterCode: """
+                // Challenge 307: Performance Loop
+                // Compare loop costs deterministically.
+                //
+                // Expected output:
+                // Total: 15
+                // Steps: 5
+
+                var total = 0
+                var steps = 0
+
+                // TODO: Loop from 1 to 5
+                // TODO: Add each value to total and increment steps
+                // TODO: Print total and steps
+                """,
+            expectedOutput: "Total: 15\nSteps: 5",
+            hints: [
+                "Track both the total and number of iterations.",
+                "Print the totals on separate lines.",
+            ],
+            cheatsheet: cheatsheetPerformance,
+            solution: """
+var total = 0
+var steps = 0
+
+for value in 1...5 {
+    total += value
+    steps += 1
+}
+
+print("Total: \\(total)")
+print("Steps: \\(steps)")
+""",
+            constraintProfile: crustBaselineProfile,
+            topic: .performance,
+            tier: .extra
+        ),
+        Challenge(
+            number: 308,
+            id: "crust-extra-objc-bridge",
+            title: "Objective-C Bridge",
+            description: "Bridge Swift to NSString",
+            starterCode: """
+                // Challenge 308: Objective-C Bridge
+                // Bridge Swift to NSString.
+
+                import Foundation
+
+                let name = "Forge"
+                // TODO: Convert name to NSString and print its length
+                """,
+            expectedOutput: "5",
+            hints: [
+                "Use NSString(name) or name as NSString.",
+                "Print the length property.",
+            ],
+            cheatsheet: cheatsheetSwiftPM,
+            solution: """
+import Foundation
+
+let name = "Forge"
+let nsName = name as NSString
+print(nsName.length)
+""",
+            constraintProfile: ConstraintProfile(
+                allowedImports: ["Foundation"]
+            ),
+            topic: .interop,
             tier: .extra
         ),
 

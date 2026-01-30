@@ -1741,6 +1741,88 @@ func prerequisiteLine(for challenge: Challenge) -> String? {
     return "Prereqs: \(names)"
 }
 
+func lessonText(for challenge: Challenge) -> String? {
+    let explicit = challenge.lesson.trimmingCharacters(in: .whitespacesAndNewlines)
+    if !explicit.isEmpty {
+        return explicit
+    }
+    guard challenge.tier == .extra else { return nil }
+
+    switch challenge.layer {
+    case .core:
+        switch challenge.topic {
+        case .conditionals:
+            return lessonConditionalsFlow
+        case .loops:
+            return lessonLoopsBasics
+        case .optionals:
+            return lessonOptionalsBasics
+        case .collections:
+            return lessonCollectionsBasics
+        case .strings:
+            return lessonStrings
+        case .functions:
+            return lessonFunctionsBasics
+        case .general:
+            return lessonCore1Integration
+        default:
+            return nil
+        }
+    case .mantle:
+        switch challenge.topic {
+        case .structs:
+            return lessonStructsBasics
+        case .classes:
+            return lessonClassesBasics
+        case .properties:
+            return lessonPropertiesAdvanced
+        case .protocols:
+            return lessonProtocolsBasics
+        case .extensions:
+            return lessonExtensionsBasics
+        case .accessControl:
+            return lessonAccessControlBasics
+        case .errors:
+            return lessonErrorsBasics
+        case .generics:
+            return lessonGenericsBasics
+        case .memory:
+            return lessonMemoryBasics
+        default:
+            return nil
+        }
+    case .crust:
+        switch challenge.topic {
+        case .concurrency:
+            return lessonConcurrencyBasics
+        case .actors:
+            return lessonActorsBasics
+        case .propertyWrappers:
+            return lessonPropertyWrappersBasics
+        case .keyPaths:
+            return lessonKeyPathsBasics
+        case .sequences:
+            return lessonSequencesBasics
+        case .generics:
+            return lessonAdvancedGenericsBasics
+        case .performance, .memory:
+            return lessonPerformanceBasics
+        case .advancedFeatures:
+            return lessonAdvancedFeaturesBasics
+        case .macros:
+            return lessonMacrosBasics
+        case .swiftpm:
+            return lessonSwiftPMBasics
+        case .testing:
+            return lessonTestingBasics
+        case .interop:
+            return lessonInteropBasics
+        default:
+            return nil
+        }
+    }
+}
+
 func tokenizeSource(_ source: String) -> [String] {
     let chars = Array(source)
     var tokens: [String] = []
@@ -3713,11 +3795,11 @@ func runGateChallenges(
             }
 
             if input == "l" {
-                let lesson = challenge.lesson.trimmingCharacters(in: .whitespacesAndNewlines)
-                if lesson.isEmpty {
+                let lesson = lessonText(for: challenge)
+                if lesson == nil || lesson?.isEmpty == true {
                     print("Lesson not available yet.\n")
                 } else {
-                    print("Lesson:\n\(lesson)\n")
+                    print("Lesson:\n\(lesson ?? "")\n")
                 }
                 continue
             }
@@ -4092,11 +4174,11 @@ func runSteps(
                 }
 
                 if input == "l" {
-                    let lesson = challenge.lesson.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if lesson.isEmpty {
+                    let lesson = lessonText(for: challenge)
+                    if lesson == nil || lesson?.isEmpty == true {
                         print("Lesson not available yet.\n")
                     } else {
-                        print("Lesson:\n\(lesson)\n")
+                        print("Lesson:\n\(lesson ?? "")\n")
                     }
                     continue
                 }
@@ -6152,11 +6234,11 @@ func runPracticeChallenges(
             }
 
             if input == "l" {
-                let lesson = challenge.lesson.trimmingCharacters(in: .whitespacesAndNewlines)
-                if lesson.isEmpty {
+                let lesson = lessonText(for: challenge)
+                if lesson == nil || lesson?.isEmpty == true {
                     print("Lesson not available yet.\n")
                 } else {
-                    print("Lesson:\n\(lesson)\n")
+                    print("Lesson:\n\(lesson ?? "")\n")
                 }
                 continue
             }

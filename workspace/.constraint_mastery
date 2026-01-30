@@ -1,7 +1,0 @@
-collections|state=relax,warn=0,clean=1
-conditionals|state=block,warn=0,clean=1
-functions|state=block,warn=0,clean=1
-general|state=block,warn=0,clean=1
-loops|state=block,warn=0,clean=1
-optionals|state=relax,warn=0,clean=1
-strings|state=block,warn=0,clean=1
