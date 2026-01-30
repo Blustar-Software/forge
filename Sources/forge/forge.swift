@@ -3179,7 +3179,27 @@ func mapDisallowConcepts(for topic: ChallengeTopic) -> [ConstraintConcept] {
         return [.switchStatement, .breakContinue, .ranges] + errorHandlingConcepts
     case .loops:
         return [.forInLoop, .whileLoop, .repeatWhileLoop, .breakContinue, .ranges] + errorHandlingConcepts
-    case .structs, .general:
+    case .structs,
+         .classes,
+         .properties,
+         .protocols,
+         .extensions,
+         .accessControl,
+         .errors,
+         .generics,
+         .memory,
+         .concurrency,
+         .actors,
+         .keyPaths,
+         .sequences,
+         .propertyWrappers,
+         .macros,
+         .swiftpm,
+         .testing,
+         .interop,
+         .performance,
+         .advancedFeatures,
+         .general:
         return errorHandlingConcepts
     }
 }
@@ -4780,6 +4800,7 @@ func printMainUsage() {
       swift run forge stats [--reset]
       swift run forge remap-progress [target]
       swift run forge catalog
+      swift run forge catalog-projects
       swift run forge practice [count] [topic] [tier] [layer]
       swift run forge random [count] [topic] [tier] [layer]
       swift run forge project <id>
@@ -4822,6 +4843,7 @@ func printMainUsage() {
       swift run forge report --help
       swift run forge report-overrides --help
       swift run forge catalog --help
+      swift run forge catalog-projects --help
 
     Examples:
       swift run forge practice 8
@@ -4844,6 +4866,7 @@ func printMainUsage() {
       swift run forge audit core
       swift run forge report
       swift run forge catalog
+      swift run forge catalog-projects
 
     Notes:
       - Random mode uses workspace_random/. Project mode uses workspace_projects/.
@@ -4866,6 +4889,7 @@ func printMainUsage() {
       swift run forge review-progression --help
       swift run forge audit --help
       swift run forge catalog --help
+      swift run forge catalog-projects --help
     """)
 }
 
@@ -4926,11 +4950,21 @@ func printCatalogUsage() {
     """)
 }
 
+func printProjectCatalogUsage() {
+    print("""
+    Usage:
+      swift run forge catalog-projects
+
+    Output:
+      - Prints a table to stdout
+    """)
+}
+
 func printRandomUsage() {
     print("""
     Usage: swift run forge random [count] [topic] [tier] [layer] [bridge]
 
-    Topics: conditionals, loops, optionals, collections, functions, strings, structs, general
+    Topics: conditionals, loops, optionals, collections, functions, strings, structs, classes, properties, protocols, extensions, accessControl, errors, generics, memory, concurrency, actors, keyPaths, sequences, propertyWrappers, macros, swiftpm, testing, interop, performance, advancedFeatures, general
     Tiers: mainline, extra
     Layers: core, mantle, crust
     Bridge: use 'bridge' to focus on bridge challenges (otherwise excluded)
@@ -5808,6 +5842,103 @@ func writeChallengeCatalogText(_ challenges: [Challenge], path: String) {
     try? content.write(toFile: path, atomically: true, encoding: .utf8)
 }
 
+func projectCatalogLines(_ projects: [Project]) -> [String] {
+    func projectSortKey(_ id: String) -> (layer: Int, number: Int, suffix: Int, raw: String) {
+        let lower = id.lowercased()
+        let layer: Int
+        let prefix: String
+        if lower.hasPrefix("core") {
+            layer = 0
+            prefix = "core"
+        } else if lower.hasPrefix("mantle") {
+            layer = 1
+            prefix = "mantle"
+        } else if lower.hasPrefix("crust") {
+            layer = 2
+            prefix = "crust"
+        } else {
+            return (99, 999, 99, lower)
+        }
+
+        let remainder = lower.dropFirst(prefix.count)
+        var numberDigits = ""
+        var suffixChar: Character? = nil
+        for char in remainder {
+            if char.isNumber, suffixChar == nil {
+                numberDigits.append(char)
+            } else {
+                suffixChar = char
+                break
+            }
+        }
+        let number = Int(numberDigits) ?? 999
+        let suffix: Int
+        if let suffixChar = suffixChar, let ascii = suffixChar.asciiValue {
+            let base = Character("a").asciiValue ?? ascii
+            suffix = max(1, Int(ascii - base) + 1)
+        } else {
+            suffix = 99
+        }
+        return (layer, number, suffix, lower)
+    }
+
+    let sorted = projects.sorted { lhs, rhs in
+        let lhsKey = projectSortKey(lhs.id)
+        let rhsKey = projectSortKey(rhs.id)
+        if lhsKey.layer != rhsKey.layer { return lhsKey.layer < rhsKey.layer }
+        if lhsKey.number != rhsKey.number { return lhsKey.number < rhsKey.number }
+        if lhsKey.suffix != rhsKey.suffix { return lhsKey.suffix < rhsKey.suffix }
+        if lhs.tier != rhs.tier { return lhs.tier == .mainline }
+        return lhsKey.raw < rhsKey.raw
+    }
+
+    let idWidth = min(18, max(2, projects.map { $0.id.count }.max() ?? 2))
+    let layerWidth = 6
+    let tierWidth = 7
+    let titleWidth = 40
+
+    func pad(_ value: String, to width: Int) -> String {
+        if value.count >= width {
+            return value
+        }
+        return value + String(repeating: " ", count: width - value.count)
+    }
+
+    let header = [
+        pad("ID", to: idWidth),
+        pad("Layer", to: layerWidth),
+        pad("Tier", to: tierWidth),
+        pad("Title", to: titleWidth)
+    ].joined(separator: "  ")
+    var lines: [String] = []
+    lines.append(header)
+    lines.append(String(repeating: "-", count: header.count))
+    for project in sorted {
+        let title = truncate(project.title, limit: titleWidth)
+        let row = [
+            pad(project.id, to: idWidth),
+            pad(project.layer.rawValue, to: layerWidth),
+            pad(project.tier.rawValue, to: tierWidth),
+            pad(title, to: titleWidth)
+        ].joined(separator: "  ")
+        lines.append(row)
+    }
+    return lines
+}
+
+func printProjectCatalogTable(_ projects: [Project]) {
+    let lines = projectCatalogLines(projects)
+    for line in lines {
+        print(line)
+    }
+}
+
+func writeProjectCatalogText(_ projects: [Project], path: String) {
+    let lines = projectCatalogLines(projects)
+    let content = lines.joined(separator: "\n") + "\n"
+    try? content.write(toFile: path, atomically: true, encoding: .utf8)
+}
+
 func writeChallengeCatalogCSV(_ challenges: [Challenge], path: String) {
     var lines: [String] = []
     lines.append("displayId,canonicalId,id,number,layerNumber,extraParent,extraIndex,tier,layer,topic,title")
@@ -6590,7 +6721,7 @@ struct Forge {
             guard !args.isEmpty else { return nil }
             let arg = args[0]
             let lowered = arg.lowercased()
-            if ["reset", "practice", "random", "project", "progress", "remap-progress", "verify-solutions", "verify", "review-progression", "review", "stats", "audit", "report", "catalog"].contains(lowered) {
+            if ["reset", "practice", "random", "project", "progress", "remap-progress", "verify-solutions", "verify", "review-progression", "review", "stats", "audit", "report", "catalog", "catalog-projects"].contains(lowered) {
                 return nil
             }
             if ["help", "-h", "--help"].contains(lowered) {
@@ -6622,6 +6753,7 @@ struct Forge {
         let allChallenges = sets.allChallenges
         let constraintIndex = buildConstraintIndex(from: allChallenges)
         writeChallengeCatalogText(allChallenges, path: "challenge_catalog.txt")
+        writeProjectCatalogText(projects, path: "project_catalog.txt")
         let steps = makeSteps(
             core1Challenges: core1Challenges,
             core2Challenges: core2Challenges,
@@ -6716,6 +6848,20 @@ struct Forge {
                 return
             }
             printChallengeCatalogTable(allChallenges)
+            return
+        }
+        if !args.isEmpty && args[0] == "catalog-projects" {
+            let catalogArgs = Array(args.dropFirst())
+            if catalogArgs.contains("--help") || catalogArgs.contains("-h") || catalogArgs.contains("help") {
+                printProjectCatalogUsage()
+                return
+            }
+            if !catalogArgs.isEmpty {
+                print("Catalog does not accept flags.")
+                printProjectCatalogUsage()
+                return
+            }
+            printProjectCatalogTable(projects)
             return
         }
 
@@ -7229,7 +7375,7 @@ struct Forge {
         }
 
         clearScreen()
-        print("Heat. Pressure. Repetition.\n")
+        print("The Will to Empower.\n")
         if adaptiveEnabled, let pending = loadPendingPractice(workspacePath: "workspace") {
             print("Pending assisted practice detected for \(pending.topic.rawValue). You'll resume it before continuing.\n")
         }

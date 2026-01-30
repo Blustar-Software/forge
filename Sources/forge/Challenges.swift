@@ -9,6 +9,25 @@ enum ChallengeTopic: String {
     case functions
     case strings
     case structs
+    case classes
+    case properties
+    case protocols
+    case extensions
+    case accessControl
+    case errors
+    case generics
+    case memory
+    case concurrency
+    case actors
+    case keyPaths
+    case sequences
+    case propertyWrappers
+    case macros
+    case swiftpm
+    case testing
+    case interop
+    case performance
+    case advancedFeatures
 }
 
 enum ChallengeTier: String {
@@ -109,6 +128,7 @@ enum ConstraintConcept: String {
     case compoundAssignment
     case stringInterpolation
 }
+
 
 struct ConstraintProfile {
     let allowedImports: [String]
@@ -5100,6 +5120,687 @@ print(canForge)
             topic: .conditionals,
             tier: .extra
         ),
+        Challenge(
+            number: 256,
+            id: "core-extra-optional-label",
+            title: "Optional Label",
+            description: "Provide a default label for a missing value",
+            starterCode: """
+                // Challenge 256: Optional Label
+                // Provide a default when the optional is nil.
+
+                let batchLabel: String? = nil
+
+                // TODO: Use ?? to set 'label' to "Unknown" when batchLabel is nil
+                // TODO: Print label
+                """,
+            expectedOutput: "Unknown",
+            hints: [
+                "Nil coalescing provides a fallback value.",
+                "Store the result in a constant before printing.",
+            ],
+            cheatsheet: cheatsheetOptionals,
+            solution: """
+let label = batchLabel ?? "Unknown"
+print(label)
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .optionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 257,
+            id: "core-extra-optional-count",
+            title: "Optional Count",
+            description: "Use optional chaining with a default",
+            starterCode: """
+                // Challenge 257: Optional Count
+                // Use optional chaining with a default.
+
+                let temps: [Int]? = [1200, 1400]
+
+                // TODO: Use optional chaining to read temps?.count
+                // TODO: Use ?? to default to 0
+                // TODO: Print the count
+                """,
+            expectedOutput: "2",
+            hints: [
+                "temps?.count returns an optional Int.",
+                "Use ?? to provide a fallback value.",
+            ],
+            cheatsheet: cheatsheetOptionals,
+            solution: """
+let count = temps?.count ?? 0
+print(count)
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .optionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 258,
+            id: "core-extra-optional-dictionary-read",
+            title: "Optional Dictionary Read",
+            description: "Unwrap a dictionary lookup",
+            starterCode: """
+                // Challenge 258: Optional Dictionary Read
+                // Unwrap a dictionary lookup with if let.
+
+                let scores = ["Iron": 3, "Gold": 1]
+
+                // TODO: Use if let to read the score for "Iron"
+                // TODO: Print "Score: <value>" or "Missing"
+                """,
+            expectedOutput: "Score: 3",
+            hints: [
+                "Dictionary lookups return optionals.",
+                "Use if let to unwrap the value before printing.",
+            ],
+            cheatsheet: cheatsheetOptionals,
+            solution: """
+if let score = scores["Iron"] {
+    print("Score: \\(score)")
+} else {
+    print("Missing")
+}
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .optionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 259,
+            id: "core-extra-optional-two-step",
+            title: "Optional Two-Step",
+            description: "Unwrap an optional and convert it",
+            starterCode: """
+                // Challenge 259: Optional Two-Step
+                // Unwrap an optional string, then convert.
+
+                let text: String? = "1500"
+
+                // TODO: Use if let to unwrap text and convert to Int
+                // TODO: Print the Int value or "Invalid"
+                """,
+            expectedOutput: "1500",
+            hints: [
+                "You can unwrap and convert in the same if let.",
+                "Provide a fallback path for invalid values.",
+            ],
+            cheatsheet: cheatsheetOptionals,
+            solution: """
+if let text = text, let value = Int(text) {
+    print(value)
+} else {
+    print("Invalid")
+}
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .optionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 260,
+            id: "core-extra-optional-bool-default",
+            title: "Optional Bool Default",
+            description: "Default a missing Bool to false",
+            starterCode: """
+                // Challenge 260: Optional Bool Default
+                // Default an optional Bool to false.
+
+                let isReady: Bool? = nil
+
+                // TODO: Use ?? to set 'ready' to false when isReady is nil
+                // TODO: Print ready
+                """,
+            expectedOutput: "false",
+            hints: [
+                "Use nil coalescing with a Bool.",
+            ],
+            cheatsheet: cheatsheetOptionals,
+            solution: """
+let ready = isReady ?? false
+print(ready)
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .optionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 261,
+            id: "core-extra-optional-guard-name",
+            title: "Optional Guard Name",
+            description: "Use guard let with a parameter",
+            starterCode: """
+                // Challenge 261: Optional Guard Name
+                // Use guard let for an early exit.
+
+                func announce(name: String?) {
+                    // TODO: Use guard let to unwrap name
+                    // Print "Missing" and return if nil
+                    // Otherwise print "Name: <value>"
+                }
+
+                // TODO: Call announce with nil
+                """,
+            expectedOutput: "Missing",
+            hints: [
+                "guard let unwraps and exits early when nil.",
+                "Return before the success print.",
+            ],
+            cheatsheet: cheatsheetOptionals,
+            solution: """
+func announce(name: String?) {
+    guard let name = name else {
+        print("Missing")
+        return
+    }
+    print("Name: \\(name)")
+}
+
+announce(name: nil)
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .optionals,
+            tier: .extra
+        ),
+        Challenge(
+            number: 262,
+            id: "core-extra-heat-summary",
+            title: "Heat Summary",
+            description: "Combine variables, math, and strings",
+            starterCode: """
+                // Challenge 262: Heat Summary
+                // Combine variables, math, and string interpolation.
+
+                let baseHeat = 1200
+                let boost = 200
+
+                // TODO: Create totalHeat by adding baseHeat and boost
+                // TODO: Print "Heat: <totalHeat>"
+                """,
+            expectedOutput: "Heat: 1400",
+            hints: [
+                "Store the computed total in a constant before printing.",
+                "Use interpolation to include the value in the output.",
+            ],
+            cheatsheet: cheatsheetCore1Integration,
+            solution: """
+let totalHeat = baseHeat + boost
+print("Heat: \\(totalHeat)")
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 263,
+            id: "core-extra-average-temp",
+            title: "Average Temp",
+            description: "Compute a Double average",
+            starterCode: """
+                // Challenge 263: Average Temp
+                // Compute a Double average.
+
+                let low = 1200
+                let high = 1600
+
+                // TODO: Compute the average as a Double
+                // TODO: Print the average
+                """,
+            expectedOutput: "1400.0",
+            hints: [
+                "Convert to Double before dividing to keep the fraction.",
+                "Average is (low + high) / 2.",
+            ],
+            cheatsheet: cheatsheetMathOperators,
+            solution: """
+let average = (Double(low) + Double(high)) / 2
+print(average)
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 264,
+            id: "core-extra-batch-tag",
+            title: "Batch Tag",
+            description: "Build a string from a number",
+            starterCode: """
+                // Challenge 264: Batch Tag
+                // Build a string from a number.
+
+                let batchId = 7
+
+                // TODO: Create tag as "Batch-<id>"
+                // TODO: Print tag
+                """,
+            expectedOutput: "Batch-7",
+            hints: [
+                "Use interpolation to build the tag string.",
+            ],
+            cheatsheet: cheatsheetStrings,
+            solution: """
+let tag = "Batch-\\(batchId)"
+print(tag)
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 265,
+            id: "core-extra-heat-step-report",
+            title: "Heat Step Report",
+            description: "Combine math with a simple label",
+            starterCode: """
+                // Challenge 265: Heat Step Report
+                // Combine math and a simple label.
+
+                let step = 3
+
+                // TODO: Compute totalHeat as step * 200
+                // TODO: Print "Step <step>: <totalHeat>"
+                """,
+            expectedOutput: "Step 3: 600",
+            hints: [
+                "Compute the value before formatting the string.",
+                "Use interpolation for both values.",
+            ],
+            cheatsheet: cheatsheetCore1Integration,
+            solution: """
+let totalHeat = step * 200
+print("Step \\(step): \\(totalHeat)")
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .general,
+            tier: .extra
+        ),
+        Challenge(
+            number: 266,
+            id: "core-extra-double-heat",
+            title: "Double Heat",
+            description: "Return a computed value from a function",
+            starterCode: """
+                // Challenge 266: Double Heat
+                // Return a computed value from a function.
+
+                // TODO: Create a function 'doubleHeat' that returns value * 2
+                // TODO: Call doubleHeat with 700 and print the result
+                """,
+            expectedOutput: "1400",
+            hints: [
+                "Define a function with a return type.",
+                "Call the function and print the returned value.",
+            ],
+            cheatsheet: cheatsheetFunctionsBasics,
+            solution: """
+func doubleHeat(value: Int) -> Int {
+    return value * 2
+}
+
+print(doubleHeat(value: 700))
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .functions,
+            tier: .extra
+        ),
+        Challenge(
+            number: 267,
+            id: "core-extra-parameter-labels",
+            title: "Parameter Labels",
+            description: "Use an external label in a function",
+            starterCode: """
+                // Challenge 267: Parameter Labels
+                // Use an external label for readability.
+
+                // TODO: Create a function 'heat' that takes an Int with external label 'to'
+                // TODO: Inside, print "Heating to <value>"
+                // TODO: Call heat(to: 1500)
+                """,
+            expectedOutput: "Heating to 1500",
+            hints: [
+                "Function example: heat(to value: Int).",
+                "Use interpolation inside the print.",
+            ],
+            cheatsheet: cheatsheetFunctionsBasics,
+            solution: """
+func heat(to value: Int) {
+    print("Heating to \\(value)")
+}
+
+heat(to: 1500)
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .functions,
+            tier: .extra
+        ),
+        Challenge(
+            number: 268,
+            id: "core-extra-return-string",
+            title: "Return String",
+            description: "Build and return a String",
+            starterCode: """
+                // Challenge 268: Return String
+                // Return a formatted String from a function.
+
+                // TODO: Create a function 'status' that returns "Heat: <value>"
+                // TODO: Print status(1200)
+                """,
+            expectedOutput: "Heat: 1200",
+            hints: [
+                "Return a String built with interpolation.",
+                "Call the function inside print.",
+            ],
+            cheatsheet: cheatsheetFunctionsBasics,
+            solution: """
+func status(_ value: Int) -> String {
+    return "Heat: \\(value)"
+}
+
+print(status(1200))
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .functions,
+            tier: .extra
+        ),
+        Challenge(
+            number: 269,
+            id: "core-extra-parameter-default",
+            title: "Parameter Default",
+            description: "Use a default parameter value",
+            starterCode: """
+                // Challenge 269: Parameter Default
+                // Use a default parameter value.
+
+                // TODO: Create a function 'forge' with a default material of "Iron"
+                // TODO: Print "Forge <material>"
+                // TODO: Call forge() with no arguments
+                """,
+            expectedOutput: "Forge Iron",
+            hints: [
+                "Provide a default value in the parameter list.",
+                "Call the function without passing a value.",
+            ],
+            cheatsheet: cheatsheetFunctionsBasics,
+            solution: """
+func forge(material: String = "Iron") {
+    print("Forge \\(material)")
+}
+
+forge()
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .functions,
+            tier: .extra
+        ),
+        Challenge(
+            number: 270,
+            id: "core-extra-string-join",
+            title: "String Join",
+            description: "Join words with a separator",
+            starterCode: """
+                // Challenge 270: String Join
+                // Join words with a separator.
+
+                let parts = ["Forge", "Ready"]
+
+                // TODO: Join parts with "-" and print the result
+                """,
+            expectedOutput: "Forge-Ready",
+            hints: [
+                "Use joined(separator:).",
+            ],
+            cheatsheet: cheatsheetStrings,
+            solution: """
+print(parts.joined(separator: "-"))
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .strings,
+            tier: .extra
+        ),
+        Challenge(
+            number: 271,
+            id: "core-extra-string-trim",
+            title: "Trim Spaces",
+            description: "Trim leading and trailing spaces",
+            starterCode: """
+                // Challenge 271: Trim Spaces
+                // Trim whitespace from a String.
+
+                import Foundation
+
+                let raw = "  Iron  "
+
+                // TODO: Trim whitespace and print the result
+                """,
+            expectedOutput: "Iron",
+            hints: [
+                "Use trimmingCharacters(in: .whitespacesAndNewlines).",
+            ],
+            cheatsheet: cheatsheetStrings,
+            solution: """
+let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+print(trimmed)
+""",
+            constraintProfile: ConstraintProfile(
+                allowedImports: ["Foundation"]
+            ),
+            topic: .strings,
+            tier: .extra
+        ),
+        Challenge(
+            number: 272,
+            id: "core-extra-string-replace",
+            title: "Replace Text",
+            description: "Replace part of a String",
+            starterCode: """
+                // Challenge 272: Replace Text
+                // Replace a substring with another.
+
+                let label = "Heat: 1500"
+
+                // TODO: Replace "1500" with "1600" and print
+                """,
+            expectedOutput: "Heat: 1600",
+            hints: [
+                "Use replacingOccurrences(of:with:).",
+            ],
+            cheatsheet: cheatsheetStrings,
+            solution: """
+let updated = label.replacingOccurrences(of: "1500", with: "1600")
+print(updated)
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .strings,
+            tier: .extra
+        ),
+        Challenge(
+            number: 273,
+            id: "core-extra-string-lines",
+            title: "String Lines",
+            description: "Split a string into lines",
+            starterCode: """
+                // Challenge 273: String Lines
+                // Split a string into lines.
+
+                let report = "Iron\\nGold\\nCopper"
+
+                // TODO: Split report into lines and print the count
+                """,
+            expectedOutput: "3",
+            hints: [
+                "Split on the newline character.",
+            ],
+            cheatsheet: cheatsheetStrings,
+            solution: """
+let lines = report.split(separator: \"\\n\")
+print(lines.count)
+""",
+            constraintProfile: core3BaselineProfile,
+            topic: .strings,
+            tier: .extra
+        ),
+        Challenge(
+            number: 274,
+            id: "core-extra-closure-label",
+            title: "Closure Label",
+            description: "Store and call a simple closure",
+            starterCode: """
+                // Challenge 274: Closure Label
+                // Store and call a simple closure.
+
+                // TODO: Create a closure called 'label' that prints "Forge"
+                // TODO: Call the closure
+                """,
+            expectedOutput: "Forge",
+            hints: [
+                "Closures can be assigned to constants.",
+                "Call the closure like a function.",
+            ],
+            cheatsheet: cheatsheetClosures,
+            solution: """
+let label = {
+    print("Forge")
+}
+
+label()
+""",
+            constraintProfile: core3ClosureProfile,
+            topic: .functions,
+            tier: .extra
+        ),
+        Challenge(
+            number: 275,
+            id: "core-extra-closure-multiply",
+            title: "Closure Multiply",
+            description: "Use a closure that takes a parameter",
+            starterCode: """
+                // Challenge 275: Closure Multiply
+                // Use a closure with a parameter.
+
+                // TODO: Create a closure called 'tripleHeat' that takes an Int
+                // and returns the value multiplied by 3
+                // TODO: Print tripleHeat(500)
+                """,
+            expectedOutput: "1500",
+            hints: [
+                "Closures can take parameters and return values.",
+                "Call the closure like a function to get the result.",
+            ],
+            cheatsheet: cheatsheetClosures,
+            solution: """
+let tripleHeat = { (value: Int) -> Int in
+    return value * 3
+}
+
+print(tripleHeat(500))
+""",
+            constraintProfile: core3ClosureProfile,
+            topic: .functions,
+            tier: .extra
+        ),
+        Challenge(
+            number: 276,
+            id: "core-extra-closure-trailing",
+            title: "Closure Trailing",
+            description: "Use trailing closure syntax",
+            starterCode: """
+                // Challenge 276: Closure Trailing
+                // Use trailing closure syntax.
+
+                func transform(_ value: Int, using closure: (Int) -> Int) {
+                    print(closure(value))
+                }
+
+                // TODO: Call transform with 4 using trailing closure syntax
+                // Multiply the value by 5
+                """,
+            expectedOutput: "20",
+            hints: [
+                "Move the closure outside the parentheses.",
+                "Keep the multiplication inside the closure.",
+            ],
+            cheatsheet: cheatsheetClosures,
+            solution: """
+transform(4) { value in
+    return value * 5
+}
+""",
+            constraintProfile: core3ClosureProfile,
+            topic: .functions,
+            tier: .extra
+        ),
+        Challenge(
+            number: 277,
+            id: "core-extra-closure-shorthand",
+            title: "Closure Shorthand",
+            description: "Use $0 in a trailing closure",
+            starterCode: """
+                // Challenge 277: Closure Shorthand
+                // Use $0 in a trailing closure.
+
+                func apply(_ value: Int, using closure: (Int) -> Int) {
+                    print(closure(value))
+                }
+
+                // TODO: Call apply with 8 and use $0 to add 2
+                """,
+            expectedOutput: "10",
+            hints: [
+                "Use $0 to represent the input value.",
+            ],
+            cheatsheet: cheatsheetClosures,
+            solution: """
+apply(8) { $0 + 2 }
+""",
+            constraintProfile: core3ClosureProfile,
+            introduces: [.shorthandClosureArgs],
+            topic: .functions,
+            tier: .extra
+        ),
+        Challenge(
+            number: 278,
+            id: "core-extra-closure-capture",
+            title: "Closure Capture",
+            description: "Capture and update a value",
+            starterCode: """
+                // Challenge 278: Closure Capture
+                // Capture and update a value.
+
+                func makeCounter() -> () -> Void {
+                    var count = 0
+                    return {
+                        // TODO: Increment count and print it
+                    }
+                }
+
+                // TODO: Create a counter and call it twice
+                """,
+            expectedOutput: "1\n2",
+            hints: [
+                "Closures can capture and mutate variables from the outer scope.",
+                "Each call should increase the stored count.",
+            ],
+            cheatsheet: cheatsheetClosures,
+            solution: """
+func makeCounter() -> () -> Void {
+    var count = 0
+    return {
+        count += 1
+        print(count)
+    }
+}
+
+let counter = makeCounter()
+counter()
+counter()
+""",
+            constraintProfile: core3ClosureProfile,
+            topic: .functions,
+            tier: .extra
+        ),
     ]
 }
 
@@ -5132,7 +5833,8 @@ let item = ForgeItem(name: "Iron")
 print(item.name)
 """,
             constraintProfile: mantleBaselineProfile,
-            introduces: [.structs, .properties]
+            introduces: [.structs, .properties],
+            topic: .structs,
         ),
         Challenge(
             number: 125,
@@ -5161,7 +5863,8 @@ furnace.heat = 1500
 print(furnace.heat)
 """,
             constraintProfile: mantleBaselineProfile,
-            introduces: [.properties]
+            introduces: [.properties],
+            topic: .structs,
         ),
         Challenge(
             number: 126,
@@ -5197,7 +5900,8 @@ var hammer = Hammer(strikes: 0)
 print(hammer.summary())
 """,
             constraintProfile: mantleBaselineProfile,
-            introduces: [.selfKeyword]
+            introduces: [.selfKeyword],
+            topic: .structs,
         ),
         Challenge(
             number: 127,
@@ -5237,7 +5941,8 @@ print(ingot.metal)
 print(ingot.weight)
 """,
             constraintProfile: mantleBaselineProfile,
-            introduces: [.initializers]
+            introduces: [.initializers],
+            topic: .structs,
         ),
         Challenge(
             number: 128,
@@ -5276,7 +5981,8 @@ crucible.raise()
 print(crucible.level)
 """,
             constraintProfile: mantleBaselineProfile,
-            introduces: [.mutatingMethods]
+            introduces: [.mutatingMethods],
+            topic: .structs,
         ),
         Challenge(
             number: 129,
@@ -5314,6 +6020,7 @@ print(original.size)
 print(copy.size)
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .structs,
         ),
         Challenge(
             number: 130,
@@ -5343,7 +6050,8 @@ let anvil = Anvil(weight: 10)
 print(anvil.weight)
 """,
             constraintProfile: mantleBaselineProfile,
-            introduces: [.classes]
+            introduces: [.classes],
+            topic: .classes,
         ),
         Challenge(
             number: 131,
@@ -5376,6 +6084,7 @@ secondary.power = 3
 print(primary.power)
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .classes,
         ),
         Challenge(
             number: 132,
@@ -5416,6 +6125,7 @@ var torch: Torch? = Torch(id: 1)
 torch = nil
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .classes,
         ),
         Challenge(
             number: 133,
@@ -5452,6 +6162,7 @@ print(tag.label)
 print(controller.status)
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .classes,
         ),
         Challenge(
             number: 134,
@@ -5490,6 +6201,7 @@ press.doubleForce = 10
 print(press.force)
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .properties,
         ),
         Challenge(
             number: 135,
@@ -5529,6 +6241,7 @@ var gauge = Gauge(pressure: 1)
 gauge.pressure = 2
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .properties,
         ),
         Challenge(
             number: 136,
@@ -5561,6 +6274,7 @@ var report = ForgeReport(id: 1)
 print(report.summary)
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .properties,
         ),
         Challenge(
             number: 137,
@@ -5589,6 +6303,7 @@ print(Shift.maxHours)
 print(shift.hours)
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .properties,
         ),
         Challenge(
             number: 138,
@@ -5614,7 +6329,8 @@ protocol Inspectable {
 print("Inspectable ready")
 """,
             constraintProfile: mantleBaselineProfile,
-            introduces: [.protocols]
+            introduces: [.protocols],
+            topic: .protocols,
         ),
         Challenge(
             number: 139,
@@ -5645,7 +6361,8 @@ let furnace = Furnace(status: "Ready")
 print(furnace.status)
 """,
             constraintProfile: mantleBaselineProfile,
-            introduces: [.protocolConformance]
+            introduces: [.protocolConformance],
+            topic: .protocols,
         ),
         Challenge(
             number: 140,
@@ -5680,6 +6397,7 @@ let burner = Burner(heat: 1200)
 reportHeat(source: burner)
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .protocols,
         ),
         Challenge(
             number: 141,
@@ -5720,6 +6438,7 @@ let vent = Vent(fuel: 2, airflow: 3)
 report(vent)
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .protocols,
         ),
         Challenge(
             number: 142,
@@ -5755,6 +6474,7 @@ let sensor = Sensor(id: "S1", status: "OK")
 print(sensor.status)
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .protocols,
         ),
         Challenge(
             number: 143,
@@ -5787,7 +6507,8 @@ let ingot = Ingot(weight: 5)
 print(ingot.label())
 """,
             constraintProfile: mantleBaselineProfile,
-            introduces: [.extensions]
+            introduces: [.extensions],
+            topic: .extensions,
         ),
         Challenge(
             number: 144,
@@ -5824,7 +6545,8 @@ let report = Report(message: "Report ready")
 report.printReport()
 """,
             constraintProfile: mantleBaselineProfile,
-            introduces: [.protocolExtensions, .defaultImplementations]
+            introduces: [.protocolExtensions, .defaultImplementations],
+            topic: .extensions,
         ),
         Challenge(
             number: 145,
@@ -5861,7 +6583,8 @@ let _ = Vault(code: 1234)
 print("Vault ready")
 """,
             constraintProfile: mantleBaselineProfile,
-            introduces: [.accessControl, .accessControlInternal, .accessControlSetter]
+            introduces: [.accessControl, .accessControlInternal, .accessControlSetter],
+            topic: .accessControl,
         ),
         Challenge(
             number: 146,
@@ -5891,7 +6614,8 @@ print("Ledger")
 print("Controller")
 """,
             constraintProfile: mantleBaselineProfile,
-            introduces: [.accessControlOpen]
+            introduces: [.accessControlOpen],
+            topic: .accessControl,
         ),
         Challenge(
             number: 147,
@@ -5933,7 +6657,8 @@ do {
 }
 """,
             constraintProfile: mantleBaselineProfile,
-            requires: [.doCatch, .throwKeyword, .tryKeyword, .errorTypes, .throwingFunctions, .doTryCatch]
+            requires: [.doCatch, .throwKeyword, .tryKeyword, .errorTypes, .throwingFunctions, .doTryCatch],
+            topic: .errors,
         ),
         Challenge(
             number: 148,
@@ -5959,7 +6684,8 @@ func swapPair<A, B>(_ first: A, _ second: B) -> (B, A) {
 print(swapPair("Iron", 3))
 """,
             constraintProfile: mantleBaselineProfile,
-            introduces: [.generics]
+            introduces: [.generics],
+            topic: .generics,
         ),
         Challenge(
             number: 149,
@@ -5986,6 +6712,7 @@ let box = Box(value: 7)
 print(box.value)
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .generics,
         ),
         Challenge(
             number: 150,
@@ -6011,6 +6738,7 @@ func maxValue<T: Comparable>(_ first: T, _ second: T) -> T {
 print(maxValue(3, 5))
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .generics,
         ),
         Challenge(
             number: 151,
@@ -6042,7 +6770,8 @@ let storage = StringStorage(items: ["Iron", "Gold"])
 print(storage.items.count)
 """,
             constraintProfile: mantleBaselineProfile,
-            introduces: [.associatedTypes]
+            introduces: [.associatedTypes],
+            topic: .generics,
         ),
         Challenge(
             number: 152,
@@ -6071,7 +6800,8 @@ extension Array where Element: Equatable {
 print([2, 2, 2].allEqual())
 """,
             constraintProfile: mantleBaselineProfile,
-            introduces: [.whereClauses]
+            introduces: [.whereClauses],
+            topic: .generics,
         ),
         Challenge(
             number: 153,
@@ -6108,6 +6838,7 @@ let tool = Tool(name: "Anvil")
 print(tool.description())
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .generics,
         ),
         Challenge(
             number: 154,
@@ -6137,6 +6868,7 @@ let second = Crate(items: [1, 2])
 print(first == second)
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .generics,
         ),
         Challenge(
             number: 155,
@@ -6173,6 +6905,7 @@ let alloy = Alloy(status: "Alloy ready")
 alloy.report()
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .protocols,
         ),
         Challenge(
             number: 156,
@@ -6222,6 +6955,7 @@ operatorRef.forge = forge
 print("Cycle avoided")
 """,
             constraintProfile: mantleBaselineProfile,
+            topic: .memory,
         ),
         Challenge(
             number: 157,
@@ -6253,7 +6987,7 @@ print(original.thickness)
 print(copy.thickness)
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .structs,
             tier: .extra
         ),
         Challenge(
@@ -6294,7 +7028,7 @@ counter.increment()
 print(counter.value)
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .structs,
             tier: .extra
         ),
         Challenge(
@@ -6335,7 +7069,7 @@ weight.pounds = 10
 print(weight.kg)
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .properties,
             tier: .extra
         ),
         Challenge(
@@ -6377,7 +7111,7 @@ var gauge = Gauge(pressure: 1)
 gauge.pressure = 3
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .structs,
+            topic: .properties,
             tier: .extra
         ),
         Challenge(
@@ -6412,7 +7146,7 @@ secondary.mode = "Active"
 print(primary.mode)
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .classes,
             tier: .extra
         ),
         Challenge(
@@ -6447,7 +7181,7 @@ var report = Report(id: 2)
 print(report.title)
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .structs,
+            topic: .properties,
             tier: .extra
         ),
         Challenge(
@@ -6485,7 +7219,7 @@ struct Tool: Named {
 print(Tool(name: "Hammer").label())
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .protocols,
             tier: .extra
         ),
         Challenge(
@@ -6521,7 +7255,7 @@ func reportHeat(source: HeatSource) {
 reportHeat(source: Furnace(heat: 1500))
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .protocols,
             tier: .extra
         ),
         Challenge(
@@ -6563,7 +7297,7 @@ func report(_ vent: Fueling & Venting) {
 report(Vent(fuel: 2, airflow: 3))
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .protocols,
             tier: .extra
         ),
         Challenge(
@@ -6593,7 +7327,7 @@ extension Int {
 print(5.squared())
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .extensions,
             tier: .extra
         ),
         Challenge(
@@ -6635,7 +7369,7 @@ let vault = Vault(code: 1234)
 print(vault.masked)
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .accessControl,
             tier: .extra
         ),
         Challenge(
@@ -6673,7 +7407,7 @@ do {
 }
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .errors,
             tier: .extra
         ),
         Challenge(
@@ -6702,7 +7436,7 @@ let box = Box(value: "Iron")
 print(box.value)
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .generics,
             tier: .extra
         ),
         Challenge(
@@ -6730,7 +7464,7 @@ func minValue<T: Comparable>(_ first: T, _ second: T) -> T {
 print(minValue(3, 5))
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .generics,
             tier: .extra
         ),
         Challenge(
@@ -6781,7 +7515,7 @@ stack.push(2)
 print(stack.items.count)
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .generics,
             tier: .extra
         ),
         Challenge(
@@ -6812,7 +7546,7 @@ extension Array where Element: Equatable {
 print([1, 1, 2].allSame())
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .generics,
             tier: .extra
         ),
         Challenge(
@@ -6844,7 +7578,7 @@ let second = Wrapper(value: "A")
 print(first == second)
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .generics,
             tier: .extra
         ),
         Challenge(
@@ -6897,7 +7631,7 @@ let printer = logger.makePrinter()
 printer()
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .memory,
             tier: .extra
         ),
         Challenge(
@@ -6937,7 +7671,7 @@ print(vault.owner)
 print(vault.count)
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .accessControl,
             tier: .extra
         ),
         Challenge(
@@ -6983,13 +7717,464 @@ let tool = Tool(tag: "Forge")
 print(tool.describeTag())
 """,
             constraintProfile: mantleBaselineProfile,
-            topic: .general,
+            topic: .protocols,
+            tier: .extra
+        ),
+        Challenge(
+            number: 279,
+            id: "mantle-extra-memberwise-init",
+            title: "Memberwise Init",
+            description: "Use a struct's memberwise initializer",
+            starterCode: """
+                // Challenge 279: Memberwise Init
+                // Use the memberwise initializer.
+
+                struct Ingot {
+                    let metal: String
+                    let weight: Int
+                }
+
+                // TODO: Create an Ingot for Iron with weight 3
+                // TODO: Print "<metal> <weight>"
+                """,
+            expectedOutput: "Iron 3",
+            hints: [
+                "Memberwise init uses property names as labels.",
+                "Print the stored properties in order.",
+            ],
+            cheatsheet: cheatsheetStructs,
+            solution: """
+let ingot = Ingot(metal: "Iron", weight: 3)
+print("\\(ingot.metal) \\(ingot.weight)")
+""",
+            constraintProfile: mantleBaselineProfile,
+            topic: .structs,
+            tier: .extra
+        ),
+        Challenge(
+            number: 280,
+            id: "mantle-extra-class-identity",
+            title: "Class Identity",
+            description: "Compare class references",
+            starterCode: """
+                // Challenge 280: Class Identity
+                // Compare two references to the same instance.
+
+                class Forge {
+                    var heat: Int
+                    init(heat: Int) {
+                        self.heat = heat
+                    }
+                }
+
+                let primary = Forge(heat: 1)
+                let secondary = primary
+
+                // TODO: Print whether primary and secondary refer to the same instance
+                """,
+            expectedOutput: "true",
+            hints: [
+                "Use the identity operator (===) for classes.",
+            ],
+            cheatsheet: cheatsheetClasses,
+            solution: """
+print(primary === secondary)
+""",
+            constraintProfile: mantleBaselineProfile,
+            topic: .classes,
+            tier: .extra
+        ),
+        Challenge(
+            number: 281,
+            id: "mantle-extra-readonly-property",
+            title: "Readonly Property",
+            description: "Use a computed read-only property",
+            starterCode: """
+                // Challenge 281: Readonly Property
+                // Add a computed property without a setter.
+
+                struct Gauge {
+                    var psi: Int
+                    // TODO: Add computed property bar using 1 bar = 14 psi (integer math)
+                }
+
+                let gauge = Gauge(psi: 28)
+                // TODO: Print gauge.bar
+                """,
+            expectedOutput: "2",
+            hints: [
+                "Only provide a get block.",
+                "Use integer division for 28 / 14.",
+            ],
+            cheatsheet: cheatsheetProperties,
+            solution: """
+struct Gauge {
+    var psi: Int
+    var bar: Int {
+        return psi / 14
+    }
+}
+
+let gauge = Gauge(psi: 28)
+print(gauge.bar)
+""",
+            constraintProfile: mantleBaselineProfile,
+            topic: .properties,
+            tier: .extra
+        ),
+        Challenge(
+            number: 282,
+            id: "mantle-extra-protocol-default",
+            title: "Protocol Default",
+            description: "Provide a default implementation",
+            starterCode: """
+                // Challenge 282: Protocol Default
+                // Provide a default method in an extension.
+
+                protocol Describable {
+                    var name: String { get }
+                }
+
+                // TODO: Add describe() -> String that returns "Name: <name>"
+                // TODO: Create a struct conforming to Describable and print describe()
+                """,
+            expectedOutput: "Name: Anvil",
+            hints: [
+                "Default methods live in protocol extensions.",
+            ],
+            cheatsheet: cheatsheetExtensions,
+            solution: """
+extension Describable {
+    func describe() -> String {
+        return "Name: \\(name)"
+    }
+}
+
+struct Tool: Describable {
+    let name: String
+}
+
+print(Tool(name: "Anvil").describe())
+""",
+            constraintProfile: mantleBaselineProfile,
+            topic: .protocols,
+            tier: .extra
+        ),
+        Challenge(
+            number: 283,
+            id: "mantle-extra-extension-static",
+            title: "Extension Static",
+            description: "Add a static helper",
+            starterCode: """
+                // Challenge 283: Extension Static
+                // Add a static helper with an extension.
+
+                struct Alloy {
+                    let name: String
+                }
+
+                // TODO: Add static func standard() -> Alloy returning name "Steel"
+                // TODO: Print Alloy.standard().name
+                """,
+            expectedOutput: "Steel",
+            hints: [
+                "Static methods are called on the type.",
+            ],
+            cheatsheet: cheatsheetExtensions,
+            solution: """
+extension Alloy {
+    static func standard() -> Alloy {
+        return Alloy(name: "Steel")
+    }
+}
+
+print(Alloy.standard().name)
+""",
+            constraintProfile: mantleBaselineProfile,
+            topic: .extensions,
+            tier: .extra
+        ),
+        Challenge(
+            number: 284,
+            id: "mantle-extra-private-set",
+            title: "Private(set)",
+            description: "Expose a read-only setter",
+            starterCode: """
+                // Challenge 284: Private(set)
+                // Use private(set) to limit writes.
+
+                struct Counter {
+                    private(set) var value = 0
+                    mutating func increment() {
+                        value += 1
+                    }
+                }
+
+                var counter = Counter()
+                // TODO: Call increment twice, then print counter.value
+                """,
+            expectedOutput: "2",
+            hints: [
+                "private(set) allows reads but restricts writes.",
+            ],
+            cheatsheet: cheatsheetAccessControl,
+            solution: """
+var counter = Counter()
+counter.increment()
+counter.increment()
+print(counter.value)
+""",
+            constraintProfile: mantleBaselineProfile,
+            topic: .accessControl,
+            tier: .extra
+        ),
+        Challenge(
+            number: 285,
+            id: "mantle-extra-error-specific",
+            title: "Error Specific",
+            description: "Catch a specific error case",
+            starterCode: """
+                // Challenge 285: Error Specific
+                // Catch a specific error case.
+
+                enum FuseError: Error {
+                    case blown
+                    case missing
+                }
+
+                func checkFuse(_ ok: Bool) throws {
+                    if !ok {
+                        throw FuseError.blown
+                    }
+                }
+
+                // TODO: Call checkFuse(false) and catch FuseError.blown to print "Blown"
+                """,
+            expectedOutput: "Blown",
+            hints: [
+                "Use a specific catch clause for the enum case.",
+            ],
+            cheatsheet: cheatsheetErrors,
+            solution: """
+do {
+    try checkFuse(false)
+} catch FuseError.blown {
+    print("Blown")
+}
+""",
+            constraintProfile: mantleBaselineProfile,
+            topic: .errors,
+            tier: .extra
+        ),
+        Challenge(
+            number: 286,
+            id: "mantle-extra-generic-pair",
+            title: "Generic Pair",
+            description: "Store two values in a generic type",
+            starterCode: """
+                // Challenge 286: Generic Pair
+                // Store two values in a generic type.
+
+                // TODO: Define struct Pair<A, B> with first and second
+                // TODO: Create Pair(first: "Iron", second: 3) and print first and second
+                """,
+            expectedOutput: "Iron 3",
+            hints: [
+                "Use two generic type parameters.",
+            ],
+            cheatsheet: cheatsheetGenerics,
+            solution: """
+struct Pair<A, B> {
+    let first: A
+    let second: B
+}
+
+let pair = Pair(first: "Iron", second: 3)
+print("\\(pair.first) \\(pair.second)")
+""",
+            constraintProfile: mantleBaselineProfile,
+            topic: .generics,
+            tier: .extra
+        ),
+        Challenge(
+            number: 287,
+            id: "mantle-extra-protocol-associated",
+            title: "Protocol Associated",
+            description: "Use a protocol with an associated type",
+            starterCode: """
+                // Challenge 287: Protocol Associated
+                // Use an associated type in a protocol.
+
+                protocol Storable {
+                    associatedtype Item
+                    var item: Item { get }
+                }
+
+                struct Bin: Storable {
+                    let item: String
+                }
+
+                // TODO: Create a Bin and print its item
+                """,
+            expectedOutput: "Iron",
+            hints: [
+                "Associated types let the conformer choose the concrete type.",
+            ],
+            cheatsheet: cheatsheetGenerics,
+            solution: """
+let bin = Bin(item: "Iron")
+print(bin.item)
+""",
+            constraintProfile: mantleBaselineProfile,
+            topic: .generics,
+            tier: .extra
+        ),
+        Challenge(
+            number: 288,
+            id: "mantle-extra-protocol-erasure",
+            title: "Protocol Erasure",
+            description: "Use 'any' with a protocol",
+            starterCode: """
+                // Challenge 288: Protocol Erasure
+                // Use 'any' with a protocol type.
+
+                protocol HeatSource {
+                    var heat: Int { get }
+                }
+
+                struct Burner: HeatSource {
+                    let heat: Int
+                }
+
+                // TODO: Create a variable of type 'any HeatSource'
+                // TODO: Assign a Burner and print heat
+                """,
+            expectedOutput: "1500",
+            hints: [
+                "Use 'any' to spell an existential.",
+                "Access heat through the protocol-typed value.",
+            ],
+            cheatsheet: cheatsheetProtocols,
+            solution: """
+let source: any HeatSource = Burner(heat: 1500)
+print(source.heat)
+""",
+            constraintProfile: mantleBaselineProfile,
+            topic: .protocols,
+            tier: .extra
+        ),
+        Challenge(
+            number: 289,
+            id: "mantle-extra-protocol-composition-any",
+            title: "Protocol Composition Any",
+            description: "Use any with protocol composition",
+            starterCode: """
+                // Challenge 289: Protocol Composition Any
+                // Use any with protocol composition.
+
+                protocol Fueling { var fuel: Int { get } }
+                protocol Venting { var airflow: Int { get } }
+
+                struct Vent: Fueling, Venting {
+                    let fuel: Int
+                    let airflow: Int
+                }
+
+                // TODO: Create a value of type 'any Fueling & Venting'
+                // TODO: Print fuel and airflow
+                """,
+            expectedOutput: "Fuel 2\nAir 3",
+            hints: [
+                "Combine protocols with '&' and prefix with 'any'.",
+            ],
+            cheatsheet: cheatsheetProtocols,
+            solution: """
+let vent: any Fueling & Venting = Vent(fuel: 2, airflow: 3)
+print("Fuel \\(vent.fuel)")
+print("Air \\(vent.airflow)")
+""",
+            constraintProfile: mantleBaselineProfile,
+            topic: .protocols,
+            tier: .extra
+        ),
+        Challenge(
+            number: 290,
+            id: "mantle-extra-where-method",
+            title: "Where Method",
+            description: "Constrain a generic method with where",
+            starterCode: """
+                // Challenge 290: Where Method
+                // Constrain a generic method with where.
+
+                struct Store<T> {
+                    let items: [T]
+
+                    // TODO: Add method allEqual() -> Bool where T: Equatable
+                }
+
+                let store = Store(items: [1, 1, 1])
+                // TODO: Print store.allEqual()
+                """,
+            expectedOutput: "true",
+            hints: [
+                "Use a where clause on the method, not the type.",
+            ],
+            cheatsheet: cheatsheetGenerics,
+            solution: """
+struct Store<T> {
+    let items: [T]
+
+    func allEqual() -> Bool where T: Equatable {
+        guard let first = items.first else { return true }
+        return items.allSatisfy { $0 == first }
+    }
+}
+
+let store = Store(items: [1, 1, 1])
+print(store.allEqual())
+""",
+            constraintProfile: mantleBaselineProfile,
+            topic: .generics,
+            tier: .extra
+        ),
+        Challenge(
+            number: 291,
+            id: "mantle-extra-generic-extension",
+            title: "Generic Extension",
+            description: "Add behavior with a constrained extension",
+            starterCode: """
+                // Challenge 291: Generic Extension
+                // Add behavior with a constrained extension.
+
+                struct Crate<T> {
+                    let items: [T]
+                }
+
+                // TODO: Add an extension where T == String with firstItem() -> String
+                // TODO: Create Crate(items: [\"A\", \"B\"]) and print firstItem()
+                """,
+            expectedOutput: "A",
+            hints: [
+                "Constrain the extension to T == String.",
+            ],
+            cheatsheet: cheatsheetGenerics,
+            solution: """
+extension Crate where T == String {
+    func firstItem() -> String {
+        return items.first ?? ""
+    }
+}
+
+let crate = Crate(items: ["A", "B"])
+print(crate.firstItem())
+""",
+            constraintProfile: mantleBaselineProfile,
+            topic: .generics,
             tier: .extra
         ),
     ]
     return challenges.map { $0.withLayer(.mantle) }
 }
-
 func makeCrustChallenges() -> [Challenge] {
     let challenges = [
         Challenge(
@@ -7058,7 +8243,6 @@ runAsync {
                 allowConcurrency: true
             ),
             introduces: [.asyncAwait, .task],
-            topic: .functions
         ),
         Challenge(
             number: 176,
@@ -7122,7 +8306,6 @@ runAsync {
                 allowedImports: ["Foundation"],
                 allowConcurrency: true
             ),
-            topic: .functions
         ),
         Challenge(
             number: 177,
@@ -7191,7 +8374,6 @@ runAsync {
                 allowConcurrency: true
             ),
             introduces: [.taskGroup],
-            topic: .functions
         ),
         Challenge(
             number: 178,
@@ -7273,7 +8455,6 @@ runAsync {
                 allowedImports: ["Foundation"],
                 allowConcurrency: true
             ),
-            topic: .functions
         ),
         Challenge(
             number: 179,
@@ -7345,7 +8526,6 @@ runAsync {
                 allowedImports: ["Foundation"],
                 allowConcurrency: true
             ),
-            topic: .functions
         ),
         Challenge(
             number: 180,
@@ -7425,7 +8605,6 @@ runAsync {
                 allowConcurrency: true
             ),
             introduces: [.actors],
-            topic: .general
         ),
         Challenge(
             number: 181,
@@ -7475,7 +8654,6 @@ RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
             ),
             introduces: [.mainActor],
             requires: [.task],
-            topic: .general
         ),
         Challenge(
             number: 182,
@@ -7516,7 +8694,6 @@ print("Heat: \\(report.value)")
                 allowedImports: ["Foundation"]
             ),
             introduces: [.sendable],
-            topic: .general
         ),
         Challenge(
             number: 183,
@@ -7589,7 +8766,6 @@ print(furnace.heat)
                 allowedImports: ["Foundation"]
             ),
             introduces: [.propertyWrappers],
-            topic: .general
         ),
         Challenge(
             number: 184,
@@ -7651,7 +8827,6 @@ print(label.name)
             constraintProfile: ConstraintProfile(
                 allowedImports: ["Foundation"]
             ),
-            topic: .general
         ),
         Challenge(
             number: 185,
@@ -7726,7 +8901,6 @@ print("Updates: \\(furnace.$heat)")
                 allowedImports: ["Foundation"]
             ),
             introduces: [.projectedValues],
-            topic: .general
         ),
         Challenge(
             number: 186,
@@ -7768,7 +8942,6 @@ print(ore[keyPath: nameKey])
             constraintProfile: ConstraintProfile(
                 allowedImports: ["Foundation"]
             ),
-            topic: .general
         ),
         Challenge(
             number: 187,
@@ -7809,7 +8982,6 @@ print(names.joined(separator: \",\"))
             constraintProfile: ConstraintProfile(
                 allowedImports: ["Foundation"]
             ),
-            topic: .general
         ),
         Challenge(
             number: 188,
@@ -7843,7 +9015,6 @@ print(Array(doubled))
                 allowedImports: ["Foundation"],
                 requireCollectionUsage: false
             ),
-            topic: .collections
         ),
         Challenge(
             number: 189,
@@ -7906,7 +9077,6 @@ for value in countdown {
                 allowedImports: ["Foundation"],
                 requireCollectionUsage: false
             ),
-            topic: .collections
         ),
         Challenge(
             number: 190,
@@ -7957,7 +9127,6 @@ print(iterator.next()!)
                 allowedImports: ["Foundation"],
                 requireCollectionUsage: false
             ),
-            topic: .collections
         ),
         Challenge(
             number: 191,
@@ -8023,7 +9192,6 @@ print("Last: \\(items.last ?? 0)")
                 allowedImports: ["Foundation"],
                 requireCollectionUsage: false
             ),
-            topic: .collections
         ),
         Challenge(
             number: 192,
@@ -8135,7 +9303,6 @@ runAsync {
                 allowConcurrency: true
             ),
             requires: [.asyncAwait, .task, .actors, .propertyWrappers],
-            topic: .general
         ),
         Challenge(
             number: 193,
@@ -8183,7 +9350,6 @@ let metal = makeMetal()
 print("Metal: \\(metal.name)")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 194,
@@ -8231,7 +9397,6 @@ let sensors: [any Sensor] = [TempSensor(), PressureSensor()]
 report(sensors)
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 195,
@@ -8294,7 +9459,6 @@ let total = readers.reduce(0) { $0 + $1.read() }
 print("Sum: \\(total)")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 196,
@@ -8336,7 +9500,6 @@ let stack: any Stack<Int> = IntStack(items: [1, 2, 3])
 print("Top: \\(stack.items.last ?? 0)")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 197,
@@ -8363,7 +9526,6 @@ func areEqual<T>(_ a: T, _ b: T) -> Bool where T: Equatable {
 print(areEqual(4, 4))
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 198,
@@ -8395,7 +9557,6 @@ print(first.count)
 print(second.count)
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .collections
         ),
         Challenge(
             number: 199,
@@ -8419,7 +9580,6 @@ print(MemoryLayout<UInt8>.size)
 print(MemoryLayout<Bool>.size)
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 200,
@@ -8466,7 +9626,6 @@ print(String(format: "Elapsed: %.2f", elapsed))
             constraintProfile: ConstraintProfile(
                 allowedImports: ["Foundation"]
             ),
-            topic: .general
         ),
         Challenge(
             number: 201,
@@ -8496,7 +9655,6 @@ func +++ (lhs: Int, rhs: Int) -> Int {
 print(3 +++ 4)
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 202,
@@ -8532,7 +9690,6 @@ let grid = Grid(values: [[1, 2], [4, 5]])
 print(grid[1, 0])
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 203,
@@ -8572,7 +9729,6 @@ print(settings.mode)
 print(settings.level)
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 204,
@@ -8608,7 +9764,6 @@ let multiply = Multiplier()
 print(multiply(2, 3, 4))
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 205,
@@ -8659,7 +9814,6 @@ print(messages.joined(separator: " "))
 """,
             constraintProfile: crustBaselineProfile,
             introduces: [.resultBuilders],
-            topic: .general
         ),
         Challenge(
             number: 206,
@@ -8684,7 +9838,6 @@ print("Macro: compile-time code generation")
 """,
             constraintProfile: crustBaselineProfile,
             introduces: [.macros],
-            topic: .general
         ),
         Challenge(
             number: 207,
@@ -8707,7 +9860,6 @@ print("Targets: forge, forgeTests")
 """,
             constraintProfile: crustBaselineProfile,
             introduces: [.swiftpmBasics],
-            topic: .general
         ),
         Challenge(
             number: 208,
@@ -8730,7 +9882,6 @@ print("Dependencies: none")
 """,
             constraintProfile: crustBaselineProfile,
             introduces: [.swiftpmDependencies],
-            topic: .general
         ),
         Challenge(
             number: 209,
@@ -8758,7 +9909,6 @@ print("Dependencies: none")
                 """,
             constraintProfile: crustBaselineProfile,
             introduces: [.buildConfigs],
-            topic: .general
         ),
         Challenge(
             number: 210,
@@ -8783,7 +9933,6 @@ print("Module: AnalyticsKit")
 """,
             constraintProfile: crustBaselineProfile,
             requires: [.swiftpmBasics, .swiftpmDependencies, .buildConfigs],
-            topic: .general
         ),
         Challenge(
             number: 211,
@@ -8805,7 +9954,6 @@ print("Module: AnalyticsKit")
 print("Macro author: provides expansion code")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 212,
@@ -8847,7 +9995,6 @@ for child in mirror.children {
 }
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 213,
@@ -8869,7 +10016,6 @@ for child in mirror.children {
 print("Witness tables map protocol implementations")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 214,
@@ -8913,7 +10059,6 @@ let viewModel = FurnaceViewModel(model: FurnaceModel(heat: 1300))
 print("Status: \\(viewModel.status)")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 215,
@@ -8970,7 +10115,6 @@ service.start()
 """,
             constraintProfile: crustBaselineProfile,
             introduces: [.dependencyInjection],
-            topic: .general
         ),
         Challenge(
             number: 216,
@@ -9012,7 +10156,6 @@ let coordinator = AppCoordinator()
 coordinator.start()
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 217,
@@ -9066,7 +10209,6 @@ let service = InventoryService(repository: MemoryInventoryRepository(items: ["Ir
 print("Count: \\(service.count())")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 218,
@@ -9115,7 +10257,6 @@ report(MockClock(value: 5))
 """,
             constraintProfile: crustBaselineProfile,
             introduces: [.protocolMocking],
-            topic: .general
         ),
         Challenge(
             number: 219,
@@ -9137,7 +10278,6 @@ report(MockClock(value: 5))
 print("TDD: Red, Green, Refactor")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 220,
@@ -9159,7 +10299,6 @@ print("TDD: Red, Green, Refactor")
 print("Async tests can await in XCTest")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 221,
@@ -9181,7 +10320,6 @@ print("Async tests can await in XCTest")
 print("UI tests verify user flows")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 222,
@@ -9209,7 +10347,6 @@ withUnsafePointer(to: &value) { pointer in
 }
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 223,
@@ -9231,7 +10368,6 @@ withUnsafePointer(to: &value) { pointer in
 print("C interop uses module maps")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 224,
@@ -9253,7 +10389,6 @@ print("C interop uses module maps")
 print("@objc and bridging headers")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 225,
@@ -9275,7 +10410,6 @@ print("@objc and bridging headers")
 print("LLDB: po, bt")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 226,
@@ -9328,7 +10462,6 @@ func checkHeat(_ value: Int) throws {
 """,
             constraintProfile: crustBaselineProfile,
             requires: [.doCatch, .throwKeyword, .tryKeyword],
-            topic: .general
         ),
         Challenge(
             number: 227,
@@ -9350,7 +10483,6 @@ func checkHeat(_ value: Int) throws {
 print("Git: branch, commit, push, PR")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general
         ),
         Challenge(
             number: 228,
@@ -9406,7 +10538,6 @@ print("Sum: \\(analyzer.sum())")
 """,
             constraintProfile: crustBaselineProfile,
             requires: [.protocols, .dependencyInjection, .protocolMocking, .reduce],
-            topic: .general
         ),
         Challenge(
             number: 229,
@@ -9463,7 +10594,7 @@ runAsync {
                 allowConcurrency: true
             ),
             introduces: [.taskSleep],
-            topic: .general,
+            topic: .concurrency,
             tier: .extra
         ),
         Challenge(
@@ -9540,7 +10671,7 @@ runAsync {
                 allowedImports: ["Foundation"],
                 allowConcurrency: true
             ),
-            topic: .general,
+            topic: .actors,
             tier: .extra
         ),
         Challenge(
@@ -9576,7 +10707,7 @@ print("Count: \\(snapshot.values.count)")
             constraintProfile: ConstraintProfile(
                 allowConcurrency: true
             ),
-            topic: .general,
+            topic: .concurrency,
             tier: .extra
         ),
         Challenge(
@@ -9623,7 +10754,7 @@ let average = values.reduce(0, +) / values.count
 print("Average: \\(average)")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general,
+            topic: .keyPaths,
             tier: .extra
         ),
         Challenge(
@@ -9658,7 +10789,7 @@ let total = numbers.lazy
 print("Total: \\(total)")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .collections,
+            topic: .sequences,
             tier: .extra
         ),
         Challenge(
@@ -9687,7 +10818,7 @@ func maxValue<T: Comparable>(_ a: T, _ b: T) -> T {
 print(maxValue(4, 9))
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general,
+            topic: .generics,
             tier: .extra
         ),
         Challenge(
@@ -9723,7 +10854,7 @@ let items = Array(sequence)
 print("Count: \\(items.count)")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general,
+            topic: .sequences,
             tier: .extra
         ),
         Challenge(
@@ -9765,7 +10896,7 @@ print("Limit: \\(defaults.limit)")
 print("Missing: \\(defaults.missing)")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general,
+            topic: .advancedFeatures,
             tier: .extra
         ),
         Challenge(
@@ -9803,7 +10934,7 @@ let adder = KeyedAdder()
 print(adder(a: 1, b: 2, c: 3))
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general,
+            topic: .advancedFeatures,
             tier: .extra
         ),
         Challenge(
@@ -9828,7 +10959,7 @@ print("Stride: \\(MemoryLayout<UInt16>.stride)")
 print("Alignment: \\(MemoryLayout<UInt16>.alignment)")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general,
+            topic: .memory,
             tier: .extra
         ),
         Challenge(
@@ -9861,7 +10992,7 @@ withUnsafeMutablePointer(to: &value) { pointer in
 print(value)
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general,
+            topic: .memory,
             tier: .extra
         ),
         Challenge(
@@ -9905,7 +11036,7 @@ let box = Box(value: 6)
 print(box.isEven())
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general,
+            topic: .generics,
             tier: .extra
         ),
         Challenge(
@@ -9980,7 +11111,7 @@ runAsync {
                 allowedImports: ["Foundation"],
                 allowConcurrency: true
             ),
-            topic: .general,
+            topic: .concurrency,
             tier: .extra
         ),
         Challenge(
@@ -10020,7 +11151,447 @@ class SampleTests: XCTestCase {
 print("XCTest ready")
 """,
             constraintProfile: crustBaselineProfile,
-            topic: .general,
+            topic: .testing,
+            tier: .extra
+        ),
+        Challenge(
+            number: 292,
+            id: "crust-extra-async-warmup",
+            title: "Async Warmup",
+            description: "Await a simple async value",
+            starterCode: """
+                // Challenge 292: Async Warmup
+                // Await a simple async value.
+
+                import Foundation
+
+                func runAsync(_ operation: @escaping () async -> Void) {
+                    let group = DispatchGroup()
+                    group.enter()
+                    Task {
+                        await operation()
+                        group.leave()
+                    }
+                    group.wait()
+                }
+
+                func heat() async -> Int {
+                    return 1500
+                }
+
+                runAsync {
+                    // TODO: Await heat() and print "Heat: 1500"
+                }
+                """,
+            expectedOutput: "Heat: 1500",
+            hints: [
+                "Use await to get the async value.",
+            ],
+            cheatsheet: cheatsheetConcurrency,
+            solution: """
+import Foundation
+
+func runAsync(_ operation: @escaping () async -> Void) {
+    let group = DispatchGroup()
+    group.enter()
+    Task {
+        await operation()
+        group.leave()
+    }
+    group.wait()
+}
+
+func heat() async -> Int {
+    return 1500
+}
+
+runAsync {
+    let value = await heat()
+    print("Heat: \\(value)")
+}
+""",
+            constraintProfile: ConstraintProfile(
+                allowedImports: ["Foundation"],
+                allowConcurrency: true
+            ),
+            topic: .concurrency,
+            tier: .extra
+        ),
+        Challenge(
+            number: 293,
+            id: "crust-extra-actor-counter",
+            title: "Actor Counter",
+            description: "Use an actor for state",
+            starterCode: """
+                // Challenge 293: Actor Counter
+                // Use an actor for state.
+
+                import Foundation
+
+                func runAsync(_ operation: @escaping () async -> Void) {
+                    let group = DispatchGroup()
+                    group.enter()
+                    Task {
+                        await operation()
+                        group.leave()
+                    }
+                    group.wait()
+                }
+
+                actor Counter {
+                    var value = 0
+                    func increment() -> Int {
+                        value += 1
+                        return value
+                    }
+                }
+
+                runAsync {
+                    // TODO: Create a Counter, call increment twice, and print "1 2"
+                }
+                """,
+            expectedOutput: "1 2",
+            hints: [
+                "Call actor methods with await.",
+            ],
+            cheatsheet: cheatsheetConcurrency,
+            solution: """
+import Foundation
+
+func runAsync(_ operation: @escaping () async -> Void) {
+    let group = DispatchGroup()
+    group.enter()
+    Task {
+        await operation()
+        group.leave()
+    }
+    group.wait()
+}
+
+actor Counter {
+    var value = 0
+    func increment() -> Int {
+        value += 1
+        return value
+    }
+}
+
+runAsync {
+    let counter = Counter()
+    let first = await counter.increment()
+    let second = await counter.increment()
+    print("\\(first) \\(second)")
+}
+""",
+            constraintProfile: ConstraintProfile(
+                allowedImports: ["Foundation"],
+                allowConcurrency: true
+            ),
+            topic: .actors,
+            tier: .extra
+        ),
+        Challenge(
+            number: 294,
+            id: "crust-extra-property-wrapper",
+            title: "Property Wrapper",
+            description: "Clamp a value with a wrapper",
+            starterCode: """
+                // Challenge 294: Property Wrapper
+                // Clamp a value with a wrapper.
+
+                @propertyWrapper
+                struct Clamped {
+                    private var value: Int
+                    init(wrappedValue: Int) {
+                        value = min(max(0, wrappedValue), 100)
+                    }
+                    var wrappedValue: Int {
+                        get { value }
+                        set { value = min(max(0, newValue), 100) }
+                    }
+                }
+
+                struct Gauge {
+                    @Clamped var pressure: Int
+                }
+
+                var gauge = Gauge(pressure: 120)
+                // TODO: Print gauge.pressure
+                """,
+            expectedOutput: "100",
+            hints: [
+                "The wrapper clamps values between 0 and 100.",
+            ],
+            cheatsheet: cheatsheetProperties,
+            solution: """
+@propertyWrapper
+struct Clamped {
+    private var value: Int
+    init(wrappedValue: Int) {
+        value = min(max(0, wrappedValue), 100)
+    }
+    var wrappedValue: Int {
+        get { value }
+        set { value = min(max(0, newValue), 100) }
+    }
+}
+
+struct Gauge {
+    @Clamped var pressure: Int
+}
+
+var gauge = Gauge(pressure: 120)
+print(gauge.pressure)
+""",
+            constraintProfile: crustBaselineProfile,
+            topic: .propertyWrappers,
+            tier: .extra
+        ),
+        Challenge(
+            number: 295,
+            id: "crust-extra-keypath-sort",
+            title: "Key Path Sort",
+            description: "Sort using a key path",
+            starterCode: """
+                // Challenge 295: Key Path Sort
+                // Sort using a key path.
+
+                struct Alloy {
+                    let name: String
+                    let purity: Int
+                }
+
+                let items = [
+                    Alloy(name: "Iron", purity: 80),
+                    Alloy(name: "Gold", purity: 95),
+                    Alloy(name: "Copper", purity: 60)
+                ]
+
+                // TODO: Sort by purity descending using a key path
+                // TODO: Print the names joined by ", "
+                """,
+            expectedOutput: "Gold, Iron, Copper",
+            hints: [
+                "Use sorted with a closure reading \\Alloy.purity.",
+                "Map to names and join with a separator.",
+            ],
+            cheatsheet: cheatsheetKeyPaths,
+            solution: """
+let sorted = items.sorted { $0[keyPath: \\Alloy.purity] > $1[keyPath: \\Alloy.purity] }
+let names = sorted.map { $0.name }.joined(separator: ", ")
+print(names)
+""",
+            constraintProfile: crustBaselineProfile,
+            topic: .keyPaths,
+            tier: .extra
+        ),
+        Challenge(
+            number: 296,
+            id: "crust-extra-opaque-return",
+            title: "Opaque Return",
+            description: "Return an opaque protocol type",
+            starterCode: """
+                // Challenge 296: Opaque Return
+                // Return an opaque protocol type.
+
+                protocol HeatSource {
+                    var heat: Int { get }
+                }
+
+                struct Burner: HeatSource {
+                    let heat: Int
+                }
+
+                // TODO: Create makeSource() -> some HeatSource
+                // TODO: Print makeSource().heat
+                """,
+            expectedOutput: "1500",
+            hints: [
+                "Use 'some' for an opaque return type.",
+            ],
+            cheatsheet: cheatsheetProtocols,
+            solution: """
+func makeSource() -> some HeatSource {
+    return Burner(heat: 1500)
+}
+
+print(makeSource().heat)
+""",
+            constraintProfile: crustBaselineProfile,
+            topic: .protocols,
+            tier: .extra
+        ),
+        Challenge(
+            number: 297,
+            id: "crust-extra-lazy-sequence",
+            title: "Lazy Sequence",
+            description: "Use lazy chains",
+            starterCode: """
+                // Challenge 297: Lazy Sequence
+                // Use lazy chains to transform data.
+
+                let temps = [1200, 1500, 1600]
+
+                // TODO: Use lazy to filter temps >= 1500 and map to /100
+                // TODO: Print the resulting array
+                """,
+            expectedOutput: "[15, 16]",
+            hints: [
+                "Use lazy.filter and lazy.map, then Array(...) to materialize.",
+            ],
+            cheatsheet: cheatsheetCollectionTransforms,
+            solution: """
+let result = Array(temps.lazy.filter { $0 >= 1500 }.map { $0 / 100 })
+print(result)
+""",
+            constraintProfile: crustBaselineProfile,
+            topic: .sequences,
+            tier: .extra
+        ),
+        Challenge(
+            number: 298,
+            id: "crust-extra-macro-sample",
+            title: "Macro Sample",
+            description: "Reason about macro expansion (simulated)",
+            starterCode: """
+                // Challenge 298: Macro Sample
+                // Simulate macro output for understanding.
+
+                // Assume a macro expands: #stringify(2 + 2) -> ("2 + 2", 4)
+                // TODO: Print "2 + 2 = 4"
+                """,
+            expectedOutput: "2 + 2 = 4",
+            hints: [
+                "Just print the expected expansion result.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+print("2 + 2 = 4")
+""",
+            constraintProfile: crustBaselineProfile,
+            topic: .macros,
+            tier: .extra
+        ),
+        Challenge(
+            number: 299,
+            id: "crust-extra-swiftpm-targets",
+            title: "SwiftPM Targets",
+            description: "Identify targets in a package (simulated)",
+            starterCode: """
+                // Challenge 299: SwiftPM Targets
+                // Simulate SwiftPM target awareness.
+
+                // TODO: Print "Targets: forge, forgeTests"
+                """,
+            expectedOutput: "Targets: forge, forgeTests",
+            hints: [
+                "This is a simulated check of package structure.",
+            ],
+            cheatsheet: cheatsheetSwiftPM,
+            solution: """
+print("Targets: forge, forgeTests")
+""",
+            constraintProfile: crustBaselineProfile,
+            topic: .swiftpm,
+            tier: .extra
+        ),
+        Challenge(
+            number: 300,
+            id: "crust-extra-performance-timing",
+            title: "Performance Timing",
+            description: "Measure elapsed time (simulated)",
+            starterCode: """
+                // Challenge 300: Performance Timing
+                // Simulate a timing measurement.
+
+                import Foundation
+
+                let start = Date()
+                let end = start.addingTimeInterval(0.25)
+
+                // TODO: Print "Elapsed: 0.25"
+                """,
+            expectedOutput: "Elapsed: 0.25",
+            hints: [
+                "Use end.timeIntervalSince(start) for the elapsed seconds.",
+            ],
+            cheatsheet: cheatsheetPerformance,
+            solution: """
+import Foundation
+
+let start = Date()
+let end = start.addingTimeInterval(0.25)
+print("Elapsed: \\(end.timeIntervalSince(start))")
+""",
+            constraintProfile: ConstraintProfile(
+                allowedImports: ["Foundation"]
+            ),
+            topic: .performance,
+            tier: .extra
+        ),
+        Challenge(
+            number: 301,
+            id: "crust-extra-interop-bridge",
+            title: "Interop Bridge",
+            description: "Use Foundation bridging types",
+            starterCode: """
+                // Challenge 301: Interop Bridge
+                // Use Foundation bridging types.
+
+                import Foundation
+
+                let name = "Forge"
+                let nsName = name as NSString
+
+                // TODO: Print nsName.length
+                """,
+            expectedOutput: "5",
+            hints: [
+                "NSString length counts characters.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+import Foundation
+
+let name = "Forge"
+let nsName = name as NSString
+print(nsName.length)
+""",
+            constraintProfile: ConstraintProfile(
+                allowedImports: ["Foundation"]
+            ),
+            topic: .interop,
+            tier: .extra
+        ),
+        Challenge(
+            number: 302,
+            id: "crust-extra-test-assert",
+            title: "Test Assert",
+            description: "Simulate a tiny test assertion",
+            starterCode: """
+                // Challenge 302: Test Assert
+                // Simulate a tiny test assertion.
+
+                func assertEqual(_ lhs: Int, _ rhs: Int) {
+                    if lhs == rhs {
+                        print("Pass")
+                    } else {
+                        print("Fail")
+                    }
+                }
+
+                // TODO: Call assertEqual(3 + 2, 5)
+                """,
+            expectedOutput: "Pass",
+            hints: [
+                "Call the helper with the computed value.",
+            ],
+            cheatsheet: cheatsheetAdvancedFeatures,
+            solution: """
+assertEqual(3 + 2, 5)
+""",
+            constraintProfile: crustBaselineProfile,
+            topic: .testing,
             tier: .extra
         ),
 
