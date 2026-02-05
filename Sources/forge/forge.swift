@@ -130,7 +130,7 @@ func resetWorkspaceContents(at workspacePath: String, removeAll: Bool) {
     }
 }
 
-func resetProgress(workspacePath: String = "workspace", removeAll: Bool = false) {
+func resetProgress(workspacePath: String = "workspace", removeAll: Bool = false, quiet: Bool = false) {
     let progressFile = progressFilePath(workspacePath: workspacePath)
     let fileManager = FileManager.default
     let stageGateFile = stageGateFilePath(workspacePath: workspacePath)
@@ -151,7 +151,9 @@ func resetProgress(workspacePath: String = "workspace", removeAll: Bool = false)
     resetWorkspaceContents(at: "workspace_review", removeAll: removeAll)
     resetWorkspaceContents(at: "workspace_practice", removeAll: removeAll)
     
-    print("✓ Progress reset! Starting from Challenge 1.\n")
+    if !quiet {
+        print("✓ Progress reset! Starting from Challenge 1.\n")
+    }
 }
 
 func challengePromptText(for challenge: Challenge, filePath: String) -> String {
@@ -180,11 +182,51 @@ func loadChallenge(_ challenge: Challenge, workspacePath: String = "workspace") 
     let filePath = "\(workspacePath)/\(challenge.filename)"
 
     // Write challenge file
-    let content = "\(challenge.starterCode)\n"
+    let content = "\(normalizedStarterCode(for: challenge))\n"
 
     try? content.write(toFile: filePath, atomically: true, encoding: .utf8)
 
     print(challengePromptText(for: challenge, filePath: filePath))
+}
+
+func normalizedStarterCode(for challenge: Challenge) -> String {
+    let displayId = starterDisplayId(for: challenge)
+    let lines = challenge.starterCode.split(separator: "\n", omittingEmptySubsequences: false)
+    var updated: [String] = []
+    var replaced = false
+
+    for lineSub in lines {
+        let line = String(lineSub)
+        if !replaced {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if trimmed.hasPrefix("// Challenge "), let colonIndex = line.firstIndex(of: ":"),
+               let prefixRange = line.range(of: "// Challenge ") {
+                let numberStart = prefixRange.upperBound
+                let newLine = String(line[..<numberStart]) + displayId + String(line[colonIndex...])
+                updated.append(newLine)
+                replaced = true
+                continue
+            }
+        }
+        updated.append(line)
+    }
+
+    return updated.joined(separator: "\n")
+}
+
+func starterDisplayId(for challenge: Challenge) -> String {
+    let id = challenge.displayId
+    if id.hasPrefix("bridge:") {
+        return id
+    }
+    if let colonIndex = id.firstIndex(of: ":") {
+        let prefix = id[..<colonIndex]
+        if ["core", "mantle", "crust"].contains(String(prefix)) {
+            let start = id.index(after: colonIndex)
+            return String(id[start...])
+        }
+    }
+    return id
 }
 
 func layerIndex(for challenge: Challenge) -> Int {
@@ -196,6 +238,16 @@ func layerIndex(for challenge: Challenge) -> Int {
 
 func stageGateFilePath(workspacePath: String) -> String {
     return "\(workspacePath)/.stage_gate"
+}
+
+func previousChallengeIndex(from steps: [Step], before index: Int) -> Int? {
+    guard index > 0 else { return nil }
+    for i in stride(from: index - 1, through: 0, by: -1) {
+        if case .challenge = steps[i] {
+            return i
+        }
+    }
+    return nil
 }
 
 func loadStageGateProgress(workspacePath: String = "workspace") -> (id: String, passes: Int)? {
@@ -653,9 +705,10 @@ func recordConstraintMastery(
     saveConstraintMastery(entries, workspacePath: workspacePath)
 }
 
-func resetPerformanceLog(workspacePath: String = "workspace") {
+func resetPerformanceLog(workspacePath: String = "workspace", quiet: Bool = false) {
     let path = performanceLogPath(workspacePath: workspacePath)
     try? FileManager.default.removeItem(atPath: path)
+    _ = quiet
 }
 
 func loadPerformanceLogEntries(workspacePath: String = "workspace") -> [String] {
@@ -1824,6 +1877,217 @@ func lessonText(for challenge: Challenge) -> String? {
             return nil
         }
     }
+}
+
+func renderLessonManPage(title: String, synopsis: String, lesson: String, width: Int = 78) -> [String] {
+    func normalizeLessonText(_ lesson: String, title: String) -> String {
+        var text = lesson.trimmingCharacters(in: .whitespacesAndNewlines)
+        let lowercased = text.lowercased()
+        if lowercased.hasPrefix("lesson:") {
+            let startIndex = text.index(text.startIndex, offsetBy: "lesson:".count)
+            text = String(text[startIndex...]).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        let lines = text.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        if let firstLine = lines.first,
+            firstLine.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == title.lowercased()
+        {
+            text = lines.dropFirst().joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+        } else if lines.count >= 2 {
+            let first = lines[0].trimmingCharacters(in: .whitespacesAndNewlines)
+            let second = lines[1].trimmingCharacters(in: .whitespacesAndNewlines)
+            if !first.isEmpty,
+                second.lowercased().hasPrefix(first.lowercased() + " "),
+                first.split(separator: " ").count == 1
+            {
+                text = lines.dropFirst().joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+        }
+
+        if let range = text.range(of: "Progression:") {
+            let before = String(text[..<range.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+            let after = String(text[range.upperBound...])
+            let normalizedAfter = after.replacingOccurrences(of: "\n", with: " ")
+            let rawItems = normalizedAfter
+                .split(separator: " ", omittingEmptySubsequences: false)
+                .joined(separator: " ")
+                .components(separatedBy: " - ")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+            var progression = "Progression:"
+            if !rawItems.isEmpty {
+                progression += "\n" + rawItems.map { "  - \($0)" }.joined(separator: "\n")
+            }
+            if before.isEmpty {
+                text = progression
+            } else {
+                text = "\(before)\n\n\(progression)"
+            }
+        }
+
+        return text
+    }
+
+    func centeredHeader(left: String, center: String, right: String, width: Int) -> String {
+        let minWidth = max(width, left.count + right.count + 2)
+        let available = minWidth - left.count - right.count
+        let centerStart = max(0, (available - center.count) / 2)
+        let leftPadding = String(repeating: " ", count: max(1, centerStart))
+        let rightPadding = String(repeating: " ", count: max(1, available - centerStart - center.count))
+        return left + leftPadding + center + rightPadding + right
+    }
+
+    func wrapParagraph(_ paragraph: String, width: Int, indent: String) -> [String] {
+        let words = paragraph.split(separator: " ").map(String.init)
+        guard !words.isEmpty else { return [indent] }
+        var lines: [String] = []
+        var current = indent
+        for word in words {
+            if current.count + word.count + 1 > width {
+                lines.append(current)
+                current = indent + word
+            } else {
+                if current == indent {
+                    current += word
+                } else {
+                    current += " " + word
+                }
+            }
+        }
+        lines.append(current)
+        return lines
+    }
+
+    func wrapBullet(_ bullet: String, width: Int, indent: String) -> [String] {
+        let trimmed = bullet.trimmingCharacters(in: .whitespacesAndNewlines)
+        let bulletPrefix = indent + "- "
+        let hangingIndent = indent + "  "
+        let content = trimmed.replacingOccurrences(of: "- ", with: "", options: .anchored)
+        let isCodeLike = content.contains("{")
+            || content.contains("}")
+            || content.contains("->")
+            || content.contains("$")
+            || content.contains("()")
+            || content.contains("[]")
+            || content.contains("`")
+        if isCodeLike {
+            return [bulletPrefix + content]
+        }
+        let words = content.split(separator: " ").map(String.init)
+        guard !words.isEmpty else { return [bulletPrefix] }
+        var lines: [String] = []
+        var current = bulletPrefix
+        for word in words {
+            if current.count + word.count + 1 > width {
+                lines.append(current)
+                current = hangingIndent + word
+            } else {
+                if current == bulletPrefix {
+                    current += word
+                } else {
+                    current += " " + word
+                }
+            }
+        }
+        lines.append(current)
+        return lines
+    }
+
+    func wrapText(_ text: String, width: Int, indent: String) -> [String] {
+        let rawLines = text.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        var lines: [String] = []
+        var paragraph: [String] = []
+
+        func flushParagraph() {
+            guard !paragraph.isEmpty else { return }
+            let joined = paragraph.joined(separator: " ")
+            lines.append(contentsOf: wrapParagraph(joined, width: width, indent: indent))
+            paragraph.removeAll(keepingCapacity: true)
+        }
+
+        for rawLine in rawLines {
+            let trimmed = rawLine.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty {
+                flushParagraph()
+                lines.append("")
+                continue
+            }
+
+            if rawLine.hasPrefix(" ") || rawLine.hasPrefix("\t") {
+                flushParagraph()
+                lines.append(indent + rawLine)
+                continue
+            }
+
+            if trimmed.hasPrefix("- ") {
+                flushParagraph()
+                lines.append(contentsOf: wrapBullet(trimmed, width: width, indent: indent))
+                continue
+            }
+
+            paragraph.append(trimmed)
+        }
+
+        flushParagraph()
+        return lines
+    }
+
+    let header = centeredHeader(left: "FORGE(1)", center: "Lesson Manual", right: "FORGE(1)", width: width)
+    var lines: [String] = [header, ""]
+    lines.append("NAME")
+    lines.append("    \(title)")
+    lines.append("")
+    lines.append("SYNOPSIS")
+    lines.append("    \(synopsis)")
+    lines.append("")
+    lines.append("DESCRIPTION")
+    let normalizedLesson = normalizeLessonText(lesson, title: title)
+    lines.append(contentsOf: wrapText(normalizedLesson, width: width, indent: "    "))
+    return lines
+}
+
+func pageLines(_ lines: [String], pageSize: Int = 22) {
+    guard !lines.isEmpty else { return }
+    for index in 0..<lines.count {
+        print(lines[index])
+        if (index + 1) % pageSize == 0, index < lines.count - 1 {
+            let current = lines[index]
+            let next = lines[index + 1]
+            let inCodeBlock = current.hasPrefix("    ") || current.hasPrefix("\t")
+            let nextIsCode = next.hasPrefix("    ") || next.hasPrefix("\t")
+            if inCodeBlock || nextIsCode {
+                continue
+            }
+            print("--More-- (Enter to continue, q to quit)")
+            let input = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
+            if input == "q" {
+                print("")
+                break
+            }
+        }
+    }
+}
+
+func showLesson(for challenge: Challenge) {
+    guard let lesson = lessonText(for: challenge),
+        !lesson.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    else {
+        print("Lesson not available yet.\n")
+        return
+    }
+    let lines = renderLessonManPage(title: challenge.title, synopsis: challenge.topic.rawValue, lesson: lesson)
+    pageLines(lines)
+    print("")
+}
+
+func showLesson(for project: Project) {
+    let lesson = project.lesson.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !lesson.isEmpty else {
+        print("Lesson not available yet.\n")
+        return
+    }
+    let lines = renderLessonManPage(title: project.title, synopsis: "project", lesson: lesson)
+    pageLines(lines)
+    print("")
 }
 
 func tokenizeSource(_ source: String) -> [String] {
@@ -3472,7 +3736,9 @@ func validateOutputLines(output: String, expected: String) -> Bool {
         let expectedTrimmed = expectedLine.trimmingCharacters(in: .whitespacesAndNewlines)
         let actualTrimmed = actualLine.trimmingCharacters(in: .whitespacesAndNewlines)
         if actualTrimmed != expectedTrimmed {
-            print("✗ Line \(index + 1) failed: expected \(expectedTrimmed), got \(actualTrimmed)")
+            print("✗ Line \(index + 1) failed")
+            print("  expected: \(expectedTrimmed)")
+            print("       got: \(actualTrimmed)")
             allPassed = false
         }
     }
@@ -3707,10 +3973,8 @@ func validateChallenge(
     }
     let output = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
 
-    // Show what the code printed
-    print("Output: \(output)\n")
-
     if validateOutputLines(output: output, expected: challenge.expectedOutput) {
+        print("Output:\n\(output)\n")
         let completionLabel = assistedPass ? "✓ Challenge Complete! (assisted)\n" : "✓ Challenge Complete! Well done.\n"
         print(completionLabel)
         recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: true, workspacePath: workspacePath)
@@ -3801,15 +4065,10 @@ func runGateChallenges(
                 continue
             }
 
-            if input == "l" {
-                let lesson = lessonText(for: challenge)
-                if lesson == nil || lesson?.isEmpty == true {
-                    print("Lesson not available yet.\n")
-                } else {
-                    print("Lesson:\n\(lesson ?? "")\n")
+                if input == "l" {
+                    showLesson(for: challenge)
+                    continue
                 }
-                continue
-            }
 
                 if input == "s" {
                     let solution = challenge.solution.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -3929,9 +4188,8 @@ func runGateChallenges(
                 }
                 let output = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
 
-                print("Output: \(output)\n")
-
                 if validateOutputLines(output: output, expected: challenge.expectedOutput) {
+                    print("Output:\n\(output)\n")
                     let completionLabel = solutionViewedBeforePass
                         ? "✓ Challenge Complete! (assisted)\n"
                         : "✓ Challenge Complete! Well done.\n"
@@ -4150,12 +4408,29 @@ func runSteps(
         switch step {
         case .challenge(let challenge):
             loadChallenge(challenge)
+            print("Type 'b' to go back one step (rewinds progress).")
             var hintIndex = 0
             var challengeComplete = false
             var solutionViewedBeforePass = false
+            var backRequested = false
             while !challengeComplete {
                 print("> ", terminator: "")
                 let input = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
+
+                if input == "b" {
+                    if let previousIndex = previousChallengeIndex(from: steps, before: currentIndex) {
+                        if confirmBackAccess() {
+                            saveProgress(previousIndex + 1)
+                            currentIndex = previousIndex
+                            backRequested = true
+                            clearScreen()
+                            break
+                        }
+                        continue
+                    }
+                    print("No previous challenge to go back to.\n")
+                    continue
+                }
 
                 if input == "h" {
                     if challenge.hints.isEmpty {
@@ -4181,12 +4456,7 @@ func runSteps(
                 }
 
                 if input == "l" {
-                    let lesson = lessonText(for: challenge)
-                    if lesson == nil || lesson?.isEmpty == true {
-                        print("Lesson not available yet.\n")
-                    } else {
-                        print("Lesson:\n\(lesson ?? "")\n")
-                    }
+                    showLesson(for: challenge)
                     continue
                 }
 
@@ -4222,7 +4492,7 @@ func runSteps(
                 }
 
                 if !input.isEmpty {
-                    print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 'l' for lesson, 's' for solution.\n")
+                    print("Unknown command. Press Enter to check, 'b' to go back, 'h' for hint, 'c' for cheatsheet, 'l' for lesson, 's' for solution.\n")
                     continue
                 }
 
@@ -4396,6 +4666,9 @@ func runSteps(
                     }
                 }
             }
+            if backRequested {
+                continue
+            }
         case .project(let project):
             if runProject(
                 project,
@@ -4514,9 +4787,6 @@ func validateProject(
     }
     let output = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
 
-    // Show what the code printed
-    print("Output: \(output)\n")
-    
     // Parse output lines
     let outputLines = output.components(separatedBy: "\n")
     
@@ -4543,13 +4813,16 @@ func validateProject(
         let actual = outputLines[index].trimmingCharacters(in: .whitespacesAndNewlines)
         
         if actual != expected {
-            print("✗ Test \(index + 1) failed: expected \(expected), got \(actual)")
+            print("✗ Test \(index + 1) failed")
+            print("  expected: \(expected)")
+            print("       got: \(actual)")
             allPassed = false
             failedCount += 1
         }
     }
     
     if allPassed {
+        print("Output:\n\(output)\n")
         let completionLabel = assistedPass ? "✓ Project Complete! (assisted)\n" : "✓ Project Complete! Excellent work.\n"
         print(completionLabel)
         let result = assistedPass ? "pass_assisted" : "pass"
@@ -5036,6 +5309,16 @@ func confirmSolutionAccess(prompt: String) -> Bool {
     return false
 }
 
+func confirmBackAccess() -> Bool {
+    print("Go back one step and rewind progress? (y/n)")
+    let input = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
+    if input == "y" {
+        return true
+    }
+    print("Back cancelled.\n")
+    return false
+}
+
 func logSolutionViewed(
     id: String,
     number: Int?,
@@ -5451,20 +5734,24 @@ func printAdaptiveStats(workspacePath: String = "workspace", statsLimit: Int?) {
     }
 }
 
-func resetAdaptiveStats(workspacePath: String = "workspace") {
+func resetAdaptiveStats(workspacePath: String = "workspace", quiet: Bool = false) {
     let path = adaptiveStatsFilePath(workspacePath: workspacePath)
     try? FileManager.default.removeItem(atPath: path)
-    print("✓ Adaptive stats reset.")
+    if !quiet {
+        print("✓ Adaptive stats reset.")
+    }
 }
 
-func resetAllStats(workspacePath: String = "workspace") {
-    resetAdaptiveStats(workspacePath: workspacePath)
+func resetAllStats(workspacePath: String = "workspace", quiet: Bool = false) {
+    resetAdaptiveStats(workspacePath: workspacePath, quiet: quiet)
     let challengePath = adaptiveChallengeStatsFilePath(workspacePath: workspacePath)
     try? FileManager.default.removeItem(atPath: challengePath)
     try? FileManager.default.removeItem(atPath: constraintMasteryPath(workspacePath: workspacePath))
     clearPendingPractice(workspacePath: workspacePath)
-    resetPerformanceLog(workspacePath: workspacePath)
-    print("✓ Performance log reset.")
+    resetPerformanceLog(workspacePath: workspacePath, quiet: quiet)
+    if !quiet {
+        print("✓ Performance log reset.")
+    }
 }
 
 func parseStatsSettings(_ args: [String]) -> (reset: Bool, resetAll: Bool, limit: Int?) {
@@ -6392,6 +6679,7 @@ func runPracticeChallenges(
     var completedFiles: [String] = []
 
     for (index, challenge) in challenges.enumerated() {
+        clearScreen()
         loadChallenge(challenge, workspacePath: workspacePath)
         var hintIndex = 0
         var challengeComplete = false
@@ -6428,12 +6716,7 @@ func runPracticeChallenges(
             }
 
             if input == "l" {
-                let lesson = lessonText(for: challenge)
-                if lesson == nil || lesson?.isEmpty == true {
-                    print("Lesson not available yet.\n")
-                } else {
-                    print("Lesson:\n\(lesson ?? "")\n")
-                }
+                showLesson(for: challenge)
                 continue
             }
 
@@ -6558,9 +6841,8 @@ func runPracticeChallenges(
                 }
                 let output = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
 
-                print("Output: \(output)\n")
-
                 if validateOutputLines(output: output, expected: challenge.expectedOutput) {
+                    print("Output:\n\(output)\n")
                     let completionLabel = solutionViewedBeforePass
                         ? "✓ Challenge Complete! (assisted)\n"
                         : "✓ Challenge Complete! Well done.\n"
@@ -6604,7 +6886,6 @@ func runPracticeChallenges(
         if index < challenges.count - 1 {
             print("Press Enter for the next random challenge.")
             _ = readLine()
-            clearScreen()
         }
     }
 
@@ -6660,12 +6941,7 @@ func runProject(
         }
 
         if input == "l" {
-            let lesson = project.lesson.trimmingCharacters(in: .whitespacesAndNewlines)
-            if lesson.isEmpty {
-                print("Lesson not available yet.\n")
-            } else {
-                print("Lesson:\n\(lesson)\n")
-            }
+            showLesson(for: project)
             continue
         }
 

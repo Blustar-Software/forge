@@ -57,7 +57,7 @@ final class ForgeTests: XCTestCase {
             try "print(\"Hi\")".write(to: challengePath, atomically: true, encoding: .utf8)
             try "keep".write(to: otherPath, atomically: true, encoding: .utf8)
 
-            resetProgress(workspacePath: workspacePath)
+            resetProgress(workspacePath: workspacePath, quiet: true)
 
             XCTAssertFalse(FileManager.default.fileExists(atPath: progressPath.path))
             XCTAssertFalse(FileManager.default.fileExists(atPath: challengePath.path))
@@ -87,7 +87,7 @@ final class ForgeTests: XCTestCase {
             try "conditionals|state=block,warn=1,clean=0".write(to: masteryPath, atomically: true, encoding: .utf8)
             try "topic=loops,count=2,id=5,number=5,layer=core".write(to: pendingPath, atomically: true, encoding: .utf8)
 
-            resetAllStats(workspacePath: workspacePath)
+            resetAllStats(workspacePath: workspacePath, quiet: true)
 
             XCTAssertFalse(FileManager.default.fileExists(atPath: adaptivePath.path))
             XCTAssertFalse(FileManager.default.fileExists(atPath: challengePath.path))

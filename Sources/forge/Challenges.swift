@@ -450,125 +450,271 @@ Core 1 Integration
 
 let lessonComments = """
 Lesson: Comments
-Comments are ignored by the compiler and help humans read code.
+Comments are notes for humans. The compiler ignores them.
 
-Types:
-- Single-line: // comment
-- Multi-line: /* comment */
+Overview:
+- Use comments to clarify intent, assumptions, or tricky logic.
+- Avoid narrating obvious code.
 
-Use comments to explain intent, not obvious syntax.
+Single-line comments:
+    // This line explains the next step
+    let heat = 1500
+
+Multi-line comments:
+    /*
+     Use a block comment for longer notes
+     or to temporarily disable a block.
+     */
+
+Good comment examples:
+- Why a decision was made
+- A non-obvious edge case
+- The goal of a block of logic
 """
 
 let lessonVariablesAndTypes = """
 Lesson: Constants, Variables, and Types
-Use let for values that never change and var for values you will update.
+Swift stores values in constants (`let`) and variables (`var`).
 
-Types:
-- Swift is type-safe: once a type is set, it does not change.
-- You can annotate: let count: Int = 3
-- Or infer: let count = 3
+Overview:
+- Use `let` when a value should not change.
+- Use `var` when you plan to update the value.
+- Every value has a type, and Swift enforces type safety.
+
+Constants vs variables:
+    let maxTemp = 1600
+    var currentTemp = 1200
+    currentTemp = 1400
+
+Type annotation:
+- You can declare a type explicitly when you want clarity.
+    let count: Int = 3
+    let name: String = "Forge"
+
+Type inference:
+- Swift can infer the type from the assigned value.
+    let ratio = 0.25      // Double
+    let enabled = true    // Bool
 
 Common types:
-Int (whole numbers), Double (decimals), String (text), Bool (true/false).
+- Int: whole numbers (e.g., 42)
+- Double: decimals (e.g., 3.14)
+- String: text (e.g., "steel")
+- Bool: true/false
+
+Rule of thumb:
+- Prefer `let` by default; switch to `var` only when you need mutation.
 """
 
 let lessonMathAndAssignment = """
 Lesson: Math & Assignment
-Arithmetic operators:
-- +, -, *, /, % (remainder)
+Arithmetic operators work on numeric types like Int and Double.
 
-Integer division:
-- Int / Int produces an Int (truncates decimals).
+Operators:
+- + (add), - (subtract), * (multiply), / (divide), % (remainder)
+
+Examples:
+    let total = 1200 + 300
+    let half = 9 / 2        // Int division: 4
+    let exact = 9.0 / 2.0   // Double: 4.5
+    let leftover = 9 % 2    // 1
 
 Compound assignment:
-- +=, -=, *=, /= update a variable in place.
+- Update a variable in place.
+    var heat = 1200
+    heat += 200    // 1400
+    heat *= 2      // 2800
 """
 
 let lessonStrings = """
 Lesson: Strings
-Strings store text.
+Strings store text and are enclosed in double quotes.
+
+Overview:
+- Strings can be combined, searched, and formatted.
+- Swift uses `String` for text values.
+
+Create strings:
+    let name = "Forge"
+    let status: String = "Ready"
 
 Concatenation:
-- "Forge" + " Ready" → "Forge Ready"
+- Use `+` to join strings.
+    let message = "Forge" + " Ready"
 
 Interpolation:
-- "Level: \\(value)" inserts a value into text.
+- Insert values with \\(value) inside a string.
+    let heat = 1500
+    let report = "Heat: \\(heat)"
+
+Common operations:
+- `.count` for length
+- `.uppercased()` / `.lowercased()`
+- `.contains("text")`
+- `.hasPrefix("pre")` / `.hasSuffix("suf")`
 """
 
 let lessonBooleans = """
 Lesson: Booleans & Logic
-A Bool stores true or false. Comparisons (==, !=, <, >, <=, >=) produce Bool values.
+A Bool stores `true` or `false`. Comparisons produce Bool values.
+
+Overview:
+- Use comparison operators to build conditions.
+- Combine conditions with logical operators.
+
+Comparison operators:
+- ==, !=, <, >, <=, >=
+    let hot = temp >= 1400
+    let same = metal == "Iron"
 
 Logical operators:
-- && (and): true only when both sides are true
-- || (or): true when either side is true
+- && (and): true only if both sides are true
+- || (or): true if either side is true
 - ! (not): flips a Bool
 
-Grouping:
-- Use parentheses to group conditions.
-- && runs before || if you skip parentheses.
+Grouping and precedence:
+- Use parentheses to make intent clear.
+- && runs before || if parentheses are omitted.
 
-Pattern:
-let ready = (metal == "Iron" && temp >= 1400) || temp >= 1200
+Example:
+    let ready = (metal == "Iron" && temp >= 1400) || temp >= 1200
 """
 
 let lessonFunctionsBasics = """
 Lesson: Functions
-Define a reusable action with func.
+Functions package reusable behavior with inputs and outputs.
 
-Syntax:
-- func name(param: Type) -> ReturnType { ... }
-- If there is no return value, omit the return type.
+Overview:
+- Define with `func`.
+- Parameters describe input values.
+- A return type describes the output value (or omit for Void).
 
-Calling:
-- Use argument labels by default: greet(name: "Forge")
+Basic syntax:
+    func greet(name: String) -> String {
+        return "Hello, \\(name)"
+    }
+
+Calling functions:
+    let message = greet(name: "Forge")
+
+Parameters and labels:
+- Swift uses argument labels by default.
+    func mix(_ a: Int, with b: Int) -> Int {
+        return a + b
+    }
+    let sum = mix(2, with: 3)
+
+Void functions:
+- Omit the return type for functions that only perform actions.
+    func log(_ text: String) {
+        print(text)
+    }
 
 Return values:
-- Use return to send a value back to the caller.
+- Use `return` to send a value back to the caller.
 """
 
 let lessonCore1Integration = """
 Lesson: Core 1 Integration
-Combine the basics into a single flow:
-- Setup: constants/variables
-- Compute: math and functions
-- Decide: comparisons and boolean logic
-- Report: string interpolation
+Combine the core concepts into one readable flow.
 
-Keep steps clear and store intermediate results when helpful.
+Suggested structure:
+1) Setup: constants and variables
+2) Compute: math and functions
+3) Decide: comparisons and boolean logic
+4) Report: string interpolation
+
+Example flow:
+    let base = 1200
+    var heat = base + 200
+    let isHot = heat >= 1400
+    let status = isHot ? "Hot" : "Warm"
+    print("Heat: \\(heat) (\\(status))")
+
+Tip:
+- Store intermediate values to keep each step clear.
 """
 
 let lessonConditionalsFlow = """
 Lesson: Conditionals
-Use if/else if/else to pick between multiple paths.
+Conditionals choose between different paths based on Bool expressions.
+
+Overview:
+- `if` runs a block when a condition is true.
+- `else if` checks another condition if the first fails.
+- `else` is the fallback.
+
+Basic shape:
+    if temp >= 1500 {
+        print("Overheated")
+    } else if temp >= 1200 {
+        print("Hot")
+    } else {
+        print("Cool")
+    }
 
 Tips:
 - Check the most specific cases first.
-- The final else is your fallback.
+- Keep each condition focused and readable.
 
-Ternary:
+Ternary operator:
 - condition ? valueIfTrue : valueIfFalse
+    let label = temp >= 1500 ? "Overheated" : "Stable"
 """
 
 let lessonSwitchAndRanges = """
 Lesson: Switch & Ranges
-Switch matches one value against multiple cases.
+Switch matches a value against multiple cases.
+
+Overview:
+- Use `switch` to handle multiple discrete cases cleanly.
+- Cases must be exhaustive (or use `default`).
+
+Basic shape:
+    switch temp {
+    case 0:
+        print("No heat")
+    case 1...1199:
+        print("Low")
+    case 1200...1499:
+        print("Warm")
+    default:
+        print("Hot")
+    }
 
 Ranges:
-- Closed: 1...3 includes both ends
+- Closed range: 1...3 includes both ends
 - Half-open: 1..<3 excludes the upper bound
 
-Use ranges inside switch cases to match numeric bands.
+Tip:
+- Use ranges inside switch cases to match numeric bands.
 """
 
 let lessonLoopsBasics = """
 Lesson: Loops
-Use loops to repeat work.
+Loops repeat work while a condition holds or for each element in a collection.
 
-Types:
-- for-in over ranges or collections
-- while when the condition is checked first
-- repeat-while when the body must run at least once
+Overview:
+- `for-in` iterates over ranges or collections.
+- `while` repeats while a condition is true.
+- `repeat-while` always runs at least once.
+
+for-in:
+    for value in temps { print(value) }
+    for i in 1...3 { print(i) }   // 1, 2, 3
+    for i in 1..<3 { print(i) }   // 1, 2
+
+while:
+    var heat = 1000
+    while heat < 1500 {
+        heat += 100
+    }
+
+repeat-while:
+    var count = 0
+    repeat {
+        count += 1
+    } while count < 3
 
 Control:
 - continue skips the current iteration
@@ -577,178 +723,459 @@ Control:
 
 let lessonCollectionsBasics = """
 Lesson: Collections
-Arrays and dictionaries store multiple values.
+Collections store multiple values in one place.
+
+Overview:
+- Arrays: ordered lists
+- Dictionaries: key/value lookups
 
 Arrays:
-- [Int], [String], etc.
-- count and isEmpty
-- append to add
+- Create: let temps = [1200, 1500, 1600]
+- Access by index: temps[0]
+- Add items: temps.append(1700)
+- Count: temps.count
 
 Dictionaries:
-- ["Key": Value]
-- access with subscript and a default
+- Create: let ratings = ["iron": 3, "steel": 5]
+- Access by key: ratings["steel"]   // Optional
+- Update: ratings["iron"] = 4
+- Keys/values: ratings.keys, ratings.values
 """
 
 let lessonSetsBasics = """
 Lesson: Sets
-Sets keep unique values only and have no fixed order.
-Use Set(array) to remove duplicates.
+Sets store unique values with no fixed order.
+
+Overview:
+- Use Set when you need uniqueness and fast membership checks.
+- Order is not guaranteed.
+
+Create a set:
+    let metals: Set<String> = ["iron", "copper", "iron"]
+    print(metals)   // duplicates removed
+
+Common operations:
+- contains(_:) to test membership
+- insert(_:) to add
+- remove(_:) to delete
+
+Convert from array:
+    let unique = Set(["a", "b", "a"])
 """
 
 let lessonTuplesBasics = """
 Lesson: Tuples
-Tuples group related values without a new type.
+Tuples group related values without creating a new type.
 
-Access:
-- By index: value.0, value.1
-- By name: (min: Int, max: Int) then value.min
+Overview:
+- Use tuples for small, temporary groupings.
+- Tuples can have labels for clarity.
 
-Functions can return tuples to send multiple values back.
+Create a tuple:
+    let reading = (temp: 1500, time: 42)
+
+Access values:
+- By label: reading.temp
+- By index: reading.0
+
+Returning tuples:
+    func minMax(_ values: [Int]) -> (min: Int, max: Int) {
+        return (values.min() ?? 0, values.max() ?? 0)
+    }
 """
 
 let lessonOptionalsBasics = """
 Lesson: Optionals
-An Optional may be nil (missing).
+Optionals represent a value that may be missing (`nil`).
 
-Unwrap safely:
-- if let value = optional { ... }
-- guard let value = optional else { return }
+Overview:
+- `Int?` means an Int or nil.
+- You must unwrap an Optional before using its value.
 
-Fallback:
-- optional ?? defaultValue
+Creating optionals:
+    var temp: Int? = nil
+    temp = 1500
 
-Conversion:
-- Int("123") returns Int? and must be unwrapped
+Unwrapping with if let:
+    if let value = temp {
+        print(value)
+    }
+
+Unwrapping with guard:
+    func report(_ value: Int?) {
+        guard let value = value else {
+            return
+        }
+        print(value)
+    }
+
+Fallback with ??:
+    let safeValue = temp ?? 0
+
+Optional chaining:
+- Use ?. to access properties or methods on an optional.
+- The result stays optional.
+    let temps: [Int]? = [1200, 1400]
+    let first = temps?.first ?? 0
+
+Common source:
+- Conversions like Int("123") return Optional values.
 """
 
 let lessonStringsAdvanced = """
 Lesson: String Inspection
-Strings have helpful properties and methods.
+String inspection helps you validate and analyze text.
 
-Common tools:
-- count for length
-- lowercased() for lowercase
+Overview:
+- Use helpers like count, contains, and prefix/suffix checks.
+- Transform case to normalize comparisons.
+
+Length and case:
+    let label = "Forge"
+    print(label.count)
+    print(label.lowercased())
+
+Search and matching:
 - contains("text") to search
-- hasPrefix("pre") and hasSuffix("suf")
+- hasPrefix("pre") / hasSuffix("suf")
+    let log = "heat:1500"
+    print(log.hasPrefix("heat:"))
 """
 
 let lessonCollectionsAdvanced = """
 Lesson: Collection Iteration
 Iterate arrays and dictionaries to summarize data.
 
-Dictionary loops:
-- for (key, value) in dict { ... }
-- Use dict.keys.sorted() for stable order
+Arrays:
+    for value in temps {
+        print(value)
+    }
+
+Dictionaries:
+    for (key, value) in readings {
+        print("\\(key): \\(value)")
+    }
+
+Stable order:
+- Dictionary order is not guaranteed.
+- Use dict.keys.sorted() for stable output when needed.
 """
 
 let lessonFunctionsAdvanced = """
 Lesson: Functions (Advanced)
-Customize function signatures for clarity and flexibility.
+Advanced features make functions more expressive.
 
-Topics:
-- External/internal labels: func label(at value: Int)
-- Omit labels with _: func announce(_ value: String)
-- Default params: intensity: Int = 1
-- Variadics: func average(_ values: Int...)
-- inout: mutate caller values with &
-- Nested helper functions for validation
+Labels:
+- External/internal: func heat(at value: Int)
+- Omit labels with _: func log(_ value: String)
+
+Default values:
+    func heatBoost(_ base: Int, intensity: Int = 1) -> Int {
+        return base + (intensity * 100)
+    }
+
+Variadics:
+    func average(_ values: Int...) -> Int {
+        return values.reduce(0, +) / values.count
+    }
+
+inout parameters:
+- Mutate caller values with `&`.
+    func clamp(_ value: inout Int, max: Int) {
+        if value > max { value = max }
+    }
+
+Nested helpers:
+- Define small helper functions inside a larger function for clarity.
 """
 
 let lessonClosuresBasics = """
 Lesson: Closures
-Closures are inline functions you can store or pass around.
+Closures are reusable blocks of behavior you can store in variables, pass into
+functions, and return from functions. They capture values from their surrounding
+scope, which is why they feel lightweight and flexible.
+
+Overview:
+- Closure literals use braces: { ... }
+- Parameters and return type go before `in`
+- The body is the code after `in`
+- The closure can capture values defined outside it
+
+Basic shape:
+    let greet = { (name: String) -> String in
+        return "Hello, \\(name)!"
+    }
+    print(greet("Sam"))
+
+Parameters and return types:
+- The type appears after the variable name.
+- The `in` keyword separates the signature from the body.
+    let add: (Int, Int) -> Int = { a, b in
+        return a + b
+    }
+
+Type inference:
+- Swift can often infer the parameter and return types.
+- You can omit types once the compiler knows the context.
+    let numbers = [4, 1, 9]
+    let sorted = numbers.sorted(by: { a, b in return a < b })
+
+Single-expression closures:
+- If the body is a single expression, `return` is optional.
+    let doubled = numbers.map { value in value * 2 }
+
+Shorthand argument names:
+- Use $0, $1, ... for unnamed parameters.
+    let sorted2 = numbers.sorted(by: { $0 < $1 })
+
+Operator functions:
+- Many operators are functions you can pass directly.
+    let sorted3 = numbers.sorted(by: <)
+
+Trailing closure syntax:
+- If the closure is the final argument, you can move it outside parentheses.
+    let filtered = numbers.filter { value in value > 3 }
+
+Capturing values:
+- Closures can read and mutate variables from the outer scope.
+    func makeCounter() -> () -> Int {
+        var count = 0
+        return {
+            count += 1
+            return count
+        }
+    }
 
 Progression:
-- Full syntax: { (value: Int) -> Int in ... }
-- Implicit return for single expressions
-- Type inference to drop types
-- Shorthand args: $0
-- Trailing closure syntax with function calls
+Use the same task while gradually removing syntax:
+
+1) Full syntax (explicit types + return):
+    let transform = { (value: Int) -> Int in
+        return value * 3
+    }
+
+2) Type inference (drop types when context is clear):
+    let transform: (Int) -> Int = { value in
+        return value * 3
+    }
+
+3) Implicit return (single expression):
+    let transform: (Int) -> Int = { value in
+        value * 3
+    }
+
+4) Shorthand args ($0):
+    let transform: (Int) -> Int = { $0 * 3 }
+
+5) Trailing closure (when passing to a function):
+    func apply(_ value: Int, using closure: (Int) -> Int) {
+        print(closure(value))
+    }
+    apply(5) { value in
+        return value * 3
+    }
+
+6) Operator function (when it reads clearly):
+    let sorted = [3, 1, 2].sorted(by: <)
 """
 
 let lessonCollectionTransforms = """
 Lesson: Collection Transforms
 Use higher-order functions to transform data.
 
-Tools:
-- map: transform each element
-- filter: keep matching values
-- reduce: combine into one value
-- compactMap: unwrap + drop nils
-- flatMap: flatten nested collections
-- min/max return Optionals
+Overview:
+- map transforms each element
+- filter keeps matching values
+- reduce combines into one value
+- compactMap unwraps and drops nils
+- flatMap flattens nested collections
+
+Examples:
+    let doubled = temps.map { $0 * 2 }
+    let hot = temps.filter { $0 >= 1500 }
+    let total = temps.reduce(0, +)
+
+Notes:
+- min()/max() return Optional values.
 """
 
 let lessonTypealiases = """
 Lesson: Typealias
 Typealiases give long types a readable name.
-Example: typealias Reading = (temp: Int, time: Int)
+
+Overview:
+- Use typealias to improve readability.
+- Helpful for tuples, closures, or long generic types.
+
+Example:
+    typealias Reading = (temp: Int, time: Int)
+    let sample: Reading = (temp: 1500, time: 42)
 """
 
 let lessonEnumsBasics = """
 Lesson: Enums
 Enums define a fixed set of cases.
 
-Variants:
-- Raw values: enum Metal: String { case iron }
-- Associated values: case temperature(Int)
-- Pattern matching in switch, including where clauses
+Overview:
+- Use enums for states, categories, or choices.
+- Switch statements pair well with enums.
+
+Raw values:
+    enum Metal: String { case iron, copper }
+    let m = Metal.iron.rawValue
+
+Associated values:
+    enum Event { case temperature(Int) }
+
+Switching:
+    switch event {
+    case .temperature(let value):
+        print(value)
+    }
 """
 
 let lessonErrorsBasics = """
 Lesson: Errors
 Throwing functions signal failure.
 
-Flow:
-- Define Error types
-- throw in invalid cases
-- do/try/catch to handle
-- try? converts errors to nil
+Overview:
+- Define your own Error types.
+- Throw errors when something goes wrong.
+- Handle errors with do/try/catch.
+
+Define an error:
+    enum HeatError: Error {
+        case tooHot
+    }
+
+Throwing:
+    func check(_ temp: Int) throws {
+        if temp > 1600 { throw HeatError.tooHot }
+    }
+
+Handling:
+    do {
+        try check(1700)
+        print("OK")
+    } catch {
+        print("Failed")
+    }
+
+Optional try:
+- try? converts a thrown error to nil.
 """
 
 let lessonInputOutputBasics = """
 Lesson: Input & Files
 Read input from different sources.
 
-Sources:
-- readLine() for stdin
-- CommandLine.arguments for CLI args
-- String(contentsOfFile:) for files (Foundation)
+Overview:
+- stdin via readLine()
+- CLI args via CommandLine.arguments
+- Files via String(contentsOfFile:)
+
+Examples:
+    let line = readLine()
+    let args = CommandLine.arguments
+    let text = try? String(contentsOfFile: "data.txt")
 """
 
 let lessonCore3Integration = """
 Lesson: Core 3 Integration
 Combine strings, collections, and transforms into a pipeline.
-Break the task into stages and verify each stage’s output.
+
+Suggested stages:
+1) Parse or load raw inputs.
+2) Clean and normalize data.
+3) Transform with map/filter/reduce.
+4) Format output with strings.
+
+Example approach:
+- Map temperatures into labels.
+- Filter to the values you need.
+- Reduce or summarize when required.
+
+Tip:
+- Print intermediate results while building the pipeline.
 """
 
 let lessonStructsBasics = """
 Lesson: Structs
 Structs are value types. Copies are independent.
 
-Focus:
-- Stored properties
-- Methods (use self when needed)
-- Custom init and mutating methods
+Overview:
+- Use structs for lightweight models and data.
+- Assigning or passing a struct creates a copy.
+
+Basic struct:
+    struct Alloy {
+        var name: String
+        var purity: Int
+    }
+
+Methods:
+    struct Meter {
+        var value: Int
+        mutating func increase() {
+            value += 1
+        }
+    }
+
+Initializers:
+- Swift provides a memberwise init by default.
+    let alloy = Alloy(name: "Iron", purity: 90)
 """
 
 let lessonClassesBasics = """
 Lesson: Classes
 Classes are reference types. Copies share the same instance.
 
-Focus:
-- Initializers
-- Shared state
-- deinit for cleanup
+Overview:
+- Use classes when you need shared, mutable state or inheritance.
+- Assigning a class copies the reference, not the object.
+
+Basic class:
+    class Furnace {
+        var temp: Int
+        init(temp: Int) {
+            self.temp = temp
+        }
+    }
+
+Reference behavior:
+    let a = Furnace(temp: 1200)
+    let b = a
+    b.temp = 1300   // a.temp is also 1300
+
+Lifecycle:
+- deinit runs when a class instance is released.
 """
 
 let lessonPropertiesAdvanced = """
 Lesson: Properties
-Swift supports computed, observed, lazy, and static properties.
+Properties define state and behavior on types.
 
-Patterns:
-- Computed get/set
-- willSet/didSet observers
+Stored properties:
+    struct Gauge {
+        var value: Int
+    }
+
+Computed properties:
+    struct Report {
+        var raw: Int
+        var label: String {
+            return "Heat: \\(raw)"
+        }
+    }
+
+Property observers:
+- willSet runs before the change.
+- didSet runs after the change.
+    var heat: Int = 1200 {
+        didSet { print("Heat: \\(heat)") }
+    }
+
+Other patterns:
 - lazy for deferred creation
 - static for type-wide values
 """
@@ -757,58 +1184,136 @@ let lessonProtocolsBasics = """
 Lesson: Protocols
 Protocols define required properties or methods.
 
-Patterns:
-- Conformance in structs/classes
-- Protocols as parameter types
-- Composition with A & B
-- Inheritance to refine requirements
+Overview:
+- Use protocols to define shared behavior.
+- Types conform by implementing the requirements.
+
+Define a protocol:
+    protocol Printable {
+        func printInfo()
+    }
+
+Conformance:
+    struct Furnace: Printable {
+        func printInfo() { print("Furnace") }
+    }
+
+As a type:
+    func report(_ item: Printable) {
+        item.printInfo()
+    }
+
+Composition:
+- Use A & B to require multiple protocols.
 """
 
 let lessonExtensionsBasics = """
 Lesson: Extensions
 Extensions add behavior to existing types.
 
-Patterns:
-- Add methods or computed properties
-- Provide protocol default implementations
-- Constrained extensions for specific cases
+Overview:
+- Add methods or computed properties.
+- Conform to protocols outside the original type.
+
+Example:
+    extension Int {
+        var isEven: Bool { self % 2 == 0 }
+    }
+
+Protocol defaults:
+    extension Printable {
+        func printInfo() { print("Default") }
+    }
+
+Constrained extensions:
+- Apply only when a condition is true.
+    extension Array where Element == Int {
+        var sum: Int { reduce(0, +) }
+    }
 """
 
 let lessonAccessControlBasics = """
 Lesson: Access Control
-Access levels control visibility of APIs.
+Access control limits what code can see.
+
+Overview:
+- Use access control to hide implementation details.
+- Defaults to internal (module‑wide).
 
 Levels:
-- private, internal (default), public, open
-- private(set) for controlled mutation
+- private: same scope
+- fileprivate: same file
+- internal: same module (default)
+- public: any module
+- open: subclassable outside the module
+
+Setter control:
+- Use private(set) to allow reading but restrict mutation.
 """
 
 let lessonGenericsBasics = """
 Lesson: Generics
 Generics let code work across many types.
 
-Patterns:
-- Generic functions and types
-- Constraints with : Comparable
-- Associated types in protocols
-- Where clauses and conditional conformance
+Overview:
+- Use generic placeholders like T.
+- Add constraints to require capabilities.
+
+Generic function:
+    func swapValues<T>(_ a: inout T, _ b: inout T) {
+        let temp = a
+        a = b
+        b = temp
+    }
+
+Constraints:
+    func maxValue<T: Comparable>(_ a: T, _ b: T) -> T {
+        return a > b ? a : b
+    }
+
+Where clauses:
+- Add additional constraints for clarity.
+    func equals<T: Equatable>(_ a: T, _ b: T) -> Bool where T: Comparable {
+        return a == b
+    }
 """
 
 let lessonMemoryBasics = """
 Lesson: Memory & ARC
 ARC manages class lifetime with reference counting.
 
-Tip:
-- Use weak to avoid reference cycles.
+Overview:
+- Classes are reference types managed by ARC.
+- Reference cycles can cause memory leaks.
+
+Avoiding cycles:
+- Use weak for back‑references.
+    class Owner {
+        weak var furnace: Furnace?
+    }
+
+When to use weak:
+- Delegates, parent pointers, and other back‑links.
 """
 
 let lessonConcurrencyBasics = """
 Lesson: Concurrency Basics
 Swift concurrency uses async/await and Tasks.
 
-Tools:
-- async functions + await calls
-- Task for async work
+Overview:
+- Mark async work with `async`.
+- Await async functions with `await`.
+- Use Task to start concurrent work.
+
+Example:
+    func fetchTemp() async -> Int { 1500 }
+
+    Task {
+        let value = await fetchTemp()
+        print(value)
+    }
+
+Other tools:
 - Task groups for parallel work
 - AsyncStream for async sequences
 - Task cancellation via Task.isCancelled
@@ -818,142 +1323,308 @@ let lessonActorsBasics = """
 Lesson: Actors
 Actors protect mutable state from data races.
 
-Notes:
-- Access actor state with await
-- @MainActor isolates work to the main actor
+Overview:
+- Only one task can access actor state at a time.
+- Accessing actor properties and methods requires await.
+
+Example:
+    actor Vault {
+        private var count = 0
+        func increment() {
+            count += 1
+        }
+        func get() -> Int {
+            return count
+        }
+    }
+
+Accessing actors:
+    let vault = Vault()
+    Task {
+        await vault.increment()
+        let value = await vault.get()
+        print(value)
+    }
+
+Main actor:
+- @MainActor isolates work to the main thread (UI work).
 """
 
 let lessonPropertyWrappersBasics = """
 Lesson: Property Wrappers
 Wrappers encapsulate storage behavior.
 
-Patterns:
-- @Wrapper on a property
-- wrappedValue controls get/set
-- projectedValue exposed with $name
+Overview:
+- Define reusable storage logic once.
+- Apply with @Wrapper on a property.
+
+Basic wrapper:
+    @propertyWrapper
+    struct Clamped {
+        var value: Int
+        var wrappedValue: Int {
+            get { value }
+            set { value = min(newValue, 1600) }
+        }
+        init(wrappedValue: Int) { value = wrappedValue }
+    }
+
+Use:
+    struct Furnace {
+        @Clamped var temp: Int = 1200
+    }
+
+Projected values:
+- Expose extra info with $name via projectedValue.
 """
 
 let lessonKeyPathsBasics = """
 Lesson: Key Paths
 Key paths refer to properties as values.
 
-Usage:
-- let path = \\Type.property
-- value[keyPath: path]
-- map(\\.property) for arrays
+Overview:
+- Use key paths to point to a property.
+- Helpful with map/sort and dynamic access.
+
+Create a key path:
+    let path = \\Alloy.purity
+
+Read via key path:
+    let purity = alloy[keyPath: path]
+
+With collections:
+    let purities = alloys.map(\\.purity)
 """
 
 let lessonSequencesBasics = """
 Lesson: Sequences
 Sequences provide one-pass iteration.
 
-Patterns:
-- Sequence + IteratorProtocol
-- lazy for deferred work
-- Array(sequence) to materialize
+Overview:
+- Sequences can be iterated once.
+- Collections are multi-pass and indexed.
+
+Custom sequence:
+    struct Counter: Sequence, IteratorProtocol {
+        var current = 0
+        mutating func next() -> Int? {
+            current += 1
+            return current <= 3 ? current : nil
+        }
+    }
+
+Lazy operations:
+- Use lazy to defer work until iteration.
+    let values = [1, 2, 3].lazy.map { $0 * 2 }
+
+Materialize:
+- Convert a sequence to an array if you need random access.
 """
 
 let lessonAdvancedGenericsBasics = """
 Lesson: Advanced Generics
 Use protocols and generics to hide concrete types.
 
-Concepts:
-- Opaque types: some Protocol
-- Existentials: any Protocol
-- Type erasure wrappers
-- Primary associated types
-- where clauses for constraints
+Overview:
+- Opaque types hide concrete types but keep performance.
+- Existentials allow mixed types behind a protocol.
+
+Opaque types:
+    func makeIterator() -> some IteratorProtocol {
+        return [1, 2, 3].makeIterator()
+    }
+
+Existentials:
+    let values: [any Equatable] = [1, "two"]
+
+Type erasure:
+- Wrap a generic type when you need a single concrete type.
+    struct AnyBox<T> {
+        let value: T
+    }
+
+Where clauses:
+- Add constraints for clarity and reuse.
 """
 
 let lessonPerformanceBasics = """
 Lesson: Performance & Layout
 Measure before optimizing and understand value semantics.
 
-Concepts:
-- Copy-on-write collections
-- MemoryLayout size/stride/alignment
-- Profiling with elapsed time
+Overview:
+- Profile first, then optimize.
+- Focus on hot paths.
+
+Copy-on-write:
+- Arrays and dictionaries use COW for efficient copies.
+
+Memory layout:
+- MemoryLayout.size/stride/alignment reveal layout details.
+
+Timing:
+- Use elapsed time measurements to compare approaches.
 """
 
 let lessonAdvancedFeaturesBasics = """
 Lesson: Advanced Features
 Swift includes power features for expressive APIs.
 
-Examples:
-- Custom operators and subscripts
-- @dynamicMemberLookup and @dynamicCallable
-- Result builders
-- Reflection and runtime concepts
+Overview:
+- These features enable DSLs, customization, and runtime flexibility.
+
+Custom operators:
+    infix operator <+>
+    func <+>(a: Int, b: Int) -> Int { a + b }
+
+Dynamic member lookup:
+    @dynamicMemberLookup
+    struct DictionaryBox {
+        var data: [String: String]
+        subscript(dynamicMember key: String) -> String? {
+            data[key]
+        }
+    }
+
+Result builders:
+- Build DSLs for configuration or UI.
+
+Reflection:
+- Mirror lets you inspect values at runtime.
 """
 
 let lessonMacrosBasics = """
 Lesson: Macros
 Macros expand code at compile time.
 
-Notes:
-- Usage is at call sites
-- Authoring provides expansion logic
+Overview:
+- Use macros to generate boilerplate.
+- Call sites stay concise.
+
+Usage:
+    #warning("This is a reminder")
+
+Authoring:
+- Macro targets provide expansion logic.
+- Keep macros small and predictable.
 """
 
 let lessonSwiftPMBasics = """
 Lesson: SwiftPM
 Swift Package Manager defines targets and dependencies.
 
-Notes:
-- Package.swift declares products and targets
-- Build configs affect #if DEBUG
+Overview:
+- Package.swift describes products, targets, and dependencies.
+- SwiftPM resolves and builds dependencies for you.
+
+Package layout:
+- Sources/ for targets
+- Tests/ for test targets
+
+Build configs:
+- Use #if DEBUG and custom flags for build settings.
 """
 
 let lessonArchitecturePatterns = """
 Lesson: Architecture Patterns
 Organize code for testability and clarity.
 
-Patterns:
-- MVVM for view logic
-- Dependency injection
-- Coordinator and repository patterns
-- Protocol-based mocking
+Overview:
+- Separate concerns to keep code maintainable.
+- Prefer dependency injection over hard‑coded dependencies.
+
+Common patterns:
+- MVVM for view logic separation.
+- Coordinator for navigation flow.
+- Repository for data access.
+
+Testing support:
+- Protocol‑based abstractions enable mocking.
 """
 
 let lessonTestingBasics = """
 Lesson: Testing Concepts
 Tests validate behavior and prevent regressions.
 
-Notes:
-- TDD: Red → Green → Refactor
-- Async tests can await
-- UI tests verify user flows
+Overview:
+- Unit tests verify small pieces of logic.
+- Integration tests verify components working together.
+- UI tests verify user flows.
+
+TDD loop:
+- Red → Green → Refactor
+
+Async tests:
+- Use async/await in tests when needed.
 """
 
 let lessonInteropBasics = """
 Lesson: Interop Concepts
 Swift can interoperate with C and Objective-C.
 
-Notes:
-- C via module maps
-- Objective-C via @objc and bridging headers
+Overview:
+- C via module maps and imported headers.
+- Objective‑C via @objc and bridging headers.
+
+Tips:
+- Keep Swift APIs Swifty; isolate interop edges.
+- Prefer small wrapper types around C APIs.
+
+Example (Objective‑C):
+    @objc class LegacyWrapper: NSObject {
+        @objc func run() { print("OK") }
+    }
 """
 
 let lessonDebuggingBasics = """
 Lesson: Debugging Concepts
 Debuggers help inspect state and control execution.
 
-Notes:
-- LLDB common commands: po, bt
+Overview:
+- Use breakpoints to pause execution.
+- Inspect variables and call stacks.
+
+Common LLDB commands:
+- po: print object / value
+- bt: backtrace (call stack)
+- p: print expression
+
+Workflow:
+- Reproduce the issue.
+- Set a breakpoint near the failure.
+- Step (n/s) and inspect values.
 """
 
 let lessonGitBasics = """
 Lesson: Git Workflow
 Git tracks changes and coordinates collaboration.
 
+Overview:
+- Commit small, focused changes.
+- Use branches for features or fixes.
+
 Typical flow:
 - branch → commit → push → PR
+
+Core commands:
+- git status, git add, git commit, git push
+
+Tips:
+- Write clear commit messages.
+- Pull or rebase before pushing.
 """
 
 let lessonCrustIntegration = """
 Lesson: Crust Integration
 Combine concurrency, actors, and wrappers in one flow.
-Focus on safe state updates and clear async boundaries.
+
+Suggested stages:
+1) Define data types and protocols.
+2) Use async tasks for work.
+3) Protect shared state with actors.
+4) Format and report results.
+
+Tip:
+- Keep async boundaries explicit with await.
 """
 
 let cheatsheetFunctionsBasics = """
@@ -1139,6 +1810,7 @@ Optionals
 - Type? can be a value or nil
 - if let unwraps optionals safely
 - guard let unwraps with early exit
+- Optional chaining uses ?. to access values on an optional
 - ?? provides a default value
 - Int("123") returns Int? (optional)
 """
@@ -3264,14 +3936,17 @@ process(-1)
             starterCode: """
                 // Challenge 53: Closure Basics
                 // Store a closure in a constant.
+                // Note: start fully expanded; later challenges will compress the syntax.
 
                 // TODO: Create a closure called strike that prints "Strike"
                 // TODO: Call the closure
                 """,
             expectedOutput: "Strike",
             hints: [
-                "Closures can be assigned to constants.",
-                "Invoke the closure like a function.",
+                "Define a constant with a closure literal: let strike = { ... }",
+                "Full form for no params/return: { () -> Void in ... }",
+                "No type annotation needed; will be covered later in dedicated challenge.",
+                "Call it with parentheses: strike()",
             ],
             cheatsheet: cheatsheetClosures,
             lesson: lessonClosuresBasics,
@@ -3301,8 +3976,8 @@ strike()
                 """,
             expectedOutput: "1500",
             hints: [
-                "Closures can take parameters and return values.",
-                "Closures are invoked like functions to produce a result.",
+                "Give the closure a parameter list and return type before `in`.",
+                "Call the closure and print the result.",
             ],
             cheatsheet: cheatsheetClosures,
             lesson: lessonClosuresBasics,
@@ -3324,6 +3999,7 @@ print(doubleHeat(750))
             starterCode: """
                 // Challenge 55: Implicit Return in Closures
                 // Use an explicit signature, but omit return.
+                // Compression: keep explicit types, drop the return keyword.
 
                 // TODO: Create a closure called 'doubleHeat' that takes an Int
                 // and returns the value multiplied by 2
@@ -3331,8 +4007,8 @@ print(doubleHeat(750))
                 """,
             expectedOutput: "1200",
             hints: [
-                "Single-expression closures can omit return.",
-                "Keep the same parameter and return types.",
+                "Keep the explicit signature, but make the body a single expression.",
+                "You can omit `return` when the body is a single expression.",
             ],
             cheatsheet: cheatsheetClosures,
             lesson: lessonClosuresBasics,
@@ -3354,6 +4030,7 @@ print(doubleHeat(600))
             starterCode: """
                 // Challenge 56: Inferred Closure Types
                 // Remove explicit types when they can be inferred.
+                // Compression: drop parameter/return types in the closure.
 
                 // TODO: Create a closure called 'doubleHeat' using inferred types
                 // It should multiply the input by 2
@@ -3361,8 +4038,8 @@ print(doubleHeat(600))
                 """,
             expectedOutput: "1500",
             hints: [
-                "Type inference can remove explicit parameter types.",
-                "Let Swift infer the return type from the expression.",
+                "Drop the parameter type: { value in ... }",
+                "Return is optional for single-expression closures.",
             ],
             cheatsheet: cheatsheetClosures,
             lesson: lessonClosuresBasics,
@@ -3384,6 +4061,7 @@ print(doubleHeat(750))
             starterCode: """
                 // Challenge 57: Shorthand Closure Syntax I
                 // Use $0 in a closure stored in a constant.
+                // Compression: replace named parameters with $0.
 
                 // TODO: Create a closure called 'doubleHeat' using $0
                 // It should multiply the input by 2
@@ -3391,8 +4069,8 @@ print(doubleHeat(750))
                 """,
             expectedOutput: "1400",
             hints: [
-                "Shorthand arguments like $0 can replace named parameters.",
-                "After defining it, call the closure like a function to produce a value.",
+                "Use shorthand args: { $0 * 2 }",
+                "Print the result of calling the closure.",
             ],
             cheatsheet: cheatsheetClosures,
             lesson: lessonClosuresBasics,
@@ -3412,6 +4090,7 @@ print(doubleHeat(700))
             starterCode: """
                 // Challenge 58: Annotated Closure Assignment
                 // Use a closure with an explicit type annotation.
+                // Compression: move the type to the constant annotation.
 
                 // TODO: Create a constant 'doubleHeat' with an explicit function type
                 // Use a shorthand closure to multiply the input by 2
@@ -3419,8 +4098,8 @@ print(doubleHeat(700))
                 """,
             expectedOutput: "1800",
             hints: [
-                "You can annotate a closure variable with its function type (Int) -> Int.",
-                "Shorthand closure syntax can compute the result.",
+                "Annotate the constant type: let doubleHeat: (Int) -> Int = ...",
+                "Use shorthand args in the body: { $0 * 2 }",
             ],
             cheatsheet: cheatsheetClosures,
             lesson: lessonClosuresBasics,
@@ -3439,6 +4118,7 @@ print(doubleHeat(900))
             starterCode: """
                 // Challenge 59: Closure Arguments
                 // Call a function that takes a closure.
+                // Compression: same closure, new place — now pass it as an argument.
 
                 func transform(_ value: Int, using closure: (Int) -> Int) {
                     print(closure(value))
@@ -3449,8 +4129,9 @@ print(doubleHeat(900))
                 """,
             expectedOutput: "15",
             hints: [
-                "Functions can accept closures as parameters.",
-                "Provide a closure that multiplies the input.",
+                "Pass the closure in the argument list: transform(5, using: { ... })",
+                "Use the full explicit closure syntax again (params/return + in).",
+                "Multiply the incoming value by 3 inside the closure.",
             ],
             cheatsheet: cheatsheetClosures,
             lesson: lessonClosuresBasics,
@@ -3470,6 +4151,7 @@ transform(5, using: { (value: Int) -> Int in
             starterCode: """
                 // Challenge 60: Trailing Closures
                 // Use a closure to transform values.
+                // Trailing placement: same closure syntax, moved outside the parentheses.
 
                 func transform(_ value: Int, using closure: (Int) -> Int) {
                     print(closure(value))
@@ -3481,7 +4163,8 @@ transform(5, using: { (value: Int) -> Int in
             expectedOutput: "15",
             hints: [
                 "Trailing closure syntax moves the closure outside the parentheses.",
-                "Keep the same multiplication logic as before.",
+                "Keep the same closure signature; only move its position.",
+                "Use a trailing closure call and multiply the value by 3.",
             ],
             cheatsheet: cheatsheetClosures,
             lesson: lessonClosuresBasics,
@@ -3501,6 +4184,7 @@ transform(5) { (value: Int) -> Int in
             starterCode: """
                 // Challenge 61: Inferred Trailing Closures
                 // Let Swift infer types in a trailing closure.
+                // Compression: trailing closure with inferred types.
 
                 func transform(_ value: Int, using closure: (Int) -> Int) {
                     print(closure(value))
@@ -3512,8 +4196,8 @@ transform(5) { (value: Int) -> Int in
                 """,
             expectedOutput: "24",
             hints: [
-                "Let Swift infer parameter and return types in the closure.",
-                "Keep the expression to a single line.",
+                "Use trailing closure syntax with inferred types.",
+                "Multiply the value by 4 in a single expression.",
             ],
             cheatsheet: cheatsheetClosures,
             lesson: lessonClosuresBasics,
@@ -3533,6 +4217,7 @@ transform(6) { value in
             starterCode: """
                 // Challenge 62: Shorthand Closure Syntax II
                 // Use $0 to shorten a closure.
+                // Compression: trailing closure + shorthand args.
 
                 func apply(_ value: Int, using closure: (Int) -> Int) {
                     print(closure(value))
@@ -3542,8 +4227,8 @@ transform(6) { value in
                 """,
             expectedOutput: "10",
             hints: [
-                "Shorthand arguments can keep the closure concise.",
-                "The result adds a constant to the input.",
+                "Use shorthand args in the trailing closure: { $0 + 6 }",
+                "Call apply with 4: apply(4) { ... }",
             ],
             cheatsheet: cheatsheetClosures,
             lesson: lessonClosuresBasics,
@@ -3561,14 +4246,15 @@ transform(6) { value in
                 // Create a counter function.
 
                 // TODO: Create a function 'makeCounter' that returns a closure
-                // The closure should increment and print an internal count
+                // The closure (type () -> Void) should increment and print an internal count (NOTE: It prints the count; it does not return an Int).
 
                 // TODO: Create a counter and call it three times
                 """,
             expectedOutput: "1\n2\n3",
             hints: [
-                "Closures can capture and mutate values from their outer scope.",
-                "Each call should update the stored count.",
+                "The returned closure should increment a captured variable and print it.",
+                "The returned closure has type () -> Void, so it does not return an Int.",
+                "Call the counter three times to print 1, 2, 3.",
             ],
             cheatsheet: cheatsheetClosures,
             lesson: lessonClosuresBasics,
@@ -3605,8 +4291,8 @@ counter()
                 """,
             expectedOutput: #"["T1200", "T1500", "T1600"]"#,
             hints: [
-                "Use map to transform each element.",
-                "Build a string that combines a prefix with the value.",
+                "Map each value to a label string like \"T\\($0)\".",
+                "Example: let labels = temps.map { ... }",
             ],
             cheatsheet: cheatsheetCollectionTransforms,
             lesson: lessonCollectionTransforms,
@@ -3634,8 +4320,8 @@ print(labels)
                 """,
             expectedOutput: "[1500, 1600]",
             hints: [
-                "Use filter to keep values that match a condition.",
-                "A comparison can filter for hot temperatures.",
+                "Use .filter to keep only values meeting the condition.",
+                "Print the filtered array.",
             ],
             cheatsheet: cheatsheetCollectionTransforms,
             lesson: lessonCollectionTransforms,
@@ -3663,8 +4349,8 @@ print(hot)
                 """,
             expectedOutput: "3600",
             hints: [
-                "Use reduce to combine all elements into a single value.",
-                "Start from 0 and add each element.",
+                "Reduce starts with an initial value: temps.reduce(0) { ... }",
+                "Add each temp into the running total.",
             ],
             cheatsheet: cheatsheetCollectionTransforms,
             lesson: lessonCollectionTransforms,
@@ -3695,8 +4381,8 @@ print(total)
                 """,
             expectedOutput: "1200\n1600",
             hints: [
-                "Use min() and max(); they return Optionals.",
-                "Provide a fallback with ?? before printing.",
+                "Call min() and max(), then use ?? 0 to unwrap.",
+                "Print min, then max on separate lines.",
             ],
             cheatsheet: cheatsheetCollectionTransforms,
             lesson: lessonCollectionTransforms,
@@ -3725,7 +4411,8 @@ print(maxTemp)
                 """,
             expectedOutput: "[1200, 1500, 1600]",
             hints: [
-                "Use compactMap to remove nils while unwrapping values.",
+                "Use compactMap { $0 } to drop nils and unwrap.",
+                "Print the resulting [Int].",
             ],
             cheatsheet: cheatsheetCollectionTransforms,
             lesson: lessonCollectionTransforms,
@@ -3753,7 +4440,8 @@ print(cleaned)
                 """,
             expectedOutput: "[1, 2, 3, 4, 5]",
             hints: [
-                "Use flatMap to flatten arrays of arrays into one array.",
+                "Flatten with batches.flatMap { $0 }.",
+                "Print the flattened array.",
             ],
             cheatsheet: cheatsheetCollectionTransforms,
             lesson: lessonCollectionTransforms,
@@ -5721,7 +6409,7 @@ print(label)
             title: "Optional Count",
             description: "Use optional chaining with a default",
             starterCode: """
-                // Challenge 257: Optional Count
+                // Challenge 42.7: Optional Count
                 // Use optional chaining with a default.
 
                 let temps: [Int]? = [1200, 1400]
@@ -9248,7 +9936,7 @@ runAsync {
                 """,
             expectedOutput: "Total: 6",
             hints: [
-                "Use continuation.yield to emit values and continuation.finish() to close.",
+                "Yield values into the stream, then finish it when done.",
                 "for await iterates async sequences.",
             ],
             cheatsheet: cheatsheetConcurrency,
@@ -12827,7 +13515,7 @@ runAsync {
                 """,
             expectedOutput: "Heat: 5",
             hints: [
-                "Task { 5 } creates a task that returns an Int.",
+                "Create a Task that returns an Int value.",
                 "Await task.value to get the result before printing.",
             ],
             cheatsheet: cheatsheetConcurrency,

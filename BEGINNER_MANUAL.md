@@ -38,6 +38,40 @@ Open that file in your editor and follow the TODOs.
 
 ---
 
+## 3.1) Run `forge` Without `swift run` (Optional)
+If you want to run Forge like any normal command, build it once and put it on your `PATH`.
+
+Build the release binary:
+```bash
+swift build -c release
+```
+
+Then choose one:
+
+Option A: symlink into a PATH directory (recommended)
+```bash
+ln -s "$(pwd)/.build/release/forge" /usr/local/bin/forge
+```
+
+Option B: copy into a PATH directory
+```bash
+cp "$(pwd)/.build/release/forge" /usr/local/bin/forge
+```
+
+If `/usr/local/bin` is not on your `PATH`, use `~/.local/bin` instead:
+```bash
+mkdir -p ~/.local/bin
+ln -s "$(pwd)/.build/release/forge" ~/.local/bin/forge
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+```
+
+After that, you can run:
+```bash
+forge
+```
+
+---
+
 ## 4) How A Challenge Works
 Each challenge looks like this:
 

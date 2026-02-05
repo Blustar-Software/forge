@@ -10,6 +10,36 @@ swift run forge
 ```
 Edit the generated file in `workspace/`, then press Enter to check. Use `h` for a hint, `c` for a cheatsheet, `l` for a lesson, and `s` for a solution.
 
+## Install as a normal command (optional)
+If you want to run `forge` without typing `swift run` every time, build a release binary once and put it on your `PATH`.
+
+Build the binary:
+```sh
+swift build -c release
+```
+
+Option A: symlink into a PATH directory (recommended)
+```sh
+ln -s "$(pwd)/.build/release/forge" /usr/local/bin/forge
+```
+
+Option B: copy into a PATH directory
+```sh
+cp "$(pwd)/.build/release/forge" /usr/local/bin/forge
+```
+
+If `/usr/local/bin` is not on your `PATH`, use `~/.local/bin` instead and add it to your shell config:
+```sh
+mkdir -p ~/.local/bin
+ln -s "$(pwd)/.build/release/forge" ~/.local/bin/forge
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+```
+
+After that, you can run:
+```sh
+forge
+```
+
 ## How it works
 - Generates a challenge file in `workspace/` and waits for you to press Enter to check.
 - Challenge files use layered IDs (e.g., `challenge-core-18.swift`, `challenge-core-18.1.swift`).
