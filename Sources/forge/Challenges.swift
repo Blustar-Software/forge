@@ -4491,13 +4491,15 @@ print(reading.temp)
                 // Challenge 71: Enums
                 // Represent forge metals.
 
-                // TODO: Create an enum Metal with cases iron and gold
-                // TODO: Create a value and print "iron" or "gold" using a switch
+                // TODO: Create an enum 'Metal' with cases 'iron' and 'gold'
+                // TODO: Create let metal = Metal.iron
+                // TODO: Use a switch to print "iron" for .iron and "gold" for .gold
                 """,
             expectedOutput: "iron",
             hints: [
                 "Enums define a closed set of cases.",
                 "switch handles each enum case.",
+                "Set metal to .iron so the output matches the expected value.",
             ],
             cheatsheet: cheatsheetEnums,
             lesson: lessonEnumsBasics,
@@ -4529,12 +4531,14 @@ case .gold:
                 // Challenge 72: Enums with Raw Values
                 // Represent metals.
 
-                // TODO: Create an enum Metal with String raw values (iron, gold)
-                // TODO: Print the raw value for the iron case
+                // TODO: Create an enum 'Metal' with String raw values ('iron', 'gold')
+                // TODO: Create let metal = Metal.iron
+                // TODO: Print the string value for metal
                 """,
             expectedOutput: "iron",
             hints: [
                 "Declare the enum as Metal: String and use .rawValue to print.",
+                "Use a Metal value first, then print its rawValue.",
             ],
             cheatsheet: cheatsheetEnums,
             lesson: lessonEnumsBasics,
@@ -4562,7 +4566,8 @@ print(Metal.iron.rawValue)
                 // - temperature(Int)
                 // - error(String)
 
-                // TODO: Create one of each and print something based on the case
+                // TODO: Create tempEvent = Event.temperature(1500) and errorEvent = Event.error("Overheat")
+                // TODO: Use a switch on each event and print based on the case
                 // Use a switch to print:
                 // - "Temp: 1500" for temperature(1500)
                 // - "Error: Overheat" for error("Overheat")
@@ -4571,6 +4576,7 @@ print(Metal.iron.rawValue)
             hints: [
                 "Associated values let enum cases carry data.",
                 "Value bindings in switch extract associated data.",
+                "Create both events and switch over each so both lines print in order.",
             ],
             cheatsheet: cheatsheetEnums,
             lesson: lessonEnumsBasics,
