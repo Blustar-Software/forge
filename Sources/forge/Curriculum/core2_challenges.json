@@ -1,0 +1,761 @@
+[
+  {
+    "canonicalId": "",
+    "cheatsheet": "Conditionals\n- if/else if/else chooses branches\n- Ternary: condition ? valueIfTrue : valueIfFalse\n- switch matches cases; default for non-exhaustive\n- switch cases can match ranges and multiple values\n- where adds an extra check in switch",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Choose between multiple branches",
+    "expectedOutput": "Warm",
+    "fixtureFiles": [],
+    "hints": [
+      "if/else if/else chains cover three cases.",
+      "Put the fallback in the final else branch."
+    ],
+    "id": "",
+    "introduces": [
+      "ifElse"
+    ],
+    "layer": "core",
+    "lesson": "Lesson: Conditionals\nConditionals choose between different paths based on Bool expressions.\n\nOverview:\n- `if` runs a block when a condition is true.\n- `else if` checks another condition if the first fails.\n- `else` is the fallback.\n\nBasic shape:\n    if temp >= 1500 {\n        print(\"Overheated\")\n    } else if temp >= 1200 {\n        print(\"Hot\")\n    } else {\n        print(\"Cool\")\n    }\n\nTips:\n- Check the most specific cases first.\n- Keep each condition focused and readable.\n\nTernary operator:\n- condition ? valueIfTrue : valueIfFalse\n    let label = temp >= 1500 ? \"Overheated\" : \"Stable\"",
+    "manualCheck": false,
+    "number": 21,
+    "requires": [],
+    "solution": "if heatLevel >= 3 {\n    print(\"Hot\")\n} else if heatLevel == 2 {\n    print(\"Warm\")\n} else {\n    print(\"Cold\")\n}",
+    "starterCode": "// Challenge 21: If/Else If/Else\n// Choose the right message for the heat level\n\nlet heatLevel = 2\n\n// TODO: If heatLevel >= 3, print \"Hot\"\n// TODO: Else if heatLevel == 2, print \"Warm\"\n// TODO: Else print \"Cold\"",
+    "tier": "mainline",
+    "title": "If/Else If/Else",
+    "topic": "conditionals"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Conditionals\n- if/else if/else chooses branches\n- Ternary: condition ? valueIfTrue : valueIfFalse\n- switch matches cases; default for non-exhaustive\n- switch cases can match ranges and multiple values\n- where adds an extra check in switch",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use a ternary to choose a value",
+    "expectedOutput": "Hot",
+    "fixtureFiles": [],
+    "hints": [
+      "A ternary picks one of two values based on a condition.",
+      "A ternary result can be stored in a variable before output."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "core",
+    "lesson": "Lesson: Conditionals\nConditionals choose between different paths based on Bool expressions.\n\nOverview:\n- `if` runs a block when a condition is true.\n- `else if` checks another condition if the first fails.\n- `else` is the fallback.\n\nBasic shape:\n    if temp >= 1500 {\n        print(\"Overheated\")\n    } else if temp >= 1200 {\n        print(\"Hot\")\n    } else {\n        print(\"Cool\")\n    }\n\nTips:\n- Check the most specific cases first.\n- Keep each condition focused and readable.\n\nTernary operator:\n- condition ? valueIfTrue : valueIfFalse\n    let label = temp >= 1500 ? \"Overheated\" : \"Stable\"",
+    "manualCheck": false,
+    "number": 22,
+    "requires": [],
+    "solution": "let status = heatLevel >= 3 ? \"Hot\" : \"Warm\"\nprint(status)",
+    "starterCode": "// Challenge 22: Ternary Operator\n// Use a ternary operator to choose a message\n\nlet heatLevel = 3\n\n// TODO: If heatLevel is >= 3, set status to \"Hot\", otherwise \"Warm\"\n// TODO: Print status",
+    "tier": "mainline",
+    "title": "Ternary Operator",
+    "topic": "conditionals"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Conditionals\n- if/else if/else chooses branches\n- Ternary: condition ? valueIfTrue : valueIfFalse\n- switch matches cases; default for non-exhaustive\n- switch cases can match ranges and multiple values\n- where adds an extra check in switch",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Match multiple cases with switch",
+    "expectedOutput": "Forgeable",
+    "fixtureFiles": [],
+    "hints": [
+      "switch compares one value against multiple cases.",
+      "Include a default case for anything not matched."
+    ],
+    "id": "",
+    "introduces": [
+      "switchStatement"
+    ],
+    "layer": "core",
+    "lesson": "Lesson: Switch & Ranges\nSwitch matches a value against multiple cases.\n\nOverview:\n- Use `switch` to handle multiple discrete cases cleanly.\n- Cases must be exhaustive (or use `default`).\n\nBasic shape:\n    switch temp {\n    case 0:\n        print(\"No heat\")\n    case 1...1199:\n        print(\"Low\")\n    case 1200...1499:\n        print(\"Warm\")\n    default:\n        print(\"Hot\")\n    }\n\nRanges:\n- Closed range: 1...3 includes both ends\n- Half-open: 1..<3 excludes the upper bound\n\nTip:\n- Use ranges inside switch cases to match numeric bands.",
+    "manualCheck": false,
+    "number": 23,
+    "requires": [],
+    "solution": "switch metal {\ncase \"Iron\":\n    print(\"Forgeable\")\ncase \"Gold\":\n    print(\"Soft\")\ndefault:\n    print(\"Unknown\")\n}",
+    "starterCode": "// Challenge 23: Switch Statements\n// Use switch to handle different metals\n\nlet metal = \"Iron\"\n\n// TODO: Print \"Forgeable\" for 'Iron', \"Soft\" for 'Gold', and \"Unknown\" otherwise",
+    "tier": "mainline",
+    "title": "Switch Statements",
+    "topic": "conditionals"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Ranges\n- Closed: 1...3 includes the end\n- Half-open: 1..<3 excludes the end\n- Used in for-in loops and switch cases",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Match ranges and multiple values",
+    "expectedOutput": "Working",
+    "fixtureFiles": [],
+    "hints": [
+      "Switch cases can match ranges like 0...1199.",
+      "A final case can cover values outside earlier ranges."
+    ],
+    "id": "",
+    "introduces": [
+      "ranges"
+    ],
+    "layer": "core",
+    "lesson": "Lesson: Switch & Ranges\nSwitch matches a value against multiple cases.\n\nOverview:\n- Use `switch` to handle multiple discrete cases cleanly.\n- Cases must be exhaustive (or use `default`).\n\nBasic shape:\n    switch temp {\n    case 0:\n        print(\"No heat\")\n    case 1...1199:\n        print(\"Low\")\n    case 1200...1499:\n        print(\"Warm\")\n    default:\n        print(\"Hot\")\n    }\n\nRanges:\n- Closed range: 1...3 includes both ends\n- Half-open: 1..<3 excludes the upper bound\n\nTip:\n- Use ranges inside switch cases to match numeric bands.",
+    "manualCheck": false,
+    "number": 24,
+    "requires": [],
+    "solution": "switch temperature {\ncase 0...1199:\n    print(\"Too cold\")\ncase 1200...1499:\n    print(\"Working\")\ndefault:\n    print(\"Overheated\")\n}",
+    "starterCode": "// Challenge 24: Pattern Matching\n// Use switch to match ranges\n\nlet temperature = 1450\n\n// TODO: Use switch on temperature\n// - 0...1199: print \"Too cold\"\n// - 1200...1499: print \"Working\"\n// - 1500...: print \"Overheated\"",
+    "tier": "mainline",
+    "title": "Pattern Matching",
+    "topic": "conditionals"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Loops\n- for value in collection { ... }\n- for i in 1...5 (closed) or 1..<5 (half-open)\n- while condition { ... }\n- repeat { ... } while condition\n- break stops a loop; continue skips ahead",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Repeat work over a range",
+    "expectedOutput": "15",
+    "fixtureFiles": [],
+    "hints": [
+      "Closed ranges work with for-in loops.",
+      "Accumulate into total before printing."
+    ],
+    "id": "",
+    "introduces": [
+      "forInLoop"
+    ],
+    "layer": "core",
+    "lesson": "Lesson: Loops\nLoops repeat work while a condition holds or for each element in a collection.\n\nOverview:\n- `for-in` iterates over ranges or collections.\n- `while` repeats while a condition is true.\n- `repeat-while` always runs at least once.\n\nfor-in:\n    for value in temps { print(value) }\n    for i in 1...3 { print(i) }   // 1, 2, 3\n    for i in 1..<3 { print(i) }   // 1, 2\n\nwhile:\n    var heat = 1000\n    while heat < 1500 {\n        heat += 100\n    }\n\nrepeat-while:\n    var count = 0\n    repeat {\n        count += 1\n    } while count < 3\n\nControl:\n- continue skips the current iteration\n- break exits the loop",
+    "manualCheck": false,
+    "number": 25,
+    "requires": [],
+    "solution": "for i in 1...5 {\n    total += i\n}\nprint(total)",
+    "starterCode": "// Challenge 25: For-In Loops\n// Sum the numbers 1 through 5\n\nvar total = 0\n\n// TODO: Loop from 1 to 5 and add each number to total\n// TODO: Print total",
+    "tier": "mainline",
+    "title": "For-In Loops",
+    "topic": "loops"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Loops\n- for value in collection { ... }\n- for i in 1...5 (closed) or 1..<5 (half-open)\n- while condition { ... }\n- repeat { ... } while condition\n- break stops a loop; continue skips ahead",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Repeat work while a condition is true",
+    "expectedOutput": "3\n2\n1",
+    "fixtureFiles": [],
+    "hints": [
+      "A while loop repeats while the condition stays true.",
+      "Update the counter each pass so it eventually stops."
+    ],
+    "id": "",
+    "introduces": [
+      "whileLoop"
+    ],
+    "layer": "core",
+    "lesson": "Lesson: Loops\nLoops repeat work while a condition holds or for each element in a collection.\n\nOverview:\n- `for-in` iterates over ranges or collections.\n- `while` repeats while a condition is true.\n- `repeat-while` always runs at least once.\n\nfor-in:\n    for value in temps { print(value) }\n    for i in 1...3 { print(i) }   // 1, 2, 3\n    for i in 1..<3 { print(i) }   // 1, 2\n\nwhile:\n    var heat = 1000\n    while heat < 1500 {\n        heat += 100\n    }\n\nrepeat-while:\n    var count = 0\n    repeat {\n        count += 1\n    } while count < 3\n\nControl:\n- continue skips the current iteration\n- break exits the loop",
+    "manualCheck": false,
+    "number": 26,
+    "requires": [],
+    "solution": "while count > 0 {\n    print(count)\n    count -= 1\n}",
+    "starterCode": "// Challenge 26: While Loops\n// Count down from 3 to 1\n\nvar count = 3\n\n// TODO: While count is greater than 0, print count and decrement it",
+    "tier": "mainline",
+    "title": "While Loops",
+    "topic": "loops"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Loops\n- for value in collection { ... }\n- for i in 1...5 (closed) or 1..<5 (half-open)\n- while condition { ... }\n- repeat { ... } while condition\n- break stops a loop; continue skips ahead",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Run code at least once",
+    "expectedOutput": "1",
+    "fixtureFiles": [],
+    "hints": [
+      "repeat-while always runs at least once.",
+      "Update the value, then check the condition."
+    ],
+    "id": "",
+    "introduces": [
+      "repeatWhileLoop"
+    ],
+    "layer": "core",
+    "lesson": "Lesson: Loops\nLoops repeat work while a condition holds or for each element in a collection.\n\nOverview:\n- `for-in` iterates over ranges or collections.\n- `while` repeats while a condition is true.\n- `repeat-while` always runs at least once.\n\nfor-in:\n    for value in temps { print(value) }\n    for i in 1...3 { print(i) }   // 1, 2, 3\n    for i in 1..<3 { print(i) }   // 1, 2\n\nwhile:\n    var heat = 1000\n    while heat < 1500 {\n        heat += 100\n    }\n\nrepeat-while:\n    var count = 0\n    repeat {\n        count += 1\n    } while count < 3\n\nControl:\n- continue skips the current iteration\n- break exits the loop",
+    "manualCheck": false,
+    "number": 27,
+    "requires": [],
+    "solution": "repeat {\n    value += 1\n} while value < 1\n\nprint(value)",
+    "starterCode": "// Challenge 27: Repeat-While\n// Increase value until it reaches 1\n\nvar value = 0\n\n// TODO: Use repeat-while to add 1 to value until it is at least 1\n// TODO: Print value",
+    "tier": "mainline",
+    "title": "Repeat-While",
+    "topic": "loops"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Loops\n- for value in collection { ... }\n- for i in 1...5 (closed) or 1..<5 (half-open)\n- while condition { ... }\n- repeat { ... } while condition\n- break stops a loop; continue skips ahead",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Skip or stop inside a loop",
+    "expectedOutput": "1\n2\n4",
+    "fixtureFiles": [],
+    "hints": [
+      "continue skips the current loop iteration.",
+      "break exits the loop entirely."
+    ],
+    "id": "",
+    "introduces": [
+      "breakContinue"
+    ],
+    "layer": "core",
+    "lesson": "Lesson: Loops\nLoops repeat work while a condition holds or for each element in a collection.\n\nOverview:\n- `for-in` iterates over ranges or collections.\n- `while` repeats while a condition is true.\n- `repeat-while` always runs at least once.\n\nfor-in:\n    for value in temps { print(value) }\n    for i in 1...3 { print(i) }   // 1, 2, 3\n    for i in 1..<3 { print(i) }   // 1, 2\n\nwhile:\n    var heat = 1000\n    while heat < 1500 {\n        heat += 100\n    }\n\nrepeat-while:\n    var count = 0\n    repeat {\n        count += 1\n    } while count < 3\n\nControl:\n- continue skips the current iteration\n- break exits the loop",
+    "manualCheck": false,
+    "number": 28,
+    "requires": [],
+    "solution": "for i in 1...5 {\n    if i == 3 {\n        continue\n    }\n    if i == 5 {\n        break\n    }\n    print(i)\n}",
+    "starterCode": "// Challenge 28: Break and Continue\n// Print numbers 1 to 4, skipping 3\n\n// TODO: Loop from 1 to 5\n// - Skip 3 using continue\n// - Stop when you hit 5 using break\n// - Print the other numbers",
+    "tier": "mainline",
+    "title": "Break and Continue",
+    "topic": "loops"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Ranges\n- Closed: 1...3 includes the end\n- Half-open: 1..<3 excludes the end\n- Used in for-in loops and switch cases",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use closed and half-open ranges",
+    "expectedOutput": "1\n2\n3\n1\n2",
+    "fixtureFiles": [],
+    "hints": [
+      "Closed ranges use 1...3 and include the end value.",
+      "Half-open ranges use 1..<3 and stop before the end value."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "core",
+    "lesson": "Lesson: Switch & Ranges\nSwitch matches a value against multiple cases.\n\nOverview:\n- Use `switch` to handle multiple discrete cases cleanly.\n- Cases must be exhaustive (or use `default`).\n\nBasic shape:\n    switch temp {\n    case 0:\n        print(\"No heat\")\n    case 1...1199:\n        print(\"Low\")\n    case 1200...1499:\n        print(\"Warm\")\n    default:\n        print(\"Hot\")\n    }\n\nRanges:\n- Closed range: 1...3 includes both ends\n- Half-open: 1..<3 excludes the upper bound\n\nTip:\n- Use ranges inside switch cases to match numeric bands.",
+    "manualCheck": false,
+    "number": 29,
+    "requires": [],
+    "solution": "for i in 1...3 {\n    print(i)\n}\nfor i in 1..<3 {\n    print(i)\n}",
+    "starterCode": "// Challenge 29: Ranges\n// Compare closed and half-open ranges\n\n// TODO: Loop from 1 through 3 (inclusive) and print each number\n// TODO: Loop from 1 up to 3 (exclusive) and print each number",
+    "tier": "mainline",
+    "title": "Ranges",
+    "topic": "loops"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Arrays\n- Type syntax: [Element]\n- Literal: [1, 2, 3]\n- Count: array.count\n- Append: array.append(value)\n- Access by index: array[0]",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Create an array with a type annotation",
+    "expectedOutput": "[1, 2, 3]",
+    "fixtureFiles": [],
+    "hints": [
+      "Array literals use brackets with comma-separated values.",
+      "Annotate the type: let ingots: [Int] = ...",
+      "Printing shows array contents."
+    ],
+    "id": "",
+    "introduces": [
+      "collections"
+    ],
+    "layer": "core",
+    "lesson": "Lesson: Collections\nCollections store multiple values in one place.\n\nOverview:\n- Arrays: ordered lists\n- Dictionaries: key/value lookups\n\nArrays:\n- Create: let temps = [1200, 1500, 1600]\n- Access by index: temps[0]\n- Add items: temps.append(1700)\n- Count: temps.count\n\nDictionaries:\n- Create: let ratings = [\"iron\": 3, \"steel\": 5]\n- Access by key: ratings[\"steel\"]   // Optional\n- Update: ratings[\"iron\"] = 4\n- Keys/values: ratings.keys, ratings.values",
+    "manualCheck": false,
+    "number": 30,
+    "requires": [],
+    "solution": "let ingots: [Int] = [1, 2, 3]\nprint(ingots)",
+    "starterCode": "// Challenge 30: Arrays\n// Create an array before modifying it\n\n// TODO: Create an array named 'ingots' with values 1, 2, 3\n// TODO: Use an explicit type annotation for the array\n// TODO: Print the array",
+    "tier": "mainline",
+    "title": "Arrays",
+    "topic": "collections"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Arrays\n- Type syntax: [Element]\n- Literal: [1, 2, 3]\n- Count: array.count\n- Append: array.append(value)\n- Access by index: array[0]",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add a value and check the count",
+    "expectedOutput": "4",
+    "fixtureFiles": [],
+    "hints": [
+      "append adds an element to the end.",
+      "Use the count property to get the number of elements."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "core",
+    "lesson": "Lesson: Collections\nCollections store multiple values in one place.\n\nOverview:\n- Arrays: ordered lists\n- Dictionaries: key/value lookups\n\nArrays:\n- Create: let temps = [1200, 1500, 1600]\n- Access by index: temps[0]\n- Add items: temps.append(1700)\n- Count: temps.count\n\nDictionaries:\n- Create: let ratings = [\"iron\": 3, \"steel\": 5]\n- Access by key: ratings[\"steel\"]   // Optional\n- Update: ratings[\"iron\"] = 4\n- Keys/values: ratings.keys, ratings.values",
+    "manualCheck": false,
+    "number": 31,
+    "requires": [],
+    "solution": "ingots.append(4)\nprint(ingots.count)",
+    "starterCode": "// Challenge 31: Array Append\n// Append a value and check the count\n\nvar ingots = [1, 2, 3]\n\n// TODO: Append 4 to the array\n// TODO: Print how many values are in the array",
+    "tier": "mainline",
+    "title": "Array Append",
+    "topic": "collections"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Loops\n- for value in collection { ... }\n- for i in 1...5 (closed) or 1..<5 (half-open)\n- while condition { ... }\n- repeat { ... } while condition\n- break stops a loop; continue skips ahead",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Loop through array elements",
+    "expectedOutput": "12",
+    "fixtureFiles": [],
+    "hints": [
+      "for-in iterates over each element.",
+      "Accumulate a running total, then print it."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "core",
+    "lesson": "Lesson: Loops\nLoops repeat work while a condition holds or for each element in a collection.\n\nOverview:\n- `for-in` iterates over ranges or collections.\n- `while` repeats while a condition is true.\n- `repeat-while` always runs at least once.\n\nfor-in:\n    for value in temps { print(value) }\n    for i in 1...3 { print(i) }   // 1, 2, 3\n    for i in 1..<3 { print(i) }   // 1, 2\n\nwhile:\n    var heat = 1000\n    while heat < 1500 {\n        heat += 100\n    }\n\nrepeat-while:\n    var count = 0\n    repeat {\n        count += 1\n    } while count < 3\n\nControl:\n- continue skips the current iteration\n- break exits the loop",
+    "manualCheck": false,
+    "number": 32,
+    "requires": [],
+    "solution": "for weight in weights {\n    total += weight\n}\nprint(total)",
+    "starterCode": "// Challenge 32: Array Iteration\n// Add up the weights\n\nlet weights = [2, 4, 6]\nvar total = 0\n\n// TODO: Loop through weights and add each to total\n// TODO: Print total",
+    "tier": "mainline",
+    "title": "Array Iteration",
+    "topic": "loops"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Loops\n- for value in collection { ... }\n- for i in 1...5 (closed) or 1..<5 (half-open)\n- while condition { ... }\n- repeat { ... } while condition\n- break stops a loop; continue skips ahead",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Practice loop-based stats on a small data set (mini Core 2 Project A)",
+    "expectedOutput": "Min: 3\nMax: 7\nAverage: 4\nHeavy: 2",
+    "fixtureFiles": [],
+    "hints": [
+      "Initialize min and max with the first value.",
+      "A loop can update min, max, sum, and counts.",
+      "Average uses integer division by the count (weights.count)."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "core",
+    "lesson": "Lesson: Loops\nLoops repeat work while a condition holds or for each element in a collection.\n\nOverview:\n- `for-in` iterates over ranges or collections.\n- `while` repeats while a condition is true.\n- `repeat-while` always runs at least once.\n\nfor-in:\n    for value in temps { print(value) }\n    for i in 1...3 { print(i) }   // 1, 2, 3\n    for i in 1..<3 { print(i) }   // 1, 2\n\nwhile:\n    var heat = 1000\n    while heat < 1500 {\n        heat += 100\n    }\n\nrepeat-while:\n    var count = 0\n    repeat {\n        count += 1\n    } while count < 3\n\nControl:\n- continue skips the current iteration\n- break exits the loop",
+    "manualCheck": false,
+    "number": 33,
+    "requires": [],
+    "solution": "var minWeight = weights[0]\nvar maxWeight = weights[0]\nvar sum = 0\nvar heavyCount = 0\n\nfor weight in weights {\n    if weight < minWeight { minWeight = weight }\n    if weight > maxWeight { maxWeight = weight }\n    sum += weight\n    if weight >= 5 { heavyCount += 1 }\n}\n\nlet average = sum / weights.count\n\nprint(\"Min: \\(minWeight)\")\nprint(\"Max: \\(maxWeight)\")\nprint(\"Average: \\(average)\")\nprint(\"Heavy: \\(heavyCount)\")",
+    "starterCode": "// Challenge 33: Metrics Practice\n// Practice min/max/average counting in a loop.\n\nlet weights = [3, 5, 7, 4]\n\n// TODO: Find the minimum value (start with weights[0] and update)\n// TODO: Find the maximum value (start with weights[0] and update)\n// TODO: Compute the average (sum then divide by the number of weights)\n// TODO: Count values >= 5\n// TODO: Print results as:\n// \"Min: 3\"\n// \"Max: 7\"\n// \"Average: 4\"\n// \"Heavy: 2\"",
+    "tier": "mainline",
+    "title": "Metrics Practice",
+    "topic": "loops"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Dictionaries\n- Type syntax: [Key: Value]\n- Subscript returns Optional: dict[key]\n- Iterate: for (key, value) in dict { ... }\n- keys and values are collections\n- keys.sorted() produces a stable order",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Store key-value pairs",
+    "expectedOutput": "3",
+    "fixtureFiles": [],
+    "hints": [
+      "Use a dictionary subscript with a default value.",
+      "Example: inventory[\"Iron\", default: 0]."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "core",
+    "lesson": "Lesson: Collections\nCollections store multiple values in one place.\n\nOverview:\n- Arrays: ordered lists\n- Dictionaries: key/value lookups\n\nArrays:\n- Create: let temps = [1200, 1500, 1600]\n- Access by index: temps[0]\n- Add items: temps.append(1700)\n- Count: temps.count\n\nDictionaries:\n- Create: let ratings = [\"iron\": 3, \"steel\": 5]\n- Access by key: ratings[\"steel\"]   // Optional\n- Update: ratings[\"iron\"] = 4\n- Keys/values: ratings.keys, ratings.values",
+    "manualCheck": false,
+    "number": 34,
+    "requires": [],
+    "solution": "let count = inventory[\"Iron\", default: 0]\nprint(count)",
+    "starterCode": "// Challenge 34: Dictionaries\n// Look up an item count\n\nlet inventory = [\"Iron\": 3, \"Gold\": 1]\n\n// TODO: Read the value for 'Iron' (use a default if missing)\n// TODO: Print the value",
+    "tier": "mainline",
+    "title": "Dictionaries",
+    "topic": "collections"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Collection Basics\n- count returns the number of elements\n- isEmpty returns Bool\n- first returns Optional\n- keys.count returns number of keys",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use built-in collection properties",
+    "expectedOutput": "4\nfalse\n2\n2\n2",
+    "fixtureFiles": [],
+    "hints": [
+      "You've seen count; now apply it to arrays and dictionaries.",
+      "Use collection properties like `.count` and `.isEmpty`.",
+      "Dictionary keys are a collection too (`.keys`).",
+      "Dictionary values are also a collection (`.values`)."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "core",
+    "lesson": "Lesson: Collections\nCollections store multiple values in one place.\n\nOverview:\n- Arrays: ordered lists\n- Dictionaries: key/value lookups\n\nArrays:\n- Create: let temps = [1200, 1500, 1600]\n- Access by index: temps[0]\n- Add items: temps.append(1700)\n- Count: temps.count\n\nDictionaries:\n- Create: let ratings = [\"iron\": 3, \"steel\": 5]\n- Access by key: ratings[\"steel\"]   // Optional\n- Update: ratings[\"iron\"] = 4\n- Keys/values: ratings.keys, ratings.values",
+    "manualCheck": false,
+    "number": 35,
+    "requires": [],
+    "solution": "print(ingots.count)\nprint(ingots.isEmpty)\nprint(inventory.count)\nprint(inventory.keys.count)\nprint(inventory.values.count)",
+    "starterCode": "// Challenge 35: Collection Properties\n// Use properties to reduce manual work\n\nlet ingots = [1, 2, 3, 4]\nlet inventory = [\"Iron\": 2, \"Gold\": 1]\n\n// TODO: Print how many ingots are in the array\n// TODO: Print whether the ingots array is empty\n// TODO: Print how many inventory entries exist\n// TODO: Print how many inventory keys exist\n// TODO: Print how many inventory values exist",
+    "tier": "mainline",
+    "title": "Collection Properties",
+    "topic": "collections"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Sets\n- Type syntax: Set<Element>\n- Literal: Set([1, 2, 3])\n- Unordered and unique\n- Count: set.count",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Keep only unique values",
+    "expectedOutput": "3",
+    "fixtureFiles": [],
+    "hints": [
+      "A Set removes duplicate values.",
+      "Use the count property to measure unique values."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "core",
+    "lesson": "Lesson: Sets\nSets store unique values with no fixed order.\n\nOverview:\n- Use Set when you need uniqueness and fast membership checks.\n- Order is not guaranteed.\n\nCreate a set:\n    let metals: Set<String> = [\"iron\", \"copper\", \"iron\"]\n    print(metals)   // duplicates removed\n\nCommon operations:\n- contains(_:) to test membership\n- insert(_:) to add\n- remove(_:) to delete\n\nConvert from array:\n    let unique = Set([\"a\", \"b\", \"a\"])",
+    "manualCheck": false,
+    "number": 36,
+    "requires": [],
+    "solution": "let unique = Set(batch)\nprint(unique.count)",
+    "starterCode": "// Challenge 36: Sets\n// Count unique ingots\n\nlet batch = [1, 2, 2, 3]\n\n// TODO: Create a Set from batch\n// TODO: Print the number of unique values",
+    "tier": "mainline",
+    "title": "Sets",
+    "topic": "collections"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Tuples\n- (value1, value2) groups values\n- Named elements: (min: Int, max: Int)\n- Access by .0/.1 or by name",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Group related values together",
+    "expectedOutput": "1200\n1600\nMin: 1200\nMax: 1600\nAverage: 1425",
+    "fixtureFiles": [],
+    "hints": [
+      "Tuples can be accessed by index or by name.",
+      "Use temps.0 and temps.1 for the positional tuple.",
+      "Use report.min, report.max, and report.average for the labeled tuple.",
+      "String interpolation formats labeled values."
+    ],
+    "id": "",
+    "introduces": [
+      "tuples"
+    ],
+    "layer": "core",
+    "lesson": "Lesson: Tuples\nTuples group related values without creating a new type.\n\nOverview:\n- Use tuples for small, temporary groupings.\n- Tuples can have labels for clarity.\n\nCreate a tuple:\n    let reading = (temp: 1500, time: 42)\n\nAccess values:\n- By label: reading.temp\n- By index: reading.0\n\nReturning tuples:\n    func minMax(_ values: [Int]) -> (min: Int, max: Int) {\n        return (values.min() ?? 0, values.max() ?? 0)\n    }",
+    "manualCheck": false,
+    "number": 37,
+    "requires": [],
+    "solution": "print(temps.0)\nprint(temps.1)\nprint(\"Min: \\(report.min)\")\nprint(\"Max: \\(report.max)\")\nprint(\"Average: \\(report.average)\")",
+    "starterCode": "// Challenge 37: Tuples\n// Use named tuple values\n\nlet report = (min: 1200, max: 1600, average: 1425)\nlet temps = (1200, 1600)\n\n// TODO: Print the first value of 'temps'\n// TODO: Print the second value\n\n// TODO: Print \"Min: 1200\" using the tuple labels\n// TODO: Print \"Max: 1600\" using the tuple labels\n// TODO: Print \"Average: 1425\" using the tuple labels",
+    "tier": "mainline",
+    "title": "Tuples",
+    "topic": "general"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Tuples\n- (value1, value2) groups values\n- Named elements: (min: Int, max: Int)\n- Access by .0/.1 or by name",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Return multiple values from a function (Core 2 Project A pattern)",
+    "expectedOutput": "Min: 2\nMax: 6",
+    "fixtureFiles": [],
+    "hints": [
+      "Initialize min/max from the first element.",
+      "Update them while iterating the array.",
+      "Return a named tuple like (min: Int, max: Int)."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "core",
+    "lesson": "Lesson: Tuples\nTuples group related values without creating a new type.\n\nOverview:\n- Use tuples for small, temporary groupings.\n- Tuples can have labels for clarity.\n\nCreate a tuple:\n    let reading = (temp: 1500, time: 42)\n\nAccess values:\n- By label: reading.temp\n- By index: reading.0\n\nReturning tuples:\n    func minMax(_ values: [Int]) -> (min: Int, max: Int) {\n        return (values.min() ?? 0, values.max() ?? 0)\n    }",
+    "manualCheck": false,
+    "number": 38,
+    "requires": [],
+    "solution": "func minMax(values: [Int]) -> (min: Int, max: Int) {\n    var minValue = values[0]\n    var maxValue = values[0]\n\n    for value in values {\n        if value < minValue { minValue = value }\n        if value > maxValue { maxValue = value }\n    }\n\n    return (min: minValue, max: maxValue)\n}\n\nlet report = minMax(values: temps)\nprint(\"Min: \\(report.min)\")\nprint(\"Max: \\(report.max)\")",
+    "starterCode": "// Challenge 38: Tuple Returns\n// Return min and max from a function.\n\nlet temps = [3, 5, 2, 6]\n\n// TODO: Write a function minMax(values:) that returns a (min, max) tuple\n// TODO: Call it and print:\n// \"Min: 2\"\n// \"Max: 6\"",
+    "tier": "mainline",
+    "title": "Tuple Returns",
+    "topic": "functions"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Optionals\n- Type? can be a value or nil\n- if let unwraps optionals safely\n- guard let unwraps with early exit\n- Optional chaining uses ?. to access values on an optional\n- ?? provides a default value\n- Int(\"123\") returns Int? (optional)",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Handle missing values safely",
+    "expectedOutput": "1200",
+    "fixtureFiles": [],
+    "hints": [
+      "if let unwraps an optional safely.",
+      "Provide a fallback when the value is nil."
+    ],
+    "id": "",
+    "introduces": [
+      "optionals",
+      "optionalBinding",
+      "nilLiteral"
+    ],
+    "layer": "core",
+    "lesson": "Lesson: Optionals\nOptionals represent a value that may be missing (`nil`).\n\nOverview:\n- `Int?` means an Int or nil.\n- You must unwrap an Optional before using its value.\n\nCreating optionals:\n    var temp: Int? = nil\n    temp = 1500\n\nUnwrapping with if let:\n    if let value = temp {\n        print(value)\n    }\n\nUnwrapping with guard:\n    func report(_ value: Int?) {\n        guard let value = value else {\n            return\n        }\n        print(value)\n    }\n\nFallback with ??:\n    let safeValue = temp ?? 0\n\nOptional chaining:\n- Use ?. to access properties or methods on an optional.\n- The result stays optional.\n    let temps: [Int]? = [1200, 1400]\n    let first = temps?.first ?? 0\n\nCommon source:\n- Conversions like Int(\"123\") return Optional values.",
+    "manualCheck": false,
+    "number": 39,
+    "requires": [],
+    "solution": "if let level = heatLevel {\n    print(level)\n} else {\n    print(\"No heat\")\n}",
+    "starterCode": "// Challenge 39: Optionals\n// Avoid force-unwrapping with !\n\nlet heatLevel: Int? = 1200\n\n// TODO: Use if let to unwrap heatLevel\n// Print the value if it exists, otherwise print \"No heat\"",
+    "tier": "mainline",
+    "title": "Optionals",
+    "topic": "optionals"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Optionals\n- Type? can be a value or nil\n- if let unwraps optionals safely\n- guard let unwraps with early exit\n- Optional chaining uses ?. to access values on an optional\n- ?? provides a default value\n- Int(\"123\") returns Int? (optional)",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Unwrap optionals with if let",
+    "expectedOutput": "Forge works Iron",
+    "fixtureFiles": [],
+    "hints": [
+      "Multiple optionals can be unwrapped in one if let.",
+      "Only print when both values are available."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "core",
+    "lesson": "Lesson: Optionals\nOptionals represent a value that may be missing (`nil`).\n\nOverview:\n- `Int?` means an Int or nil.\n- You must unwrap an Optional before using its value.\n\nCreating optionals:\n    var temp: Int? = nil\n    temp = 1500\n\nUnwrapping with if let:\n    if let value = temp {\n        print(value)\n    }\n\nUnwrapping with guard:\n    func report(_ value: Int?) {\n        guard let value = value else {\n            return\n        }\n        print(value)\n    }\n\nFallback with ??:\n    let safeValue = temp ?? 0\n\nOptional chaining:\n- Use ?. to access properties or methods on an optional.\n- The result stays optional.\n    let temps: [Int]? = [1200, 1400]\n    let first = temps?.first ?? 0\n\nCommon source:\n- Conversions like Int(\"123\") return Optional values.",
+    "manualCheck": false,
+    "number": 40,
+    "requires": [],
+    "solution": "if let smithName = smithName, let metal = metal {\n    print(\"\\(smithName) works \\(metal)\")\n}",
+    "starterCode": "// Challenge 40: Optional Binding\n// Unwrap multiple optionals\n\nlet smithName: String? = \"Forge\"\nlet metal: String? = \"Iron\"\n\n// TODO: Use if let to unwrap both values\n// Print \"Forge works Iron\"",
+    "tier": "mainline",
+    "title": "Optional Binding",
+    "topic": "optionals"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Optionals\n- Type? can be a value or nil\n- if let unwraps optionals safely\n- guard let unwraps with early exit\n- Optional chaining uses ?. to access values on an optional\n- ?? provides a default value\n- Int(\"123\") returns Int? (optional)",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Exit early when data is missing",
+    "expectedOutput": "No heat",
+    "fixtureFiles": [],
+    "hints": [
+      "guard let unwraps and exits early on nil.",
+      "Place the fallback print inside the guard's else block."
+    ],
+    "id": "",
+    "introduces": [
+      "guardStatement"
+    ],
+    "layer": "core",
+    "lesson": "Lesson: Optionals\nOptionals represent a value that may be missing (`nil`).\n\nOverview:\n- `Int?` means an Int or nil.\n- You must unwrap an Optional before using its value.\n\nCreating optionals:\n    var temp: Int? = nil\n    temp = 1500\n\nUnwrapping with if let:\n    if let value = temp {\n        print(value)\n    }\n\nUnwrapping with guard:\n    func report(_ value: Int?) {\n        guard let value = value else {\n            return\n        }\n        print(value)\n    }\n\nFallback with ??:\n    let safeValue = temp ?? 0\n\nOptional chaining:\n- Use ?. to access properties or methods on an optional.\n- The result stays optional.\n    let temps: [Int]? = [1200, 1400]\n    let first = temps?.first ?? 0\n\nCommon source:\n- Conversions like Int(\"123\") return Optional values.",
+    "manualCheck": false,
+    "number": 41,
+    "requires": [],
+    "solution": "func printHeat(value: Int?) {\n    guard let value = value else {\n        print(\"No heat\")\n        return\n    }\n    print(value)\n}\n\nprintHeat(value: nil)",
+    "starterCode": "// Challenge 41: Guard Let\n// Print a heat value if it exists\n\nfunc printHeat(value: Int?) {\n    // TODO: Use guard let to unwrap value\n    // Print \"No heat\" if value is nil\n    // Otherwise print the unwrapped value\n}\n\n// TODO: Call printHeat with nil",
+    "tier": "mainline",
+    "title": "Guard Let",
+    "topic": "optionals"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Optionals\n- Type? can be a value or nil\n- if let unwraps optionals safely\n- guard let unwraps with early exit\n- Optional chaining uses ?. to access values on an optional\n- ?? provides a default value\n- Int(\"123\") returns Int? (optional)",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Provide a fallback value",
+    "expectedOutput": "Level 1",
+    "fixtureFiles": [],
+    "hints": [
+      "?? supplies a fallback when an optional is nil.",
+      "A fallback value can be used when the optional is nil."
+    ],
+    "id": "",
+    "introduces": [
+      "nilCoalescing"
+    ],
+    "layer": "core",
+    "lesson": "Lesson: Optionals\nOptionals represent a value that may be missing (`nil`).\n\nOverview:\n- `Int?` means an Int or nil.\n- You must unwrap an Optional before using its value.\n\nCreating optionals:\n    var temp: Int? = nil\n    temp = 1500\n\nUnwrapping with if let:\n    if let value = temp {\n        print(value)\n    }\n\nUnwrapping with guard:\n    func report(_ value: Int?) {\n        guard let value = value else {\n            return\n        }\n        print(value)\n    }\n\nFallback with ??:\n    let safeValue = temp ?? 0\n\nOptional chaining:\n- Use ?. to access properties or methods on an optional.\n- The result stays optional.\n    let temps: [Int]? = [1200, 1400]\n    let first = temps?.first ?? 0\n\nCommon source:\n- Conversions like Int(\"123\") return Optional values.",
+    "manualCheck": false,
+    "number": 42,
+    "requires": [],
+    "solution": "let level = optionalLevel ?? 1\nprint(\"Level \\(level)\")",
+    "starterCode": "// Challenge 42: Nil Coalescing\n// Use ?? to provide a default\n\nlet optionalLevel: Int? = nil\n\n// TODO: Use ?? to set level to 1 when optionalLevel is nil\n// TODO: Print \"Level 1\"",
+    "tier": "mainline",
+    "title": "Nil Coalescing",
+    "topic": "optionals"
+  }
+]

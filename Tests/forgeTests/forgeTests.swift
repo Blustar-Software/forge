@@ -464,6 +464,30 @@ final class ForgeTests: XCTestCase {
         }
     }
 
+    func testCurriculumResourcesAvailable() {
+        let core1 = makeCore1Challenges()
+        let core2 = makeCore2Challenges()
+        let core3 = makeCore3Challenges()
+        let mantle = makeMantleChallenges()
+        let crust = makeCrustChallenges()
+        let bridge = makeBridgeChallenges()
+        let projects = makeProjects()
+
+        XCTAssertFalse(core1.isEmpty)
+        XCTAssertFalse(core2.isEmpty)
+        XCTAssertFalse(core3.isEmpty)
+        XCTAssertFalse(mantle.isEmpty)
+        XCTAssertFalse(crust.isEmpty)
+        XCTAssertFalse(bridge.coreToMantle.isEmpty)
+        XCTAssertFalse(bridge.mantleToCrust.isEmpty)
+        XCTAssertFalse(projects.isEmpty)
+
+        XCTAssertEqual(core1.first?.number, 1)
+        XCTAssertEqual(core2.first?.number, 21)
+        XCTAssertEqual(core3.first?.number, 43)
+        XCTAssertEqual(projects.first?.id, "core1a")
+    }
+
     func testCanonicalChallengeIdsUnique() {
         let sets = buildChallengeSets()
         let ids = sets.allChallenges.map { $0.displayId.lowercased() }
@@ -476,6 +500,97 @@ final class ForgeTests: XCTestCase {
         XCTAssertEqual(parsed.passes, 2)
         XCTAssertEqual(parsed.count, 5)
         XCTAssertEqual(parsed.remaining, ["random", "adaptive"])
+    }
+
+    func testParseGlobalFlagsPipeline() {
+        let parsed = parseGlobalFlags([
+            "--gate-passes", "2",
+            "--gate-count", "4",
+            "--disable-constraint-profiles",
+            "--adaptive-on",
+            "--adaptive-threshold", "5",
+            "--adaptive-count", "6",
+            "--adaptive-topic-failures", "3",
+            "--adaptive-challenge-failures", "4",
+            "--adaptive-cooldown", "1",
+            "--confirm-check",
+            "--confirm-solution",
+            "practice",
+            "loops",
+        ])
+
+        XCTAssertEqual(parsed.flags.gatePasses, 2)
+        XCTAssertEqual(parsed.flags.gateCount, 4)
+        XCTAssertFalse(parsed.flags.enableConstraintProfiles)
+        XCTAssertTrue(parsed.flags.adaptiveEnabled)
+        XCTAssertEqual(parsed.flags.adaptiveThreshold, 5)
+        XCTAssertEqual(parsed.flags.adaptiveCount, 6)
+        XCTAssertEqual(parsed.flags.adaptiveMinTopicFailures, 3)
+        XCTAssertEqual(parsed.flags.adaptiveMinChallengeFailures, 4)
+        XCTAssertEqual(parsed.flags.adaptiveCooldownSteps, 1)
+        XCTAssertTrue(parsed.flags.confirmCheckEnabled)
+        XCTAssertTrue(parsed.flags.confirmSolutionEnabled)
+        XCTAssertEqual(parsed.remaining, ["practice", "loops"])
+    }
+
+    func testParseTopLevelCommandRecognizesCommandsAndRunOverride() {
+        switch parseTopLevelCommand(["stats"]) {
+        case .stats(let args):
+            XCTAssertTrue(args.isEmpty)
+        default:
+            XCTFail("Expected stats command")
+        }
+
+        switch parseTopLevelCommand(["verify", "core", "--constraints-only"]) {
+        case .verify(let args):
+            XCTAssertEqual(args, ["core", "--constraints-only"])
+        default:
+            XCTFail("Expected verify command")
+        }
+
+        switch parseTopLevelCommand(["project", "--list"]) {
+        case .project(let args):
+            XCTAssertEqual(args, ["--list"])
+        default:
+            XCTFail("Expected project command")
+        }
+
+        switch parseTopLevelCommand(["challenge:core:36"]) {
+        case .run(let overrideToken):
+            XCTAssertEqual(overrideToken, "challenge:core:36")
+        default:
+            XCTFail("Expected run override token")
+        }
+
+        switch parseTopLevelCommand(["--help"]) {
+        case .help:
+            break
+        default:
+            XCTFail("Expected help command")
+        }
+    }
+
+    func testBootstrapRuntimeWritesCatalogFiles() {
+        let fileManager = FileManager.default
+        let originalCwd = fileManager.currentDirectoryPath
+        let tempDir = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        do {
+            try fileManager.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer {
+                _ = fileManager.changeCurrentDirectoryPath(originalCwd)
+                try? fileManager.removeItem(at: tempDir)
+            }
+
+            XCTAssertTrue(fileManager.changeCurrentDirectoryPath(tempDir.path))
+
+            _ = bootstrapRuntime(gatePasses: 1, gateCount: 3)
+
+            XCTAssertTrue(fileManager.fileExists(atPath: tempDir.appendingPathComponent("challenge_catalog.txt").path))
+            XCTAssertTrue(fileManager.fileExists(atPath: tempDir.appendingPathComponent("project_catalog.txt").path))
+        } catch {
+            XCTFail("Failed to set up temp workspace: \(error)")
+        }
     }
 
     func testParseConstraintSettingsFlags() {

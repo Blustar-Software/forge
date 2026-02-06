@@ -1,0 +1,2753 @@
+[
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Write and await a simple async function",
+    "expectedOutput": "Heat: 1500",
+    "fixtureFiles": [],
+    "hints": [
+      "Async functions are declared with async and called with await.",
+      "Await the result inside the runAsync block, then report it.",
+      "runAsync uses a Task to bridge async work in a script."
+    ],
+    "id": "",
+    "introduces": [
+      "asyncAwait",
+      "task"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 175,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let semaphore = DispatchSemaphore(value: 0)\n    Task {\n        await operation()\n        semaphore.signal()\n    }\n\n    while semaphore.wait(timeout: .now()) != .success {\n        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.01))\n    }\n}\n\nfunc fetchHeat() async -> Int {\n    return 1500\n}\n\nrunAsync {\n    let value = await fetchHeat()\n    print(\"Heat: \\(value)\")\n}\n",
+    "starterCode": "// Challenge 175: Async/Await Basics\n// Write and await a simple async function.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let semaphore = DispatchSemaphore(value: 0)\n    Task {\n        await operation()\n        semaphore.signal()\n    }\n\n    while semaphore.wait(timeout: .now()) != .success {\n        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.01))\n    }\n}\n\n// TODO: Write an async function fetchHeat() that returns 1500\n\nrunAsync {\n    // TODO: Call fetchHeat() and print \"Heat: 1500\"\n}\n",
+    "tier": "mainline",
+    "title": "Async/Await Basics",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Run async work in a Task",
+    "expectedOutput": "Forged",
+    "fixtureFiles": [],
+    "hints": [
+      "Use a Task to run the async function and capture its result.",
+      "task.value returns the Task result."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 176,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nfunc forgeName() async -> String {\n    return \"Forged\"\n}\n\nrunAsync {\n    let task = Task { await forgeName() }\n    let result = await task.value\n    print(result)\n}\n",
+    "starterCode": "// Challenge 176: Task Basics\n// Run async work in a Task.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\n// TODO: Write an async function forgeName() that returns \"Forged\"\n\nrunAsync {\n    // TODO: Start a Task that awaits forgeName()\n    // TODO: Await task.value and print the result\n}\n",
+    "tier": "mainline",
+    "title": "Task Basics",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Sum values using a task group",
+    "expectedOutput": "Sum: 6",
+    "fixtureFiles": [],
+    "hints": [
+      "Add a task for each value and sum the results as they arrive.",
+      "Return the sum from the task group scope."
+    ],
+    "id": "",
+    "introduces": [
+      "taskGroup"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 177,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nrunAsync {\n    let sum = await withTaskGroup(of: Int.self) { group -> Int in\n        for value in [1, 2, 3] {\n            group.addTask { value }\n        }\n\n        var total = 0\n        for await value in group {\n            total += value\n        }\n        return total\n    }\n\n    print(\"Sum: \\(sum)\")\n}\n",
+    "starterCode": "// Challenge 177: Structured Concurrency\n// Sum values using a task group.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nrunAsync {\n    // TODO: Use withTaskGroup to sum [1, 2, 3]\n    // TODO: Print \"Sum: 6\"\n}\n",
+    "tier": "mainline",
+    "title": "Structured Concurrency",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Iterate an AsyncStream",
+    "expectedOutput": "Total: 6",
+    "fixtureFiles": [],
+    "hints": [
+      "Yield values into the stream, then finish it when done.",
+      "for await iterates async sequences."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 178,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nfunc makeStream() -> AsyncStream<Int> {\n    return AsyncStream { continuation in\n        continuation.yield(1)\n        continuation.yield(2)\n        continuation.yield(3)\n        continuation.finish()\n    }\n}\n\nrunAsync {\n    var total = 0\n    let stream = makeStream()\n\n    for await value in stream {\n        total += value\n    }\n\n    print(\"Total: \\(total)\")\n}\n",
+    "starterCode": "// Challenge 178: Async Sequences\n// Iterate an AsyncStream of values.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\n// TODO: Build an AsyncStream that yields 1, 2, 3 then finishes\nfunc makeStream() -> AsyncStream<Int> {\n    return AsyncStream { continuation in\n        // TODO: Yield 1, 2, 3 and finish\n    }\n}\n\nrunAsync {\n    var total = 0\n    let stream = makeStream()\n\n    // TODO: Sum values from the stream with for await\n    // TODO: Print \"Total: 6\"\n}\n",
+    "tier": "mainline",
+    "title": "Async Sequences",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Respect Task cancellation",
+    "expectedOutput": "Cancelled: 0",
+    "fixtureFiles": [],
+    "hints": [
+      "Task.isCancelled lets you exit early.",
+      "Cancel the task before awaiting task.value."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 179,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nrunAsync {\n    let task = Task<Int, Never> {\n        await Task.yield()\n        if Task.isCancelled {\n            return 0\n        }\n        return 3\n    }\n\n    task.cancel()\n    let result = await task.value\n    print(\"Cancelled: \\(result)\")\n}\n",
+    "starterCode": "// Challenge 179: Cancellation\n// Respect Task cancellation.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nrunAsync {\n    let task = Task<Int, Never> {\n        await Task.yield()\n        // TODO: If Task.isCancelled, return 0\n        // TODO: Otherwise return 3\n    }\n\n    // TODO: Cancel the task\n    // TODO: Await task.value and print \"Cancelled: 0\"\n}\n",
+    "tier": "mainline",
+    "title": "Cancellation",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Actors\n- actor isolates mutable state\n- actor methods are accessed with await\n- @MainActor marks main-thread-bound work",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Isolate state with an actor",
+    "expectedOutput": "Count: 2",
+    "fixtureFiles": [],
+    "hints": [
+      "Actor methods are accessed with await.",
+      "Store the result from current() before printing."
+    ],
+    "id": "",
+    "introduces": [
+      "actors"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Actors\nActors protect mutable state from data races.\n\nOverview:\n- Actor methods are isolated by default.\n- Access actor state with `await` from outside.\n- Use actors for shared mutable state across tasks.\n\nExample:\n    actor Counter {\n        private var value = 0\n        func inc() { value += 1 }\n        func read() -> Int { value }\n    }\n\nGuidelines:\n- Keep actor APIs small.\n- Avoid unnecessary cross-actor hops in tight loops.",
+    "manualCheck": false,
+    "number": 180,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nactor Counter {\n    private var value = 0\n\n    func increment() {\n        value += 1\n    }\n\n    func current() -> Int {\n        return value\n    }\n}\n\nlet counter = Counter()\nrunAsync {\n    await counter.increment()\n    await counter.increment()\n    let value = await counter.current()\n    print(\"Count: \\(value)\")\n}\n",
+    "starterCode": "// Challenge 180: Actor Basics\n// Isolate state with an actor.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nactor Counter {\n    private var value = 0\n    // TODO: Add increment() to add 1\n    // TODO: Add current() -> Int to return value\n}\n\nlet counter = Counter()\nrunAsync {\n    // TODO: Call increment twice\n    // TODO: Print \"Count: 2\"\n}\n",
+    "tier": "mainline",
+    "title": "Actor Basics",
+    "topic": "actors"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Actors\n- actor isolates mutable state\n- actor methods are accessed with await\n- @MainActor marks main-thread-bound work",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Run work on the main actor",
+    "expectedOutput": "Status: 3",
+    "fixtureFiles": [],
+    "hints": [
+      "@MainActor functions run on the main actor.",
+      "Run the work on the main actor inside a Task.",
+      "Run the main run loop briefly so the task can execute."
+    ],
+    "id": "",
+    "introduces": [
+      "mainActor"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Actors\nActors protect mutable state from data races.\n\nOverview:\n- Actor methods are isolated by default.\n- Access actor state with `await` from outside.\n- Use actors for shared mutable state across tasks.\n\nExample:\n    actor Counter {\n        private var value = 0\n        func inc() { value += 1 }\n        func read() -> Int { value }\n    }\n\nGuidelines:\n- Keep actor APIs small.\n- Avoid unnecessary cross-actor hops in tight loops.",
+    "manualCheck": false,
+    "number": 181,
+    "requires": [
+      "task"
+    ],
+    "solution": "import Foundation\n\n@MainActor\nfunc updateStatus(value: Int) -> String {\n    return \"Status: \\(value)\"\n}\n\nTask { @MainActor in\n    let status = updateStatus(value: 3)\n    print(status)\n}\n\nRunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))\n",
+    "starterCode": "// Challenge 181: MainActor\n// Run work on the main actor.\n\nimport Foundation\n\n@MainActor\nfunc updateStatus(value: Int) -> String {\n    // TODO: Return \"Status: <value>\"\n}\n\n// TODO: Create a Task on the main actor that prints updateStatus(value: 3)\n// TODO: Keep the run loop alive briefly so the task can finish\n",
+    "tier": "mainline",
+    "title": "MainActor",
+    "topic": "actors"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Mark values as safe to send across tasks",
+    "expectedOutput": "Heat: 1200",
+    "fixtureFiles": [],
+    "hints": [
+      "Sendable is a marker for concurrency safety.",
+      "Use the stored value in the output."
+    ],
+    "id": "",
+    "introduces": [
+      "sendable"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 182,
+    "requires": [],
+    "solution": "import Foundation\n\nstruct HeatReport: Sendable {\n    let value: Int\n}\n\nlet report = HeatReport(value: 1200)\nprint(\"Heat: \\(report.value)\")\n",
+    "starterCode": "// Challenge 182: Sendable\n// Mark values as safe to send across tasks.\n\nimport Foundation\n\nstruct HeatReport: Sendable {\n    let value: Int\n}\n\nlet report = HeatReport(value: 1200)\n// TODO: Print \"Heat: 1200\"\n",
+    "tier": "mainline",
+    "title": "Sendable",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Property Wrappers\n- @propertyWrapper wraps get/set logic\n- wrappedValue is the stored interface\n- projectedValue is accessed via $name",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Use a provided property wrapper",
+    "expectedOutput": "100",
+    "fixtureFiles": [],
+    "hints": [
+      "The wrapper clamps values into the provided range.",
+      "Declare the wrapped property on a type, then print it."
+    ],
+    "id": "",
+    "introduces": [
+      "propertyWrappers"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Property Wrappers\nProperty wrappers package repeated property behavior.\n\nOverview:\n- Define wrapper with `@propertyWrapper`.\n- Expose wrapped value via `wrappedValue`.\n- Optionally expose extra API via `projectedValue`.\n\nExample:\n    @propertyWrapper\n    struct Clamped {\n        private var value: Int\n        var wrappedValue: Int {\n            get { value }\n            set { value = max(0, min(100, newValue)) }\n        }\n        init(wrappedValue: Int) { value = wrappedValue }\n    }\n\nGuidelines:\n- Use wrappers for cross-cutting rules.\n- Keep wrapper behavior unsurprising.",
+    "manualCheck": false,
+    "number": 183,
+    "requires": [],
+    "solution": "import Foundation\n\n@propertyWrapper\nstruct Clamped {\n    private var value: Int\n    private let range: ClosedRange<Int>\n\n    var wrappedValue: Int {\n        get { value }\n        set { value = min(max(newValue, range.lowerBound), range.upperBound) }\n    }\n\n    init(wrappedValue: Int, _ range: ClosedRange<Int>) {\n        self.range = range\n        self.value = min(max(wrappedValue, range.lowerBound), range.upperBound)\n    }\n}\n\nstruct Furnace {\n    @Clamped(0...100) var heat = 120\n}\n\nvar furnace = Furnace()\nprint(furnace.heat)\n",
+    "starterCode": "// Challenge 183: Property Wrapper Usage\n// Use a provided property wrapper.\n\nimport Foundation\n\n@propertyWrapper\nstruct Clamped {\n    private var value: Int\n    private let range: ClosedRange<Int>\n\n    var wrappedValue: Int {\n        get { value }\n        set { value = min(max(newValue, range.lowerBound), range.upperBound) }\n    }\n\n    init(wrappedValue: Int, _ range: ClosedRange<Int>) {\n        self.range = range\n        self.value = min(max(wrappedValue, range.lowerBound), range.upperBound)\n    }\n}\n\nstruct Furnace {\n    // TODO: Create @Clamped(0...100) var heat = 120\n}\n\nvar furnace = Furnace()\n// TODO: Print heat (should be 100)\n",
+    "tier": "mainline",
+    "title": "Property Wrapper Usage",
+    "topic": "propertyWrappers"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Property Wrappers\n- @propertyWrapper wraps get/set logic\n- wrappedValue is the stored interface\n- projectedValue is accessed via $name",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Build a wrapper that normalizes input",
+    "expectedOutput": "iron",
+    "fixtureFiles": [],
+    "hints": [
+      "wrappedValue should return the stored value and lowercased on set.",
+      "Lowercase the initial wrappedValue in the initializer."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Property Wrappers\nProperty wrappers package repeated property behavior.\n\nOverview:\n- Define wrapper with `@propertyWrapper`.\n- Expose wrapped value via `wrappedValue`.\n- Optionally expose extra API via `projectedValue`.\n\nExample:\n    @propertyWrapper\n    struct Clamped {\n        private var value: Int\n        var wrappedValue: Int {\n            get { value }\n            set { value = max(0, min(100, newValue)) }\n        }\n        init(wrappedValue: Int) { value = wrappedValue }\n    }\n\nGuidelines:\n- Use wrappers for cross-cutting rules.\n- Keep wrapper behavior unsurprising.",
+    "manualCheck": false,
+    "number": 184,
+    "requires": [],
+    "solution": "import Foundation\n\n@propertyWrapper\nstruct Lowercased {\n    private var value: String\n\n    var wrappedValue: String {\n        get { value }\n        set { value = newValue.lowercased() }\n    }\n\n    init(wrappedValue: String) {\n        value = wrappedValue.lowercased()\n    }\n}\n\nstruct Label {\n    @Lowercased var name: String\n}\n\nlet label = Label(name: \"IRON\")\nprint(label.name)\n",
+    "starterCode": "// Challenge 184: Custom Property Wrapper\n// Build a wrapper that normalizes input.\n\nimport Foundation\n\n@propertyWrapper\nstruct Lowercased {\n    private var value: String\n\n    // TODO: Add wrappedValue that lowercases on set\n    // TODO: Add init(wrappedValue:) that lowercases the initial value\n}\n\nstruct Label {\n    @Lowercased var name: String\n}\n\nlet label = Label(name: \"IRON\")\n// TODO: Print label.name (should be \"iron\")\n",
+    "tier": "mainline",
+    "title": "Custom Property Wrapper",
+    "topic": "propertyWrappers"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Property Wrappers\n- @propertyWrapper wraps get/set logic\n- wrappedValue is the stored interface\n- projectedValue is accessed via $name",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Use projected values from a wrapper",
+    "expectedOutput": "Updates: 2",
+    "fixtureFiles": [],
+    "hints": [
+      "Projected values are accessed with a $ prefix.",
+      "Use the projected value on the instance after two assignments."
+    ],
+    "id": "",
+    "introduces": [
+      "projectedValues"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Property Wrappers\nProperty wrappers package repeated property behavior.\n\nOverview:\n- Define wrapper with `@propertyWrapper`.\n- Expose wrapped value via `wrappedValue`.\n- Optionally expose extra API via `projectedValue`.\n\nExample:\n    @propertyWrapper\n    struct Clamped {\n        private var value: Int\n        var wrappedValue: Int {\n            get { value }\n            set { value = max(0, min(100, newValue)) }\n        }\n        init(wrappedValue: Int) { value = wrappedValue }\n    }\n\nGuidelines:\n- Use wrappers for cross-cutting rules.\n- Keep wrapper behavior unsurprising.",
+    "manualCheck": false,
+    "number": 185,
+    "requires": [],
+    "solution": "import Foundation\n\n@propertyWrapper\nstruct Tracked {\n    private var value: Int\n    private(set) var projectedValue: Int = 0\n\n    var wrappedValue: Int {\n        get { value }\n        set { value = newValue; projectedValue += 1 }\n    }\n\n    init(wrappedValue: Int) {\n        value = wrappedValue\n    }\n}\n\nstruct Furnace {\n    @Tracked var heat = 1200\n}\n\nvar furnace = Furnace()\nfurnace.heat = 1300\nfurnace.heat = 1400\nprint(\"Updates: \\(furnace.$heat)\")\n",
+    "starterCode": "// Challenge 185: Projected Values\n// Use projected values from a wrapper.\n\nimport Foundation\n\n@propertyWrapper\nstruct Tracked {\n    private var value: Int\n    private(set) var projectedValue: Int = 0\n\n    var wrappedValue: Int {\n        get { value }\n        set { value = newValue; projectedValue += 1 }\n    }\n\n    init(wrappedValue: Int) {\n        value = wrappedValue\n    }\n}\n\nstruct Furnace {\n    @Tracked var heat = 1200\n}\n\nvar furnace = Furnace()\nfurnace.heat = 1300\nfurnace.heat = 1400\n// TODO: Print \"Updates: 2\" using the projected value\n",
+    "tier": "mainline",
+    "title": "Projected Values",
+    "topic": "propertyWrappers"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Key Paths\n- Syntax: \\Type.property\n- Access with value[keyPath: path]\n- Map with \\Type.property",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Read a value using a key path",
+    "expectedOutput": "Iron",
+    "fixtureFiles": [],
+    "hints": [
+      "Key paths use the \\Type.property syntax.",
+      "Access with value[keyPath: path]."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Key Paths\nKey paths reference properties as values.\n\nOverview:\n- `\\Type.property` captures a readable path.\n- Use key paths with APIs like `map` and sorting helpers.\n- Writable key paths enable generic mutation utilities.\n\nExample:\n    struct Reading { let temp: Int }\n    let temps = readings.map(\\.temp)\n\nGuidelines:\n- Prefer key paths when extracting one property repeatedly.\n- Keep transformations readable and explicit.",
+    "manualCheck": false,
+    "number": 186,
+    "requires": [],
+    "solution": "import Foundation\n\nstruct Ore {\n    let name: String\n    let purity: Int\n}\n\nlet ore = Ore(name: \"Iron\", purity: 90)\nlet nameKey = \\Ore.name\nprint(ore[keyPath: nameKey])",
+    "starterCode": "// Challenge 186: Key Path Syntax\n// Read a value using a key path.\n\nimport Foundation\n\nstruct Ore {\n    let name: String\n    let purity: Int\n}\n\nlet ore = Ore(name: \"Iron\", purity: 90)\n\n// TODO: Create a key path for name and print it",
+    "tier": "mainline",
+    "title": "Key Path Syntax",
+    "topic": "keyPaths"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Key Paths\n- Syntax: \\Type.property\n- Access with value[keyPath: path]\n- Map with \\Type.property",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Map values using key paths",
+    "expectedOutput": "Iron,Gold",
+    "fixtureFiles": [],
+    "hints": [
+      "map can take a key path like \\.name.",
+      "Use joined(separator:) to format the array."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Key Paths\nKey paths reference properties as values.\n\nOverview:\n- `\\Type.property` captures a readable path.\n- Use key paths with APIs like `map` and sorting helpers.\n- Writable key paths enable generic mutation utilities.\n\nExample:\n    struct Reading { let temp: Int }\n    let temps = readings.map(\\.temp)\n\nGuidelines:\n- Prefer key paths when extracting one property repeatedly.\n- Keep transformations readable and explicit.",
+    "manualCheck": false,
+    "number": 187,
+    "requires": [],
+    "solution": "import Foundation\n\nstruct Ore {\n    let name: String\n}\n\nlet ores = [Ore(name: \"Iron\"), Ore(name: \"Gold\")]\nlet names = ores.map(\\.name)\nprint(names.joined(separator: \",\"))",
+    "starterCode": "// Challenge 187: Key Path Mapping\n// Map values using key paths.\n\nimport Foundation\n\nstruct Ore {\n    let name: String\n}\n\nlet ores = [Ore(name: \"Iron\"), Ore(name: \"Gold\")]\n\n// TODO: Use map with a key path to get names\n// TODO: Print the names joined by a comma",
+    "tier": "mainline",
+    "title": "Key Path Mapping",
+    "topic": "keyPaths"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Sequences\n- Sequence can be iterated once with for-in\n- Collection adds indices and count\n- lazy creates deferred transformations",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requireCollectionUsage": false,
+      "requiredTokens": []
+    },
+    "description": "Defer work with lazy",
+    "expectedOutput": "[2, 4, 6]",
+    "fixtureFiles": [],
+    "hints": [
+      "lazy creates a deferred sequence.",
+      "Wrap the lazy result in Array(...) to print it."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "manualCheck": false,
+    "number": 188,
+    "requires": [],
+    "solution": "import Foundation\n\nlet numbers = [1, 2, 3]\nlet doubled = numbers.lazy.map { $0 * 2 }\nprint(Array(doubled))",
+    "starterCode": "// Challenge 188: Lazy Collections\n// Defer work with lazy.\n\nimport Foundation\n\nlet numbers = [1, 2, 3]\n\n// TODO: Use lazy and map to double the numbers\n// TODO: Convert to Array and print the result",
+    "tier": "mainline",
+    "title": "Lazy Collections",
+    "topic": "sequences"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Sequences\n- Sequence can be iterated once with for-in\n- Collection adds indices and count\n- lazy creates deferred transformations",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requireCollectionUsage": false,
+      "requiredTokens": []
+    },
+    "description": "Create a sequence that counts down",
+    "expectedOutput": "3\n2\n1",
+    "fixtureFiles": [],
+    "hints": [
+      "Return nil when the sequence is done.",
+      "Use defer or manual decrement to update current."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "manualCheck": false,
+    "number": 189,
+    "requires": [],
+    "solution": "import Foundation\n\nstruct Countdown: Sequence {\n    let start: Int\n    func makeIterator() -> CountdownIterator {\n        return CountdownIterator(current: start)\n    }\n}\n\nstruct CountdownIterator: IteratorProtocol {\n    var current: Int\n    mutating func next() -> Int? {\n        guard current > 0 else { return nil }\n        defer { current -= 1 }\n        return current\n    }\n}\n\nlet countdown = Countdown(start: 3)\nfor value in countdown {\n    print(value)\n}",
+    "starterCode": "// Challenge 189: Custom Sequence\n// Create a sequence that counts down.\n\nimport Foundation\n\nstruct Countdown: Sequence {\n    let start: Int\n    func makeIterator() -> CountdownIterator {\n        return CountdownIterator(current: start)\n    }\n}\n\nstruct CountdownIterator: IteratorProtocol {\n    var current: Int\n    // TODO: Implement next() to return current, then decrement until 0\n}\n\nlet countdown = Countdown(start: 3)\nfor value in countdown {\n    print(value)\n}",
+    "tier": "mainline",
+    "title": "Custom Sequence",
+    "topic": "sequences"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Sequences\n- Sequence can be iterated once with for-in\n- Collection adds indices and count\n- lazy creates deferred transformations",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requireCollectionUsage": false,
+      "requiredTokens": []
+    },
+    "description": "Implement next() manually",
+    "expectedOutput": "1200\n1300",
+    "fixtureFiles": [],
+    "hints": [
+      "Return nil after current exceeds max.",
+      "Update current after returning the old value."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "manualCheck": false,
+    "number": 190,
+    "requires": [],
+    "solution": "import Foundation\n\nstruct HeatIterator: IteratorProtocol {\n    var current: Int\n    let max: Int\n\n    mutating func next() -> Int? {\n        guard current <= max else { return nil }\n        defer { current += 100 }\n        return current\n    }\n}\n\nvar iterator = HeatIterator(current: 1200, max: 1400)\nprint(iterator.next()!)\nprint(iterator.next()!)",
+    "starterCode": "// Challenge 190: Custom Iterator\n// Implement next() manually.\n\nimport Foundation\n\nstruct HeatIterator: IteratorProtocol {\n    var current: Int\n    let max: Int\n\n    // TODO: Return current, then add 100 until max is reached\n}\n\nvar iterator = HeatIterator(current: 1200, max: 1400)\nprint(iterator.next()!)\nprint(iterator.next()!)",
+    "tier": "mainline",
+    "title": "Custom Iterator",
+    "topic": "sequences"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Sequences\n- Sequence can be iterated once with for-in\n- Collection adds indices and count\n- lazy creates deferred transformations",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requireCollectionUsage": false,
+      "requiredTokens": []
+    },
+    "description": "Materialize a sequence to access count",
+    "expectedOutput": "Count: 3\nLast: 1",
+    "fixtureFiles": [],
+    "hints": [
+      "Array(sequence) materializes the values.",
+      "Use items.count and items.last to format output."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "manualCheck": false,
+    "number": 191,
+    "requires": [],
+    "solution": "import Foundation\n\nstruct Counter: Sequence {\n    let start: Int\n    func makeIterator() -> CounterIterator {\n        return CounterIterator(current: start)\n    }\n}\n\nstruct CounterIterator: IteratorProtocol {\n    var current: Int\n    mutating func next() -> Int? {\n        guard current > 0 else { return nil }\n        defer { current -= 1 }\n        return current\n    }\n}\n\nlet sequence = Counter(start: 3)\nlet items = Array(sequence)\nprint(\"Count: \\(items.count)\")\nprint(\"Last: \\(items.last ?? 0)\")",
+    "starterCode": "// Challenge 191: Sequence vs Collection\n// Materialize a sequence to access count.\n\nimport Foundation\n\nstruct Counter: Sequence {\n    let start: Int\n    func makeIterator() -> CounterIterator {\n        return CounterIterator(current: start)\n    }\n}\n\nstruct CounterIterator: IteratorProtocol {\n    var current: Int\n    mutating func next() -> Int? {\n        guard current > 0 else { return nil }\n        defer { current -= 1 }\n        return current\n    }\n}\n\nlet sequence = Counter(start: 3)\n// TODO: Convert the sequence to an Array\n// TODO: Print \"Count: 3\" and \"Last: 1\"",
+    "tier": "mainline",
+    "title": "Sequence vs Collection",
+    "topic": "sequences"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Actors\n- actor isolates mutable state\n- actor methods are accessed with await\n- @MainActor marks main-thread-bound work",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Combine async, actors, and wrappers",
+    "expectedOutput": "Heat: 2000",
+    "fixtureFiles": [],
+    "hints": [
+      "The wrapper clamps heat to 2000.",
+      "Use await to call actor methods."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 192,
+    "requires": [
+      "asyncAwait",
+      "task",
+      "actors",
+      "propertyWrappers"
+    ],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\n@propertyWrapper\nstruct Clamped {\n    private var value: Int\n    private let range: ClosedRange<Int>\n\n    var wrappedValue: Int {\n        get { value }\n        set { value = min(max(newValue, range.lowerBound), range.upperBound) }\n    }\n\n    init(wrappedValue: Int, _ range: ClosedRange<Int>) {\n        self.range = range\n        self.value = min(max(wrappedValue, range.lowerBound), range.upperBound)\n    }\n}\n\nactor Furnace {\n    @Clamped(0...2000) var heat: Int = 0\n\n    func addHeat(_ value: Int) {\n        heat += value\n    }\n\n    func currentHeat() -> Int {\n        return heat\n    }\n}\n\nlet furnace = Furnace()\nrunAsync {\n    await furnace.addHeat(2200)\n    let current = await furnace.currentHeat()\n    print(\"Heat: \\(current)\")\n}\n",
+    "starterCode": "// Challenge 192: Integration Challenge\n// Combine async, actors, and wrappers.\n// Prereqs: async/await, actors, property wrappers.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\n@propertyWrapper\nstruct Clamped {\n    private var value: Int\n    private let range: ClosedRange<Int>\n\n    var wrappedValue: Int {\n        get { value }\n        set { value = min(max(newValue, range.lowerBound), range.upperBound) }\n    }\n\n    init(wrappedValue: Int, _ range: ClosedRange<Int>) {\n        self.range = range\n        self.value = min(max(wrappedValue, range.lowerBound), range.upperBound)\n    }\n}\n\nactor Furnace {\n    @Clamped(0...2000) var heat: Int = 0\n    // TODO: Add addHeat(_:) to increase heat\n    // TODO: Add currentHeat() -> Int to return heat\n}\n\nlet furnace = Furnace()\nrunAsync {\n    // TODO: await furnace.addHeat(2200)\n    // TODO: Print \"Heat: 2000\"\n}\n",
+    "tier": "mainline",
+    "title": "Integration Challenge",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Generics\n- some returns an opaque type\n- any uses an existential type\n- Type erasure hides concrete types\n- where clauses add constraints",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Return an opaque type with some",
+    "expectedOutput": "Metal: Iron",
+    "fixtureFiles": [],
+    "hints": [
+      "Return a concrete type that conforms to Metal.",
+      "Use the name property when printing."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Generics\nAdvanced generics express relationships between types.\n\nOverview:\n- Associated types describe placeholder types in protocols.\n- `where` clauses constrain combinations of generic types.\n- Protocol extensions can add constrained default behavior.\n\nExample:\n    protocol Store {\n        associatedtype Item\n        mutating func add(_ item: Item)\n    }\n\nGuidelines:\n- Encode real constraints in the type system.\n- Prefer simpler signatures unless constraints add clear value.",
+    "manualCheck": false,
+    "number": 193,
+    "requires": [],
+    "solution": "protocol Metal {\n    var name: String { get }\n}\n\nstruct Ingot: Metal {\n    let name: String\n}\n\nfunc makeMetal() -> some Metal {\n    return Ingot(name: \"Iron\")\n}\n\nlet metal = makeMetal()\nprint(\"Metal: \\(metal.name)\")",
+    "starterCode": "// Challenge 193: Opaque Types\n// Return an opaque type with some.\n\nprotocol Metal {\n    var name: String { get }\n}\n\nstruct Ingot: Metal {\n    let name: String\n}\n\n// TODO: Return an Ingot named \"Iron\"\nfunc makeMetal() -> some Metal {\n}\n\nlet metal = makeMetal()\nprint(\"Metal: \\(metal.name)\")",
+    "tier": "mainline",
+    "title": "Opaque Types",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Generics\n- some returns an opaque type\n- any uses an existential type\n- Type erasure hides concrete types\n- where clauses add constraints",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Store mixed conforming types with any",
+    "expectedOutput": "Temp\nPressure",
+    "fixtureFiles": [],
+    "hints": [
+      "any Sensor stores values with different concrete types.",
+      "Loop and print the name for each sensor."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Generics\nAdvanced generics express relationships between types.\n\nOverview:\n- Associated types describe placeholder types in protocols.\n- `where` clauses constrain combinations of generic types.\n- Protocol extensions can add constrained default behavior.\n\nExample:\n    protocol Store {\n        associatedtype Item\n        mutating func add(_ item: Item)\n    }\n\nGuidelines:\n- Encode real constraints in the type system.\n- Prefer simpler signatures unless constraints add clear value.",
+    "manualCheck": false,
+    "number": 194,
+    "requires": [],
+    "solution": "protocol Sensor {\n    var name: String { get }\n}\n\nstruct TempSensor: Sensor { let name = \"Temp\" }\nstruct PressureSensor: Sensor { let name = \"Pressure\" }\n\nfunc report(_ sensors: [any Sensor]) {\n    for sensor in sensors {\n        print(sensor.name)\n    }\n}\n\nlet sensors: [any Sensor] = [TempSensor(), PressureSensor()]\nreport(sensors)",
+    "starterCode": "// Challenge 194: Existentials\n// Store mixed conforming types with any.\n\nprotocol Sensor {\n    var name: String { get }\n}\n\nstruct TempSensor: Sensor { let name = \"Temp\" }\nstruct PressureSensor: Sensor { let name = \"Pressure\" }\n\nfunc report(_ sensors: [any Sensor]) {\n    // TODO: Print each sensor name on its own line\n}\n\nlet sensors: [any Sensor] = [TempSensor(), PressureSensor()]\nreport(sensors)",
+    "tier": "mainline",
+    "title": "Existentials",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Generics\n- some returns an opaque type\n- any uses an existential type\n- Type erasure hides concrete types\n- where clauses add constraints",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Hide concrete types behind a wrapper",
+    "expectedOutput": "Sum: 7",
+    "fixtureFiles": [],
+    "hints": [
+      "Capture the base.read method in the initializer.",
+      "read() should call the stored closure."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Generics\nAdvanced generics express relationships between types.\n\nOverview:\n- Associated types describe placeholder types in protocols.\n- `where` clauses constrain combinations of generic types.\n- Protocol extensions can add constrained default behavior.\n\nExample:\n    protocol Store {\n        associatedtype Item\n        mutating func add(_ item: Item)\n    }\n\nGuidelines:\n- Encode real constraints in the type system.\n- Prefer simpler signatures unless constraints add clear value.",
+    "manualCheck": false,
+    "number": 195,
+    "requires": [],
+    "solution": "protocol Reader {\n    func read() -> Int\n}\n\nstruct FixedReader: Reader {\n    let value: Int\n    func read() -> Int { value }\n}\n\nstruct AnyReader: Reader {\n    private let _read: () -> Int\n\n    init<R: Reader>(_ base: R) {\n        _read = base.read\n    }\n\n    func read() -> Int {\n        return _read()\n    }\n}\n\nlet readers: [AnyReader] = [AnyReader(FixedReader(value: 3)), AnyReader(FixedReader(value: 4))]\nlet total = readers.reduce(0) { $0 + $1.read() }\nprint(\"Sum: \\(total)\")",
+    "starterCode": "// Challenge 195: Type Erasure\n// Hide concrete types behind a wrapper.\n\nprotocol Reader {\n    func read() -> Int\n}\n\nstruct FixedReader: Reader {\n    let value: Int\n    func read() -> Int { value }\n}\n\nstruct AnyReader: Reader {\n    private let _read: () -> Int\n\n    // TODO: Add init that stores the base reader's read method\n    // TODO: Implement read() to call the stored closure\n}\n\nlet readers: [AnyReader] = [AnyReader(FixedReader(value: 3)), AnyReader(FixedReader(value: 4))]\nlet total = readers.reduce(0) { $0 + $1.read() }\nprint(\"Sum: \\(total)\")",
+    "tier": "mainline",
+    "title": "Type Erasure",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Generics\n- some returns an opaque type\n- any uses an existential type\n- Type erasure hides concrete types\n- where clauses add constraints",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use generic protocol syntax",
+    "expectedOutput": "Top: 3",
+    "fixtureFiles": [],
+    "hints": [
+      "A primary associated type lets you write Stack<Int>.",
+      "Use items.last to get the top value."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Generics\nAdvanced generics express relationships between types.\n\nOverview:\n- Associated types describe placeholder types in protocols.\n- `where` clauses constrain combinations of generic types.\n- Protocol extensions can add constrained default behavior.\n\nExample:\n    protocol Store {\n        associatedtype Item\n        mutating func add(_ item: Item)\n    }\n\nGuidelines:\n- Encode real constraints in the type system.\n- Prefer simpler signatures unless constraints add clear value.",
+    "manualCheck": false,
+    "number": 196,
+    "requires": [],
+    "solution": "protocol Stack<Element> {\n    associatedtype Element\n    var items: [Element] { get }\n}\n\nstruct IntStack: Stack {\n    let items: [Int]\n}\n\nlet stack: any Stack<Int> = IntStack(items: [1, 2, 3])\nprint(\"Top: \\(stack.items.last ?? 0)\")",
+    "starterCode": "// Challenge 196: Primary Associated Types\n// Use generic protocol syntax.\n\nprotocol Stack<Element> {\n    associatedtype Element\n    var items: [Element] { get }\n}\n\nstruct IntStack: Stack {\n    let items: [Int]\n}\n\nlet stack: any Stack<Int> = IntStack(items: [1, 2, 3])\n// TODO: Print the top item as \"Top: 3\"",
+    "tier": "mainline",
+    "title": "Primary Associated Types",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Generics\n- some returns an opaque type\n- any uses an existential type\n- Type erasure hides concrete types\n- where clauses add constraints",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add extra generic constraints",
+    "expectedOutput": "true",
+    "fixtureFiles": [],
+    "hints": [
+      "Use a where clause or a generic constraint on the function.",
+      "Return the equality check result."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Generics\nAdvanced generics express relationships between types.\n\nOverview:\n- Associated types describe placeholder types in protocols.\n- `where` clauses constrain combinations of generic types.\n- Protocol extensions can add constrained default behavior.\n\nExample:\n    protocol Store {\n        associatedtype Item\n        mutating func add(_ item: Item)\n    }\n\nGuidelines:\n- Encode real constraints in the type system.\n- Prefer simpler signatures unless constraints add clear value.",
+    "manualCheck": false,
+    "number": 197,
+    "requires": [],
+    "solution": "func areEqual<T>(_ a: T, _ b: T) -> Bool where T: Equatable {\n    return a == b\n}\n\nprint(areEqual(4, 4))",
+    "starterCode": "// Challenge 197: Where Clauses\n// Add extra generic constraints.\n\n// TODO: Write areEqual(_:_:), constrained to Equatable, that returns Bool\n// TODO: Print the result of areEqual(4, 4)",
+    "tier": "mainline",
+    "title": "Where Clauses",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Performance\n- Arrays use copy-on-write behavior\n- MemoryLayout reports size/stride/alignment\n- Measure before optimizing",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Observe value semantics in collections",
+    "expectedOutput": "2\n3",
+    "fixtureFiles": [],
+    "hints": [
+      "Arrays copy on write when mutated.",
+      "Update second, then print both counts."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Performance\nOptimize with measurement first, then targeted changes.\n\nOverview:\n- Reduce repeated allocations and unnecessary copies.\n- Avoid repeated work inside loops.\n- Prefer linear passes over nested scans when possible.\n\nExample:\n- Cache derived values when reused.\n- Use `Set` for frequent membership checks.\n\nGuidelines:\n- Keep code correct first.\n- Verify gains with realistic inputs.",
+    "manualCheck": false,
+    "number": 198,
+    "requires": [],
+    "solution": "var first = [1, 2]\nvar second = first\n\nsecond.append(3)\n\nprint(first.count)\nprint(second.count)",
+    "starterCode": "// Challenge 198: Copy-on-Write\n// Observe value semantics in collections.\n\nvar first = [1, 2]\nvar second = first\n\n// TODO: Append 3 to second\n// TODO: Print first.count then second.count",
+    "tier": "mainline",
+    "title": "Copy-on-Write",
+    "topic": "performance"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Performance\n- Arrays use copy-on-write behavior\n- MemoryLayout reports size/stride/alignment\n- Measure before optimizing",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Inspect type sizes",
+    "expectedOutput": "1\n1",
+    "fixtureFiles": [],
+    "hints": [
+      "MemoryLayout<T>.size returns the size in bytes.",
+      "Use the same pattern for both types."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Memory\nMemory behavior affects performance and correctness in larger systems.\n\nOverview:\n- Understand value vs reference semantics.\n- Watch ARC churn in high-frequency paths.\n- Avoid retain cycles in closure-heavy code.\n\nExample:\n- Capture `[weak self]` in escaping closures tied to object lifetime.\n- Prefer value types for independent snapshots.\n\nGuidelines:\n- Measure before micro-optimizing.\n- Choose ownership rules that are explicit and simple.",
+    "manualCheck": false,
+    "number": 199,
+    "requires": [],
+    "solution": "print(MemoryLayout<UInt8>.size)\nprint(MemoryLayout<Bool>.size)",
+    "starterCode": "// Challenge 199: MemoryLayout\n// Inspect type sizes.\n\n// TODO: Print MemoryLayout<UInt8>.size\n// TODO: Print MemoryLayout<Bool>.size",
+    "tier": "mainline",
+    "title": "MemoryLayout",
+    "topic": "memory"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Performance\n- Arrays use copy-on-write behavior\n- MemoryLayout reports size/stride/alignment\n- Measure before optimizing",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Measure before optimizing",
+    "expectedOutput": "Total: 5000050000\nElapsed: 0.00",
+    "fixtureFiles": [],
+    "hints": [
+      "Use string interpolation to show the elapsed time.",
+      "Print the total first, then the elapsed line."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Performance\nOptimize with measurement first, then targeted changes.\n\nOverview:\n- Reduce repeated allocations and unnecessary copies.\n- Avoid repeated work inside loops.\n- Prefer linear passes over nested scans when possible.\n\nExample:\n- Cache derived values when reused.\n- Use `Set` for frequent membership checks.\n\nGuidelines:\n- Keep code correct first.\n- Verify gains with realistic inputs.",
+    "manualCheck": false,
+    "number": 200,
+    "requires": [],
+    "solution": "import Foundation\n\nvar total = 0\nfor value in 1...100_000 {\n    total += value\n}\nlet elapsed = 0.0\n\nprint(\"Total: \\(total)\")\nprint(String(format: \"Elapsed: %.2f\", elapsed))",
+    "starterCode": "// Challenge 200: Profiling Mindset\n// Measure before optimizing.\n// Use a fixed elapsed value for deterministic output.\n//\n// Expected output:\n// Total: 5000050000\n// Elapsed: 0.00\n\nimport Foundation\n\nvar total = 0\nfor value in 1...100_000 {\n    total += value\n}\nlet elapsed = 0.0\n\n// TODO: Print total and elapsed time (format is up to you)\n// Example: \"Total: 5000050000\" and \"Elapsed: 0.00\"",
+    "tier": "mainline",
+    "title": "Profiling Mindset",
+    "topic": "performance"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Define a new infix operator",
+    "expectedOutput": "7",
+    "fixtureFiles": [],
+    "hints": [
+      "Use infix operator and a matching function implementation.",
+      "The operator function should return an Int."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 201,
+    "requires": [],
+    "solution": "infix operator +++: AdditionPrecedence\n\nfunc +++ (lhs: Int, rhs: Int) -> Int {\n    return lhs + rhs\n}\n\nprint(3 +++ 4)",
+    "starterCode": "// Challenge 201: Custom Operators\n// Define a new infix operator.\n\n// TODO: Declare infix operator +++ with AdditionPrecedence\n// TODO: Implement +++ for Int that adds two values\n// TODO: Print the result of 3 +++ 4",
+    "tier": "mainline",
+    "title": "Custom Operators",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add a subscript with two parameters",
+    "expectedOutput": "4",
+    "fixtureFiles": [],
+    "hints": [
+      "Subscripts can accept multiple parameters.",
+      "Return values[row][col] inside the subscript."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 202,
+    "requires": [],
+    "solution": "struct Grid {\n    let values: [[Int]]\n    subscript(_ row: Int, _ col: Int) -> Int {\n        return values[row][col]\n    }\n}\n\nlet grid = Grid(values: [[1, 2], [4, 5]])\nprint(grid[1, 0])",
+    "starterCode": "// Challenge 202: Custom Subscripts\n// Add a subscript with two parameters.\n\nstruct Grid {\n    let values: [[Int]]\n    // TODO: Add subscript(_:_:) -> Int\n}\n\nlet grid = Grid(values: [[1, 2], [4, 5]])\nprint(grid[1, 0])",
+    "tier": "mainline",
+    "title": "Custom Subscripts",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Forward unknown members",
+    "expectedOutput": "safe\n3",
+    "fixtureFiles": [],
+    "hints": [
+      "dynamicMemberLookup requires a dynamicMember subscript.",
+      "Return values[member] with a default if missing."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 203,
+    "requires": [],
+    "solution": "@dynamicMemberLookup\nstruct Settings {\n    var values: [String: String]\n    subscript(dynamicMember member: String) -> String {\n        return values[member, default: \"\"]\n    }\n}\n\nlet settings = Settings(values: [\"mode\": \"safe\", \"level\": \"3\"])\nprint(settings.mode)\nprint(settings.level)",
+    "starterCode": "// Challenge 203: dynamicMemberLookup\n// Forward unknown members.\n\n@dynamicMemberLookup\nstruct Settings {\n    var values: [String: String]\n    // TODO: Add dynamicMember subscript returning String\n}\n\nlet settings = Settings(values: [\"mode\": \"safe\", \"level\": \"3\"])\nprint(settings.mode)\nprint(settings.level)",
+    "tier": "mainline",
+    "title": "dynamicMemberLookup",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Forward calls to a type",
+    "expectedOutput": "24",
+    "fixtureFiles": [],
+    "hints": [
+      "dynamicallyCall receives an array of arguments.",
+      "Multiply all values in the array."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 204,
+    "requires": [],
+    "solution": "@dynamicCallable\nstruct Multiplier {\n    func dynamicallyCall(withArguments args: [Int]) -> Int {\n        return args.reduce(1, *)\n    }\n}\n\nlet multiply = Multiplier()\nprint(multiply(2, 3, 4))",
+    "starterCode": "// Challenge 204: dynamicCallable\n// Forward calls to a type.\n\n@dynamicCallable\nstruct Multiplier {\n    // TODO: Implement dynamicallyCall(withArguments:) -> Int\n}\n\nlet multiply = Multiplier()\nprint(multiply(2, 3, 4))",
+    "tier": "mainline",
+    "title": "dynamicCallable",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Build values with a result builder",
+    "expectedOutput": "Forge Ready",
+    "fixtureFiles": [],
+    "hints": [
+      "The builder collects string literals into an array.",
+      "Join the pieces with a separator before printing."
+    ],
+    "id": "",
+    "introduces": [
+      "resultBuilders"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 205,
+    "requires": [],
+    "solution": "@resultBuilder\nstruct MessageBuilder {\n    static func buildBlock(_ components: String...) -> [String] {\n        return components\n    }\n}\n\nfunc makeMessages(@MessageBuilder _ content: () -> [String]) -> [String] {\n    return content()\n}\n\nlet messages = makeMessages {\n    \"Forge\"\n    \"Ready\"\n}\n\nprint(messages.joined(separator: \" \"))",
+    "starterCode": "// Challenge 205: Result Builders (Use)\n// Build values with a result builder.\n\n@resultBuilder\nstruct MessageBuilder {\n    static func buildBlock(_ components: String...) -> [String] {\n        return components\n    }\n}\n\nfunc makeMessages(@MessageBuilder _ content: () -> [String]) -> [String] {\n    return content()\n}\n\n// TODO: Use makeMessages to build [\"Forge\", \"Ready\"]\n// TODO: Print \"Forge Ready\"",
+    "tier": "mainline",
+    "title": "Result Builders (Use)",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Review how macro usage looks in Swift",
+    "expectedOutput": "Macro: compile-time code generation",
+    "fixtureFiles": [],
+    "hints": [
+      "Macros expand at compile time.",
+      "Output a short summary of what macros do."
+    ],
+    "id": "",
+    "introduces": [
+      "macros"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Macros\nMacros generate Swift code at compile time.\n\nOverview:\n- Use macros to remove repetitive boilerplate.\n- Prefer small, predictable expansions.\n- Keep generated behavior obvious to readers.\n\nExample:\n- Attached macros can add members or conformances.\n- Freestanding macros can transform expressions/declarations.\n\nGuidelines:\n- Validate generated output during development.\n- Avoid macros when a simple function solves the problem.",
+    "manualCheck": false,
+    "number": 206,
+    "requires": [],
+    "solution": "print(\"Macro: compile-time code generation\")",
+    "starterCode": "// Challenge 206: Macros (Usage)\n// Macros expand at compile time.\n//\n// Expected output: Macro: compile-time code generation\n\n// TODO: Print \"Macro: compile-time code generation\"",
+    "tier": "mainline",
+    "title": "Macros (Usage)",
+    "topic": "macros"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "SwiftPM\n- Package.swift defines targets and dependencies\n- Executable targets produce CLI tools\n- Library targets expose modules",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Read Package.swift for target types",
+    "expectedOutput": "Targets: forge, forgeTests",
+    "fixtureFiles": [],
+    "hints": [
+      "Package.swift lists executable and test targets.",
+      "Report the target names in a single line."
+    ],
+    "id": "",
+    "introduces": [
+      "swiftpmBasics"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: SwiftPM\nSwift Package Manager defines how modules build and depend on each other.\n\nOverview:\n- `Package.swift` declares products, targets, and dependencies.\n- Targets control source layout and resource inclusion.\n- Build configs and flags tune behavior by environment.\n\nExample:\n- Add a library dependency and link it in a target.\n- Keep package boundaries small and purposeful.\n\nGuidelines:\n- Favor simple package graphs.\n- Keep public APIs stable across package boundaries.",
+    "manualCheck": false,
+    "number": 207,
+    "requires": [],
+    "solution": "print(\"Targets: forge, forgeTests\")",
+    "starterCode": "// Challenge 207: SwiftPM Basics\n// Expected output: Targets: forge, forgeTests\n\n// TODO: Print \"Targets: forge, forgeTests\"",
+    "tier": "mainline",
+    "title": "SwiftPM Basics",
+    "topic": "swiftpm"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "SwiftPM\n- Package.swift defines targets and dependencies\n- Executable targets produce CLI tools\n- Library targets expose modules",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Identify modules and dependencies",
+    "expectedOutput": "Dependencies: none",
+    "fixtureFiles": [],
+    "hints": [
+      "Package.swift lists dependencies near the top.",
+      "Summarize the dependency situation in one line."
+    ],
+    "id": "",
+    "introduces": [
+      "swiftpmDependencies"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: SwiftPM\nSwift Package Manager defines how modules build and depend on each other.\n\nOverview:\n- `Package.swift` declares products, targets, and dependencies.\n- Targets control source layout and resource inclusion.\n- Build configs and flags tune behavior by environment.\n\nExample:\n- Add a library dependency and link it in a target.\n- Keep package boundaries small and purposeful.\n\nGuidelines:\n- Favor simple package graphs.\n- Keep public APIs stable across package boundaries.",
+    "manualCheck": false,
+    "number": 208,
+    "requires": [],
+    "solution": "print(\"Dependencies: none\")",
+    "starterCode": "// Challenge 208: Dependencies & Imports\n// Expected output: Dependencies: none\n\n// TODO: Print \"Dependencies: none\"",
+    "tier": "mainline",
+    "title": "Dependencies & Imports",
+    "topic": "swiftpm"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Performance\n- Arrays use copy-on-write behavior\n- MemoryLayout reports size/stride/alignment\n- Measure before optimizing",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Print the active build configuration",
+    "expectedOutput": "Release",
+    "fixtureFiles": [],
+    "hints": [
+      "#if DEBUG is true in debug builds.",
+      "Scripts run without DEBUG, so the release branch should print."
+    ],
+    "id": "",
+    "introduces": [
+      "buildConfigs"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: SwiftPM\nSwift Package Manager defines how modules build and depend on each other.\n\nOverview:\n- `Package.swift` declares products, targets, and dependencies.\n- Targets control source layout and resource inclusion.\n- Build configs and flags tune behavior by environment.\n\nExample:\n- Add a library dependency and link it in a target.\n- Keep package boundaries small and purposeful.\n\nGuidelines:\n- Favor simple package graphs.\n- Keep public APIs stable across package boundaries.",
+    "manualCheck": false,
+    "number": 209,
+    "requires": [],
+    "solution": "#if DEBUG\nprint(\"Debug\")\n#else\nprint(\"Release\")\n#endif",
+    "starterCode": "// Challenge 209: Build Configs & Flags\n// Print the active build configuration.\n// Note: Running with `swift` uses release-style flags, so DEBUG is not set.\n\n// TODO: Use #if DEBUG to print \"Debug\", otherwise \"Release\"",
+    "tier": "mainline",
+    "title": "Build Configs & Flags",
+    "topic": "swiftpm"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "SwiftPM\n- Package.swift defines targets and dependencies\n- Executable targets produce CLI tools\n- Library targets expose modules",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Plan a SwiftPM feature module",
+    "expectedOutput": "Module: AnalyticsKit",
+    "fixtureFiles": [],
+    "hints": [
+      "Pick a small feature you could isolate into a module.",
+      "Use the provided module name."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: SwiftPM\nSwift Package Manager defines how modules build and depend on each other.\n\nOverview:\n- `Package.swift` declares products, targets, and dependencies.\n- Targets control source layout and resource inclusion.\n- Build configs and flags tune behavior by environment.\n\nExample:\n- Add a library dependency and link it in a target.\n- Keep package boundaries small and purposeful.\n\nGuidelines:\n- Favor simple package graphs.\n- Keep public APIs stable across package boundaries.",
+    "manualCheck": false,
+    "number": 210,
+    "requires": [
+      "swiftpmBasics",
+      "swiftpmDependencies",
+      "buildConfigs"
+    ],
+    "solution": "print(\"Module: AnalyticsKit\")",
+    "starterCode": "// Challenge 210: Integration Challenge\n// Prereqs: SwiftPM basics, dependencies, build configs.\n//\n// Expected output: Module: AnalyticsKit\n\n// TODO: Print \"Module: AnalyticsKit\"",
+    "tier": "mainline",
+    "title": "Integration Challenge",
+    "topic": "swiftpm"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Macros (Usage)\n- Macros are expanded at compile time\n- Macro packages are added via SwiftPM\n- Use #macroName(...) per macro definition",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Review how macro authoring works",
+    "expectedOutput": "Macro author: provides expansion code",
+    "fixtureFiles": [],
+    "hints": [
+      "Macro authors write code that generates code at compile time.",
+      "Provide a concise summary of the authoring role."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Macros\nMacros generate Swift code at compile time.\n\nOverview:\n- Use macros to remove repetitive boilerplate.\n- Prefer small, predictable expansions.\n- Keep generated behavior obvious to readers.\n\nExample:\n- Attached macros can add members or conformances.\n- Freestanding macros can transform expressions/declarations.\n\nGuidelines:\n- Validate generated output during development.\n- Avoid macros when a simple function solves the problem.",
+    "manualCheck": false,
+    "number": 211,
+    "requires": [],
+    "solution": "print(\"Macro author: provides expansion code\")",
+    "starterCode": "// Challenge 211: Macro Authoring (Concepts)\n// Expected output: Macro author: provides expansion code\n\n// TODO: Print \"Macro author: provides expansion code\"",
+    "tier": "mainline",
+    "title": "Macro Authoring (Concepts)",
+    "topic": "macros"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Inspect values with Mirror",
+    "expectedOutput": "metal\nheat",
+    "fixtureFiles": [],
+    "hints": [
+      "Mirror.children yields label/value pairs.",
+      "Print the label for each child."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 212,
+    "requires": [],
+    "solution": "struct ForgeLog {\n    let metal: String\n    let heat: Int\n}\n\nlet log = ForgeLog(metal: \"Iron\", heat: 1200)\nlet mirror = Mirror(reflecting: log)\n\nfor child in mirror.children {\n    if let label = child.label {\n        print(label)\n    }\n}",
+    "starterCode": "// Challenge 212: Reflection\n// Inspect values with Mirror.\n\nstruct ForgeLog {\n    let metal: String\n    let heat: Int\n}\n\nlet log = ForgeLog(metal: \"Iron\", heat: 1200)\nlet mirror = Mirror(reflecting: log)\n\n// TODO: Print each child label on its own line",
+    "tier": "mainline",
+    "title": "Reflection",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Generics\n- some returns an opaque type\n- any uses an existential type\n- Type erasure hides concrete types\n- where clauses add constraints",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Understand protocol witness tables",
+    "expectedOutput": "Witness tables map protocol implementations",
+    "fixtureFiles": [],
+    "hints": [
+      "Witness tables map protocol requirements to implementations.",
+      "Provide a one-line summary of the concept."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Generics\nAdvanced generics express relationships between types.\n\nOverview:\n- Associated types describe placeholder types in protocols.\n- `where` clauses constrain combinations of generic types.\n- Protocol extensions can add constrained default behavior.\n\nExample:\n    protocol Store {\n        associatedtype Item\n        mutating func add(_ item: Item)\n    }\n\nGuidelines:\n- Encode real constraints in the type system.\n- Prefer simpler signatures unless constraints add clear value.",
+    "manualCheck": false,
+    "number": 213,
+    "requires": [],
+    "solution": "print(\"Witness tables map protocol implementations\")",
+    "starterCode": "// Challenge 213: Witness Tables (Concepts)\n// Expected output: Witness tables map protocol implementations\n\n// TODO: Print \"Witness tables map protocol implementations\"",
+    "tier": "mainline",
+    "title": "Witness Tables (Concepts)",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Sketch a simple ViewModel",
+    "expectedOutput": "Status: Ready",
+    "fixtureFiles": [],
+    "hints": [
+      "ViewModels map model data into display-ready values.",
+      "Return a string based on the model's heat."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 214,
+    "requires": [],
+    "solution": "struct FurnaceModel {\n    let heat: Int\n}\n\nstruct FurnaceViewModel {\n    let model: FurnaceModel\n    var status: String {\n        return model.heat >= 1200 ? \"Ready\" : \"Cold\"\n    }\n}\n\nlet viewModel = FurnaceViewModel(model: FurnaceModel(heat: 1300))\nprint(\"Status: \\(viewModel.status)\")",
+    "starterCode": "// Challenge 214: MVVM vs MVC\n// Sketch a simple ViewModel.\n\nstruct FurnaceModel {\n    let heat: Int\n}\n\nstruct FurnaceViewModel {\n    let model: FurnaceModel\n    // TODO: Add a computed property status returning \"Ready\" when heat >= 1200\n}\n\nlet viewModel = FurnaceViewModel(model: FurnaceModel(heat: 1300))\nprint(\"Status: \\(viewModel.status)\")",
+    "tier": "mainline",
+    "title": "MVVM vs MVC",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Inject a dependency via protocol",
+    "expectedOutput": "Forge started",
+    "fixtureFiles": [],
+    "hints": [
+      "Inject the logger through the initializer or property.",
+      "Use logger.log inside start()."
+    ],
+    "id": "",
+    "introduces": [
+      "dependencyInjection"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 215,
+    "requires": [],
+    "solution": "protocol Logger {\n    func log(_ message: String)\n}\n\nstruct ConsoleLogger: Logger {\n    func log(_ message: String) {\n        print(message)\n    }\n}\n\nstruct ForgeService {\n    let logger: any Logger\n    func start() {\n        logger.log(\"Forge started\")\n    }\n}\n\nlet service = ForgeService(logger: ConsoleLogger())\nservice.start()",
+    "starterCode": "// Challenge 215: Dependency Injection\n// Inject a dependency via protocol.\n\nprotocol Logger {\n    func log(_ message: String)\n}\n\nstruct ConsoleLogger: Logger {\n    func log(_ message: String) {\n        print(message)\n    }\n}\n\nstruct ForgeService {\n    let logger: any Logger\n    // TODO: Add a start() method that logs \"Forge started\"\n}\n\nlet service = ForgeService(logger: ConsoleLogger())\n// TODO: Call service.start()",
+    "tier": "mainline",
+    "title": "Dependency Injection",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Centralize navigation flow",
+    "expectedOutput": "Start",
+    "fixtureFiles": [],
+    "hints": [
+      "Coordinators expose a start() method.",
+      "Print a simple marker string."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 216,
+    "requires": [],
+    "solution": "protocol Coordinator {\n    func start()\n}\n\nstruct AppCoordinator: Coordinator {\n    func start() {\n        print(\"Start\")\n    }\n}\n\nlet coordinator = AppCoordinator()\ncoordinator.start()",
+    "starterCode": "// Challenge 216: Coordinator Pattern\n// Centralize navigation flow.\n\nprotocol Coordinator {\n    func start()\n}\n\nstruct AppCoordinator: Coordinator {\n    // TODO: Implement start() to print \"Start\"\n}\n\nlet coordinator = AppCoordinator()\ncoordinator.start()",
+    "tier": "mainline",
+    "title": "Coordinator Pattern",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Separate data access from logic",
+    "expectedOutput": "Count: 2",
+    "fixtureFiles": [],
+    "hints": [
+      "Call repository.loadItems inside count().",
+      "Return the count of the items array."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 217,
+    "requires": [],
+    "solution": "protocol InventoryRepository {\n    func loadItems() -> [String]\n}\n\nstruct MemoryInventoryRepository: InventoryRepository {\n    let items: [String]\n    func loadItems() -> [String] { items }\n}\n\nstruct InventoryService {\n    let repository: any InventoryRepository\n    func count() -> Int {\n        return repository.loadItems().count\n    }\n}\n\nlet service = InventoryService(repository: MemoryInventoryRepository(items: [\"Iron\", \"Gold\"]))\nprint(\"Count: \\(service.count())\")",
+    "starterCode": "// Challenge 217: Repository Pattern\n// Separate data access from logic.\n\nprotocol InventoryRepository {\n    func loadItems() -> [String]\n}\n\nstruct MemoryInventoryRepository: InventoryRepository {\n    let items: [String]\n    func loadItems() -> [String] { items }\n}\n\nstruct InventoryService {\n    let repository: any InventoryRepository\n    // TODO: Add count() -> Int that returns item count\n}\n\nlet service = InventoryService(repository: MemoryInventoryRepository(items: [\"Iron\", \"Gold\"]))\nprint(\"Count: \\(service.count())\")",
+    "tier": "mainline",
+    "title": "Repository Pattern",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Swap in a mock for testing",
+    "expectedOutput": "Now: 5",
+    "fixtureFiles": [],
+    "hints": [
+      "Mocks return a fixed value for predictable output.",
+      "Call clock.now() inside report()."
+    ],
+    "id": "",
+    "introduces": [
+      "protocolMocking"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Protocol Design\nProtocol design defines stable contracts between components.\n\nOverview:\n- Keep each protocol focused on one responsibility.\n- Use associated types when relationships are important.\n- Add default behavior in constrained extensions when it helps.\n\nExample:\n- Define small service protocols for dependency injection.\n- Provide test doubles that conform to the same protocol.\n\nGuidelines:\n- Avoid giant umbrella protocols.\n- Model behavior, not concrete storage.",
+    "manualCheck": false,
+    "number": 218,
+    "requires": [],
+    "solution": "protocol Clock {\n    func now() -> Int\n}\n\nstruct MockClock: Clock {\n    let value: Int\n    func now() -> Int { value }\n}\n\nfunc report(_ clock: any Clock) {\n    print(\"Now: \\(clock.now())\")\n}\n\nreport(MockClock(value: 5))",
+    "starterCode": "// Challenge 218: Protocol Mocking\n// Swap in a mock for testing.\n\nprotocol Clock {\n    func now() -> Int\n}\n\nstruct MockClock: Clock {\n    let value: Int\n    func now() -> Int { value }\n}\n\nfunc report(_ clock: any Clock) {\n    // TODO: Print \"Now: <value>\"\n}\n\nreport(MockClock(value: 5))",
+    "tier": "mainline",
+    "title": "Protocol Mocking",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Recall red/green/refactor",
+    "expectedOutput": "TDD: Red, Green, Refactor",
+    "fixtureFiles": [],
+    "hints": [
+      "Red: failing test; Green: make it pass; Refactor: clean up.",
+      "Output the phase names in order."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Testing\nTests protect behavior and support refactoring.\n\nOverview:\n- Unit tests validate isolated functions and types.\n- Integration tests verify command flows and file interactions.\n- Use deterministic inputs and explicit assertions.\n\nExample:\n- Arrange input, act by calling the function, assert exact output.\n- Prefer clear failure messages over broad checks.\n\nGuidelines:\n- Test critical paths and edge cases.\n- Keep tests fast and independent.",
+    "manualCheck": false,
+    "number": 219,
+    "requires": [],
+    "solution": "print(\"TDD: Red, Green, Refactor\")",
+    "starterCode": "// Challenge 219: TDD Cycle (Concepts)\n// Expected output: TDD: Red, Green, Refactor\n\n// TODO: Print \"TDD: Red, Green, Refactor\"",
+    "tier": "mainline",
+    "title": "TDD Cycle (Concepts)",
+    "topic": "testing"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Macros (Usage)\n- Macros are expanded at compile time\n- Macro packages are added via SwiftPM\n- Use #macroName(...) per macro definition",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Review async XCTest patterns",
+    "expectedOutput": "Async tests can await in XCTest",
+    "fixtureFiles": [],
+    "hints": [
+      "XCTest supports async test methods with async/await.",
+      "Summarize the async testing capability in one line."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Testing\nTests protect behavior and support refactoring.\n\nOverview:\n- Unit tests validate isolated functions and types.\n- Integration tests verify command flows and file interactions.\n- Use deterministic inputs and explicit assertions.\n\nExample:\n- Arrange input, act by calling the function, assert exact output.\n- Prefer clear failure messages over broad checks.\n\nGuidelines:\n- Test critical paths and edge cases.\n- Keep tests fast and independent.",
+    "manualCheck": false,
+    "number": 220,
+    "requires": [],
+    "solution": "print(\"Async tests can await in XCTest\")",
+    "starterCode": "// Challenge 220: Async Testing (Concepts)\n// Expected output: Async tests can await in XCTest\n\n// TODO: Print \"Async tests can await in XCTest\"",
+    "tier": "mainline",
+    "title": "Async Testing (Concepts)",
+    "topic": "testing"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Recall UI testing focus",
+    "expectedOutput": "UI tests verify user flows",
+    "fixtureFiles": [],
+    "hints": [
+      "UI tests simulate user flows and verify visible outcomes.",
+      "Summarize the UI testing focus in one line."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Testing\nTests protect behavior and support refactoring.\n\nOverview:\n- Unit tests validate isolated functions and types.\n- Integration tests verify command flows and file interactions.\n- Use deterministic inputs and explicit assertions.\n\nExample:\n- Arrange input, act by calling the function, assert exact output.\n- Prefer clear failure messages over broad checks.\n\nGuidelines:\n- Test critical paths and edge cases.\n- Keep tests fast and independent.",
+    "manualCheck": false,
+    "number": 221,
+    "requires": [],
+    "solution": "print(\"UI tests verify user flows\")",
+    "starterCode": "// Challenge 221: UI Testing (Concepts)\n// Expected output: UI tests verify user flows\n\n// TODO: Print \"UI tests verify user flows\"",
+    "tier": "mainline",
+    "title": "UI Testing (Concepts)",
+    "topic": "testing"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Performance\n- Arrays use copy-on-write behavior\n- MemoryLayout reports size/stride/alignment\n- Measure before optimizing",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Access memory with an unsafe pointer",
+    "expectedOutput": "42",
+    "fixtureFiles": [],
+    "hints": [
+      "withUnsafePointer passes a pointer to a closure.",
+      "Use pointer.pointee to read the value."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Memory\nMemory behavior affects performance and correctness in larger systems.\n\nOverview:\n- Understand value vs reference semantics.\n- Watch ARC churn in high-frequency paths.\n- Avoid retain cycles in closure-heavy code.\n\nExample:\n- Capture `[weak self]` in escaping closures tied to object lifetime.\n- Prefer value types for independent snapshots.\n\nGuidelines:\n- Measure before micro-optimizing.\n- Choose ownership rules that are explicit and simple.",
+    "manualCheck": false,
+    "number": 222,
+    "requires": [],
+    "solution": "var value = 42\n\nwithUnsafePointer(to: &value) { pointer in\n    print(pointer.pointee)\n}",
+    "starterCode": "// Challenge 222: Unsafe Pointers\n// Access memory with an unsafe pointer.\n\nvar value = 42\n\n// TODO: Use withUnsafePointer(to:) to print the value",
+    "tier": "mainline",
+    "title": "Unsafe Pointers",
+    "topic": "memory"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "SwiftPM\n- Package.swift defines targets and dependencies\n- Executable targets produce CLI tools\n- Library targets expose modules",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Recall how C interop works",
+    "expectedOutput": "C interop uses module maps",
+    "fixtureFiles": [],
+    "hints": [
+      "Swift can import C APIs via module maps or bridging headers.",
+      "Summarize how C interop is wired."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Interop\nInterop bridges Swift code with external systems and formats.\n\nOverview:\n- Convert between representations carefully.\n- Validate boundaries and error paths.\n- Keep adapters thin and well-tested.\n\nExample:\n- Map raw input into typed Swift models.\n- Surface conversion failures with structured errors.\n\nGuidelines:\n- Isolate boundary code from core logic.\n- Preserve invariants when crossing module/language edges.",
+    "manualCheck": false,
+    "number": 223,
+    "requires": [],
+    "solution": "print(\"C interop uses module maps\")",
+    "starterCode": "// Challenge 223: C Interop (Concepts)\n// Expected output: C interop uses module maps\n\n// TODO: Print \"C interop uses module maps\"",
+    "tier": "mainline",
+    "title": "C Interop (Concepts)",
+    "topic": "interop"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "SwiftPM\n- Package.swift defines targets and dependencies\n- Executable targets produce CLI tools\n- Library targets expose modules",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Recall Obj-C bridging basics",
+    "expectedOutput": "@objc and bridging headers",
+    "fixtureFiles": [],
+    "hints": [
+      "@objc exposes Swift to Obj-C; bridging headers import Obj-C to Swift.",
+      "Summarize the interop mechanism in one line."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Interop\nInterop bridges Swift code with external systems and formats.\n\nOverview:\n- Convert between representations carefully.\n- Validate boundaries and error paths.\n- Keep adapters thin and well-tested.\n\nExample:\n- Map raw input into typed Swift models.\n- Surface conversion failures with structured errors.\n\nGuidelines:\n- Isolate boundary code from core logic.\n- Preserve invariants when crossing module/language edges.",
+    "manualCheck": false,
+    "number": 224,
+    "requires": [],
+    "solution": "print(\"@objc and bridging headers\")",
+    "starterCode": "// Challenge 224: Objective-C Interop (Concepts)\n// Expected output: @objc and bridging headers\n\n// TODO: Print \"@objc and bridging headers\"",
+    "tier": "mainline",
+    "title": "Objective-C Interop (Concepts)",
+    "topic": "interop"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Recall common debugger commands",
+    "expectedOutput": "LLDB: po, bt",
+    "fixtureFiles": [],
+    "hints": [
+      "Examples: breakpoint set, po, bt.",
+      "Provide a short list of common commands."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 225,
+    "requires": [],
+    "solution": "print(\"LLDB: po, bt\")",
+    "starterCode": "// Challenge 225: LLDB Tactics (Concepts)\n// Expected output: LLDB: po, bt\n\n// TODO: Print \"LLDB: po, bt\"",
+    "tier": "mainline",
+    "title": "LLDB Tactics (Concepts)",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Errors\n- Define: enum MyError: Error { case ... }\n- Throwing functions use throws\n- Call with try\n- Handle with do { try ... } catch { ... }\n- try? returns Optional, nil on error",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Surface errors with context",
+    "expectedOutput": "Error: overheating",
+    "fixtureFiles": [],
+    "hints": [
+      "The catch block handles thrown errors.",
+      "Print a clear message for the failure case."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Error Handling Patterns\nAdvanced error handling balances clarity with recovery.\n\nOverview:\n- Prefer typed errors with actionable cases.\n- Convert low-level failures into domain errors near boundaries.\n- Preserve context when rethrowing or wrapping.\n\nExample:\n- Catch parsing failures, then throw a domain-specific error case.\n- Use `Result` when explicit success/failure values simplify flow.\n\nGuidelines:\n- Do not silence important errors.\n- Keep failure messages specific and testable.",
+    "manualCheck": false,
+    "number": 226,
+    "requires": [
+      "doCatch",
+      "throwKeyword",
+      "tryKeyword"
+    ],
+    "solution": "enum ForgeError: Error {\n    case overheated\n}\n\nfunc checkHeat(_ value: Int) throws {\n    if value > 2000 {\n        throw ForgeError.overheated\n    }\n}\n\n do {\n    try checkHeat(2200)\n    print(\"OK\")\n} catch {\n    print(\"Error: overheating\")\n}",
+    "starterCode": "// Challenge 226: Diagnostics\n// Surface errors with context.\n\nenum ForgeError: Error {\n    case overheated\n}\n\nfunc checkHeat(_ value: Int) throws {\n    if value > 2000 {\n        throw ForgeError.overheated\n    }\n}\n\ndo {\n    try checkHeat(2200)\n    print(\"OK\")\n} catch {\n    // TODO: Print \"Error: overheating\"\n}",
+    "tier": "mainline",
+    "title": "Diagnostics",
+    "topic": "errors"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Recall basic Git workflow steps",
+    "expectedOutput": "Git: branch, commit, push, PR",
+    "fixtureFiles": [],
+    "hints": [
+      "Example: branch -> commit -> push -> PR.",
+      "Summarize the workflow sequence."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 227,
+    "requires": [],
+    "solution": "print(\"Git: branch, commit, push, PR\")",
+    "starterCode": "// Challenge 227: Git Workflows (Concepts)\n// Expected output: Git: branch, commit, push, PR\n\n// TODO: Print \"Git: branch, commit, push, PR\"",
+    "tier": "mainline",
+    "title": "Git Workflows (Concepts)",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Generics\n- some returns an opaque type\n- any uses an existential type\n- Type erasure hides concrete types\n- where clauses add constraints",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Combine DI and protocol testing",
+    "expectedOutput": "Sum: 6",
+    "fixtureFiles": [],
+    "hints": [
+      "Call source.values() and sum the results.",
+      "Return the total from sum()."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Protocol Design\nProtocol design defines stable contracts between components.\n\nOverview:\n- Keep each protocol focused on one responsibility.\n- Use associated types when relationships are important.\n- Add default behavior in constrained extensions when it helps.\n\nExample:\n- Define small service protocols for dependency injection.\n- Provide test doubles that conform to the same protocol.\n\nGuidelines:\n- Avoid giant umbrella protocols.\n- Model behavior, not concrete storage.",
+    "manualCheck": false,
+    "number": 228,
+    "requires": [
+      "protocols",
+      "dependencyInjection",
+      "protocolMocking",
+      "reduce"
+    ],
+    "solution": "protocol DataSource {\n    func values() -> [Int]\n}\n\nstruct MemorySource: DataSource {\n    let items: [Int]\n    func values() -> [Int] { items }\n}\n\nstruct Analyzer {\n    let source: DataSource\n    func sum() -> Int {\n        return source.values().reduce(0, +)\n    }\n}\n\nlet analyzer = Analyzer(source: MemorySource(items: [1, 2, 3]))\nprint(\"Sum: \\(analyzer.sum())\")",
+    "starterCode": "// Challenge 228: Integration Challenge\n// Combine DI and protocol testing.\n// Prereqs: protocols, dependency injection, protocol mocking.\n\nprotocol DataSource {\n    func values() -> [Int]\n}\n\nstruct MemorySource: DataSource {\n    let items: [Int]\n    func values() -> [Int] { items }\n}\n\nstruct Analyzer {\n    let source: DataSource\n    // TODO: Add sum() -> Int that totals the source values\n}\n\nlet analyzer = Analyzer(source: MemorySource(items: [1, 2, 3]))\nprint(\"Sum: \\(analyzer.sum())\")",
+    "tier": "mainline",
+    "title": "Integration Challenge",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Pause an async task before printing",
+    "expectedOutput": "Done",
+    "fixtureFiles": [],
+    "hints": [
+      "Task.sleep is async and can be called with try? await.",
+      "Print after the sleep call."
+    ],
+    "id": "crust-extra-async-sleep",
+    "introduces": [
+      "taskSleep"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 229,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nrunAsync {\n    try? await Task.sleep(nanoseconds: 50_000_000)\n    print(\"Done\")\n}",
+    "starterCode": "// Challenge 229: Async Sleep\n// Pause an async task before printing.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nrunAsync {\n    // TODO: Sleep briefly with Task.sleep\n    // TODO: Print \"Done\"\n}",
+    "tier": "extra",
+    "title": "Async Sleep",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Actors\n- actor isolates mutable state\n- actor methods are accessed with await\n- @MainActor marks main-thread-bound work",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Update actor state safely",
+    "expectedOutput": "Balance: 7",
+    "fixtureFiles": [],
+    "hints": [
+      "Actor methods are called with await.",
+      "Print the balance after both updates."
+    ],
+    "id": "crust-extra-actor-balance",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Actors\nActors protect mutable state from data races.\n\nOverview:\n- Actor methods are isolated by default.\n- Access actor state with `await` from outside.\n- Use actors for shared mutable state across tasks.\n\nExample:\n    actor Counter {\n        private var value = 0\n        func inc() { value += 1 }\n        func read() -> Int { value }\n    }\n\nGuidelines:\n- Keep actor APIs small.\n- Avoid unnecessary cross-actor hops in tight loops.",
+    "manualCheck": false,
+    "number": 230,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nactor Ledger {\n    private var balance = 0\n\n    func add(_ value: Int) {\n        balance += value\n    }\n\n    func current() -> Int {\n        return balance\n    }\n}\n\nlet ledger = Ledger()\nrunAsync {\n    await ledger.add(3)\n    await ledger.add(4)\n    let value = await ledger.current()\n    print(\"Balance: \\(value)\")\n}",
+    "starterCode": "// Challenge 230: Actor Balance\n// Update actor state safely.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nactor Ledger {\n    private var balance = 0\n    // TODO: Add add(_:) and current() methods\n}\n\nlet ledger = Ledger()\nrunAsync {\n    // TODO: Add 3 and 4, then print \"Balance: 7\"\n}",
+    "tier": "extra",
+    "title": "Actor Balance",
+    "topic": "actors"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Move values across tasks safely",
+    "expectedOutput": "Count: 3",
+    "fixtureFiles": [],
+    "hints": [
+      "Sendable marks the struct as safe for concurrency.",
+      "Use values.count in the output."
+    ],
+    "id": "crust-extra-sendable-snapshot",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 231,
+    "requires": [],
+    "solution": "struct Snapshot: Sendable {\n    let values: [Int]\n}\n\nlet snapshot = Snapshot(values: [1, 2, 3])\nprint(\"Count: \\(snapshot.values.count)\")",
+    "starterCode": "// Challenge 231: Sendable Snapshot\n// Move values across tasks safely.\n\nstruct Snapshot: Sendable {\n    let values: [Int]\n}\n\nlet snapshot = Snapshot(values: [1, 2, 3])\n// TODO: Print \"Count: 3\"",
+    "tier": "extra",
+    "title": "Sendable Snapshot",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Key Paths\n- Syntax: \\Type.property\n- Access with value[keyPath: path]\n- Map with \\Type.property",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Compute an average using key paths",
+    "expectedOutput": "Average: 80",
+    "fixtureFiles": [],
+    "hints": [
+      "Use ores.map(\\.purity) to extract values.",
+      "Average is sum / count with Int math."
+    ],
+    "id": "crust-extra-keypath-average",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Key Paths\nKey paths reference properties as values.\n\nOverview:\n- `\\Type.property` captures a readable path.\n- Use key paths with APIs like `map` and sorting helpers.\n- Writable key paths enable generic mutation utilities.\n\nExample:\n    struct Reading { let temp: Int }\n    let temps = readings.map(\\.temp)\n\nGuidelines:\n- Prefer key paths when extracting one property repeatedly.\n- Keep transformations readable and explicit.",
+    "manualCheck": false,
+    "number": 232,
+    "requires": [],
+    "solution": "struct Ore {\n    let name: String\n    let purity: Int\n}\n\nlet ores = [\n    Ore(name: \"Iron\", purity: 70),\n    Ore(name: \"Gold\", purity: 90),\n]\n\nlet values = ores.map(\\.purity)\nlet average = values.reduce(0, +) / values.count\nprint(\"Average: \\(average)\")",
+    "starterCode": "// Challenge 232: KeyPath Average\n// Compute an average using key paths.\n\nstruct Ore {\n    let name: String\n    let purity: Int\n}\n\nlet ores = [\n    Ore(name: \"Iron\", purity: 70),\n    Ore(name: \"Gold\", purity: 90),\n]\n\n// TODO: Map purity values with a key path\n// TODO: Print \"Average: 80\"",
+    "tier": "extra",
+    "title": "KeyPath Average",
+    "topic": "keyPaths"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Sequences\n- Sequence can be iterated once with for-in\n- Collection adds indices and count\n- lazy creates deferred transformations",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Filter and sum with lazy",
+    "expectedOutput": "Total: 120",
+    "fixtureFiles": [],
+    "hints": [
+      "Use lazy.filter then lazy.map before reducing.",
+      "Sum the transformed values to match the total."
+    ],
+    "id": "crust-extra-lazy-even-sum",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "manualCheck": false,
+    "number": 233,
+    "requires": [],
+    "solution": "let numbers = [1, 2, 3, 4, 5, 6]\n\nlet total = numbers.lazy\n    .filter { $0 % 2 == 0 }\n    .map { $0 * 10 }\n    .reduce(0, +)\n\nprint(\"Total: \\(total)\")",
+    "starterCode": "// Challenge 233: Lazy Even Sum\n// Filter and sum with lazy.\n\nlet numbers = [1, 2, 3, 4, 5, 6]\n\n// TODO: Use lazy to keep even numbers\n// TODO: Multiply each by 10\n// TODO: Print \"Total: 120\"",
+    "tier": "extra",
+    "title": "Lazy Even Sum",
+    "topic": "sequences"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Generics\n- some returns an opaque type\n- any uses an existential type\n- Type erasure hides concrete types\n- where clauses add constraints",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Compare values with generics",
+    "expectedOutput": "9",
+    "fixtureFiles": [],
+    "hints": [
+      "Return a if a > b, otherwise b.",
+      "Use a generic constraint on Comparable."
+    ],
+    "id": "crust-extra-generic-max",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Generics\nAdvanced generics express relationships between types.\n\nOverview:\n- Associated types describe placeholder types in protocols.\n- `where` clauses constrain combinations of generic types.\n- Protocol extensions can add constrained default behavior.\n\nExample:\n    protocol Store {\n        associatedtype Item\n        mutating func add(_ item: Item)\n    }\n\nGuidelines:\n- Encode real constraints in the type system.\n- Prefer simpler signatures unless constraints add clear value.",
+    "manualCheck": false,
+    "number": 234,
+    "requires": [],
+    "solution": "func maxValue<T: Comparable>(_ a: T, _ b: T) -> T {\n    return a > b ? a : b\n}\n\nprint(maxValue(4, 9))",
+    "starterCode": "// Challenge 234: Generic Max\n// Compare values with generics.\n\n// TODO: Write maxValue<T: Comparable>(_:_:) -> T\n// TODO: Print maxValue(4, 9)",
+    "tier": "extra",
+    "title": "Generic Max",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Generics\n- some returns an opaque type\n- any uses an existential type\n- Type erasure hides concrete types\n- where clauses add constraints",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Erase sequence types",
+    "expectedOutput": "Count: 3",
+    "fixtureFiles": [],
+    "hints": [
+      "Wrap the array with AnySequence(...).",
+      "Materialize the sequence to count it."
+    ],
+    "id": "crust-extra-anysequence",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "manualCheck": false,
+    "number": 235,
+    "requires": [],
+    "solution": "func makeSequence() -> AnySequence<Int> {\n    return AnySequence([1, 2, 3])\n}\n\nlet sequence = makeSequence()\nlet items = Array(sequence)\nprint(\"Count: \\(items.count)\")",
+    "starterCode": "// Challenge 235: AnySequence\n// Erase sequence types.\n\nfunc makeSequence() -> AnySequence<Int> {\n    // TODO: Return AnySequence with [1, 2, 3]\n}\n\nlet sequence = makeSequence()\nlet items = Array(sequence)\nprint(\"Count: \\(items.count)\")",
+    "tier": "extra",
+    "title": "AnySequence",
+    "topic": "sequences"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Provide default values",
+    "expectedOutput": "Limit: 5\nMissing: 0",
+    "fixtureFiles": [],
+    "hints": [
+      "Return values[member, default: 0].",
+      "The missing key should return 0."
+    ],
+    "id": "crust-extra-dynamicmemberlookup-extra",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 236,
+    "requires": [],
+    "solution": "@dynamicMemberLookup\nstruct Defaults {\n    var values: [String: Int]\n    subscript(dynamicMember member: String) -> Int {\n        return values[member, default: 0]\n    }\n}\n\nlet defaults = Defaults(values: [\"limit\": 5])\nprint(\"Limit: \\(defaults.limit)\")\nprint(\"Missing: \\(defaults.missing)\")",
+    "starterCode": "// Challenge 236: dynamicMemberLookup Extra\n// Provide default values.\n\n@dynamicMemberLookup\nstruct Defaults {\n    var values: [String: Int]\n    // TODO: Add dynamicMember subscript returning Int\n}\n\nlet defaults = Defaults(values: [\"limit\": 5])\nprint(\"Limit: \\(defaults.limit)\")\nprint(\"Missing: \\(defaults.missing)\")",
+    "tier": "extra",
+    "title": "dynamicMemberLookup Extra",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Sum keyword arguments",
+    "expectedOutput": "6",
+    "fixtureFiles": [],
+    "hints": [
+      "Keyword arguments arrive as KeyValuePairs.",
+      "Sum the values and return the total."
+    ],
+    "id": "crust-extra-dynamiccallable-keywords",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 237,
+    "requires": [],
+    "solution": "@dynamicCallable\nstruct KeyedAdder {\n    func dynamicallyCall(withKeywordArguments args: KeyValuePairs<String, Int>) -> Int {\n        return args.reduce(0) { $0 + $1.value }\n    }\n}\n\nlet adder = KeyedAdder()\nprint(adder(a: 1, b: 2, c: 3))",
+    "starterCode": "// Challenge 237: dynamicCallable Keywords\n// Sum keyword arguments.\n\n@dynamicCallable\nstruct KeyedAdder {\n    // TODO: Implement dynamicallyCall(withKeywordArguments:)\n}\n\nlet adder = KeyedAdder()\nprint(adder(a: 1, b: 2, c: 3))",
+    "tier": "extra",
+    "title": "dynamicCallable Keywords",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Performance\n- Arrays use copy-on-write behavior\n- MemoryLayout reports size/stride/alignment\n- Measure before optimizing",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Inspect stride and alignment",
+    "expectedOutput": "Stride: 2\nAlignment: 2",
+    "fixtureFiles": [],
+    "hints": [
+      "Use MemoryLayout<UInt16>.stride and .alignment.",
+      "Format the output to include both labels."
+    ],
+    "id": "crust-extra-memorylayout-stride",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Memory\nMemory behavior affects performance and correctness in larger systems.\n\nOverview:\n- Understand value vs reference semantics.\n- Watch ARC churn in high-frequency paths.\n- Avoid retain cycles in closure-heavy code.\n\nExample:\n- Capture `[weak self]` in escaping closures tied to object lifetime.\n- Prefer value types for independent snapshots.\n\nGuidelines:\n- Measure before micro-optimizing.\n- Choose ownership rules that are explicit and simple.",
+    "manualCheck": false,
+    "number": 238,
+    "requires": [],
+    "solution": "print(\"Stride: \\(MemoryLayout<UInt16>.stride)\")\nprint(\"Alignment: \\(MemoryLayout<UInt16>.alignment)\")",
+    "starterCode": "// Challenge 238: MemoryLayout Stride\n// Inspect stride and alignment.\n\n// TODO: Print \"Stride: 2\" and \"Alignment: 2\" for UInt16",
+    "tier": "extra",
+    "title": "MemoryLayout Stride",
+    "topic": "memory"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Performance\n- Arrays use copy-on-write behavior\n- MemoryLayout reports size/stride/alignment\n- Measure before optimizing",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Update through a pointer",
+    "expectedOutput": "10",
+    "fixtureFiles": [],
+    "hints": [
+      "Use pointer.pointee to update the value.",
+      "Print after the pointer scope."
+    ],
+    "id": "crust-extra-unsafe-mutation",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Memory\nMemory behavior affects performance and correctness in larger systems.\n\nOverview:\n- Understand value vs reference semantics.\n- Watch ARC churn in high-frequency paths.\n- Avoid retain cycles in closure-heavy code.\n\nExample:\n- Capture `[weak self]` in escaping closures tied to object lifetime.\n- Prefer value types for independent snapshots.\n\nGuidelines:\n- Measure before micro-optimizing.\n- Choose ownership rules that are explicit and simple.",
+    "manualCheck": false,
+    "number": 239,
+    "requires": [],
+    "solution": "var value = 5\n\nwithUnsafeMutablePointer(to: &value) { pointer in\n    pointer.pointee += 5\n}\n\nprint(value)",
+    "starterCode": "// Challenge 239: Unsafe Mutation\n// Update through a pointer.\n\nvar value = 5\n\n// TODO: Use withUnsafeMutablePointer to add 5\n// TODO: Print value (should be 10)",
+    "tier": "extra",
+    "title": "Unsafe Mutation",
+    "topic": "memory"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Generics\n- some returns an opaque type\n- any uses an existential type\n- Type erasure hides concrete types\n- where clauses add constraints",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use a constrained extension",
+    "expectedOutput": "true",
+    "fixtureFiles": [],
+    "hints": [
+      "Add a constrained extension for Int.",
+      "Use value % 2 == 0."
+    ],
+    "id": "crust-extra-where-filter",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Generics\nAdvanced generics express relationships between types.\n\nOverview:\n- Associated types describe placeholder types in protocols.\n- `where` clauses constrain combinations of generic types.\n- Protocol extensions can add constrained default behavior.\n\nExample:\n    protocol Store {\n        associatedtype Item\n        mutating func add(_ item: Item)\n    }\n\nGuidelines:\n- Encode real constraints in the type system.\n- Prefer simpler signatures unless constraints add clear value.",
+    "manualCheck": false,
+    "number": 240,
+    "requires": [],
+    "solution": "struct Box<T> {\n    let value: T\n}\n\nextension Box where T == Int {\n    func isEven() -> Bool {\n        return value % 2 == 0\n    }\n}\n\nlet box = Box(value: 6)\nprint(box.isEven())",
+    "starterCode": "// Challenge 240: Where Filter\n// Use a constrained extension.\n\nstruct Box<T> {\n    let value: T\n}\n\nextension Box where T == Int {\n    // TODO: Add isEven() -> Bool\n}\n\nlet box = Box(value: 6)\nprint(box.isEven())",
+    "tier": "extra",
+    "title": "Where Filter",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Run async calls in parallel",
+    "expectedOutput": "Sum: 5",
+    "fixtureFiles": [],
+    "hints": [
+      "Use async let to start both calls.",
+      "Await both values before summing."
+    ],
+    "id": "crust-extra-async-let",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 252,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nfunc fetchA() async -> Int {\n    return 2\n}\n\nfunc fetchB() async -> Int {\n    return 3\n}\n\nrunAsync {\n    async let a = fetchA()\n    async let b = fetchB()\n    let sum = await a + b\n    print(\"Sum: \\(sum)\")\n}",
+    "starterCode": "// Challenge 252: Async Let\n// Run async calls in parallel.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nfunc fetchA() async -> Int {\n    return 2\n}\n\nfunc fetchB() async -> Int {\n    return 3\n}\n\nrunAsync {\n    // TODO: Use async let for fetchA and fetchB\n    // TODO: Print \"Sum: 5\"\n}",
+    "tier": "extra",
+    "title": "Async Let",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Write a minimal XCTest case (simulated)",
+    "expectedOutput": "XCTest ready",
+    "fixtureFiles": [],
+    "hints": [
+      "Subclass XCTestCase for tests.",
+      "Use XCTAssertEqual inside testSum()."
+    ],
+    "id": "crust-extra-xctest-micro",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Testing\nTests protect behavior and support refactoring.\n\nOverview:\n- Unit tests validate isolated functions and types.\n- Integration tests verify command flows and file interactions.\n- Use deterministic inputs and explicit assertions.\n\nExample:\n- Arrange input, act by calling the function, assert exact output.\n- Prefer clear failure messages over broad checks.\n\nGuidelines:\n- Test critical paths and edge cases.\n- Keep tests fast and independent.",
+    "manualCheck": false,
+    "number": 253,
+    "requires": [],
+    "solution": "class XCTestCase {}\nfunc XCTAssertEqual<T: Equatable>(_ lhs: T, _ rhs: T) {}\n\nclass SampleTests: XCTestCase {\n    func testSum() {\n        XCTAssertEqual(2 + 2, 4)\n    }\n}\n\nprint(\"XCTest ready\")",
+    "starterCode": "// Challenge 253: XCTest Micro Example\n// Forge includes a tiny XCTest stub so this compiles as a script.\n// Expected output: XCTest ready\n\nclass XCTestCase {}\nfunc XCTAssertEqual<T: Equatable>(_ lhs: T, _ rhs: T) {}\n\n// TODO: Create class SampleTests: XCTestCase\n// TODO: Add func testSum() with XCTAssertEqual(2 + 2, 4)\n\n// TODO: Print \"XCTest ready\"",
+    "tier": "extra",
+    "title": "XCTest Micro Example",
+    "topic": "testing"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Await a simple async value",
+    "expectedOutput": "Heat: 1500",
+    "fixtureFiles": [],
+    "hints": [
+      "Use await to get the async value."
+    ],
+    "id": "crust-extra-async-warmup",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 292,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nfunc heat() async -> Int {\n    return 1500\n}\n\nrunAsync {\n    let value = await heat()\n    print(\"Heat: \\(value)\")\n}",
+    "starterCode": "// Challenge 292: Async Warmup\n// Await a simple async value.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nfunc heat() async -> Int {\n    return 1500\n}\n\nrunAsync {\n    // TODO: Await heat() and print \"Heat: 1500\"\n}",
+    "tier": "extra",
+    "title": "Async Warmup",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Use an actor for state",
+    "expectedOutput": "1 2",
+    "fixtureFiles": [],
+    "hints": [
+      "Call actor methods with await."
+    ],
+    "id": "crust-extra-actor-counter",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Actors\nActors protect mutable state from data races.\n\nOverview:\n- Actor methods are isolated by default.\n- Access actor state with `await` from outside.\n- Use actors for shared mutable state across tasks.\n\nExample:\n    actor Counter {\n        private var value = 0\n        func inc() { value += 1 }\n        func read() -> Int { value }\n    }\n\nGuidelines:\n- Keep actor APIs small.\n- Avoid unnecessary cross-actor hops in tight loops.",
+    "manualCheck": false,
+    "number": 293,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nactor Counter {\n    var value = 0\n    func increment() -> Int {\n        value += 1\n        return value\n    }\n}\n\nrunAsync {\n    let counter = Counter()\n    let first = await counter.increment()\n    let second = await counter.increment()\n    print(\"\\(first) \\(second)\")\n}",
+    "starterCode": "// Challenge 293: Actor Counter\n// Use an actor for state.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nactor Counter {\n    var value = 0\n    func increment() -> Int {\n        value += 1\n        return value\n    }\n}\n\nrunAsync {\n    // TODO: Create a Counter, call increment twice, and print \"1 2\"\n}",
+    "tier": "extra",
+    "title": "Actor Counter",
+    "topic": "actors"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Clamp a value with a wrapper",
+    "expectedOutput": "100",
+    "fixtureFiles": [],
+    "hints": [
+      "The wrapper clamps values between 0 and 100."
+    ],
+    "id": "crust-extra-property-wrapper",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Property Wrappers\nProperty wrappers package repeated property behavior.\n\nOverview:\n- Define wrapper with `@propertyWrapper`.\n- Expose wrapped value via `wrappedValue`.\n- Optionally expose extra API via `projectedValue`.\n\nExample:\n    @propertyWrapper\n    struct Clamped {\n        private var value: Int\n        var wrappedValue: Int {\n            get { value }\n            set { value = max(0, min(100, newValue)) }\n        }\n        init(wrappedValue: Int) { value = wrappedValue }\n    }\n\nGuidelines:\n- Use wrappers for cross-cutting rules.\n- Keep wrapper behavior unsurprising.",
+    "manualCheck": false,
+    "number": 294,
+    "requires": [],
+    "solution": "@propertyWrapper\nstruct Clamped {\n    private var value: Int\n    init(wrappedValue: Int) {\n        value = min(max(0, wrappedValue), 100)\n    }\n    var wrappedValue: Int {\n        get { value }\n        set { value = min(max(0, newValue), 100) }\n    }\n}\n\nstruct Gauge {\n    @Clamped var pressure: Int\n}\n\nvar gauge = Gauge(pressure: 120)\nprint(gauge.pressure)",
+    "starterCode": "// Challenge 294: Property Wrapper\n// Clamp a value with a wrapper.\n\n@propertyWrapper\nstruct Clamped {\n    private var value: Int\n    init(wrappedValue: Int) {\n        value = min(max(0, wrappedValue), 100)\n    }\n    var wrappedValue: Int {\n        get { value }\n        set { value = min(max(0, newValue), 100) }\n    }\n}\n\nstruct Gauge {\n    @Clamped var pressure: Int\n}\n\nvar gauge = Gauge(pressure: 120)\n// TODO: Print gauge.pressure",
+    "tier": "extra",
+    "title": "Property Wrapper",
+    "topic": "propertyWrappers"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Key Paths\n- Syntax: \\Type.property\n- Access with value[keyPath: path]\n- Map with \\Type.property",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Sort using a key path",
+    "expectedOutput": "Gold, Iron, Copper",
+    "fixtureFiles": [],
+    "hints": [
+      "Use sorted with a closure reading \\Alloy.purity.",
+      "Map to names and join with a separator."
+    ],
+    "id": "crust-extra-keypath-sort",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Key Paths\nKey paths reference properties as values.\n\nOverview:\n- `\\Type.property` captures a readable path.\n- Use key paths with APIs like `map` and sorting helpers.\n- Writable key paths enable generic mutation utilities.\n\nExample:\n    struct Reading { let temp: Int }\n    let temps = readings.map(\\.temp)\n\nGuidelines:\n- Prefer key paths when extracting one property repeatedly.\n- Keep transformations readable and explicit.",
+    "manualCheck": false,
+    "number": 295,
+    "requires": [],
+    "solution": "let sorted = items.sorted { $0[keyPath: \\Alloy.purity] > $1[keyPath: \\Alloy.purity] }\nlet names = sorted.map { $0.name }.joined(separator: \", \")\nprint(names)",
+    "starterCode": "// Challenge 295: Key Path Sort\n// Sort using a key path.\n\nstruct Alloy {\n    let name: String\n    let purity: Int\n}\n\nlet items = [\n    Alloy(name: \"Iron\", purity: 80),\n    Alloy(name: \"Gold\", purity: 95),\n    Alloy(name: \"Copper\", purity: 60)\n]\n\n// TODO: Sort by purity descending using a key path\n// TODO: Print the names joined by \", \"",
+    "tier": "extra",
+    "title": "Key Path Sort",
+    "topic": "keyPaths"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Return an opaque protocol type",
+    "expectedOutput": "1500",
+    "fixtureFiles": [],
+    "hints": [
+      "Use 'some' for an opaque return type."
+    ],
+    "id": "crust-extra-opaque-return",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Protocol Design\nProtocol design defines stable contracts between components.\n\nOverview:\n- Keep each protocol focused on one responsibility.\n- Use associated types when relationships are important.\n- Add default behavior in constrained extensions when it helps.\n\nExample:\n- Define small service protocols for dependency injection.\n- Provide test doubles that conform to the same protocol.\n\nGuidelines:\n- Avoid giant umbrella protocols.\n- Model behavior, not concrete storage.",
+    "manualCheck": false,
+    "number": 296,
+    "requires": [],
+    "solution": "func makeSource() -> some HeatSource {\n    return Burner(heat: 1500)\n}\n\nprint(makeSource().heat)",
+    "starterCode": "// Challenge 296: Opaque Return\n// Return an opaque protocol type.\n\nprotocol HeatSource {\n    var heat: Int { get }\n}\n\nstruct Burner: HeatSource {\n    let heat: Int\n}\n\n// TODO: Create makeSource() -> some HeatSource\n// TODO: Print makeSource().heat",
+    "tier": "extra",
+    "title": "Opaque Return",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Collection Transforms\n- map transforms each element into a new array\n- filter keeps elements matching a condition\n- reduce combines elements into one value\n- compactMap removes nils and unwraps values\n- flatMap flattens nested arrays\n- min()/max() return Optional values",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use lazy chains",
+    "expectedOutput": "[15, 16]",
+    "fixtureFiles": [],
+    "hints": [
+      "Use lazy.filter and lazy.map, then Array(...) to materialize."
+    ],
+    "id": "crust-extra-lazy-sequence",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "manualCheck": false,
+    "number": 297,
+    "requires": [],
+    "solution": "let result = Array(temps.lazy.filter { $0 >= 1500 }.map { $0 / 100 })\nprint(result)",
+    "starterCode": "// Challenge 297: Lazy Sequence\n// Use lazy chains to transform data.\n\nlet temps = [1200, 1500, 1600]\n\n// TODO: Use lazy to filter temps >= 1500 and map to /100\n// TODO: Print the resulting array",
+    "tier": "extra",
+    "title": "Lazy Sequence",
+    "topic": "sequences"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Reason about macro expansion (simulated)",
+    "expectedOutput": "2 + 2 = 4",
+    "fixtureFiles": [],
+    "hints": [
+      "Just print the expected expansion result."
+    ],
+    "id": "crust-extra-macro-sample",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Macros\nMacros generate Swift code at compile time.\n\nOverview:\n- Use macros to remove repetitive boilerplate.\n- Prefer small, predictable expansions.\n- Keep generated behavior obvious to readers.\n\nExample:\n- Attached macros can add members or conformances.\n- Freestanding macros can transform expressions/declarations.\n\nGuidelines:\n- Validate generated output during development.\n- Avoid macros when a simple function solves the problem.",
+    "manualCheck": false,
+    "number": 298,
+    "requires": [],
+    "solution": "print(\"2 + 2 = 4\")",
+    "starterCode": "// Challenge 298: Macro Sample\n// Simulate macro output for understanding.\n\n// Assume a macro expands: #stringify(2 + 2) -> (\"2 + 2\", 4)\n// TODO: Print \"2 + 2 = 4\"",
+    "tier": "extra",
+    "title": "Macro Sample",
+    "topic": "macros"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "SwiftPM\n- Package.swift defines targets and dependencies\n- Executable targets produce CLI tools\n- Library targets expose modules",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Identify targets in a package (simulated)",
+    "expectedOutput": "Targets: forge, forgeTests",
+    "fixtureFiles": [],
+    "hints": [
+      "This is a simulated check of package structure."
+    ],
+    "id": "crust-extra-swiftpm-targets",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: SwiftPM\nSwift Package Manager defines how modules build and depend on each other.\n\nOverview:\n- `Package.swift` declares products, targets, and dependencies.\n- Targets control source layout and resource inclusion.\n- Build configs and flags tune behavior by environment.\n\nExample:\n- Add a library dependency and link it in a target.\n- Keep package boundaries small and purposeful.\n\nGuidelines:\n- Favor simple package graphs.\n- Keep public APIs stable across package boundaries.",
+    "manualCheck": false,
+    "number": 299,
+    "requires": [],
+    "solution": "print(\"Targets: forge, forgeTests\")",
+    "starterCode": "// Challenge 299: SwiftPM Targets\n// Simulate SwiftPM target awareness.\n\n// TODO: Print \"Targets: forge, forgeTests\"",
+    "tier": "extra",
+    "title": "SwiftPM Targets",
+    "topic": "swiftpm"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Performance\n- Arrays use copy-on-write behavior\n- MemoryLayout reports size/stride/alignment\n- Measure before optimizing",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Measure elapsed time (simulated)",
+    "expectedOutput": "Elapsed: 0.25",
+    "fixtureFiles": [],
+    "hints": [
+      "Use end.timeIntervalSince(start) for the elapsed seconds."
+    ],
+    "id": "crust-extra-performance-timing",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Performance\nOptimize with measurement first, then targeted changes.\n\nOverview:\n- Reduce repeated allocations and unnecessary copies.\n- Avoid repeated work inside loops.\n- Prefer linear passes over nested scans when possible.\n\nExample:\n- Cache derived values when reused.\n- Use `Set` for frequent membership checks.\n\nGuidelines:\n- Keep code correct first.\n- Verify gains with realistic inputs.",
+    "manualCheck": false,
+    "number": 300,
+    "requires": [],
+    "solution": "import Foundation\n\nlet start = Date()\nlet end = start.addingTimeInterval(0.25)\nprint(\"Elapsed: \\(end.timeIntervalSince(start))\")",
+    "starterCode": "// Challenge 300: Performance Timing\n// Simulate a timing measurement.\n\nimport Foundation\n\nlet start = Date()\nlet end = start.addingTimeInterval(0.25)\n\n// TODO: Print \"Elapsed: 0.25\"",
+    "tier": "extra",
+    "title": "Performance Timing",
+    "topic": "performance"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Use Foundation bridging types",
+    "expectedOutput": "5",
+    "fixtureFiles": [],
+    "hints": [
+      "NSString length counts characters."
+    ],
+    "id": "crust-extra-interop-bridge",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Interop\nInterop bridges Swift code with external systems and formats.\n\nOverview:\n- Convert between representations carefully.\n- Validate boundaries and error paths.\n- Keep adapters thin and well-tested.\n\nExample:\n- Map raw input into typed Swift models.\n- Surface conversion failures with structured errors.\n\nGuidelines:\n- Isolate boundary code from core logic.\n- Preserve invariants when crossing module/language edges.",
+    "manualCheck": false,
+    "number": 301,
+    "requires": [],
+    "solution": "import Foundation\n\nlet name = \"Forge\"\nlet nsName = name as NSString\nprint(nsName.length)",
+    "starterCode": "// Challenge 301: Interop Bridge\n// Use Foundation bridging types.\n\nimport Foundation\n\nlet name = \"Forge\"\nlet nsName = name as NSString\n\n// TODO: Print nsName.length",
+    "tier": "extra",
+    "title": "Interop Bridge",
+    "topic": "interop"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Simulate a tiny test assertion",
+    "expectedOutput": "Pass",
+    "fixtureFiles": [],
+    "hints": [
+      "Call the helper with the computed value."
+    ],
+    "id": "crust-extra-test-assert",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Testing\nTests protect behavior and support refactoring.\n\nOverview:\n- Unit tests validate isolated functions and types.\n- Integration tests verify command flows and file interactions.\n- Use deterministic inputs and explicit assertions.\n\nExample:\n- Arrange input, act by calling the function, assert exact output.\n- Prefer clear failure messages over broad checks.\n\nGuidelines:\n- Test critical paths and edge cases.\n- Keep tests fast and independent.",
+    "manualCheck": false,
+    "number": 302,
+    "requires": [],
+    "solution": "assertEqual(3 + 2, 5)",
+    "starterCode": "// Challenge 302: Test Assert\n// Simulate a tiny test assertion.\n\nfunc assertEqual(_ lhs: Int, _ rhs: Int) {\n    if lhs == rhs {\n        print(\"Pass\")\n    } else {\n        print(\"Fail\")\n    }\n}\n\n// TODO: Call assertEqual(3 + 2, 5)",
+    "tier": "extra",
+    "title": "Test Assert",
+    "topic": "testing"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Errors\n- Define: enum MyError: Error { case ... }\n- Throwing functions use throws\n- Call with try\n- Handle with do { try ... } catch { ... }\n- try? returns Optional, nil on error",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Attach context to a thrown error",
+    "expectedOutput": "Too low: 900",
+    "fixtureFiles": [],
+    "hints": [
+      "Throw the error with the value as context.",
+      "Use a specific catch to extract the value."
+    ],
+    "id": "crust-extra-error-context",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Error Handling Patterns\nAdvanced error handling balances clarity with recovery.\n\nOverview:\n- Prefer typed errors with actionable cases.\n- Convert low-level failures into domain errors near boundaries.\n- Preserve context when rethrowing or wrapping.\n\nExample:\n- Catch parsing failures, then throw a domain-specific error case.\n- Use `Result` when explicit success/failure values simplify flow.\n\nGuidelines:\n- Do not silence important errors.\n- Keep failure messages specific and testable.",
+    "manualCheck": false,
+    "number": 306,
+    "requires": [],
+    "solution": "enum HeatError: Error {\n    case tooLow(Int)\n}\n\nfunc checkHeat(_ value: Int) throws {\n    if value < 1000 {\n        throw HeatError.tooLow(value)\n    }\n}\n\ndo {\n    try checkHeat(900)\n} catch HeatError.tooLow(let value) {\n    print(\"Too low: \\(value)\")\n}",
+    "starterCode": "// Challenge 306: Error Context\n// Attach context to a thrown error.\n\nenum HeatError: Error {\n    case tooLow(Int)\n}\n\nfunc checkHeat(_ value: Int) throws {\n    // TODO: Throw tooLow(value) when value < 1000\n}\n\ndo {\n    try checkHeat(900)\n} catch HeatError.tooLow(let value) {\n    // TODO: Print \"Too low: 900\"\n}",
+    "tier": "extra",
+    "title": "Error Context",
+    "topic": "errors"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Performance\n- Arrays use copy-on-write behavior\n- MemoryLayout reports size/stride/alignment\n- Measure before optimizing",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Compare loop costs deterministically",
+    "expectedOutput": "Total: 15\nSteps: 5",
+    "fixtureFiles": [],
+    "hints": [
+      "Track both the total and number of iterations.",
+      "Print the totals on separate lines."
+    ],
+    "id": "crust-extra-performance-loop",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Performance\nOptimize with measurement first, then targeted changes.\n\nOverview:\n- Reduce repeated allocations and unnecessary copies.\n- Avoid repeated work inside loops.\n- Prefer linear passes over nested scans when possible.\n\nExample:\n- Cache derived values when reused.\n- Use `Set` for frequent membership checks.\n\nGuidelines:\n- Keep code correct first.\n- Verify gains with realistic inputs.",
+    "manualCheck": false,
+    "number": 307,
+    "requires": [],
+    "solution": "var total = 0\nvar steps = 0\n\nfor value in 1...5 {\n    total += value\n    steps += 1\n}\n\nprint(\"Total: \\(total)\")\nprint(\"Steps: \\(steps)\")",
+    "starterCode": "// Challenge 307: Performance Loop\n// Compare loop costs deterministically.\n//\n// Expected output:\n// Total: 15\n// Steps: 5\n\nvar total = 0\nvar steps = 0\n\n// TODO: Loop from 1 to 5\n// TODO: Add each value to total and increment steps\n// TODO: Print total and steps",
+    "tier": "extra",
+    "title": "Performance Loop",
+    "topic": "performance"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "SwiftPM\n- Package.swift defines targets and dependencies\n- Executable targets produce CLI tools\n- Library targets expose modules",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Bridge Swift to NSString",
+    "expectedOutput": "5",
+    "fixtureFiles": [],
+    "hints": [
+      "Use NSString(name) or name as NSString.",
+      "Print the length property."
+    ],
+    "id": "crust-extra-objc-bridge",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Interop\nInterop bridges Swift code with external systems and formats.\n\nOverview:\n- Convert between representations carefully.\n- Validate boundaries and error paths.\n- Keep adapters thin and well-tested.\n\nExample:\n- Map raw input into typed Swift models.\n- Surface conversion failures with structured errors.\n\nGuidelines:\n- Isolate boundary code from core logic.\n- Preserve invariants when crossing module/language edges.",
+    "manualCheck": false,
+    "number": 308,
+    "requires": [],
+    "solution": "import Foundation\n\nlet name = \"Forge\"\nlet nsName = name as NSString\nprint(nsName.length)",
+    "starterCode": "// Challenge 308: Objective-C Bridge\n// Bridge Swift to NSString.\n\nimport Foundation\n\nlet name = \"Forge\"\n// TODO: Convert name to NSString and print its length",
+    "tier": "extra",
+    "title": "Objective-C Bridge",
+    "topic": "interop"
+  }
+]

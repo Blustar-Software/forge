@@ -45,13 +45,20 @@ forge
 - Challenge files use layered IDs (e.g., `challenge-core-18.swift`, `challenge-core-18.1.swift`).
 - Runs your edited Swift file and compares its output to the expected answer.
 - Tracks progress in `workspace/.progress` so you can resume later.
-- Current curriculum is defined in `Sources/forge/Challenges.swift` (mainline + extras).
+- Curriculum content lives in `Sources/forge/Curriculum/*.json` (challenges and projects by layer/tier).
+- `Sources/forge/CurriculumLoader.swift` loads JSON into model types in `Sources/forge/Challenges.swift`.
 - Each stage ends with a brief stage review (three challenges repeated twice) before its project unlocks.
   - You can tune the review with `--gate-passes <n>` and `--gate-count <n>`.
 - Stage review selection is deterministic by default; enable adaptive weighting with `--adaptive-on`.
 - Stage review challenges are drawn from a curated pool per stage (trivial early items are excluded).
 - Forge blocks early-concept usage by default using heuristic checks; use `--allow-early-concepts` to warn only.
 - Use `--disable-di-mock-heuristics` to ignore DI/mock heuristic checks.
+
+## Source layout
+- `Sources/forge/CLI.swift`: top-level command models, parsing, and usage text.
+- `Sources/forge/Stores.swift`: progress/stage-gate/adaptive/performance stores and migrations.
+- `Sources/forge/ConstraintDetectors.swift`: tokenizer + syntax/OOP/concurrency detector helpers.
+- `Sources/forge/Curriculum/*.json`: challenge/project catalog data used at runtime.
 
 ## What you’ll learn
 - Early challenges cover comments, constants, variables, and basic math.
@@ -71,6 +78,7 @@ Progress helpers:
 - `swift run forge progress <target>` sets `.progress` using a challenge/project/step target.
 - `swift run forge remap-progress <target>` translates legacy numeric challenge targets to layered IDs (e.g., `challenge:18` → `challenge:core:18`).
 - `swift run forge report-overrides [--threshold <n>]` prints suggested extra-parent overrides when an extra is far from its parent.
+- `swift run forge catalog` / `swift run forge catalog-projects` provide a readable curriculum map without opening source files.
 
 ## Practice mode
 ```sh

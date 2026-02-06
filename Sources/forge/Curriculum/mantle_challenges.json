@@ -1,0 +1,2260 @@
+[
+  {
+    "canonicalId": "",
+    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Define a struct and create an instance",
+    "expectedOutput": "Iron",
+    "fixtureFiles": [],
+    "hints": [
+      "Model the item as a value type with a single stored property.",
+      "Use dot syntax to read the property for output."
+    ],
+    "id": "",
+    "introduces": [
+      "structs",
+      "properties"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "manualCheck": false,
+    "number": 124,
+    "requires": [],
+    "solution": "struct ForgeItem {\n    var name: String\n}\n\nlet item = ForgeItem(name: \"Iron\")\nprint(item.name)",
+    "starterCode": "// Challenge 124: Struct Basics\n// Define a struct and create an instance.\n\n// TODO: Create a struct named 'ForgeItem' with a 'name' property\n// TODO: Create an instance named 'item' with name \"Iron\"\n// TODO: Print 'item.name'",
+    "tier": "mainline",
+    "title": "Struct Basics",
+    "topic": "structs"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Read and update stored properties",
+    "expectedOutput": "1500",
+    "fixtureFiles": [],
+    "hints": [
+      "Stored properties can be updated on a var instance."
+    ],
+    "id": "",
+    "introduces": [
+      "properties"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "manualCheck": false,
+    "number": 125,
+    "requires": [],
+    "solution": "furnace.heat = 1500\nprint(furnace.heat)",
+    "starterCode": "// Challenge 125: Stored Properties\n// Read and update stored properties.\n\nstruct Furnace {\n    var heat: Int\n}\n\nvar furnace = Furnace(heat: 1200)\n\n// TODO: Update 'furnace.heat' to 1500\n// TODO: Print 'furnace.heat'",
+    "tier": "mainline",
+    "title": "Stored Properties",
+    "topic": "structs"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add a method that uses self",
+    "expectedOutput": "Strikes: 0",
+    "fixtureFiles": [],
+    "hints": [
+      "Use self to build the return string from the property."
+    ],
+    "id": "",
+    "introduces": [
+      "selfKeyword"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "manualCheck": false,
+    "number": 126,
+    "requires": [],
+    "solution": "struct Hammer {\n    var strikes: Int\n\n    func summary() -> String {\n        return \"Strikes: \\(strikes)\"\n    }\n}\n\nvar hammer = Hammer(strikes: 0)\nprint(hammer.summary())",
+    "starterCode": "// Challenge 126: Methods + self\n// Add a method that reads state.\n\nstruct Hammer {\n    var strikes: Int\n    // TODO: Add a method 'summary()' that returns \"Strikes: <value>\"\n}\n\nvar hammer = Hammer(strikes: 0)\n// TODO: Print 'hammer.summary()'",
+    "tier": "mainline",
+    "title": "Methods + self",
+    "topic": "structs"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Write a custom initializer",
+    "expectedOutput": "Copper\n1",
+    "fixtureFiles": [],
+    "hints": [
+      "Custom initializers can set default values."
+    ],
+    "id": "",
+    "introduces": [
+      "initializers"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "manualCheck": false,
+    "number": 127,
+    "requires": [],
+    "solution": "struct Ingot {\n    var metal: String\n    var weight: Int\n\n    init(metal: String) {\n        self.metal = metal\n        self.weight = 1\n    }\n}\n\nlet ingot = Ingot(metal: \"Copper\")\nprint(ingot.metal)\nprint(ingot.weight)",
+    "starterCode": "// Challenge 127: Custom Init\n// Create a custom initializer.\n\nstruct Ingot {\n    var metal: String\n    var weight: Int\n    // TODO: Add init(metal:) that sets 'weight' to 1\n}\n\n// TODO: Create an Ingot with metal \"Copper\"\n// TODO: Print the metal and weight on separate lines",
+    "tier": "mainline",
+    "title": "Custom Init",
+    "topic": "structs"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use mutating to update struct state",
+    "expectedOutput": "3",
+    "fixtureFiles": [],
+    "hints": [
+      "Use mutating when a struct method changes properties."
+    ],
+    "id": "",
+    "introduces": [
+      "mutatingMethods"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "manualCheck": false,
+    "number": 128,
+    "requires": [],
+    "solution": "struct Crucible {\n    var level: Int\n\n    mutating func raise() {\n        level += 1\n    }\n}\n\nvar crucible = Crucible(level: 1)\ncrucible.raise()\ncrucible.raise()\nprint(crucible.level)",
+    "starterCode": "// Challenge 128: Mutating Method\n// Use mutating for state changes.\n\nstruct Crucible {\n    var level: Int\n    // TODO: Add mutating func 'raise' that increments 'level'\n}\n\nvar crucible = Crucible(level: 1)\n// TODO: Call 'raise()' twice\n// TODO: Print 'crucible.level'",
+    "tier": "mainline",
+    "title": "Mutating Method",
+    "topic": "structs"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Show independent copies of a struct",
+    "expectedOutput": "1\n2",
+    "fixtureFiles": [],
+    "hints": [
+      "Changing a copy does not affect the original."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "manualCheck": false,
+    "number": 129,
+    "requires": [],
+    "solution": "struct Mold {\n    var size: Int\n}\n\nlet original = Mold(size: 1)\nvar copy = original\ncopy.size = 2\n\nprint(original.size)\nprint(copy.size)",
+    "starterCode": "// Challenge 129: Value Semantics\n// Show that structs are copied on assignment.\n\nstruct Mold {\n    var size: Int\n}\n\nlet original = Mold(size: 1)\nvar copy = original\n\n// TODO: Change 'copy.size' to 2\n// TODO: Print 'original.size' and 'copy.size' on separate lines",
+    "tier": "mainline",
+    "title": "Value Semantics",
+    "topic": "structs"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Classes\n- class Name { var property: Type }\n- Classes are reference types\n- deinit runs when an instance is released",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Define and instantiate a class",
+    "expectedOutput": "10",
+    "fixtureFiles": [],
+    "hints": [
+      "Classes need an initializer if they have stored properties."
+    ],
+    "id": "",
+    "introduces": [
+      "classes"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Classes\nClasses are reference types, so multiple variables can point to one instance.\n\nOverview:\n- `class` supports inheritance and `deinit`.\n- Assignment copies the reference, not the data.\n- Use classes when shared mutable state is intentional.\n\nExample:\n    class Furnace {\n        var level = 0\n    }\n    let a = Furnace()\n    let b = a\n    b.level = 3   // a.level is also 3\n\nGuidelines:\n- Be explicit about ownership.\n- Watch for unintended shared mutation.",
+    "manualCheck": false,
+    "number": 130,
+    "requires": [],
+    "solution": "let anvil = Anvil(weight: 10)\nprint(anvil.weight)",
+    "starterCode": "// Challenge 130: Class Basics\n// Define and instantiate a class.\n\nclass Anvil {\n    var weight: Int\n    init(weight: Int) {\n        self.weight = weight\n    }\n}\n\n// TODO: Create an Anvil with weight 10\n// TODO: Print the weight",
+    "tier": "mainline",
+    "title": "Class Basics",
+    "topic": "classes"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Classes\n- class Name { var property: Type }\n- Classes are reference types\n- deinit runs when an instance is released",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Show shared state in classes",
+    "expectedOutput": "3",
+    "fixtureFiles": [],
+    "hints": [
+      "Changing a reference affects all references to the same instance."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Classes\nClasses are reference types, so multiple variables can point to one instance.\n\nOverview:\n- `class` supports inheritance and `deinit`.\n- Assignment copies the reference, not the data.\n- Use classes when shared mutable state is intentional.\n\nExample:\n    class Furnace {\n        var level = 0\n    }\n    let a = Furnace()\n    let b = a\n    b.level = 3   // a.level is also 3\n\nGuidelines:\n- Be explicit about ownership.\n- Watch for unintended shared mutation.",
+    "manualCheck": false,
+    "number": 131,
+    "requires": [],
+    "solution": "secondary.power = 3\nprint(primary.power)",
+    "starterCode": "// Challenge 131: Reference Semantics\n// Show that classes share references.\n\nclass Bellows {\n    var power: Int\n    init(power: Int) {\n        self.power = power\n    }\n}\n\nlet primary = Bellows(power: 1)\nlet secondary = primary\n\n// TODO: Set 'secondary.power' to 3\n// TODO: Print 'primary.power'",
+    "tier": "mainline",
+    "title": "Reference Semantics",
+    "topic": "classes"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Classes\n- class Name { var property: Type }\n- Classes are reference types\n- deinit runs when an instance is released",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Observe deinitialization",
+    "expectedOutput": "Torch 1 released",
+    "fixtureFiles": [],
+    "hints": [
+      "deinit runs when the last strong reference is released."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Classes\nClasses are reference types, so multiple variables can point to one instance.\n\nOverview:\n- `class` supports inheritance and `deinit`.\n- Assignment copies the reference, not the data.\n- Use classes when shared mutable state is intentional.\n\nExample:\n    class Furnace {\n        var level = 0\n    }\n    let a = Furnace()\n    let b = a\n    b.level = 3   // a.level is also 3\n\nGuidelines:\n- Be explicit about ownership.\n- Watch for unintended shared mutation.",
+    "manualCheck": false,
+    "number": 132,
+    "requires": [],
+    "solution": "class Torch {\n    let id: Int\n    init(id: Int) {\n        self.id = id\n    }\n\n    deinit {\n        print(\"Torch \\(id) released\")\n    }\n}\n\nvar torch: Torch? = Torch(id: 1)\ntorch = nil",
+    "starterCode": "// Challenge 132: Deinit\n// Add a deinit message.\n\nclass Torch {\n    let id: Int\n    init(id: Int) {\n        self.id = id\n    }\n    // TODO: Add deinit that prints \"Torch <id> released\"\n}\n\n// TODO: Create an optional Torch, then set it to nil",
+    "tier": "mainline",
+    "title": "Deinit",
+    "topic": "classes"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Classes\n- class Name { var property: Type }\n- Classes are reference types\n- deinit runs when an instance is released",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Choose the right type",
+    "expectedOutput": "Batch-A\nOnline",
+    "fixtureFiles": [],
+    "hints": [
+      "Use a struct for independent values and a class for shared state."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Classes\nClasses are reference types, so multiple variables can point to one instance.\n\nOverview:\n- `class` supports inheritance and `deinit`.\n- Assignment copies the reference, not the data.\n- Use classes when shared mutable state is intentional.\n\nExample:\n    class Furnace {\n        var level = 0\n    }\n    let a = Furnace()\n    let b = a\n    b.level = 3   // a.level is also 3\n\nGuidelines:\n- Be explicit about ownership.\n- Watch for unintended shared mutation.",
+    "manualCheck": false,
+    "number": 133,
+    "requires": [],
+    "solution": "struct Tag {\n    var label: String\n}\n\nclass ForgeController {\n    var status: String\n    init(status: String) {\n        self.status = status\n    }\n}\n\nlet tag = Tag(label: \"Batch-A\")\nlet controller = ForgeController(status: \"Online\")\nprint(tag.label)\nprint(controller.status)",
+    "starterCode": "// Challenge 133: Struct vs Class\n// Decide which type fits the scenario.\n\n// TODO: Create a struct for a simple 'Tag' (value type)\n// TODO: Create a class for a shared 'ForgeController' (reference type)\n// TODO: Print one property from each",
+    "tier": "mainline",
+    "title": "Struct vs Class",
+    "topic": "classes"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add a computed property",
+    "expectedOutput": "5",
+    "fixtureFiles": [],
+    "hints": [
+      "Computed properties can translate values in get/set."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "manualCheck": false,
+    "number": 134,
+    "requires": [],
+    "solution": "struct Press {\n    var force: Int\n\n    var doubleForce: Int {\n        get { force * 2 }\n        set { force = newValue / 2 }\n    }\n}\n\nvar press = Press(force: 2)\npress.doubleForce = 10\nprint(press.force)",
+    "starterCode": "// Challenge 134: Computed Property\n// Use get/set on a computed property.\n\nstruct Press {\n    var force: Int\n    // TODO: Add computed property 'doubleForce' with get/set\n}\n\nvar press = Press(force: 2)\n// TODO: Set 'press.doubleForce' to 10\n// TODO: Print 'press.force'",
+    "tier": "mainline",
+    "title": "Computed Property",
+    "topic": "properties"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use willSet and didSet",
+    "expectedOutput": "Will set to 2\nDid set from 1",
+    "fixtureFiles": [],
+    "hints": [
+      "Observers can print before and after changes."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "manualCheck": false,
+    "number": 135,
+    "requires": [],
+    "solution": "struct Gauge {\n    var pressure: Int {\n        willSet {\n            print(\"Will set to \\(newValue)\")\n        }\n        didSet {\n            print(\"Did set from \\(oldValue)\")\n        }\n    }\n}\n\nvar gauge = Gauge(pressure: 1)\ngauge.pressure = 2",
+    "starterCode": "// Challenge 135: Property Observers\n// Observe changes with willSet/didSet.\n\nstruct Gauge {\n    var pressure: Int {\n        // TODO: Add willSet/didSet prints\n    }\n}\n\nvar gauge = Gauge(pressure: 1)\n// TODO: Change 'gauge.pressure' to 2",
+    "tier": "mainline",
+    "title": "Property Observers",
+    "topic": "properties"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Initialize a property lazily",
+    "expectedOutput": "Report 1",
+    "fixtureFiles": [],
+    "hints": [
+      "Lazy properties are created the first time they are accessed."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "manualCheck": false,
+    "number": 136,
+    "requires": [],
+    "solution": "struct ForgeReport {\n    var id: Int\n    lazy var summary: String = \"Report \\(id)\"\n}\n\nvar report = ForgeReport(id: 1)\nprint(report.summary)",
+    "starterCode": "// Challenge 136: Lazy Property\n// Use lazy to defer creation.\n\nstruct ForgeReport {\n    var id: Int\n    // TODO: Add lazy var 'summary' that returns \"Report <id>\"\n}\n\nvar report = ForgeReport(id: 1)\n// TODO: Print 'report.summary'",
+    "tier": "mainline",
+    "title": "Lazy Property",
+    "topic": "properties"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use static properties",
+    "expectedOutput": "8\n6",
+    "fixtureFiles": [],
+    "hints": [
+      "Static properties live on the type, not the instance."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "manualCheck": false,
+    "number": 137,
+    "requires": [],
+    "solution": "print(Shift.maxHours)\nprint(shift.hours)",
+    "starterCode": "// Challenge 137: Static vs Instance\n// Use a static property.\n\nstruct Shift {\n    static let maxHours = 8\n    var hours: Int\n}\n\nlet shift = Shift(hours: 6)\n// TODO: Print 'Shift.maxHours'\n// TODO: Print 'shift.hours'",
+    "tier": "mainline",
+    "title": "Static vs Instance",
+    "topic": "properties"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Define a protocol",
+    "expectedOutput": "Inspectable ready",
+    "fixtureFiles": [],
+    "hints": [
+      "Protocols define required properties or methods."
+    ],
+    "id": "",
+    "introduces": [
+      "protocols"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 138,
+    "requires": [],
+    "solution": "protocol Inspectable {\n    var status: String { get }\n}\n\nprint(\"Inspectable ready\")",
+    "starterCode": "// Challenge 138: Protocol Definition\n// Define a protocol with requirements.\n\n// TODO: Create a protocol 'Inspectable' with a read-only 'status' String\n// TODO: Print \"Inspectable ready\"",
+    "tier": "mainline",
+    "title": "Protocol Definition",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Adopt a protocol in a struct",
+    "expectedOutput": "Ready",
+    "fixtureFiles": [],
+    "hints": [
+      "Provide the required property to conform."
+    ],
+    "id": "",
+    "introduces": [
+      "protocolConformance"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 139,
+    "requires": [],
+    "solution": "struct Furnace: Inspectable {\n    let status: String\n}\n\nlet furnace = Furnace(status: \"Ready\")\nprint(furnace.status)",
+    "starterCode": "// Challenge 139: Conformance\n// Make a struct conform to a protocol.\n\nprotocol Inspectable {\n    var status: String { get }\n}\n\n// TODO: Create a struct 'Furnace' that conforms to Inspectable\n// TODO: Print its status",
+    "tier": "mainline",
+    "title": "Conformance",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use a protocol as a parameter type",
+    "expectedOutput": "1200",
+    "fixtureFiles": [],
+    "hints": [
+      "Protocol types let you accept a conforming type."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 140,
+    "requires": [],
+    "solution": "func reportHeat(source: HeatSource) {\n    print(source.heat)\n}\n\nlet burner = Burner(heat: 1200)\nreportHeat(source: burner)",
+    "starterCode": "// Challenge 140: Protocol as Type\n// Use a protocol in a function signature.\n\nprotocol HeatSource {\n    var heat: Int { get }\n}\n\nstruct Burner: HeatSource {\n    let heat: Int\n}\n\n// TODO: Write a function 'reportHeat(source:)' that prints 'source.heat'\n// TODO: Call it with a Burner",
+    "tier": "mainline",
+    "title": "Protocol as Type",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use A & B in a parameter",
+    "expectedOutput": "2\n3",
+    "fixtureFiles": [],
+    "hints": [
+      "Use protocol composition to require both capabilities."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 141,
+    "requires": [],
+    "solution": "func report(_ source: Fueling & Venting) {\n    print(source.fuel)\n    print(source.airflow)\n}\n\nlet vent = Vent(fuel: 2, airflow: 3)\nreport(vent)",
+    "starterCode": "// Challenge 141: Protocol Composition\n// Use multiple protocol requirements.\n\nprotocol Fueling {\n    var fuel: Int { get }\n}\n\nprotocol Venting {\n    var airflow: Int { get }\n}\n\nstruct Vent: Fueling, Venting {\n    let fuel: Int\n    let airflow: Int\n}\n\n// TODO: Write a function 'report(_:)' that accepts Fueling & Venting\n// TODO: Print fuel and airflow on separate lines",
+    "tier": "mainline",
+    "title": "Protocol Composition",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Refine a protocol",
+    "expectedOutput": "OK",
+    "fixtureFiles": [],
+    "hints": [
+      "Protocol inheritance adds requirements on top of another protocol."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 142,
+    "requires": [],
+    "solution": "protocol InspectableComponent: Component {\n    var status: String { get }\n}\n\nstruct Sensor: InspectableComponent {\n    let id: String\n    let status: String\n}\n\nlet sensor = Sensor(id: \"S1\", status: \"OK\")\nprint(sensor.status)",
+    "starterCode": "// Challenge 142: Protocol Inheritance\n// Inherit requirements from another protocol.\n\nprotocol Component {\n    var id: String { get }\n}\n\n// TODO: Create protocol 'InspectableComponent' inheriting Component with 'status'\n// TODO: Create a type that conforms and print its status",
+    "tier": "mainline",
+    "title": "Protocol Inheritance",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add methods with an extension",
+    "expectedOutput": "Ingot 5",
+    "fixtureFiles": [],
+    "hints": [
+      "Extensions can add computed properties and methods."
+    ],
+    "id": "",
+    "introduces": [
+      "extensions"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Extensions\nExtensions add behavior to existing types without subclassing.\n\nOverview:\n- Add methods, computed properties, and protocol conformance.\n- Keep related helpers grouped by purpose.\n- Protocol extensions can provide default behavior.\n\nExample:\n    extension Int {\n        var isHot: Bool { self >= 1400 }\n    }\n\nGuidelines:\n- Prefer extensions for organization and reuse.\n- Avoid hiding critical behavior across too many files.",
+    "manualCheck": false,
+    "number": 143,
+    "requires": [],
+    "solution": "extension Ingot {\n    func label() -> String {\n        return \"Ingot \\(weight)\"\n    }\n}\n\nlet ingot = Ingot(weight: 5)\nprint(ingot.label())",
+    "starterCode": "// Challenge 143: Extensions\n// Add behavior using an extension.\n\nstruct Ingot {\n    let weight: Int\n}\n\n// TODO: Add an extension that adds a method 'label()' -> String\n// TODO: Create an Ingot and print its label",
+    "tier": "mainline",
+    "title": "Extensions",
+    "topic": "extensions"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add default behavior with a protocol extension",
+    "expectedOutput": "Report ready",
+    "fixtureFiles": [],
+    "hints": [
+      "Use a protocol extension to add a default method."
+    ],
+    "id": "",
+    "introduces": [
+      "protocolExtensions",
+      "defaultImplementations"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Extensions\nExtensions add behavior to existing types without subclassing.\n\nOverview:\n- Add methods, computed properties, and protocol conformance.\n- Keep related helpers grouped by purpose.\n- Protocol extensions can provide default behavior.\n\nExample:\n    extension Int {\n        var isHot: Bool { self >= 1400 }\n    }\n\nGuidelines:\n- Prefer extensions for organization and reuse.\n- Avoid hiding critical behavior across too many files.",
+    "manualCheck": false,
+    "number": 144,
+    "requires": [],
+    "solution": "extension Reportable {\n    func printReport() {\n        print(message)\n    }\n}\n\nstruct Report: Reportable {\n    let message: String\n}\n\nlet report = Report(message: \"Report ready\")\nreport.printReport()",
+    "starterCode": "// Challenge 144: Default Implementations\n// Provide default behavior with a protocol extension.\n\nprotocol Reportable {\n    var message: String { get }\n}\n\n// TODO: Add a default method 'printReport()' in a protocol extension\n// TODO: Conform a struct and call 'printReport()'",
+    "tier": "mainline",
+    "title": "Default Implementations",
+    "topic": "extensions"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Access Control\n- private limits access to the enclosing scope\n- internal is the default (module-wide)\n- public/open expose APIs outside the module",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use private and internal",
+    "expectedOutput": "Vault ready",
+    "fixtureFiles": [],
+    "hints": [
+      "private limits access to the type; internal is the default."
+    ],
+    "id": "",
+    "introduces": [
+      "accessControl",
+      "accessControlInternal",
+      "accessControlSetter"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Access Control\nAccess control limits who can use each symbol.\n\nOverview:\n- `private`: current scope.\n- `fileprivate`: current file.\n- `internal`: default, module scope.\n- `public/open`: visible outside module.\n\nExample:\n    public struct Kiln {\n        public private(set) var temperature: Int = 0\n    }\n\nGuidelines:\n- Start restrictive and open only what is needed.\n- Use `private(set)` for read-only public state.",
+    "manualCheck": false,
+    "number": 145,
+    "requires": [],
+    "solution": "struct Vault {\n    private var code: Int\n    private(set) var state: String = \"Locked\"\n\n    init(code: Int) {\n        self.code = code\n    }\n}\n\nlet _ = Vault(code: 1234)\nprint(\"Vault ready\")",
+    "starterCode": "// Challenge 145: Access Control 1\n// Add private and internal members.\n\nstruct Vault {\n    private var code: Int\n    private(set) var state: String = \"Locked\"\n    // TODO: Add an internal init(code:)\n}\n\n// TODO: Create a Vault and print \"Vault ready\"",
+    "tier": "mainline",
+    "title": "Access Control 1",
+    "topic": "accessControl"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Access Control\n- private limits access to the enclosing scope\n- internal is the default (module-wide)\n- public/open expose APIs outside the module",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use public and open",
+    "expectedOutput": "Ledger\nController",
+    "fixtureFiles": [],
+    "hints": [
+      "public exposes types outside the module; open allows subclassing."
+    ],
+    "id": "",
+    "introduces": [
+      "accessControlOpen"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Access Control\nAccess control limits who can use each symbol.\n\nOverview:\n- `private`: current scope.\n- `fileprivate`: current file.\n- `internal`: default, module scope.\n- `public/open`: visible outside module.\n\nExample:\n    public struct Kiln {\n        public private(set) var temperature: Int = 0\n    }\n\nGuidelines:\n- Start restrictive and open only what is needed.\n- Use `private(set)` for read-only public state.",
+    "manualCheck": false,
+    "number": 146,
+    "requires": [],
+    "solution": "public struct Ledger {}\n\nopen class Controller {}\n\nlet _ = Ledger()\nlet _ = Controller()\nprint(\"Ledger\")\nprint(\"Controller\")",
+    "starterCode": "// Challenge 146: Access Control 2\n// Mark APIs public/open in a library.\n\n// TODO: Add a public struct 'Ledger'\n// TODO: Add an open class 'Controller'\n// TODO: Create instances and print \"Ledger\" then \"Controller\"",
+    "tier": "mainline",
+    "title": "Access Control 2",
+    "topic": "accessControl"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Errors\n- Define: enum MyError: Error { case ... }\n- Throwing functions use throws\n- Call with try\n- Handle with do { try ... } catch { ... }\n- try? returns Optional, nil on error",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use errors in a protocol-based API",
+    "expectedOutput": "Too cold",
+    "fixtureFiles": [],
+    "hints": [
+      "Throw errors when constraints are not met."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Errors\nSwift errors model expected failure paths.\n\nOverview:\n- Define error enums conforming to `Error`.\n- Throw from functions marked `throws`.\n- Handle with `do/try/catch`.\n\nExample:\n    enum HeatError: Error { case tooHot }\n    func validate(_ t: Int) throws {\n        if t > 1600 { throw HeatError.tooHot }\n    }\n\nGuidelines:\n- Throw meaningful, typed errors.\n- Use `try?` only when silent fallback is intentional.",
+    "manualCheck": false,
+    "number": 147,
+    "requires": [
+      "doCatch",
+      "throwKeyword",
+      "tryKeyword",
+      "errorTypes",
+      "throwingFunctions",
+      "doTryCatch"
+    ],
+    "solution": "struct Furnace: Heatable {\n    func heat(to level: Int) throws {\n        if level < 1000 {\n            throw FurnaceError.tooCold\n        }\n    }\n}\n\ndo {\n    try Furnace().heat(to: 900)\n} catch {\n    print(\"Too cold\")\n}",
+    "starterCode": "// Challenge 147: Error Integration\n// Use errors in an API surface.\n\nenum FurnaceError: Error {\n    case tooCold\n}\n\nprotocol Heatable {\n    func heat(to level: Int) throws\n}\n\n// TODO: Create a type that conforms and throws on low values\n// TODO: Call it with a low value and print \"Too cold\" in catch",
+    "tier": "mainline",
+    "title": "Error Integration",
+    "topic": "errors"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Write a generic function",
+    "expectedOutput": "(3, \"Iron\")",
+    "fixtureFiles": [],
+    "hints": [
+      "Generics let you reuse logic across types."
+    ],
+    "id": "",
+    "introduces": [
+      "generics"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "manualCheck": false,
+    "number": 148,
+    "requires": [],
+    "solution": "func swapPair<A, B>(_ first: A, _ second: B) -> (B, A) {\n    return (second, first)\n}\n\nprint(swapPair(\"Iron\", 3))",
+    "starterCode": "// Challenge 148: Generic Function\n// Create a generic helper.\n\n// TODO: Write a generic function 'swapPair' that returns a tuple (B, A)\n// TODO: Call it with \"Iron\" and 3, then print the tuple",
+    "tier": "mainline",
+    "title": "Generic Function",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Define a generic container",
+    "expectedOutput": "7",
+    "fixtureFiles": [],
+    "hints": [
+      "Generic types store values of a type parameter."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "manualCheck": false,
+    "number": 149,
+    "requires": [],
+    "solution": "struct Box<T> {\n    let value: T\n}\n\nlet box = Box(value: 7)\nprint(box.value)",
+    "starterCode": "// Challenge 149: Generic Type\n// Build a simple generic container.\n\n// TODO: Create a generic struct 'Box<T>' with a value: T\n// TODO: Create a Box of Int with value 7 and print the value",
+    "tier": "mainline",
+    "title": "Generic Type",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add a constraint to a generic",
+    "expectedOutput": "5",
+    "fixtureFiles": [],
+    "hints": [
+      "Constraints allow you to use protocol requirements on T."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "manualCheck": false,
+    "number": 150,
+    "requires": [],
+    "solution": "func maxValue<T: Comparable>(_ first: T, _ second: T) -> T {\n    return first >= second ? first : second\n}\n\nprint(maxValue(3, 5))",
+    "starterCode": "// Challenge 150: Type Constraints\n// Constrain a generic to Comparable.\n\n// TODO: Write a generic function 'maxValue' that takes two T: Comparable\n// TODO: Call it with 3 and 5, then print the result",
+    "tier": "mainline",
+    "title": "Type Constraints",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use associatedtype in a protocol",
+    "expectedOutput": "2",
+    "fixtureFiles": [],
+    "hints": [
+      "associatedtype lets protocols describe generic placeholders."
+    ],
+    "id": "",
+    "introduces": [
+      "associatedTypes"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "manualCheck": false,
+    "number": 151,
+    "requires": [],
+    "solution": "protocol Storage {\n    associatedtype Item\n    var items: [Item] { get }\n}\n\nstruct StringStorage: Storage {\n    let items: [String]\n}\n\nlet storage = StringStorage(items: [\"Iron\", \"Gold\"])\nprint(storage.items.count)",
+    "starterCode": "// Challenge 151: Associated Types\n// Define a protocol with an associated type.\n\n// TODO: Create a protocol 'Storage' with associatedtype 'Item' and var items: [Item]\n// TODO: Create a struct that conforms with String items and print its count",
+    "tier": "mainline",
+    "title": "Associated Types",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add a where clause to constrain generics",
+    "expectedOutput": "true",
+    "fixtureFiles": [],
+    "hints": [
+      "where adds extra constraints for a generic extension."
+    ],
+    "id": "",
+    "introduces": [
+      "whereClauses"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "manualCheck": false,
+    "number": 152,
+    "requires": [],
+    "solution": "extension Array where Element: Equatable {\n    func allEqual() -> Bool {\n        guard let first = first else { return true }\n        return allSatisfy { $0 == first }\n    }\n}\n\nprint([2, 2, 2].allEqual())",
+    "starterCode": "// Challenge 152: Where Clauses\n// Constrain an extension with where.\n\n// TODO: Extend Array where Element: Equatable and add a method 'allEqual()'\n// TODO: Call it with [2, 2, 2] and print the result",
+    "tier": "mainline",
+    "title": "Where Clauses",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add shared behavior with constraints",
+    "expectedOutput": "Forge: Anvil",
+    "fixtureFiles": [],
+    "hints": [
+      "Constrain the shared behavior so it applies only to types that support equality checks."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "manualCheck": false,
+    "number": 153,
+    "requires": [],
+    "solution": "extension Describable where Self: Equatable {\n    func description() -> String {\n        return \"Forge: \\(name)\"\n    }\n}\n\nstruct Tool: Describable, Equatable {\n    let name: String\n}\n\nlet tool = Tool(name: \"Anvil\")\nprint(tool.description())",
+    "starterCode": "// Challenge 153: Constrained Extension\n// Add shared behavior with constraints.\n\nprotocol Describable {\n    var name: String { get }\n}\n\n// TODO: Add a constrained extension for Describable where Self: Equatable\n// TODO: Conform a struct and print its description",
+    "tier": "mainline",
+    "title": "Constrained Extension",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Conform generics conditionally",
+    "expectedOutput": "true",
+    "fixtureFiles": [],
+    "hints": [
+      "Conditional conformance lives in an extension with a type constraint."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "manualCheck": false,
+    "number": 154,
+    "requires": [],
+    "solution": "extension Crate: Equatable where T: Equatable {}\n\nlet first = Crate(items: [1, 2])\nlet second = Crate(items: [1, 2])\nprint(first == second)",
+    "starterCode": "// Challenge 154: Conditional Conformance\n// Add conditional conformance to a generic type.\n\nstruct Crate<T> {\n    let items: [T]\n}\n\n// TODO: Make Crate conform to Equatable when T is Equatable\n// TODO: Compare two crates of Ints and print the result",
+    "tier": "mainline",
+    "title": "Conditional Conformance",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Apply protocol-oriented design",
+    "expectedOutput": "Alloy ready",
+    "fixtureFiles": [],
+    "hints": [
+      "Use protocols to define behavior and extensions for defaults."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 155,
+    "requires": [],
+    "solution": "protocol StatusProviding {\n    var status: String { get }\n}\n\nextension StatusProviding {\n    func report() {\n        print(status)\n    }\n}\n\nstruct Alloy: StatusProviding {\n    let status: String\n}\n\nlet alloy = Alloy(status: \"Alloy ready\")\nalloy.report()",
+    "starterCode": "// Challenge 155: Model Layer Exercise\n// Compose a small model layer with protocols and defaults.\n\n// TODO: Define a protocol and a default implementation\n// TODO: Create a conforming struct and use the default method",
+    "tier": "mainline",
+    "title": "Model Layer Exercise",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Memory\n- strong references keep instances alive\n- weak breaks reference cycles\n- Use [weak self] in closures to avoid leaks",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Avoid reference cycles with weak",
+    "expectedOutput": "Cycle avoided",
+    "fixtureFiles": [],
+    "hints": [
+      "Weak references prevent strong reference cycles."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Memory Management\nSwift uses ARC to manage object lifetime for class instances.\n\nOverview:\n- Strong references keep objects alive.\n- Cycles cause leaks when two objects strongly retain each other.\n- Use `weak` (or `unowned` when safe) to break cycles.\n\nExample:\n    class A { weak var b: B? }\n    class B { var a: A? }\n\nGuidelines:\n- Use `[weak self]` in escaping closures where needed.\n- Favor structs for independent value data.",
+    "manualCheck": false,
+    "number": 156,
+    "requires": [],
+    "solution": "class Operator {\n    var name: String\n    weak var forge: Forge?\n\n    init(name: String) {\n        self.name = name\n    }\n}\n\nclass Forge {\n    var operatorRef: Operator?\n}\n\nlet forge = Forge()\nlet operatorRef = Operator(name: \"Ada\")\nforge.operatorRef = operatorRef\noperatorRef.forge = forge\nprint(\"Cycle avoided\")",
+    "starterCode": "// Challenge 156: ARC Safety\n// Use weak references to avoid cycles.\n\nclass Operator {\n    var name: String\n    init(name: String) {\n        self.name = name\n    }\n    // TODO: Add a weak reference back to a Forge\n}\n\nclass Forge {\n    var operatorRef: Operator?\n}\n\n// TODO: Create instances and print \"Cycle avoided\"",
+    "tier": "mainline",
+    "title": "ARC Safety",
+    "topic": "memory"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Show independent struct copies",
+    "expectedOutput": "2\n5",
+    "fixtureFiles": [],
+    "hints": [
+      "Structs are copied on assignment."
+    ],
+    "id": "mantle-extra-struct-copy-drill",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "manualCheck": false,
+    "number": 157,
+    "requires": [],
+    "solution": "copy.thickness = 5\nprint(original.thickness)\nprint(copy.thickness)",
+    "starterCode": "// Challenge 157: Struct Copy Drill\n// Show independent struct copies.\n\nstruct Plate {\n    var thickness: Int\n}\n\nlet original = Plate(thickness: 2)\nvar copy = original\n\n// TODO: Set 'copy.thickness' to 5\n// TODO: Print 'original.thickness' and 'copy.thickness' on separate lines",
+    "tier": "extra",
+    "title": "Struct Copy Drill",
+    "topic": "structs"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use a mutating method",
+    "expectedOutput": "3",
+    "fixtureFiles": [],
+    "hints": [
+      "Mutating methods can change stored properties."
+    ],
+    "id": "mantle-extra-mutating-counter",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "manualCheck": false,
+    "number": 158,
+    "requires": [],
+    "solution": "struct Counter {\n    var value: Int\n\n    mutating func increment() {\n        value += 1\n    }\n}\n\nvar counter = Counter(value: 1)\ncounter.increment()\ncounter.increment()\nprint(counter.value)",
+    "starterCode": "// Challenge 158: Mutating Counter\n// Update state with a mutating method.\n\nstruct Counter {\n    var value: Int\n    // TODO: Add mutating func 'increment' to add 1\n}\n\nvar counter = Counter(value: 1)\n// TODO: Call 'increment' twice\n// TODO: Print 'counter.value'",
+    "tier": "extra",
+    "title": "Mutating Counter",
+    "topic": "structs"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use a computed get/set",
+    "expectedOutput": "5",
+    "fixtureFiles": [],
+    "hints": [
+      "Set should convert pounds back to kg."
+    ],
+    "id": "mantle-extra-computed-conversion",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "manualCheck": false,
+    "number": 159,
+    "requires": [],
+    "solution": "struct Weight {\n    var kg: Int\n\n    var pounds: Int {\n        get { kg * 2 }\n        set { kg = newValue / 2 }\n    }\n}\n\nvar weight = Weight(kg: 1)\nweight.pounds = 10\nprint(weight.kg)",
+    "starterCode": "// Challenge 159: Computed Conversion\n// Convert between units with get/set.\n\nstruct Weight {\n    var kg: Int\n    // TODO: Add computed property 'pounds' using 1 kg = 2 lb\n}\n\nvar weight = Weight(kg: 1)\n// TODO: Set 'weight.pounds' to 10\n// TODO: Print 'weight.kg'",
+    "tier": "extra",
+    "title": "Computed Conversion",
+    "topic": "properties"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use property observers",
+    "expectedOutput": "Will set to 3\nDid set from 1",
+    "fixtureFiles": [],
+    "hints": [
+      "Use newValue and oldValue in observers."
+    ],
+    "id": "mantle-extra-observer-echo",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "manualCheck": false,
+    "number": 160,
+    "requires": [],
+    "solution": "struct Gauge {\n    var pressure: Int {\n        willSet {\n            print(\"Will set to \\(newValue)\")\n        }\n        didSet {\n            print(\"Did set from \\(oldValue)\")\n        }\n    }\n}\n\nvar gauge = Gauge(pressure: 1)\ngauge.pressure = 3",
+    "starterCode": "// Challenge 160: Observer Echo\n// Print before and after changes.\n\nstruct Gauge {\n    var pressure: Int {\n        // TODO: Add willSet/didSet to print changes\n    }\n}\n\nvar gauge = Gauge(pressure: 1)\n// TODO: Set 'gauge.pressure' to 3",
+    "tier": "extra",
+    "title": "Observer Echo",
+    "topic": "properties"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Classes\n- class Name { var property: Type }\n- Classes are reference types\n- deinit runs when an instance is released",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Share state across references",
+    "expectedOutput": "Active",
+    "fixtureFiles": [],
+    "hints": [
+      "Classes share a single instance across references."
+    ],
+    "id": "mantle-extra-class-shared-state",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Classes\nClasses are reference types, so multiple variables can point to one instance.\n\nOverview:\n- `class` supports inheritance and `deinit`.\n- Assignment copies the reference, not the data.\n- Use classes when shared mutable state is intentional.\n\nExample:\n    class Furnace {\n        var level = 0\n    }\n    let a = Furnace()\n    let b = a\n    b.level = 3   // a.level is also 3\n\nGuidelines:\n- Be explicit about ownership.\n- Watch for unintended shared mutation.",
+    "manualCheck": false,
+    "number": 161,
+    "requires": [],
+    "solution": "secondary.mode = \"Active\"\nprint(primary.mode)",
+    "starterCode": "// Challenge 161: Class Shared State\n// Show reference semantics.\n\nclass Controller {\n    var mode: String\n    init(mode: String) {\n        self.mode = mode\n    }\n}\n\nlet primary = Controller(mode: \"Idle\")\nlet secondary = primary\n\n// TODO: Set 'secondary.mode' to \"Active\"\n// TODO: Print 'primary.mode'",
+    "tier": "extra",
+    "title": "Class Shared State",
+    "topic": "classes"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use a lazy property",
+    "expectedOutput": "Report 2",
+    "fixtureFiles": [],
+    "hints": [
+      "Lazy properties are initialized on first access."
+    ],
+    "id": "mantle-extra-lazy-builder",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "manualCheck": false,
+    "number": 162,
+    "requires": [],
+    "solution": "struct Report {\n    var id: Int\n    lazy var title: String = \"Report \\(id)\"\n}\n\nvar report = Report(id: 2)\nprint(report.title)",
+    "starterCode": "// Challenge 162: Lazy Builder\n// Build a lazy property.\n\nstruct Report {\n    var id: Int\n    // TODO: Add lazy var 'title' returning \"Report <id>\"\n}\n\nvar report = Report(id: 2)\n// TODO: Print 'report.title'",
+    "tier": "extra",
+    "title": "Lazy Builder",
+    "topic": "properties"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add a protocol default method",
+    "expectedOutput": "Tool: Hammer",
+    "fixtureFiles": [],
+    "hints": [
+      "Protocol extensions can provide default methods."
+    ],
+    "id": "mantle-extra-default-label",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 163,
+    "requires": [],
+    "solution": "extension Named {\n    func label() -> String {\n        return \"Tool: \\(name)\"\n    }\n}\n\nstruct Tool: Named {\n    let name: String\n}\n\nprint(Tool(name: \"Hammer\").label())",
+    "starterCode": "// Challenge 163: Default Label\n// Add a shared method with a protocol extension.\n\nprotocol Named {\n    var name: String { get }\n}\n\n// TODO: Add default method label() -> String returning \"Tool: <name>\"\n// TODO: Conform a struct and print its label",
+    "tier": "extra",
+    "title": "Default Label",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use a protocol as a parameter",
+    "expectedOutput": "Heat: 1500",
+    "fixtureFiles": [],
+    "hints": [
+      "Accept any type that conforms to the protocol, not a concrete type."
+    ],
+    "id": "mantle-extra-protocol-parameter",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 164,
+    "requires": [],
+    "solution": "func reportHeat(source: HeatSource) {\n    print(\"Heat: \\(source.heat)\")\n}\n\nreportHeat(source: Furnace(heat: 1500))",
+    "starterCode": "// Challenge 164: Protocol Parameter\n// Accept a protocol type.\n\nprotocol HeatSource {\n    var heat: Int { get }\n}\n\nstruct Furnace: HeatSource {\n    let heat: Int\n}\n\n// TODO: Write function 'reportHeat(source:)' that prints \"Heat: <value>\"\n// TODO: Call it with a Furnace(heat: 1500)",
+    "tier": "extra",
+    "title": "Protocol Parameter",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Require two protocols",
+    "expectedOutput": "Fuel 2\nAir 3",
+    "fixtureFiles": [],
+    "hints": [
+      "Require both capabilities in the parameter type."
+    ],
+    "id": "mantle-extra-composition-drill",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 165,
+    "requires": [],
+    "solution": "func report(_ vent: Fueling & Venting) {\n    print(\"Fuel \\(vent.fuel)\")\n    print(\"Air \\(vent.airflow)\")\n}\n\nreport(Vent(fuel: 2, airflow: 3))",
+    "starterCode": "// Challenge 165: Composition Drill\n// Require two protocols in one parameter.\n\nprotocol Fueling {\n    var fuel: Int { get }\n}\n\nprotocol Venting {\n    var airflow: Int { get }\n}\n\nstruct Vent: Fueling, Venting {\n    let fuel: Int\n    let airflow: Int\n}\n\n// TODO: Write function report(_:) that accepts Fueling & Venting\n// TODO: Print \"Fuel <fuel>\" and \"Air <airflow>\" on separate lines",
+    "tier": "extra",
+    "title": "Composition Drill",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add a method with an extension",
+    "expectedOutput": "25",
+    "fixtureFiles": [],
+    "hints": [
+      "Extensions can add methods to existing types."
+    ],
+    "id": "mantle-extra-extension-helper",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Extensions\nExtensions add behavior to existing types without subclassing.\n\nOverview:\n- Add methods, computed properties, and protocol conformance.\n- Keep related helpers grouped by purpose.\n- Protocol extensions can provide default behavior.\n\nExample:\n    extension Int {\n        var isHot: Bool { self >= 1400 }\n    }\n\nGuidelines:\n- Prefer extensions for organization and reuse.\n- Avoid hiding critical behavior across too many files.",
+    "manualCheck": false,
+    "number": 166,
+    "requires": [],
+    "solution": "extension Int {\n    func squared() -> Int {\n        return self * self\n    }\n}\n\nprint(5.squared())",
+    "starterCode": "// Challenge 166: Extension Helper\n// Add a helper method to Int.\n\n// TODO: Extend Int with a method squared() -> Int\n// TODO: Print 5.squared()",
+    "tier": "extra",
+    "title": "Extension Helper",
+    "topic": "extensions"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Access Control\n- private limits access to the enclosing scope\n- internal is the default (module-wide)\n- public/open expose APIs outside the module",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Hide data with access control",
+    "expectedOutput": "****",
+    "fixtureFiles": [],
+    "hints": [
+      "Expose a safe value while keeping the code private."
+    ],
+    "id": "mantle-extra-access-wrapper",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Access Control\nAccess control limits who can use each symbol.\n\nOverview:\n- `private`: current scope.\n- `fileprivate`: current file.\n- `internal`: default, module scope.\n- `public/open`: visible outside module.\n\nExample:\n    public struct Kiln {\n        public private(set) var temperature: Int = 0\n    }\n\nGuidelines:\n- Start restrictive and open only what is needed.\n- Use `private(set)` for read-only public state.",
+    "manualCheck": false,
+    "number": 167,
+    "requires": [],
+    "solution": "struct Vault {\n    private var code: Int\n\n    var masked: String {\n        return \"****\"\n    }\n\n    init(code: Int) {\n        self.code = code\n    }\n}\n\nlet vault = Vault(code: 1234)\nprint(vault.masked)",
+    "starterCode": "// Challenge 167: Access Wrapper\n// Use private storage with a public view.\n\nstruct Vault {\n    private var code: Int\n    // TODO: Add computed property 'masked' returning \"****\"\n    // TODO: Add init(code:) to set code\n}\n\n// TODO: Create a Vault and print 'masked'",
+    "tier": "extra",
+    "title": "Access Wrapper",
+    "topic": "accessControl"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Errors\n- Define: enum MyError: Error { case ... }\n- Throwing functions use throws\n- Call with try\n- Handle with do { try ... } catch { ... }\n- try? returns Optional, nil on error",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Throw and catch an error",
+    "expectedOutput": "Jam",
+    "fixtureFiles": [],
+    "hints": [
+      "Throw the error when the condition is met."
+    ],
+    "id": "mantle-extra-error-route",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Errors\nSwift errors model expected failure paths.\n\nOverview:\n- Define error enums conforming to `Error`.\n- Throw from functions marked `throws`.\n- Handle with `do/try/catch`.\n\nExample:\n    enum HeatError: Error { case tooHot }\n    func validate(_ t: Int) throws {\n        if t > 1600 { throw HeatError.tooHot }\n    }\n\nGuidelines:\n- Throw meaningful, typed errors.\n- Use `try?` only when silent fallback is intentional.",
+    "manualCheck": false,
+    "number": 168,
+    "requires": [],
+    "solution": "func start(fuel: Int) throws {\n    if fuel == 0 {\n        throw ForgeError.jam\n    }\n}\n\ndo {\n    try start(fuel: 0)\n} catch {\n    print(\"Jam\")\n}",
+    "starterCode": "// Challenge 168: Error Route\n// Throw and catch a custom error.\n\nenum ForgeError: Error {\n    case jam\n}\n\n// TODO: Write a function 'start(fuel:)' that throws when fuel == 0\n// TODO: Call it with fuel 0 and print \"Jam\" in catch",
+    "tier": "extra",
+    "title": "Error Route",
+    "topic": "errors"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Store a type in a box",
+    "expectedOutput": "Iron",
+    "fixtureFiles": [],
+    "hints": [
+      "Use a generic type parameter T for the stored value."
+    ],
+    "id": "mantle-extra-generic-box",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "manualCheck": false,
+    "number": 169,
+    "requires": [],
+    "solution": "struct Box<T> {\n    let value: T\n}\n\nlet box = Box(value: \"Iron\")\nprint(box.value)",
+    "starterCode": "// Challenge 169: Generic Box\n// Create a generic container.\n\n// TODO: Define struct Box<T> with value: T\n// TODO: Create Box(value: \"Iron\") and print the value",
+    "tier": "extra",
+    "title": "Generic Box",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use a generic constraint",
+    "expectedOutput": "3",
+    "fixtureFiles": [],
+    "hints": [
+      "Compare the two values and return the smaller."
+    ],
+    "id": "mantle-extra-comparable-min",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "manualCheck": false,
+    "number": 170,
+    "requires": [],
+    "solution": "func minValue<T: Comparable>(_ first: T, _ second: T) -> T {\n    return first <= second ? first : second\n}\n\nprint(minValue(3, 5))",
+    "starterCode": "// Challenge 170: Comparable Min\n// Use Comparable constraints.\n\n// TODO: Write minValue(_:_:) for T: Comparable\n// TODO: Call it with 3 and 5, then print the result",
+    "tier": "extra",
+    "title": "Comparable Min",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use associated types",
+    "expectedOutput": "1",
+    "fixtureFiles": [],
+    "hints": [
+      "Mutating methods can append to the items array."
+    ],
+    "id": "mantle-extra-associated-storage",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "manualCheck": false,
+    "number": 171,
+    "requires": [],
+    "solution": "protocol Stackable {\n    associatedtype Item\n    var items: [Item] { get set }\n    mutating func push(_ item: Item)\n}\n\nstruct Stack<T>: Stackable {\n    var items: [T]\n\n    mutating func push(_ item: T) {\n        items.append(item)\n    }\n}\n\nvar stack = Stack(items: [])\nstack.push(2)\nprint(stack.items.count)",
+    "starterCode": "// Challenge 171: Associated Storage\n// Define a protocol with an associated type.\n\nprotocol Stackable {\n    associatedtype Item\n    var items: [Item] { get set }\n    // TODO: Add mutating func push(_:)\n}\n\nstruct Stack<T>: Stackable {\n    var items: [T]\n    // TODO: Implement push(_:)\n}\n\nvar stack = Stack(items: [])\n// TODO: Push 2 and print stack.items.count",
+    "tier": "extra",
+    "title": "Associated Storage",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Constrain an extension",
+    "expectedOutput": "false",
+    "fixtureFiles": [],
+    "hints": [
+      "Compare each element to the first."
+    ],
+    "id": "mantle-extra-where-clause",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "manualCheck": false,
+    "number": 172,
+    "requires": [],
+    "solution": "extension Array where Element: Equatable {\n    func allSame() -> Bool {\n        guard let first = first else { return true }\n        return allSatisfy { $0 == first }\n    }\n}\n\nprint([1, 1, 2].allSame())",
+    "starterCode": "// Challenge 172: Where Clause\n// Add a constrained extension.\n\n// TODO: Extend Array where Element: Equatable with allSame() -> Bool\n// TODO: Call it on [1, 1, 2] and print the result",
+    "tier": "extra",
+    "title": "Where Clause",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add Equatable conformance conditionally",
+    "expectedOutput": "true",
+    "fixtureFiles": [],
+    "hints": [
+      "Add the constraint in an extension so conformance is conditional."
+    ],
+    "id": "mantle-extra-conditional-conformance",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "manualCheck": false,
+    "number": 173,
+    "requires": [],
+    "solution": "extension Wrapper: Equatable where T: Equatable {}\n\nlet first = Wrapper(value: \"A\")\nlet second = Wrapper(value: \"A\")\nprint(first == second)",
+    "starterCode": "// Challenge 173: Conditional Conformance\n// Conform a generic type when T is Equatable.\n\nstruct Wrapper<T> {\n    let value: T\n}\n\n// TODO: Make Wrapper conform to Equatable when T: Equatable\n// TODO: Compare two Wrapper(value: \"A\") and print the result",
+    "tier": "extra",
+    "title": "Conditional Conformance",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Memory\n- strong references keep instances alive\n- weak breaks reference cycles\n- Use [weak self] in closures to avoid leaks",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use weak in a closure capture list",
+    "expectedOutput": "Log",
+    "fixtureFiles": [],
+    "hints": [
+      "Use a weak capture to avoid a cycle, then safely access the instance."
+    ],
+    "id": "mantle-extra-weak-capture",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Memory Management\nSwift uses ARC to manage object lifetime for class instances.\n\nOverview:\n- Strong references keep objects alive.\n- Cycles cause leaks when two objects strongly retain each other.\n- Use `weak` (or `unowned` when safe) to break cycles.\n\nExample:\n    class A { weak var b: B? }\n    class B { var a: A? }\n\nGuidelines:\n- Use `[weak self]` in escaping closures where needed.\n- Favor structs for independent value data.",
+    "manualCheck": false,
+    "number": 174,
+    "requires": [],
+    "solution": "class Logger {\n    let prefix: String\n    init(prefix: String) {\n        self.prefix = prefix\n    }\n\n    func makePrinter() -> () -> Void {\n        return { [weak self] in\n            if let self = self {\n                print(self.prefix)\n            }\n        }\n    }\n}\n\nlet logger = Logger(prefix: \"Log\")\nlet printer = logger.makePrinter()\nprinter()",
+    "starterCode": "// Challenge 174: Weak Capture\n// Avoid strong capture cycles.\n\nclass Logger {\n    let prefix: String\n    init(prefix: String) {\n        self.prefix = prefix\n    }\n\n    func makePrinter() -> () -> Void {\n        // TODO: Return a closure that prints prefix using [weak self]\n    }\n}\n\nlet logger = Logger(prefix: \"Log\")\nlet printer = logger.makePrinter()\nprinter()",
+    "tier": "extra",
+    "title": "Weak Capture",
+    "topic": "memory"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Access Control\n- private limits access to the enclosing scope\n- internal is the default (module-wide)\n- public/open expose APIs outside the module",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use fileprivate, internal, and private(set)",
+    "expectedOutput": "Forge\n1",
+    "fixtureFiles": [],
+    "hints": [
+      "internal is the default access level.",
+      "private(set) allows reads but prevents external mutation."
+    ],
+    "id": "mantle-extra-access-control-nuance",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Access Control\nAccess control limits who can use each symbol.\n\nOverview:\n- `private`: current scope.\n- `fileprivate`: current file.\n- `internal`: default, module scope.\n- `public/open`: visible outside module.\n\nExample:\n    public struct Kiln {\n        public private(set) var temperature: Int = 0\n    }\n\nGuidelines:\n- Start restrictive and open only what is needed.\n- Use `private(set)` for read-only public state.",
+    "manualCheck": false,
+    "number": 250,
+    "requires": [],
+    "solution": "struct Vault {\n    fileprivate var code = \"X\"\n    internal var owner = \"Forge\"\n    private(set) var count = 1\n}\n\nlet vault = Vault()\nprint(vault.owner)\nprint(vault.count)",
+    "starterCode": "// Challenge 250: Access Control Nuance\n// Use fileprivate, internal, and private(set).\n\nstruct Vault {\n    fileprivate var code = \"X\"\n    internal var owner = \"Forge\"\n    private(set) var count = 1\n}\n\nlet vault = Vault()\n// TODO: Print vault.owner\n// TODO: Print vault.count",
+    "tier": "extra",
+    "title": "Access Control Nuance",
+    "topic": "accessControl"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add a constrained default method",
+    "expectedOutput": "Tag: Forge",
+    "fixtureFiles": [],
+    "hints": [
+      "Add a where clause to limit the default method.",
+      "Return a formatted string using tag."
+    ],
+    "id": "mantle-extra-protocol-extension-constraint",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 251,
+    "requires": [],
+    "solution": "protocol Taggable {\n    var tag: String { get }\n}\n\nextension Taggable where Self: CustomStringConvertible {\n    func describeTag() -> String {\n        return \"Tag: \\(tag)\"\n    }\n}\n\nstruct Tool: Taggable, CustomStringConvertible {\n    let tag: String\n    var description: String { tag }\n}\n\nlet tool = Tool(tag: \"Forge\")\nprint(tool.describeTag())",
+    "starterCode": "// Challenge 251: Protocol Extension Constraint\n// Add a constrained default method.\n\nprotocol Taggable {\n    var tag: String { get }\n}\n\n// TODO: Add a protocol extension where Self: CustomStringConvertible\n// TODO: Add describeTag() -> String returning \"Tag: <tag>\"\n// TODO: Create a conforming type and print describeTag()",
+    "tier": "extra",
+    "title": "Protocol Extension Constraint",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use a struct's memberwise initializer",
+    "expectedOutput": "Iron 3",
+    "fixtureFiles": [],
+    "hints": [
+      "Memberwise init uses property names as labels.",
+      "Print the stored properties in order."
+    ],
+    "id": "mantle-extra-memberwise-init",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "manualCheck": false,
+    "number": 279,
+    "requires": [],
+    "solution": "let ingot = Ingot(metal: \"Iron\", weight: 3)\nprint(\"\\(ingot.metal) \\(ingot.weight)\")",
+    "starterCode": "// Challenge 279: Memberwise Init\n// Use the memberwise initializer.\n\nstruct Ingot {\n    let metal: String\n    let weight: Int\n}\n\n// TODO: Create an Ingot for Iron with weight 3\n// TODO: Print \"<metal> <weight>\"",
+    "tier": "extra",
+    "title": "Memberwise Init",
+    "topic": "structs"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Classes\n- class Name { var property: Type }\n- Classes are reference types\n- deinit runs when an instance is released",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Compare class references",
+    "expectedOutput": "true",
+    "fixtureFiles": [],
+    "hints": [
+      "Use the identity operator (===) for classes."
+    ],
+    "id": "mantle-extra-class-identity",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Classes\nClasses are reference types, so multiple variables can point to one instance.\n\nOverview:\n- `class` supports inheritance and `deinit`.\n- Assignment copies the reference, not the data.\n- Use classes when shared mutable state is intentional.\n\nExample:\n    class Furnace {\n        var level = 0\n    }\n    let a = Furnace()\n    let b = a\n    b.level = 3   // a.level is also 3\n\nGuidelines:\n- Be explicit about ownership.\n- Watch for unintended shared mutation.",
+    "manualCheck": false,
+    "number": 280,
+    "requires": [],
+    "solution": "print(primary === secondary)",
+    "starterCode": "// Challenge 280: Class Identity\n// Compare two references to the same instance.\n\nclass Forge {\n    var heat: Int\n    init(heat: Int) {\n        self.heat = heat\n    }\n}\n\nlet primary = Forge(heat: 1)\nlet secondary = primary\n\n// TODO: Print whether primary and secondary refer to the same instance",
+    "tier": "extra",
+    "title": "Class Identity",
+    "topic": "classes"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use a computed read-only property",
+    "expectedOutput": "2",
+    "fixtureFiles": [],
+    "hints": [
+      "Only provide a get block.",
+      "Use integer division for 28 / 14."
+    ],
+    "id": "mantle-extra-readonly-property",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "manualCheck": false,
+    "number": 281,
+    "requires": [],
+    "solution": "struct Gauge {\n    var psi: Int\n    var bar: Int {\n        return psi / 14\n    }\n}\n\nlet gauge = Gauge(psi: 28)\nprint(gauge.bar)",
+    "starterCode": "// Challenge 281: Readonly Property\n// Add a computed property without a setter.\n\nstruct Gauge {\n    var psi: Int\n    // TODO: Add computed property bar using 1 bar = 14 psi (integer math)\n}\n\nlet gauge = Gauge(psi: 28)\n// TODO: Print gauge.bar",
+    "tier": "extra",
+    "title": "Readonly Property",
+    "topic": "properties"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Provide a default implementation",
+    "expectedOutput": "Name: Anvil",
+    "fixtureFiles": [],
+    "hints": [
+      "Default methods live in protocol extensions."
+    ],
+    "id": "mantle-extra-protocol-default",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 282,
+    "requires": [],
+    "solution": "extension Describable {\n    func describe() -> String {\n        return \"Name: \\(name)\"\n    }\n}\n\nstruct Tool: Describable {\n    let name: String\n}\n\nprint(Tool(name: \"Anvil\").describe())",
+    "starterCode": "// Challenge 282: Protocol Default\n// Provide a default method in an extension.\n\nprotocol Describable {\n    var name: String { get }\n}\n\n// TODO: Add describe() -> String that returns \"Name: <name>\"\n// TODO: Create a struct conforming to Describable and print describe()",
+    "tier": "extra",
+    "title": "Protocol Default",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add a static helper",
+    "expectedOutput": "Steel",
+    "fixtureFiles": [],
+    "hints": [
+      "Static methods are called on the type."
+    ],
+    "id": "mantle-extra-extension-static",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Extensions\nExtensions add behavior to existing types without subclassing.\n\nOverview:\n- Add methods, computed properties, and protocol conformance.\n- Keep related helpers grouped by purpose.\n- Protocol extensions can provide default behavior.\n\nExample:\n    extension Int {\n        var isHot: Bool { self >= 1400 }\n    }\n\nGuidelines:\n- Prefer extensions for organization and reuse.\n- Avoid hiding critical behavior across too many files.",
+    "manualCheck": false,
+    "number": 283,
+    "requires": [],
+    "solution": "extension Alloy {\n    static func standard() -> Alloy {\n        return Alloy(name: \"Steel\")\n    }\n}\n\nprint(Alloy.standard().name)",
+    "starterCode": "// Challenge 283: Extension Static\n// Add a static helper with an extension.\n\nstruct Alloy {\n    let name: String\n}\n\n// TODO: Add static func standard() -> Alloy returning name \"Steel\"\n// TODO: Print Alloy.standard().name",
+    "tier": "extra",
+    "title": "Extension Static",
+    "topic": "extensions"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Access Control\n- private limits access to the enclosing scope\n- internal is the default (module-wide)\n- public/open expose APIs outside the module",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Expose a read-only setter",
+    "expectedOutput": "2",
+    "fixtureFiles": [],
+    "hints": [
+      "private(set) allows reads but restricts writes."
+    ],
+    "id": "mantle-extra-private-set",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Access Control\nAccess control limits who can use each symbol.\n\nOverview:\n- `private`: current scope.\n- `fileprivate`: current file.\n- `internal`: default, module scope.\n- `public/open`: visible outside module.\n\nExample:\n    public struct Kiln {\n        public private(set) var temperature: Int = 0\n    }\n\nGuidelines:\n- Start restrictive and open only what is needed.\n- Use `private(set)` for read-only public state.",
+    "manualCheck": false,
+    "number": 284,
+    "requires": [],
+    "solution": "var counter = Counter()\ncounter.increment()\ncounter.increment()\nprint(counter.value)",
+    "starterCode": "// Challenge 284: Private(set)\n// Use private(set) to limit writes.\n\nstruct Counter {\n    private(set) var value = 0\n    mutating func increment() {\n        value += 1\n    }\n}\n\nvar counter = Counter()\n// TODO: Call increment twice, then print counter.value",
+    "tier": "extra",
+    "title": "Private(set)",
+    "topic": "accessControl"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Errors\n- Define: enum MyError: Error { case ... }\n- Throwing functions use throws\n- Call with try\n- Handle with do { try ... } catch { ... }\n- try? returns Optional, nil on error",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Catch a specific error case",
+    "expectedOutput": "Blown",
+    "fixtureFiles": [],
+    "hints": [
+      "Use a specific catch clause for the enum case."
+    ],
+    "id": "mantle-extra-error-specific",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Errors\nSwift errors model expected failure paths.\n\nOverview:\n- Define error enums conforming to `Error`.\n- Throw from functions marked `throws`.\n- Handle with `do/try/catch`.\n\nExample:\n    enum HeatError: Error { case tooHot }\n    func validate(_ t: Int) throws {\n        if t > 1600 { throw HeatError.tooHot }\n    }\n\nGuidelines:\n- Throw meaningful, typed errors.\n- Use `try?` only when silent fallback is intentional.",
+    "manualCheck": false,
+    "number": 285,
+    "requires": [],
+    "solution": "do {\n    try checkFuse(false)\n} catch FuseError.blown {\n    print(\"Blown\")\n}",
+    "starterCode": "// Challenge 285: Error Specific\n// Catch a specific error case.\n\nenum FuseError: Error {\n    case blown\n    case missing\n}\n\nfunc checkFuse(_ ok: Bool) throws {\n    if !ok {\n        throw FuseError.blown\n    }\n}\n\n// TODO: Call checkFuse(false) and catch FuseError.blown to print \"Blown\"",
+    "tier": "extra",
+    "title": "Error Specific",
+    "topic": "errors"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Store two values in a generic type",
+    "expectedOutput": "Iron 3",
+    "fixtureFiles": [],
+    "hints": [
+      "Use two generic type parameters."
+    ],
+    "id": "mantle-extra-generic-pair",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "manualCheck": false,
+    "number": 286,
+    "requires": [],
+    "solution": "struct Pair<A, B> {\n    let first: A\n    let second: B\n}\n\nlet pair = Pair(first: \"Iron\", second: 3)\nprint(\"\\(pair.first) \\(pair.second)\")",
+    "starterCode": "// Challenge 286: Generic Pair\n// Store two values in a generic type.\n\n// TODO: Define struct Pair<A, B> with first and second\n// TODO: Create Pair(first: \"Iron\", second: 3) and print first and second",
+    "tier": "extra",
+    "title": "Generic Pair",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use a protocol with an associated type",
+    "expectedOutput": "Iron",
+    "fixtureFiles": [],
+    "hints": [
+      "Associated types let the conformer choose the concrete type."
+    ],
+    "id": "mantle-extra-protocol-associated",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "manualCheck": false,
+    "number": 287,
+    "requires": [],
+    "solution": "let bin = Bin(item: \"Iron\")\nprint(bin.item)",
+    "starterCode": "// Challenge 287: Protocol Associated\n// Use an associated type in a protocol.\n\nprotocol Storable {\n    associatedtype Item\n    var item: Item { get }\n}\n\nstruct Bin: Storable {\n    let item: String\n}\n\n// TODO: Create a Bin and print its item",
+    "tier": "extra",
+    "title": "Protocol Associated",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use 'any' with a protocol",
+    "expectedOutput": "1500",
+    "fixtureFiles": [],
+    "hints": [
+      "Use 'any' to spell an existential.",
+      "Access heat through the protocol-typed value."
+    ],
+    "id": "mantle-extra-protocol-erasure",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 288,
+    "requires": [],
+    "solution": "let source: any HeatSource = Burner(heat: 1500)\nprint(source.heat)",
+    "starterCode": "// Challenge 288: Protocol Erasure\n// Use 'any' with a protocol type.\n\nprotocol HeatSource {\n    var heat: Int { get }\n}\n\nstruct Burner: HeatSource {\n    let heat: Int\n}\n\n// TODO: Create a variable of type 'any HeatSource'\n// TODO: Assign a Burner and print heat",
+    "tier": "extra",
+    "title": "Protocol Erasure",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use any with protocol composition",
+    "expectedOutput": "Fuel 2\nAir 3",
+    "fixtureFiles": [],
+    "hints": [
+      "Combine protocols with '&' and prefix with 'any'."
+    ],
+    "id": "mantle-extra-protocol-composition-any",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 289,
+    "requires": [],
+    "solution": "let vent: any Fueling & Venting = Vent(fuel: 2, airflow: 3)\nprint(\"Fuel \\(vent.fuel)\")\nprint(\"Air \\(vent.airflow)\")",
+    "starterCode": "// Challenge 289: Protocol Composition Any\n// Use any with protocol composition.\n\nprotocol Fueling { var fuel: Int { get } }\nprotocol Venting { var airflow: Int { get } }\n\nstruct Vent: Fueling, Venting {\n    let fuel: Int\n    let airflow: Int\n}\n\n// TODO: Create a value of type 'any Fueling & Venting'\n// TODO: Print fuel and airflow",
+    "tier": "extra",
+    "title": "Protocol Composition Any",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Constrain a generic method with where",
+    "expectedOutput": "true",
+    "fixtureFiles": [],
+    "hints": [
+      "Use a where clause on the method, not the type."
+    ],
+    "id": "mantle-extra-where-method",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "manualCheck": false,
+    "number": 290,
+    "requires": [],
+    "solution": "struct Store<T> {\n    let items: [T]\n\n    func allEqual() -> Bool where T: Equatable {\n        guard let first = items.first else { return true }\n        return items.allSatisfy { $0 == first }\n    }\n}\n\nlet store = Store(items: [1, 1, 1])\nprint(store.allEqual())",
+    "starterCode": "// Challenge 290: Where Method\n// Constrain a generic method with where.\n\nstruct Store<T> {\n    let items: [T]\n\n    // TODO: Add method allEqual() -> Bool where T: Equatable\n}\n\nlet store = Store(items: [1, 1, 1])\n// TODO: Print store.allEqual()",
+    "tier": "extra",
+    "title": "Where Method",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add behavior with a constrained extension",
+    "expectedOutput": "A",
+    "fixtureFiles": [],
+    "hints": [
+      "Constrain the extension to T == String."
+    ],
+    "id": "mantle-extra-generic-extension",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "manualCheck": false,
+    "number": 291,
+    "requires": [],
+    "solution": "extension Crate where T == String {\n    func firstItem() -> String {\n        return items.first ?? \"\"\n    }\n}\n\nlet crate = Crate(items: [\"A\", \"B\"])\nprint(crate.firstItem())",
+    "starterCode": "// Challenge 291: Generic Extension\n// Add behavior with a constrained extension.\n\nstruct Crate<T> {\n    let items: [T]\n}\n\n// TODO: Add an extension where T == String with firstItem() -> String\n// TODO: Create Crate(items: [\"A\", \"B\"]) and print firstItem()",
+    "tier": "extra",
+    "title": "Generic Extension",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Memory\n- strong references keep instances alive\n- weak breaks reference cycles\n- Use [weak self] in closures to avoid leaks",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Avoid retain cycles in closures",
+    "expectedOutput": "nil",
+    "fixtureFiles": [],
+    "hints": [
+      "Capture weakly to avoid a strong cycle.",
+      "Use nil coalescing to print \"nil\" when missing."
+    ],
+    "id": "mantle-extra-weak-release",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Memory Management\nSwift uses ARC to manage object lifetime for class instances.\n\nOverview:\n- Strong references keep objects alive.\n- Cycles cause leaks when two objects strongly retain each other.\n- Use `weak` (or `unowned` when safe) to break cycles.\n\nExample:\n    class A { weak var b: B? }\n    class B { var a: A? }\n\nGuidelines:\n- Use `[weak self]` in escaping closures where needed.\n- Favor structs for independent value data.",
+    "manualCheck": false,
+    "number": 309,
+    "requires": [],
+    "solution": "class Forge {\n    let id: Int\n    init(id: Int) { self.id = id }\n}\n\nvar forge: Forge? = Forge(id: 1)\nlet report = { [weak forge] in\n    print(forge?.id ?? \"nil\")\n}\n\nforge = nil\nreport()",
+    "starterCode": "// Challenge 309: Weak Release\n// Avoid retain cycles in closures.\n\nclass Forge {\n    let id: Int\n    init(id: Int) { self.id = id }\n}\n\nvar forge: Forge? = Forge(id: 1)\nlet report = { [weak forge] in\n    // TODO: Print forge?.id or \"nil\" if it’s gone\n}\n\n// TODO: Set forge = nil\n// TODO: Call report()",
+    "tier": "extra",
+    "title": "Weak Release",
+    "topic": "memory"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add a computed property via extension",
+    "expectedOutput": "true",
+    "fixtureFiles": [],
+    "hints": [
+      "Extensions can add computed properties.",
+      "Return a Bool based on weight."
+    ],
+    "id": "mantle-extra-extension-computed",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Extensions\nExtensions add behavior to existing types without subclassing.\n\nOverview:\n- Add methods, computed properties, and protocol conformance.\n- Keep related helpers grouped by purpose.\n- Protocol extensions can provide default behavior.\n\nExample:\n    extension Int {\n        var isHot: Bool { self >= 1400 }\n    }\n\nGuidelines:\n- Prefer extensions for organization and reuse.\n- Avoid hiding critical behavior across too many files.",
+    "manualCheck": false,
+    "number": 310,
+    "requires": [],
+    "solution": "struct Ingot {\n    let weight: Int\n}\n\nextension Ingot {\n    var isHeavy: Bool {\n        return weight >= 10\n    }\n}\n\nlet ingot = Ingot(weight: 12)\nprint(ingot.isHeavy)",
+    "starterCode": "// Challenge 310: Extension Computed\n// Add a computed property via extension.\n\nstruct Ingot {\n    let weight: Int\n}\n\n// TODO: Add an extension with a computed property isHeavy (>= 10)\n// TODO: Create an Ingot(weight: 12) and print isHeavy",
+    "tier": "extra",
+    "title": "Extension Computed",
+    "topic": "extensions"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Errors\n- Define: enum MyError: Error { case ... }\n- Throwing functions use throws\n- Call with try\n- Handle with do { try ... } catch { ... }\n- try? returns Optional, nil on error",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Pass through a throwing closure",
+    "expectedOutput": "Caught",
+    "fixtureFiles": [],
+    "hints": [
+      "rethrows forwards errors from the closure.",
+      "Handle the error in the catch block."
+    ],
+    "id": "mantle-extra-error-rethrow",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Errors\nSwift errors model expected failure paths.\n\nOverview:\n- Define error enums conforming to `Error`.\n- Throw from functions marked `throws`.\n- Handle with `do/try/catch`.\n\nExample:\n    enum HeatError: Error { case tooHot }\n    func validate(_ t: Int) throws {\n        if t > 1600 { throw HeatError.tooHot }\n    }\n\nGuidelines:\n- Throw meaningful, typed errors.\n- Use `try?` only when silent fallback is intentional.",
+    "manualCheck": false,
+    "number": 311,
+    "requires": [],
+    "solution": "enum HeatError: Error {\n    case tooHot\n}\n\nfunc run(_ operation: () throws -> String) rethrows -> String {\n    return try operation()\n}\n\ndo {\n    let value = try run {\n        throw HeatError.tooHot\n    }\n    print(value)\n} catch {\n    print(\"Caught\")\n}",
+    "starterCode": "// Challenge 311: Rethrow\n// Pass through a throwing closure.\n\nenum HeatError: Error {\n    case tooHot\n}\n\nfunc run(_ operation: () throws -> String) rethrows -> String {\n    // TODO: Call the operation and return the result\n}\n\ndo {\n    let value = try run {\n        throw HeatError.tooHot\n    }\n    print(value)\n} catch {\n    // TODO: Print \"Caught\"\n}",
+    "tier": "extra",
+    "title": "Rethrow",
+    "topic": "errors"
+  }
+]

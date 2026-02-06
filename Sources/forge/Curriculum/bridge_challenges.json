@@ -1,0 +1,118 @@
+{
+  "coreToMantle": [
+    {
+      "canonicalId": "",
+      "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+      "description": "Move from loose values to a struct",
+      "expectedOutput": "Iron @ 1400",
+      "fixtureFiles": [],
+      "hints": [
+        "A struct bundles related values together.",
+        "Use its stored properties to form the output line."
+      ],
+      "id": "",
+      "introduces": [],
+      "layer": "mantle",
+      "lesson": "Lesson: Structs\nMove from loose values to a struct\n\nOverview:\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties\n\nPractice:\n- Implement the TODOs.\n- Press Enter to run the check.\n- Use `h` for hints and `c` for cheatsheet when stuck.",
+      "manualCheck": false,
+      "number": 241,
+      "requires": [],
+      "solution": "struct Snapshot {\n    let metal: String\n    let heat: Int\n}\n\nlet snapshot = Snapshot(metal: \"Iron\", heat: 1400)\nprint(\"\\(snapshot.metal) @ \\(snapshot.heat)\")",
+      "starterCode": "// Bridge Challenge 1: Struct Snapshot\n// Move from loose values to a struct.\n//\n// TODO: Define a struct Snapshot with metal (String) and heat (Int)\n// TODO: Create a snapshot for \"Iron\" at 1400\n// TODO: Print \"Iron @ 1400\"",
+      "tier": "mainline",
+      "title": "Bridge: Struct Snapshot",
+      "topic": "structs"
+    },
+    {
+      "canonicalId": "",
+      "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+      "description": "Add behavior to a struct",
+      "expectedOutput": "Gold: 1500",
+      "fixtureFiles": [],
+      "hints": [
+        "Methods can format stored properties into strings.",
+        "Call the method on the instance to get the output text."
+      ],
+      "id": "",
+      "introduces": [],
+      "layer": "mantle",
+      "lesson": "Lesson: Structs\nAdd behavior to a struct\n\nOverview:\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties\n\nPractice:\n- Implement the TODOs.\n- Press Enter to run the check.\n- Use `h` for hints and `c` for cheatsheet when stuck.",
+      "manualCheck": false,
+      "number": 242,
+      "requires": [],
+      "solution": "struct ForgeLog {\n    let metal: String\n    let heat: Int\n\n    func label() -> String {\n        return \"\\(metal): \\(heat)\"\n    }\n}\n\nlet log = ForgeLog(metal: \"Gold\", heat: 1500)\nprint(log.label())",
+      "starterCode": "// Bridge Challenge 2: Struct Method\n// Add behavior to a struct.\n//\n// TODO: Define a struct ForgeLog with metal (String) and heat (Int)\n// TODO: Add a method label() -> String that returns \"<metal>: <heat>\"\n// TODO: Create a log for \"Gold\" at 1500 and print label()",
+      "tier": "mainline",
+      "title": "Bridge: Struct Method",
+      "topic": "structs"
+    }
+  ],
+  "mantleToCrust": [
+    {
+      "canonicalId": "",
+      "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+      "constraintProfile": {
+        "allowConcurrency": true,
+        "allowFileIO": true,
+        "allowNetwork": false,
+        "allowedImports": [
+          "Foundation"
+        ],
+        "disallowedTokens": [],
+        "requiredTokens": []
+      },
+      "description": "Call a simple async function",
+      "expectedOutput": "Ready",
+      "fixtureFiles": [],
+      "hints": [
+        "Async functions return values just like sync ones.",
+        "Await the result inside the runAsync closure and print it."
+      ],
+      "id": "",
+      "introduces": [],
+      "layer": "crust",
+      "lesson": "Lesson: Concurrency\nCall a simple async function\n\nOverview:\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks\n\nPractice:\n- Implement the TODOs.\n- Press Enter to run the check.\n- Use `h` for hints and `c` for cheatsheet when stuck.",
+      "manualCheck": false,
+      "number": 243,
+      "requires": [],
+      "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let semaphore = DispatchSemaphore(value: 0)\n    Task {\n        await operation()\n        semaphore.signal()\n    }\n\n    while semaphore.wait(timeout: .now()) != .success {\n        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.01))\n    }\n}\n\nfunc status() async -> String {\n    return \"Ready\"\n}\n\nrunAsync {\n    let value = await status()\n    print(value)\n}",
+      "starterCode": "// Bridge Challenge 3: Async Warmup\n// Call a simple async function.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let semaphore = DispatchSemaphore(value: 0)\n    Task {\n        await operation()\n        semaphore.signal()\n    }\n\n    while semaphore.wait(timeout: .now()) != .success {\n        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.01))\n    }\n}\n\n// TODO: Write async func status() -> String that returns \"Ready\"\n\nrunAsync {\n    // TODO: Await status() and print the result\n}",
+      "tier": "mainline",
+      "title": "Bridge: Async Warmup",
+      "topic": "functions"
+    },
+    {
+      "canonicalId": "",
+      "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+      "constraintProfile": {
+        "allowConcurrency": true,
+        "allowFileIO": true,
+        "allowNetwork": false,
+        "allowedImports": [
+          "Foundation"
+        ],
+        "disallowedTokens": [],
+        "requiredTokens": []
+      },
+      "description": "Await a Task value",
+      "expectedOutput": "Heat: 5",
+      "fixtureFiles": [],
+      "hints": [
+        "Create a Task that returns an Int value.",
+        "Await task.value to get the result before printing."
+      ],
+      "id": "",
+      "introduces": [],
+      "layer": "crust",
+      "lesson": "Lesson: Concurrency\nAwait a Task value\n\nOverview:\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks\n\nPractice:\n- Implement the TODOs.\n- Press Enter to run the check.\n- Use `h` for hints and `c` for cheatsheet when stuck.",
+      "manualCheck": false,
+      "number": 244,
+      "requires": [],
+      "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let semaphore = DispatchSemaphore(value: 0)\n    Task {\n        await operation()\n        semaphore.signal()\n    }\n\n    while semaphore.wait(timeout: .now()) != .success {\n        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.01))\n    }\n}\n\nrunAsync {\n    let task = Task { 5 }\n    let value = await task.value\n    print(\"Heat: \\(value)\")\n}",
+      "starterCode": "// Bridge Challenge 4: Task Result\n// Await a Task value.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let semaphore = DispatchSemaphore(value: 0)\n    Task {\n        await operation()\n        semaphore.signal()\n    }\n\n    while semaphore.wait(timeout: .now()) != .success {\n        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.01))\n    }\n}\n\nrunAsync {\n    // TODO: Start a Task that returns 5\n    // TODO: Await task.value and print \"Heat: 5\"\n}",
+      "tier": "mainline",
+      "title": "Bridge: Task Result",
+      "topic": "functions"
+    }
+  ]
+}

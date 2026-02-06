@@ -1,0 +1,781 @@
+[
+  {
+    "cheatsheet": "Project Cheatsheet: Temperature Converter\n- Functions can return computed values\n- Integer division truncates; use Double for precision\n- Labels appear at call sites when defined",
+    "completionMessage": "You've mastered the fundamentals. Well done.",
+    "completionTitle": "🎆 Core 1 Complete!",
+    "description": "Build a function that converts Celsius to Fahrenheit",
+    "hints": [
+      "Function signatures include the name, parameter label, and return type.",
+      "Convert using the given formula and return the computed value."
+    ],
+    "id": "core1a",
+    "layer": "core",
+    "lesson": "Lesson: Temperature Converter\nGoal:\nBuild a function that converts Celsius to Fahrenheit\n\nKey Concepts:\n- Functions can return computed values\n- Integer division truncates; use Double for precision\n- Labels appear at call sites when defined\n\nImplementation Plan:\n- Start with the smallest helper needed to match one expected line.\n- Build the full flow step by step, printing intermediate values while debugging.\n- Match output formatting exactly (order, spacing, and punctuation).\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Skipping small verification steps and debugging only at the final output stage.",
+    "pass": 1,
+    "solution": "func celsiusToFahrenheit(celsius: Int) -> Int {\n    return (celsius * 9) / 5 + 32\n}",
+    "starterCode": "// Core 1 Project A: Temperature Converter\n// Build a function that converts Celsius to Fahrenheit\n//\n// Requirements:\n// - Function name: celsiusToFahrenheit\n// - Takes one Int parameter (Celsius temperature) labeled 'celsius'\n// - Returns the Fahrenheit temperature (Int or Double)\n// - Formula: F = C × 9/5 + 32\n//\n// Your function will be tested with:\n// - 0°C (should return 32)\n// - 100°C (should return 212)\n// - 37°C (should return 98.6 or 98)\n\n// TODO: Write your 'celsiusToFahrenheit' function here\n\n// Test code (don't modify):\nprint(celsiusToFahrenheit(celsius: 0))\nprint(celsiusToFahrenheit(celsius: 100))\nprint(celsiusToFahrenheit(celsius: 37))",
+    "testCases": [
+      {
+        "expectedOutput": "32",
+        "input": "0"
+      },
+      {
+        "expectedOutput": "212",
+        "input": "100"
+      },
+      {
+        "expectedOutput": "98",
+        "input": "37"
+      }
+    ],
+    "tier": "mainline",
+    "title": "Temperature Converter"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Forge Checklist\n- Comparisons produce Bool values\n- Combine conditions with && and ||\n- String interpolation inserts values into text",
+    "completionMessage": "Nice work reinforcing the basics.",
+    "completionTitle": "✨ Core 1 Extra Project Complete!",
+    "description": "Combine variables, functions, and comparisons",
+    "hints": [
+      "Return a Bool by comparing the inputs against the readiness rules.",
+      "You can use boolean operators to combine comparisons into one expression."
+    ],
+    "id": "core1b",
+    "layer": "core",
+    "lesson": "Lesson: Forge Checklist\nGoal:\nCombine variables, functions, and comparisons\n\nKey Concepts:\n- Comparisons produce Bool values\n- Combine conditions with && and ||\n- String interpolation inserts values into text\n\nImplementation Plan:\n- Start with the smallest helper needed to match one expected line.\n- Build the full flow step by step, printing intermediate values while debugging.\n- Match output formatting exactly (order, spacing, and punctuation).\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Skipping small verification steps and debugging only at the final output stage.",
+    "pass": 1,
+    "solution": "func isReady(metal: String, temperature: Int) -> Bool {\n    if metal == \"Iron\" {\n        return temperature >= 1400\n    }\n    return temperature >= 1200\n}",
+    "starterCode": "// Core 1 Project B: Forge Checklist\n// Build a basic readiness check.\n//\n// Requirements:\n// - Create constants for metal and target temperature\n// - Write a function isReady(metal:temperature:) -> Bool\n// - Print three lines:\n//   \"Metal: <metal>\"\n//   \"Target: <temperature>\"\n//   \"Ready: <true/false>\"\n//\n// TODO: Write your readiness logic\n\n// Test code (don't modify):\nlet metal = \"Iron\"\nlet target = 1500\nlet ready = isReady(metal: metal, temperature: target)\nprint(\"Metal: \\(metal)\")\nprint(\"Target: \\(target)\")\nprint(\"Ready: \\(ready)\")",
+    "testCases": [
+      {
+        "expectedOutput": "Metal: Iron",
+        "input": "metal"
+      },
+      {
+        "expectedOutput": "Target: 1500",
+        "input": "target"
+      },
+      {
+        "expectedOutput": "Ready: true",
+        "input": "ready"
+      }
+    ],
+    "tier": "extra",
+    "title": "Forge Checklist"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Ingot Calculator\n- Arithmetic follows standard precedence\n- Use parentheses to clarify intent\n- Functions can return a computed Int",
+    "completionMessage": "You’re getting fast with core syntax.",
+    "completionTitle": "✨ Core 1 Extra Project Complete!",
+    "description": "Use arithmetic and a helper function",
+    "hints": [
+      "Return a single Int computed from both inputs.",
+      "Follow the provided arithmetic relationship between base and batches."
+    ],
+    "id": "core1c",
+    "layer": "core",
+    "lesson": "Lesson: Ingot Calculator\nGoal:\nUse arithmetic and a helper function\n\nKey Concepts:\n- Arithmetic follows standard precedence\n- Use parentheses to clarify intent\n- Functions can return a computed Int\n\nImplementation Plan:\n- Start with the smallest helper needed to match one expected line.\n- Build the full flow step by step, printing intermediate values while debugging.\n- Match output formatting exactly (order, spacing, and punctuation).\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Skipping small verification steps and debugging only at the final output stage.",
+    "pass": 1,
+    "solution": "func totalIngots(base: Int, batches: Int) -> Int {\n    return base + (batches * 2)\n}",
+    "starterCode": "// Core 1 Project C: Ingot Calculator\n// Calculate a total from simple inputs.\n//\n// Requirements:\n// - Create a function totalIngots(base:batches:) -> Int\n// - Return base + (batches * 2)\n// - Print:\n//   \"Base: 4\"\n//   \"Batches: 3\"\n//   \"Total: 10\"\n//\n// TODO: Write totalIngots\n\n// Test code (don't modify):\nlet base = 4\nlet batches = 3\nlet total = totalIngots(base: base, batches: batches)\nprint(\"Base: \\(base)\")\nprint(\"Batches: \\(batches)\")\nprint(\"Total: \\(total)\")",
+    "testCases": [
+      {
+        "expectedOutput": "Base: 4",
+        "input": "base"
+      },
+      {
+        "expectedOutput": "Batches: 3",
+        "input": "batches"
+      },
+      {
+        "expectedOutput": "Total: 10",
+        "input": "total"
+      }
+    ],
+    "tier": "extra",
+    "title": "Ingot Calculator"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Ironclad Commands\n- Arrays are ordered; dictionaries are key-value pairs\n- for-in loops traverse collections\n- Track min/max/sums with running variables\n- Tuples can return multiple values",
+    "completionMessage": "Control flow and collections are now in your toolkit.",
+    "completionTitle": "🏗️ Core 2 Complete!",
+    "description": "Analyze a list of forge temperatures",
+    "hints": [
+      "The parameter should be an array: temperatures: [Int].",
+      "Track min, max, sum, and overheat count as you iterate.",
+      "Use integer division when computing the average.",
+      "Return a tuple with named fields for readability."
+    ],
+    "id": "core2a",
+    "layer": "core",
+    "lesson": "Lesson: Ironclad Commands\nGoal:\nAnalyze a list of forge temperatures\n\nKey Concepts:\n- Arrays are ordered; dictionaries are key-value pairs\n- for-in loops traverse collections\n- Track min/max/sums with running variables\n- Tuples can return multiple values\n\nImplementation Plan:\n- Start with the smallest helper needed to match one expected line.\n- Build the full flow step by step, printing intermediate values while debugging.\n- Match output formatting exactly (order, spacing, and punctuation).\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Assuming collection iteration order is stable when output requires a fixed order.\n- Skipping small verification steps and debugging only at the final output stage.",
+    "pass": 2,
+    "solution": "func analyzeTemperatures(temperatures: [Int]) -> (min: Int, max: Int, average: Int, overheatCount: Int) {\n    var minTemp = temperatures[0]\n    var maxTemp = temperatures[0]\n    var sum = 0\n    var overheat = 0\n\n    for temp in temperatures {\n        if temp < minTemp { minTemp = temp }\n        if temp > maxTemp { maxTemp = temp }\n        sum += temp\n        if temp >= 1500 { overheat += 1 }\n    }\n\n    let average = sum / temperatures.count\n    return (min: minTemp, max: maxTemp, average: average, overheatCount: overheat)\n}",
+    "starterCode": "// Core 2 Project A: Forge Log Analyzer\n// Analyze a list of forge temperatures\n//\n// Requirements:\n// - Function name: analyzeTemperatures\n// - Takes one [Int] parameter labeled 'temperatures'\n// - Returns a tuple: (min: Int, max: Int, average: Int, overheatCount: Int)\n// - average should use integer division\n// - overheatCount should count values >= 1500\n// - Use named tuple fields (min, max, average, overheatCount)\n//\n// Your function will be tested with:\n// - [1200, 1500, 1600, 1400]\n//\n// Expected outputs:\n// Min: 1200\n// Max: 1600\n// Average: 1425\n// Overheat: 2\n\n// TODO: Write your 'analyzeTemperatures' function here\n\n// Test code (don't modify):\nlet report = analyzeTemperatures(temperatures: [1200, 1500, 1600, 1400])\nprint(\"Min: \\(report.min)\")\nprint(\"Max: \\(report.max)\")\nprint(\"Average: \\(report.average)\")\nprint(\"Overheat: \\(report.overheatCount)\")",
+    "testCases": [
+      {
+        "expectedOutput": "Min: 1200",
+        "input": "min"
+      },
+      {
+        "expectedOutput": "Max: 1600",
+        "input": "max"
+      },
+      {
+        "expectedOutput": "Average: 1425",
+        "input": "average"
+      },
+      {
+        "expectedOutput": "Overheat: 2",
+        "input": "overheat"
+      }
+    ],
+    "tier": "mainline",
+    "title": "Forge Log Analyzer"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Inventory Audit\n- Dictionary iteration yields key/value pairs\n- Use running totals while looping\n- Conditionals split counts into categories",
+    "completionMessage": "Solid work with loops and dictionaries.",
+    "completionTitle": "✨ Core 2 Extra Project Complete!",
+    "description": "Loop through a dictionary and summarize counts",
+    "hints": [
+      "Iterate the dictionary and accumulate totals.",
+      "Count empty items based on a comparison.",
+      "Return the two counts as a tuple."
+    ],
+    "id": "core2b",
+    "layer": "core",
+    "lesson": "Lesson: Inventory Audit\nGoal:\nLoop through a dictionary and summarize counts\n\nKey Concepts:\n- Dictionary iteration yields key/value pairs\n- Use running totals while looping\n- Conditionals split counts into categories\n\nImplementation Plan:\n- Start with the smallest helper needed to match one expected line.\n- Build the full flow step by step, printing intermediate values while debugging.\n- Match output formatting exactly (order, spacing, and punctuation).\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Assuming collection iteration order is stable when output requires a fixed order.\n- Skipping small verification steps and debugging only at the final output stage.",
+    "pass": 2,
+    "solution": "func auditInventory(_ inventory: [String: Int]) -> (total: Int, empty: Int) {\n    var total = 0\n    var empty = 0\n    for (_, count) in inventory {\n        total += count\n        if count == 0 { empty += 1 }\n    }\n    return (total: total, empty: empty)\n}",
+    "starterCode": "// Core 2 Project B: Inventory Audit\n// Summarize inventory levels.\n//\n// Requirements:\n// - Function name: auditInventory\n// - Takes [String: Int] inventory\n// - Returns (total: Int, empty: Int)\n// - Loop through items to compute total count\n// - Count how many items are empty (count == 0)\n// - Print:\n//   \"Total: 3\"\n//   \"Empty: 1\"\n//\n// TODO: Write auditInventory\n\n// Test code (don't modify):\nlet inventory = [\"Iron\": 2, \"Gold\": 1, \"Copper\": 0]\nlet report = auditInventory(inventory)\nprint(\"Total: \\(report.total)\")\nprint(\"Empty: \\(report.empty)\")",
+    "testCases": [
+      {
+        "expectedOutput": "Total: 3",
+        "input": "total"
+      },
+      {
+        "expectedOutput": "Empty: 1",
+        "input": "empty"
+      }
+    ],
+    "tier": "extra",
+    "title": "Inventory Audit"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Optional Readings\n- Optionals are values that may be nil\n- if let unwraps values safely\n- Avoid divide-by-zero when averaging",
+    "completionMessage": "Nice job handling optionals.",
+    "completionTitle": "✨ Core 2 Extra Project Complete!",
+    "description": "Unwrap optionals and compute an average",
+    "hints": [
+      "Unwrap values safely before using them.",
+      "Track valid count and total while iterating.",
+      "Avoid division by zero when computing the average."
+    ],
+    "id": "core2c",
+    "layer": "core",
+    "lesson": "Lesson: Optional Readings\nGoal:\nUnwrap optionals and compute an average\n\nKey Concepts:\n- Optionals are values that may be nil\n- if let unwraps values safely\n- Avoid divide-by-zero when averaging\n\nImplementation Plan:\n- Start with the smallest helper needed to match one expected line.\n- Build the full flow step by step, printing intermediate values while debugging.\n- Match output formatting exactly (order, spacing, and punctuation).\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Skipping small verification steps and debugging only at the final output stage.",
+    "pass": 2,
+    "solution": "func summarizeReadings(_ readings: [Int?]) -> (count: Int, average: Int) {\n    var count = 0\n    var total = 0\n    for reading in readings {\n        if let value = reading {\n            count += 1\n            total += value\n        }\n    }\n    let average = count == 0 ? 0 : total / count\n    return (count: count, average: average)\n}",
+    "starterCode": "// Core 2 Project C: Optional Readings\n// Compute metrics from optional values.\n//\n// Requirements:\n// - Function name: summarizeReadings\n// - Takes [Int?] readings\n// - Returns (count: Int, average: Int)\n// - Use if let to unwrap readings\n// - Count valid readings and compute average\n// - Print:\n//   \"Valid: 3\"\n//   \"Average: 1433\"\n//\n// TODO: Write summarizeReadings\n\n// Test code (don't modify):\nlet readings: [Int?] = [1200, nil, 1500, 1600]\nlet report = summarizeReadings(readings)\nprint(\"Valid: \\(report.count)\")\nprint(\"Average: \\(report.average)\")",
+    "testCases": [
+      {
+        "expectedOutput": "Valid: 3",
+        "input": "valid"
+      },
+      {
+        "expectedOutput": "Average: 1433",
+        "input": "average"
+      }
+    ],
+    "tier": "extra",
+    "title": "Optional Readings"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Forge Log Interpreter\n- Enums can carry associated values\n- Throwing functions surface invalid data\n- compactMap removes nils while transforming\n- Tuples group multiple return values",
+    "completionMessage": "Advanced Swift tools are now in your hands.",
+    "completionTitle": "🧠 Core 3 Complete!",
+    "description": "Build a full data-processing pipeline for forge logs",
+    "hints": [
+      "Model log entries with an enum that carries data.",
+      "Use a throwing parser for malformed lines.",
+      "Transform, filter, and summarize with higher-order functions.",
+      "Return the summary as a named tuple."
+    ],
+    "id": "core3a",
+    "layer": "core",
+    "lesson": "Lesson: Forge Log Interpreter\nGoal:\nBuild a full data-processing pipeline for forge logs\n\nKey Concepts:\n- Enums can carry associated values\n- Throwing functions surface invalid data\n- compactMap removes nils while transforming\n- Tuples group multiple return values\n\nImplementation Plan:\n- Start with the smallest helper needed to match one expected line.\n- Build the full flow step by step, printing intermediate values while debugging.\n- Match output formatting exactly (order, spacing, and punctuation).\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Skipping small verification steps and debugging only at the final output stage.",
+    "pass": 3,
+    "solution": "enum ForgeEvent {\n    case temperature(Int)\n    case error(String)\n}\n\nenum ParseError: Error {\n    case malformed\n}\n\nfunc parseLine(_ line: String) throws -> ForgeEvent {\n    let parts = line.split(separator: \" \")\n    guard parts.count >= 2 else {\n        throw ParseError.malformed\n    }\n    let tag = parts[0]\n    let rest = parts.dropFirst().joined(separator: \" \")\n    if tag == \"TEMP\", let value = Int(rest) {\n        return .temperature(value)\n    }\n    if tag == \"ERROR\" {\n        return .error(rest)\n    }\n    throw ParseError.malformed\n}\n\nfunc interpretForgeLogs(lines: [String]) -> (validCount: Int, averageTemp: Int, overheatEvents: Int, errors: [String]) {\n    let events = lines.compactMap { try? parseLine($0) }\n    let temps = events.compactMap { event -> Int? in\n        if case .temperature(let value) = event {\n            return value\n        }\n        return nil\n    }\n    let errors = events.compactMap { event -> String? in\n        if case .error(let message) = event {\n            return message\n        }\n        return nil\n    }\n    let total = temps.reduce(0, +)\n    let average = temps.isEmpty ? 0 : total / temps.count\n    let overheat = temps.filter { $0 >= 1500 }.count\n    return (validCount: temps.count, averageTemp: average, overheatEvents: overheat, errors: errors)\n}",
+    "starterCode": "// Core 3 Project A: Forge Log Interpreter\n// Build a full data-processing pipeline for forge logs.\n//\n// Requirements:\n// - Function name: interpretForgeLogs\n// - Takes [String] log lines\n// - Uses an enum with associated values to represent events\n// - Uses a throwing parser function\n// - Uses higher-order functions to transform data\n// - Returns a tuple:\n//   (validCount: Int, averageTemp: Int, overheatEvents: Int, errors: [String])\n//\n// Parsing rules:\n// - Valid lines are either \"TEMP <int>\" or \"ERROR <message>\"\n// - TEMP lines with non-integer values should be ignored\n// - Malformed lines should be handled safely (no crash)\n// - If there are no valid temps, averageTemp should be 0\n//\n// Example input:\n// [\"TEMP 1400\", \"TEMP 1600\", \"ERROR Overheated\", \"TEMP abc\", \"TEMP 1500\"]\n//\n// Expected behavior:\n// - Valid temps: 1400, 1600, 1500\n// - Invalid temp (\"abc\") should be ignored\n// - Errors: [\"Overheated\"]\n// - validCount = 3\n// - averageTemp = 1500\n// - overheatEvents = 2\n//\n// TODO: Define the ForgeEvent enum with cases:\n// - temperature(Int)\n// - error(String)\n//\n// TODO: Write a throwing 'parseLine(_:)' function that:\n// - splits the line into parts\n// - returns .temperature for valid temps\n// - returns .error for error lines\n// - throws for malformed lines\n//\n// TODO: In interpretForgeLogs(lines:):\n// - use compactMap to parse lines safely\n// - separate temps from errors with filter/map\n// - compute average with reduce (integer division)\n// - count overheat temps (>= 1500)\n// - return the summary tuple\n//\n// Test code (don't modify):\nlet logs = [\"TEMP 1400\", \"TEMP 1600\", \"ERROR Overheated\", \"TEMP abc\", \"TEMP 1500\"]\nlet report = interpretForgeLogs(lines: logs)\nprint(\"Valid: \\(report.validCount)\")\nprint(\"Average: \\(report.averageTemp)\")\nprint(\"Overheats: \\(report.overheatEvents)\")\nprint(\"Errors: \\(report.errors)\")",
+    "testCases": [
+      {
+        "expectedOutput": "Valid: 3",
+        "input": "valid"
+      },
+      {
+        "expectedOutput": "Average: 1500",
+        "input": "average"
+      },
+      {
+        "expectedOutput": "Overheats: 2",
+        "input": "overheat"
+      },
+      {
+        "expectedOutput": "Errors: [\"Overheated\"]",
+        "input": "errors"
+      }
+    ],
+    "tier": "mainline",
+    "title": "Forge Log Interpreter"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Temperature Pipeline\n- map/filter/reduce chain into a pipeline\n- Derived metrics come from transformed data\n- Helper functions reduce repetition",
+    "completionMessage": "Great work with functional tools.",
+    "completionTitle": "✨ Core 3 Extra Project Complete!",
+    "description": "Use higher-order functions to compute a summary",
+    "hints": [
+      "Build a pipeline with map, filter, and reduce.",
+      "Return both the count and the total."
+    ],
+    "id": "core3b",
+    "layer": "core",
+    "lesson": "Lesson: Temperature Pipeline\nGoal:\nUse higher-order functions to compute a summary\n\nKey Concepts:\n- map/filter/reduce chain into a pipeline\n- Derived metrics come from transformed data\n- Helper functions reduce repetition\n\nImplementation Plan:\n- Start with the smallest helper needed to match one expected line.\n- Build the full flow step by step, printing intermediate values while debugging.\n- Match output formatting exactly (order, spacing, and punctuation).\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Assuming collection iteration order is stable when output requires a fixed order.\n- Skipping small verification steps and debugging only at the final output stage.",
+    "pass": 3,
+    "solution": "func summarizeTemps(_ temps: [Int]) -> (count: Int, total: Int) {\n    let adjusted = temps.map { $0 + 100 }\n    let hot = adjusted.filter { $0 >= 1500 }\n    let total = hot.reduce(0, +)\n    return (count: hot.count, total: total)\n}",
+    "starterCode": "// Core 3 Project B: Temperature Pipeline\n// Transform and summarize temperature data.\n//\n// Requirements:\n// - Function name: summarizeTemps\n// - Takes [Int] temps\n// - Map: add 100 to each temp\n// - Filter: keep temps >= 1500\n// - Reduce: total the filtered temps\n// - Return (count: Int, total: Int)\n//\n// TODO: Write summarizeTemps\n\n// Test code (don't modify):\nlet temps = [1200, 1500, 1600, 1400]\nlet report = summarizeTemps(temps)\nprint(\"Count: \\(report.count)\")\nprint(\"Total: \\(report.total)\")",
+    "testCases": [
+      {
+        "expectedOutput": "Count: 3",
+        "input": "count"
+      },
+      {
+        "expectedOutput": "Total: 4800",
+        "input": "total"
+      }
+    ],
+    "tier": "extra",
+    "title": "Temperature Pipeline"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Event Router\n- switch handles enum cases\n- Associated values can be extracted with let\n- Aggregates update inside loops",
+    "completionMessage": "Enums and errors are clicking.",
+    "completionTitle": "✨ Core 3 Extra Project Complete!",
+    "description": "Parse lines into events with errors",
+    "hints": [
+      "Use a parser that can throw for malformed lines.",
+      "Compact-map the parsed events, then split by case.",
+      "Compute aggregates while iterating events."
+    ],
+    "id": "core3c",
+    "layer": "core",
+    "lesson": "Lesson: Event Router\nGoal:\nParse lines into events with errors\n\nKey Concepts:\n- switch handles enum cases\n- Associated values can be extracted with let\n- Aggregates update inside loops\n\nImplementation Plan:\n- Start with the smallest helper needed to match one expected line.\n- Build the full flow step by step, printing intermediate values while debugging.\n- Match output formatting exactly (order, spacing, and punctuation).\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Skipping small verification steps and debugging only at the final output stage.",
+    "pass": 3,
+    "solution": "enum Event {\n    case temperature(Int)\n    case error(String)\n}\n\nenum ParseError: Error {\n    case malformed\n}\n\nfunc parseLine(_ line: String) throws -> Event {\n    let parts = line.split(separator: \" \")\n    guard parts.count >= 2 else {\n        throw ParseError.malformed\n    }\n    let tag = parts[0]\n    let rest = parts.dropFirst().joined(separator: \" \")\n    if tag == \"TEMP\", let value = Int(rest) {\n        return .temperature(value)\n    }\n    if tag == \"ERROR\" {\n        return .error(rest)\n    }\n    throw ParseError.malformed\n}\n\nfunc interpretEvents(lines: [String]) -> (tempCount: Int, maxTemp: Int, errorCount: Int) {\n    let events = lines.compactMap { try? parseLine($0) }\n    var temps: [Int] = []\n    var errorCount = 0\n\n    for event in events {\n        switch event {\n        case .temperature(let value):\n            if value >= 0 {\n                temps.append(value)\n            }\n        case .error:\n            errorCount += 1\n        }\n    }\n\n    let maxTemp = temps.max() ?? 0\n    return (tempCount: temps.count, maxTemp: maxTemp, errorCount: errorCount)\n}",
+    "starterCode": "// Core 3 Project C: Event Router\n// Parse events and summarize results.\n//\n// Requirements:\n// - Define Event enum with .temperature(Int) and .error(String)\n// - Write parseLine(_:) that throws on malformed lines\n// - Use compactMap with try? to skip malformed lines\n// - Count valid temps (>= 0), find max temp, collect errors\n// - If no temps, max temp should be 0\n//\n// TODO: Implement interpretEvents(lines:)\n\n// Test code (don't modify):\nlet lines = [\"TEMP 1400\", \"ERROR Jam\", \"TEMP -1\", \"BAD\"]\nlet report = interpretEvents(lines: lines)\nprint(\"Temps: \\(report.tempCount)\")\nprint(\"Max: \\(report.maxTemp)\")\nprint(\"Errors: \\(report.errorCount)\")",
+    "testCases": [
+      {
+        "expectedOutput": "Temps: 1",
+        "input": "temps"
+      },
+      {
+        "expectedOutput": "Max: 1400",
+        "input": "max"
+      },
+      {
+        "expectedOutput": "Errors: 1",
+        "input": "errors"
+      }
+    ],
+    "tier": "extra",
+    "title": "Event Router"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Forge Inventory Model\n- Structs model data with stored properties\n- Computed properties derive values\n- Methods bundle behavior",
+    "completionMessage": "You can now model real data with custom types.",
+    "completionTitle": "🏗️ Mantle 1 Complete!",
+    "description": "Model inventory with structs and computed properties",
+    "hints": [
+      "Use a computed property to multiply count and unitWeight.",
+      "Build label() with string interpolation."
+    ],
+    "id": "mantle1a",
+    "layer": "mantle",
+    "lesson": "Lesson: Forge Inventory Model\nGoal:\nModel inventory with structs and computed properties\n\nKey Concepts:\n- Structs model data with stored properties\n- Computed properties derive values\n- Methods bundle behavior\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "pass": 4,
+    "solution": "struct InventoryItem {\n    let name: String\n    let count: Int\n    let unitWeight: Int\n\n    var totalWeight: Int {\n        return count * unitWeight\n    }\n\n    func label() -> String {\n        return \"\\(name): \\(count)\"\n    }\n}",
+    "starterCode": "// Mantle 1 Project A: Forge Inventory Model\n// Model inventory items and compute totals.\n//\n// Requirements:\n// - Define a struct 'InventoryItem' with:\n//   - name: String\n//   - count: Int\n//   - unitWeight: Int\n// - Add a computed property totalWeight (count * unitWeight)\n// - Add a method label() -> String that returns \"<name>: <count>\"\n// - Create an array of two items:\n//   - (\"Iron\", 3, 2)\n//   - (\"Copper\", 2, 3)\n// - Print:\n//   \"Iron: 3\"\n//   \"Copper: 2\"\n//   \"Total weight: 12\"\n//\n// TODO: Implement InventoryItem and the reporting logic.\n\n// Test code (don't modify):\nlet items = [\n    InventoryItem(name: \"Iron\", count: 3, unitWeight: 2),\n    InventoryItem(name: \"Copper\", count: 2, unitWeight: 3),\n]\nfor item in items {\n    print(item.label())\n}\nlet total = items.reduce(0) { $0 + $1.totalWeight }\nprint(\"Total weight: \\(total)\")",
+    "testCases": [
+      {
+        "expectedOutput": "Iron: 3",
+        "input": "iron"
+      },
+      {
+        "expectedOutput": "Copper: 2",
+        "input": "copper"
+      },
+      {
+        "expectedOutput": "Total weight: 12",
+        "input": "total"
+      }
+    ],
+    "tier": "mainline",
+    "title": "Forge Inventory Model"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Shift Tracker\n- Mutating methods update struct state\n- Computed properties derive totals",
+    "completionMessage": "Great work applying mutating methods and computed properties.",
+    "completionTitle": "✨ Mantle 1 Extra Project Complete!",
+    "description": "Track shifts with mutating methods and computed totals",
+    "hints": [
+      "addShift should increase shifts by 1.",
+      "totalHours multiplies shifts by hoursPerShift."
+    ],
+    "id": "mantle1b",
+    "layer": "mantle",
+    "lesson": "Lesson: Shift Tracker\nGoal:\nTrack shifts with mutating methods and computed totals\n\nKey Concepts:\n- Mutating methods update struct state\n- Computed properties derive totals\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "pass": 4,
+    "solution": "struct Worker {\n    let name: String\n    var shifts: Int\n    let hoursPerShift: Int\n\n    mutating func addShift() {\n        shifts += 1\n    }\n\n    var totalHours: Int {\n        shifts * hoursPerShift\n    }\n}",
+    "starterCode": "// Mantle 1 Project B: Shift Tracker\n// Track worker shifts and total hours.\n//\n// Requirements:\n// - Define a struct Worker with:\n//   - name: String\n//   - shifts: Int\n//   - hoursPerShift: Int\n// - Add a mutating method addShift()\n// - Add computed property totalHours (shifts * hoursPerShift)\n// - Create:\n//   - Worker \"Ada\" with shifts 2, hoursPerShift 4\n//   - Worker \"Ben\" with shifts 1, hoursPerShift 5\n// - Call addShift() once on Ada\n// - Print:\n//   \"Ada: 12\"\n//   \"Ben: 5\"\n//   \"Total: 17\"\n//\n// TODO: Implement Worker and the reporting logic.\n\n// Test code (don't modify):\nvar ada = Worker(name: \"Ada\", shifts: 2, hoursPerShift: 4)\nlet ben = Worker(name: \"Ben\", shifts: 1, hoursPerShift: 5)\nada.addShift()\nprint(\"\\(ada.name): \\(ada.totalHours)\")\nprint(\"\\(ben.name): \\(ben.totalHours)\")\nprint(\"Total: \\(ada.totalHours + ben.totalHours)\")",
+    "testCases": [
+      {
+        "expectedOutput": "Ada: 12",
+        "input": "ada"
+      },
+      {
+        "expectedOutput": "Ben: 5",
+        "input": "ben"
+      },
+      {
+        "expectedOutput": "Total: 17",
+        "input": "total"
+      }
+    ],
+    "tier": "extra",
+    "title": "Shift Tracker"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Shared Controller\n- Classes are reference types\n- Updates are shared across references",
+    "completionMessage": "Reference semantics are now clear.",
+    "completionTitle": "✨ Mantle 1 Extra Project Complete!",
+    "description": "Show shared state with classes",
+    "hints": [
+      "Classes share state across references."
+    ],
+    "id": "mantle1c",
+    "layer": "mantle",
+    "lesson": "Lesson: Shared Controller\nGoal:\nShow shared state with classes\n\nKey Concepts:\n- Classes are reference types\n- Updates are shared across references\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "pass": 4,
+    "solution": "class Controller {\n    var mode: String\n\n    init(mode: String) {\n        self.mode = mode\n    }\n}",
+    "starterCode": "// Mantle 1 Project C: Shared Controller\n// Show class reference behavior.\n//\n// Requirements:\n// - Define a class Controller with a mode String\n// - Create 'primary' with mode \"Idle\"\n// - Assign 'secondary' = primary\n// - Set secondary.mode to \"Active\"\n// - Print:\n//   \"Primary: Active\"\n//   \"Secondary: Active\"\n//\n// TODO: Implement the Controller class.\n\n// Test code (don't modify):\nlet primary = Controller(mode: \"Idle\")\nlet secondary = primary\nsecondary.mode = \"Active\"\nprint(\"Primary: \\(primary.mode)\")\nprint(\"Secondary: \\(secondary.mode)\")",
+    "testCases": [
+      {
+        "expectedOutput": "Primary: Active",
+        "input": "primary"
+      },
+      {
+        "expectedOutput": "Secondary: Active",
+        "input": "secondary"
+      }
+    ],
+    "tier": "extra",
+    "title": "Shared Controller"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Component Inspector\n- Protocols define shared requirements\n- Extensions add default behavior\n- Access control scopes API surface",
+    "completionMessage": "Protocols and extensions are now part of your toolkit.",
+    "completionTitle": "🏗️ Mantle 2 Complete!",
+    "description": "Use protocols, extensions, and access control",
+    "hints": [
+      "Use a protocol extension to format the report string.",
+      "Conform both structs to Inspectable."
+    ],
+    "id": "mantle2a",
+    "layer": "mantle",
+    "lesson": "Lesson: Component Inspector\nGoal:\nUse protocols, extensions, and access control\n\nKey Concepts:\n- Protocols define shared requirements\n- Extensions add default behavior\n- Access control scopes API surface\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "pass": 5,
+    "solution": "protocol Inspectable {\n    var id: String { get }\n    var status: String { get }\n}\n\nextension Inspectable {\n    func report() -> String {\n        return \"\\(id): \\(status)\"\n    }\n}\n\nstruct Valve: Inspectable {\n    let id: String\n    let status: String\n}\n\nstruct Sensor: Inspectable {\n    let id: String\n    let status: String\n}",
+    "starterCode": "// Mantle 2 Project A: Component Inspector\n// Define components and print inspection reports.\n//\n// Requirements:\n// - Define a protocol Inspectable with:\n//   - id: String\n//   - status: String\n// - Add a default method report() -> String in a protocol extension\n// - Create a struct 'Valve' that conforms (id: \"V1\", status: \"OK\")\n// - Create a struct 'Sensor' that conforms (id: \"S2\", status: \"WARN\")\n// - Print:\n//   \"V1: OK\"\n//   \"S2: WARN\"\n//\n// TODO: Implement Inspectable, the extension, and the structs.\n\n// Test code (don't modify):\nlet items: [Inspectable] = [\n    Valve(id: \"V1\", status: \"OK\"),\n    Sensor(id: \"S2\", status: \"WARN\"),\n]\nfor item in items {\n    print(item.report())\n}",
+    "testCases": [
+      {
+        "expectedOutput": "V1: OK",
+        "input": "v1"
+      },
+      {
+        "expectedOutput": "S2: WARN",
+        "input": "s2"
+      }
+    ],
+    "tier": "mainline",
+    "title": "Component Inspector"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Inspection Line\n- Protocol composition combines requirements\n- Extensions can add shared formatting",
+    "completionMessage": "Nice use of protocol composition.",
+    "completionTitle": "✨ Mantle 2 Extra Project Complete!",
+    "description": "Use protocol composition with shared formatting",
+    "hints": [
+      "Inherit both protocols in Inspectable, then add report() in an extension."
+    ],
+    "id": "mantle2b",
+    "layer": "mantle",
+    "lesson": "Lesson: Inspection Line\nGoal:\nUse protocol composition with shared formatting\n\nKey Concepts:\n- Protocol composition combines requirements\n- Extensions can add shared formatting\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "pass": 5,
+    "solution": "protocol Identifiable {\n    var id: String { get }\n}\n\nprotocol Statused {\n    var status: String { get }\n}\n\nprotocol Inspectable: Identifiable, Statused {}\n\nextension Inspectable {\n    func report() -> String {\n        return \"\\(id): \\(status)\"\n    }\n}\n\nstruct Valve: Inspectable {\n    let id: String\n    let status: String\n}\n\nstruct Sensor: Inspectable {\n    let id: String\n    let status: String\n}",
+    "starterCode": "// Mantle 2 Project B: Inspection Line\n// Compose protocols and build a report.\n//\n// Requirements:\n// - Define protocol Identifiable (id: String)\n// - Define protocol Statused (status: String)\n// - Define protocol Inspectable that inherits Identifiable and Statused\n// - Add an extension on Inspectable with report() -> String\n// - Create a struct Valve and Sensor that conform to Inspectable\n// - Print:\n//   \"V1: OK\"\n//   \"S2: WARN\"\n//\n// TODO: Implement the protocols, extension, and structs.\n\n// Test code (don't modify):\nlet valve = Valve(id: \"V1\", status: \"OK\")\nlet sensor = Sensor(id: \"S2\", status: \"WARN\")\nprint(valve.report())\nprint(sensor.report())",
+    "testCases": [
+      {
+        "expectedOutput": "V1: OK",
+        "input": "v1"
+      },
+      {
+        "expectedOutput": "S2: WARN",
+        "input": "s2"
+      }
+    ],
+    "tier": "extra",
+    "title": "Inspection Line"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Safe Heater\n- Throwing functions signal failures\n- do/try/catch handles errors",
+    "completionMessage": "Solid error handling practice.",
+    "completionTitle": "✨ Mantle 2 Extra Project Complete!",
+    "description": "Throw and handle errors safely",
+    "hints": [
+      "Throw when the temperature is below the threshold."
+    ],
+    "id": "mantle2c",
+    "layer": "mantle",
+    "lesson": "Lesson: Safe Heater\nGoal:\nThrow and handle errors safely\n\nKey Concepts:\n- Throwing functions signal failures\n- do/try/catch handles errors\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "pass": 5,
+    "solution": "enum HeatError: Error {\n    case tooCold\n}\n\nstruct Heater {\n    func heat(to level: Int) throws {\n        if level < 1000 {\n            throw HeatError.tooCold\n        }\n    }\n}",
+    "starterCode": "// Mantle 2 Project C: Safe Heater\n// Throw errors and handle them with do/try/catch.\n//\n// Requirements:\n// - Define enum HeatError: Error with case tooCold\n// - Define struct Heater with func heat(to:) throws\n// - Throw tooCold if level < 1000\n// - In test code, call with 900 and 1200\n// - Print:\n//   \"Too cold\"\n//   \"Heated\"\n//\n// TODO: Implement HeatError and Heater.\n\n// Test code (don't modify):\nlet heater = Heater()\ndo {\n    try heater.heat(to: 900)\n} catch {\n    print(\"Too cold\")\n}\ndo {\n    try heater.heat(to: 1200)\n    print(\"Heated\")\n} catch {\n    print(\"Too cold\")\n}",
+    "testCases": [
+      {
+        "expectedOutput": "Too cold",
+        "input": "cold"
+      },
+      {
+        "expectedOutput": "Heated",
+        "input": "heated"
+      }
+    ],
+    "tier": "extra",
+    "title": "Safe Heater"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Task Manager\n- Generics make reusable containers\n- Protocol extensions add shared behavior\n- weak references prevent cycles",
+    "completionMessage": "You can now build more structured systems in Swift.",
+    "completionTitle": "🏗️ Mantle 3 Complete!",
+    "description": "Combine generics, protocol defaults, and ARC safety",
+    "hints": [
+      "Use a protocol extension for the label.",
+      "Make the Manager reference weak on the Worker side."
+    ],
+    "id": "mantle3a",
+    "layer": "mantle",
+    "lesson": "Lesson: Task Manager\nGoal:\nCombine generics, protocol defaults, and ARC safety\n\nKey Concepts:\n- Generics make reusable containers\n- Protocol extensions add shared behavior\n- weak references prevent cycles\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "pass": 6,
+    "solution": "protocol Named {\n    var name: String { get }\n}\n\nextension Named {\n    func label() -> String {\n        return \"Task: \\(name)\"\n    }\n}\n\nstruct Box<T> {\n    let value: T\n}\n\nclass Manager {\n    var worker: Worker?\n}\n\nclass Worker: Named {\n    let name: String\n    weak var manager: Manager?\n\n    init(name: String) {\n        self.name = name\n    }\n}",
+    "starterCode": "// Mantle 3 Project A: Task Manager\n// Build a small model with generics and safe references.\n//\n// Requirements:\n// - Define a protocol Named with name: String\n// - Add a default method label() -> String in a protocol extension\n// - Define a generic struct Box<T> to store a value\n// - Define a class Manager with a Worker reference\n// - Define a class Worker with name and a weak Manager reference\n// - Print:\n//   \"Task: Forge\"\n//   \"Boxed: 5\"\n//   \"Link ok\"\n//\n// TODO: Implement the types and prints.\n\n// Test code (don't modify):\nlet worker = Worker(name: \"Forge\")\nlet manager = Manager()\nmanager.worker = worker\nworker.manager = manager\nprint(worker.label())\n\nlet boxed = Box(value: 5)\nprint(\"Boxed: \\(boxed.value)\")\n\nprint(\"Link ok\")",
+    "testCases": [
+      {
+        "expectedOutput": "Task: Forge",
+        "input": "task"
+      },
+      {
+        "expectedOutput": "Boxed: 5",
+        "input": "boxed"
+      },
+      {
+        "expectedOutput": "Link ok",
+        "input": "link"
+      }
+    ],
+    "tier": "mainline",
+    "title": "Task Manager"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Generic Stack\n- Generics allow reusable containers\n- Mutating methods update stored arrays",
+    "completionMessage": "Generics are becoming second nature.",
+    "completionTitle": "✨ Mantle 3 Extra Project Complete!",
+    "description": "Build a generic stack with push/pop",
+    "hints": [
+      "pop should remove and return the last element."
+    ],
+    "id": "mantle3b",
+    "layer": "mantle",
+    "lesson": "Lesson: Generic Stack\nGoal:\nBuild a generic stack with push/pop\n\nKey Concepts:\n- Generics allow reusable containers\n- Mutating methods update stored arrays\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "pass": 6,
+    "solution": "struct Stack<T> {\n    var items: [T]\n\n    mutating func push(_ item: T) {\n        items.append(item)\n    }\n\n    mutating func pop() -> T {\n        return items.removeLast()\n    }\n}",
+    "starterCode": "// Mantle 3 Project B: Generic Stack\n// Implement a basic generic stack.\n//\n// Requirements:\n// - Define struct Stack<T> with items: [T]\n// - Add mutating push(_:) and pop() -> T\n// - Use it with Ints:\n//   - Push 3, push 5, pop and print\n//   - Push 7, pop and print\n// - Output:\n//   \"5\"\n//   \"7\"\n//\n// TODO: Implement Stack.\n\n// Test code (don't modify):\nvar stack = Stack(items: [])\nstack.push(3)\nstack.push(5)\nprint(stack.pop())\nstack.push(7)\nprint(stack.pop())",
+    "testCases": [
+      {
+        "expectedOutput": "5",
+        "input": "first"
+      },
+      {
+        "expectedOutput": "7",
+        "input": "second"
+      }
+    ],
+    "tier": "extra",
+    "title": "Generic Stack"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Constraint Report\n- where clauses add constraints\n- Protocol extensions add shared behavior",
+    "completionMessage": "Great control of constraints and defaults.",
+    "completionTitle": "✨ Mantle 3 Extra Project Complete!",
+    "description": "Combine where clauses and protocol defaults",
+    "hints": [
+      "Use a constrained extension for Box where T: Named.",
+      "isEqual should return a Bool comparison."
+    ],
+    "id": "mantle3c",
+    "layer": "mantle",
+    "lesson": "Lesson: Constraint Report\nGoal:\nCombine where clauses and protocol defaults\n\nKey Concepts:\n- where clauses add constraints\n- Protocol extensions add shared behavior\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "pass": 6,
+    "solution": "protocol Named {\n    var name: String { get }\n}\n\nextension Named {\n    func label() -> String {\n        return \"Boxed: \\(name)\"\n    }\n}\n\nstruct Box<T> {\n    let value: T\n}\n\nextension Box where T: Named {\n    func label() -> String {\n        return value.label()\n    }\n}\n\nfunc isEqual<T: Equatable>(_ first: T, _ second: T) -> Bool {\n    return first == second\n}",
+    "starterCode": "// Mantle 3 Project C: Constraint Report\n// Use generic constraints and protocol extensions.\n//\n// Requirements:\n// - Define protocol Named with name: String\n// - Add default method label() -> String returning \"Boxed: <name>\"\n// - Define struct Box<T> { let value: T }\n// - Extend Box where T: Named with method label()\n// - Define generic function isEqual<T: Equatable>(_:_:) -> Bool\n// - Print:\n//   \"Boxed: Steel\"\n//   \"true\"\n//\n// TODO: Implement the types and function.\n\n// Test code (don't modify):\nstruct Alloy: Named { let name: String }\nlet boxed = Box(value: Alloy(name: \"Steel\"))\nprint(boxed.label())\nprint(isEqual(2, 2))",
+    "testCases": [
+      {
+        "expectedOutput": "Boxed: Steel",
+        "input": "label"
+      },
+      {
+        "expectedOutput": "true",
+        "input": "equal"
+      }
+    ],
+    "tier": "extra",
+    "title": "Constraint Report"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Async Client\n- async functions return values with await\n- Tasks run async work concurrently\n- Actors isolate mutable state",
+    "completionMessage": "You can now coordinate async work safely.",
+    "completionTitle": "⚡ Crust 1 Complete!",
+    "description": "Coordinate async work with a cache actor",
+    "hints": [
+      "Use await for fetchStatus and actor calls.",
+      "Store the result before printing both lines."
+    ],
+    "id": "crust1a",
+    "layer": "crust",
+    "lesson": "Lesson: Async Client\nGoal:\nCoordinate async work with a cache actor\n\nKey Concepts:\n- async functions return values with await\n- Tasks run async work concurrently\n- Actors isolate mutable state\n\nImplementation Plan:\n- Isolate advanced pieces (async flow, builders, key paths, or modular boundaries) in small functions.\n- Keep results deterministic by controlling ordering before printing.\n- Validate both correctness and structure so behavior remains stable as complexity grows.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Creating hidden async/order coupling that passes once but fails on reruns.",
+    "pass": 7,
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nfunc fetchStatus() async -> String {\n    return \"OK\"\n}\n\nactor StatusCache {\n    private var status = \"\"\n\n    func store(_ value: String) {\n        status = value\n    }\n\n    func current() -> String {\n        return status\n    }\n}\n\nlet cache = StatusCache()\nrunAsync {\n    let status = await fetchStatus()\n    await cache.store(status)\n    let cached = await cache.current()\n    print(\"Status: \\(status)\")\n    print(\"Cached: \\(cached)\")\n}",
+    "starterCode": "// Crust 1 Project A: Async Client\n// Coordinate async work and an actor-backed cache.\n//\n// Requirements:\n// - Write async function fetchStatus() -> String that returns \"OK\"\n// - Add actor StatusCache with:\n//   - store(_:) to save a status\n//   - current() -> String to read the saved status\n// - Use runAsync to:\n//   - await fetchStatus()\n//   - store it in the cache\n//   - print:\n//     \"Status: OK\"\n//     \"Cached: OK\"\n//\n// TODO: Implement the async flow.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\n// TODO: Write fetchStatus() async\n\nactor StatusCache {\n    // TODO: Store a status and return it\n}\n\n// Test code (don't modify):\nlet cache = StatusCache()\nrunAsync {\n    // TODO: Fetch status, store it, then print Status/Cached lines\n}",
+    "testCases": [
+      {
+        "expectedOutput": "Status: OK",
+        "input": "status"
+      },
+      {
+        "expectedOutput": "Cached: OK",
+        "input": "cached"
+      }
+    ],
+    "tier": "mainline",
+    "title": "Async Client"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: KeyPath Transformer\n- Key paths access stored properties\n- map can use \\Type.property\n- Reduce combines values into one",
+    "completionMessage": "Great work using key paths for aggregation.",
+    "completionTitle": "✨ Crust 1 Extra Project Complete!",
+    "description": "Aggregate values with key paths",
+    "hints": [
+      "Use map(\\.value) to extract values.",
+      "Reduce the values to a total before printing."
+    ],
+    "id": "crust1b",
+    "layer": "crust",
+    "lesson": "Lesson: KeyPath Transformer\nGoal:\nAggregate values with key paths\n\nKey Concepts:\n- Key paths access stored properties\n- map can use \\Type.property\n- Reduce combines values into one\n\nImplementation Plan:\n- Isolate advanced pieces (async flow, builders, key paths, or modular boundaries) in small functions.\n- Keep results deterministic by controlling ordering before printing.\n- Validate both correctness and structure so behavior remains stable as complexity grows.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Creating hidden async/order coupling that passes once but fails on reruns.",
+    "pass": 7,
+    "solution": "struct Reading {\n    let label: String\n    let value: Int\n}\n\nlet readings = [\n    Reading(label: \"Iron\", value: 2),\n    Reading(label: \"Gold\", value: 4),\n]\n\nlet values = readings.map(\\.value)\nlet total = values.reduce(0, +)\nprint(\"Total: \\(total)\")",
+    "starterCode": "// Crust 1 Project B: KeyPath Transformer\n// Aggregate values with key paths.\n//\n// Requirements:\n// - Create an array of readings:\n//   - (\"Iron\", 2)\n//   - (\"Gold\", 4)\n// - Use a key path to map values\n// - Sum them and print \"Total: 6\"\n//\n// TODO: Implement the transformer.\n\nstruct Reading {\n    let label: String\n    let value: Int\n}\n\nlet readings = [\n    Reading(label: \"Iron\", value: 2),\n    Reading(label: \"Gold\", value: 4),\n]\n\n// TODO: Map values with a key path and print the total",
+    "testCases": [
+      {
+        "expectedOutput": "Total: 6",
+        "input": "total"
+      }
+    ],
+    "tier": "extra",
+    "title": "KeyPath Transformer"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Task Orchestrator\n- withTaskGroup manages child tasks\n- Sum results as they arrive\n- Keep output deterministic",
+    "completionMessage": "Nice job coordinating async tasks.",
+    "completionTitle": "✨ Crust 1 Extra Project Complete!",
+    "description": "Coordinate task-group work",
+    "hints": [
+      "Add a task for each value and sum with for await.",
+      "Print the final total after the group finishes."
+    ],
+    "id": "crust1c",
+    "layer": "crust",
+    "lesson": "Lesson: Task Orchestrator\nGoal:\nCoordinate task-group work\n\nKey Concepts:\n- withTaskGroup manages child tasks\n- Sum results as they arrive\n- Keep output deterministic\n\nImplementation Plan:\n- Isolate advanced pieces (async flow, builders, key paths, or modular boundaries) in small functions.\n- Keep results deterministic by controlling ordering before printing.\n- Validate both correctness and structure so behavior remains stable as complexity grows.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Assuming collection iteration order is stable when output requires a fixed order.\n- Creating hidden async/order coupling that passes once but fails on reruns.",
+    "pass": 7,
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nrunAsync {\n    let total = await withTaskGroup(of: Int.self) { group -> Int in\n        for value in [2, 4, 6] {\n            group.addTask { value }\n        }\n\n        var sum = 0\n        for await value in group {\n            sum += value\n        }\n        return sum\n    }\n\n    print(\"Sum: \\(total)\")\n}",
+    "starterCode": "// Crust 1 Project C: Task Orchestrator\n// Coordinate task-group work.\n//\n// Requirements:\n// - Use withTaskGroup to sum [2, 4, 6]\n// - Print \"Sum: 12\"\n//\n// TODO: Implement the task group.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nrunAsync {\n    // TODO: Sum the values with a task group\n    // TODO: Print the result\n}",
+    "testCases": [
+      {
+        "expectedOutput": "Sum: 12",
+        "input": "sum"
+      }
+    ],
+    "tier": "extra",
+    "title": "Task Orchestrator"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Config DSL\n- Result builders collect values\n- Custom types keep settings structured\n- Print in a stable order",
+    "completionMessage": "You can now build small DSLs in Swift.",
+    "completionTitle": "🚀 Crust 2 Complete!",
+    "description": "Build settings with a result builder",
+    "hints": [
+      "Return two Setting values from the builder block.",
+      "Order matters for the output."
+    ],
+    "id": "crust2a",
+    "layer": "crust",
+    "lesson": "Lesson: Config DSL\nGoal:\nBuild settings with a result builder\n\nKey Concepts:\n- Result builders collect values\n- Custom types keep settings structured\n- Print in a stable order\n\nImplementation Plan:\n- Isolate advanced pieces (async flow, builders, key paths, or modular boundaries) in small functions.\n- Keep results deterministic by controlling ordering before printing.\n- Validate both correctness and structure so behavior remains stable as complexity grows.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Assuming collection iteration order is stable when output requires a fixed order.\n- Creating hidden async/order coupling that passes once but fails on reruns.",
+    "pass": 8,
+    "solution": "struct Setting {\n    let key: String\n    let value: String\n}\n\n@resultBuilder\nstruct ConfigBuilder {\n    static func buildBlock(_ components: Setting...) -> [Setting] {\n        return components\n    }\n}\n\nfunc makeConfig(@ConfigBuilder _ content: () -> [Setting]) -> [Setting] {\n    return content()\n}\n\nlet settings = makeConfig {\n    Setting(key: \"mode\", value: \"fast\")\n    Setting(key: \"retries\", value: \"3\")\n}\n\nfor setting in settings {\n    print(\"\\(setting.key)=\\(setting.value)\")\n}",
+    "starterCode": "// Crust 2 Project A: Config DSL\n// Build settings with a result builder.\n//\n// Requirements:\n// - Use ConfigBuilder to build two settings:\n//   - mode = fast\n//   - retries = 3\n// - Print:\n//   \"mode=fast\"\n//   \"retries=3\"\n//\n// TODO: Implement the DSL.\n\nstruct Setting {\n    let key: String\n    let value: String\n}\n\n@resultBuilder\nstruct ConfigBuilder {\n    static func buildBlock(_ components: Setting...) -> [Setting] {\n        return components\n    }\n}\n\nfunc makeConfig(@ConfigBuilder _ content: () -> [Setting]) -> [Setting] {\n    return content()\n}\n\n// Test code (don't modify):\nlet settings = makeConfig {\n    // TODO: Add Setting(key:value:) items\n}\n\nfor setting in settings {\n    print(\"\\(setting.key)=\\(setting.value)\")\n}",
+    "testCases": [
+      {
+        "expectedOutput": "mode=fast",
+        "input": "mode"
+      },
+      {
+        "expectedOutput": "retries=3",
+        "input": "retries"
+      }
+    ],
+    "tier": "mainline",
+    "title": "Config DSL"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Lazy Metrics\n- lazy defers work until needed\n- map transforms, reduce aggregates\n- Arrays preserve order",
+    "completionMessage": "Nice work combining lazy and reduce.",
+    "completionTitle": "✨ Crust 2 Extra Project Complete!",
+    "description": "Aggregate values with lazy transforms",
+    "hints": [
+      "Use numbers.lazy.map { $0 * 2 }.",
+      "Reduce the mapped values to a sum."
+    ],
+    "id": "crust2b",
+    "layer": "crust",
+    "lesson": "Lesson: Lazy Metrics\nGoal:\nAggregate values with lazy transforms\n\nKey Concepts:\n- lazy defers work until needed\n- map transforms, reduce aggregates\n- Arrays preserve order\n\nImplementation Plan:\n- Isolate advanced pieces (async flow, builders, key paths, or modular boundaries) in small functions.\n- Keep results deterministic by controlling ordering before printing.\n- Validate both correctness and structure so behavior remains stable as complexity grows.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Assuming collection iteration order is stable when output requires a fixed order.\n- Creating hidden async/order coupling that passes once but fails on reruns.",
+    "pass": 8,
+    "solution": "let numbers = [1, 2, 3, 4, 5]\n\nlet doubled = numbers.lazy.map { $0 * 2 }\nlet total = doubled.reduce(0, +)\nprint(\"Total: \\(total)\")",
+    "starterCode": "// Crust 2 Project B: Lazy Metrics\n// Aggregate values with lazy transforms.\n//\n// Requirements:\n// - Double the numbers [1, 2, 3, 4, 5] using lazy map\n// - Sum the results and print \"Total: 30\"\n//\n// TODO: Implement the aggregation.\n\nlet numbers = [1, 2, 3, 4, 5]\n\n// TODO: Use lazy map + reduce",
+    "testCases": [
+      {
+        "expectedOutput": "Total: 30",
+        "input": "total"
+      }
+    ],
+    "tier": "extra",
+    "title": "Lazy Metrics"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Feature Flags\n- Enums model known flags\n- Sets provide fast membership checks\n- Print booleans for enabled state",
+    "completionMessage": "Feature flags are now in your toolkit.",
+    "completionTitle": "✨ Crust 2 Extra Project Complete!",
+    "description": "Check enabled flags",
+    "hints": [
+      "Use flags.contains(flag) inside isEnabled.",
+      "Print the two booleans in the requested format."
+    ],
+    "id": "crust2c",
+    "layer": "crust",
+    "lesson": "Lesson: Feature Flags\nGoal:\nCheck enabled flags\n\nKey Concepts:\n- Enums model known flags\n- Sets provide fast membership checks\n- Print booleans for enabled state\n\nImplementation Plan:\n- Isolate advanced pieces (async flow, builders, key paths, or modular boundaries) in small functions.\n- Keep results deterministic by controlling ordering before printing.\n- Validate both correctness and structure so behavior remains stable as complexity grows.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Assuming collection iteration order is stable when output requires a fixed order.\n- Creating hidden async/order coupling that passes once but fails on reruns.",
+    "pass": 8,
+    "solution": "enum FeatureFlag: String {\n    case darkMode = \"dark\"\n    case newUI = \"new-ui\"\n}\n\nlet enabled: Set<FeatureFlag> = [.darkMode]\n\nfunc isEnabled(flags: Set<FeatureFlag>, flag: FeatureFlag) -> Bool {\n    return flags.contains(flag)\n}\n\nprint(\"Dark: \\(isEnabled(flags: enabled, flag: .darkMode))\")\nprint(\"NewUI: \\(isEnabled(flags: enabled, flag: .newUI))\")",
+    "starterCode": "// Crust 2 Project C: Feature Flags\n// Check enabled flags.\n//\n// Requirements:\n// - Define enum FeatureFlag with cases darkMode and newUI\n// - Implement isEnabled(flags:flag:) -> Bool\n// - Print:\n//   \"Dark: true\"\n//   \"NewUI: false\"\n//\n// TODO: Implement the flag checks.\n\nenum FeatureFlag: String {\n    case darkMode = \"dark\"\n    case newUI = \"new-ui\"\n}\n\nlet enabled: Set<FeatureFlag> = [.darkMode]\n\n// TODO: Write isEnabled and print the results",
+    "testCases": [
+      {
+        "expectedOutput": "Dark: true",
+        "input": "dark"
+      },
+      {
+        "expectedOutput": "NewUI: false",
+        "input": "newui"
+      }
+    ],
+    "tier": "extra",
+    "title": "Feature Flags"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Mini Framework\n- Protocols define boundaries\n- Inject dependencies for testability\n- Store events in a simple sink",
+    "completionMessage": "You can now structure professional Swift systems.",
+    "completionTitle": "🛠️ Crust 3 Complete!",
+    "description": "Track events through a protocol boundary",
+    "hints": [
+      "Store events in an array and expose a count property.",
+      "Analytics should call sink.send with the Event prefix."
+    ],
+    "id": "crust3a",
+    "layer": "crust",
+    "lesson": "Lesson: Mini Framework\nGoal:\nTrack events through a protocol boundary\n\nKey Concepts:\n- Protocols define boundaries\n- Inject dependencies for testability\n- Store events in a simple sink\n\nImplementation Plan:\n- Isolate advanced pieces (async flow, builders, key paths, or modular boundaries) in small functions.\n- Keep results deterministic by controlling ordering before printing.\n- Validate both correctness and structure so behavior remains stable as complexity grows.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Creating hidden async/order coupling that passes once but fails on reruns.",
+    "pass": 9,
+    "solution": "protocol EventSink {\n    func send(_ event: String)\n}\n\nclass MemorySink: EventSink {\n    private var events: [String] = []\n    var count: Int { events.count }\n\n    func send(_ event: String) {\n        events.append(event)\n    }\n}\n\nstruct Analytics {\n    let sink: EventSink\n    func track(_ name: String) {\n        sink.send(\"Event: \\(name)\")\n    }\n}\n\nlet sink = MemorySink()\nlet analytics = Analytics(sink: sink)\nanalytics.track(\"start\")\nanalytics.track(\"finish\")\nprint(\"Count: \\(sink.count)\")",
+    "starterCode": "// Crust 3 Project A: Mini Framework\n// Track events through a protocol boundary.\n//\n// Requirements:\n// - Define protocol EventSink with send(_:) method\n// - Implement class MemorySink storing events\n// - Define Analytics that depends on EventSink\n// - Track two events: \"start\" and \"finish\"\n// - Print \"Count: 2\"\n//\n// TODO: Implement the mini framework.\n\nprotocol EventSink {\n    func send(_ event: String)\n}\n\nclass MemorySink: EventSink {\n    // TODO: Store events and expose count\n}\n\nstruct Analytics {\n    let sink: EventSink\n    // TODO: Add track(_:) to send \"Event: <name>\"\n}\n\n// Test code (don't modify):\nlet sink = MemorySink()\nlet analytics = Analytics(sink: sink)\nanalytics.track(\"start\")\nanalytics.track(\"finish\")\nprint(\"Count: \\(sink.count)\")",
+    "testCases": [
+      {
+        "expectedOutput": "Count: 2",
+        "input": "count"
+      }
+    ],
+    "tier": "mainline",
+    "title": "Mini Framework"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Modular CLI Tool\n- Commands expose a shared interface\n- Use a lookup table for dispatch\n- Print a single selected result",
+    "completionMessage": "Great command routing discipline.",
+    "completionTitle": "✨ Crust 3 Extra Project Complete!",
+    "description": "Dispatch commands by name",
+    "hints": [
+      "Return a string from each run() implementation.",
+      "Look up the command by its key in the dictionary."
+    ],
+    "id": "crust3b",
+    "layer": "crust",
+    "lesson": "Lesson: Modular CLI Tool\nGoal:\nDispatch commands by name\n\nKey Concepts:\n- Commands expose a shared interface\n- Use a lookup table for dispatch\n- Print a single selected result\n\nImplementation Plan:\n- Isolate advanced pieces (async flow, builders, key paths, or modular boundaries) in small functions.\n- Keep results deterministic by controlling ordering before printing.\n- Validate both correctness and structure so behavior remains stable as complexity grows.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Creating hidden async/order coupling that passes once but fails on reruns.",
+    "pass": 9,
+    "solution": "protocol Command {\n    var name: String { get }\n    func run() -> String\n}\n\nstruct StatusCommand: Command {\n    let name = \"status\"\n    func run() -> String {\n        return \"Status: OK\"\n    }\n}\n\nstruct ListCommand: Command {\n    let name = \"list\"\n    func run() -> String {\n        return \"List: 2\"\n    }\n}\n\nlet commands: [String: Command] = [\n    \"status\": StatusCommand(),\n    \"list\": ListCommand(),\n]\n\nif let command = commands[\"status\"] {\n    print(command.run())\n}",
+    "starterCode": "// Crust 3 Project B: Modular CLI Tool\n// Dispatch commands by name.\n//\n// Requirements:\n// - Define protocol Command with name and run() -> String\n// - Implement StatusCommand and ListCommand\n// - Use a dictionary to select \"status\"\n// - Print the selected command output\n//\n// TODO: Implement the command system.\n\nprotocol Command {\n    var name: String { get }\n    func run() -> String\n}\n\nstruct StatusCommand: Command {\n    let name = \"status\"\n    // TODO: Return \"Status: OK\"\n}\n\nstruct ListCommand: Command {\n    let name = \"list\"\n    // TODO: Return \"List: 2\"\n}\n\nlet commands: [String: Command] = [\n    \"status\": StatusCommand(),\n    \"list\": ListCommand(),\n]\n\nif let command = commands[\"status\"] {\n    print(command.run())\n}",
+    "testCases": [
+      {
+        "expectedOutput": "Status: OK",
+        "input": "status"
+      }
+    ],
+    "tier": "extra",
+    "title": "Modular CLI Tool"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: DSL Builder\n- Result builders collect steps\n- Join with separators for output\n- Keep the DSL minimal and clear",
+    "completionMessage": "Nice work shaping a tiny DSL.",
+    "completionTitle": "✨ Crust 3 Extra Project Complete!",
+    "description": "Compose steps with a builder",
+    "hints": [
+      "Return three string literals from the builder block.",
+      "Join with -> between steps to match the output."
+    ],
+    "id": "crust3c",
+    "layer": "crust",
+    "lesson": "Lesson: DSL Builder\nGoal:\nCompose steps with a builder\n\nKey Concepts:\n- Result builders collect steps\n- Join with separators for output\n- Keep the DSL minimal and clear\n\nImplementation Plan:\n- Isolate advanced pieces (async flow, builders, key paths, or modular boundaries) in small functions.\n- Keep results deterministic by controlling ordering before printing.\n- Validate both correctness and structure so behavior remains stable as complexity grows.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Creating hidden async/order coupling that passes once but fails on reruns.",
+    "pass": 9,
+    "solution": "@resultBuilder\nstruct StepsBuilder {\n    static func buildBlock(_ components: String...) -> [String] {\n        return components\n    }\n}\n\nfunc buildSteps(@StepsBuilder _ content: () -> [String]) -> [String] {\n    return content()\n}\n\nlet steps = buildSteps {\n    \"forge\"\n    \"cool\"\n    \"ship\"\n}\n\nprint(steps.joined(separator: \" -> \"))",
+    "starterCode": "// Crust 3 Project C: DSL Builder\n// Compose steps with a builder.\n//\n// Requirements:\n// - Use StepsBuilder to build [\"forge\", \"cool\", \"ship\"]\n// - Print \"forge -> cool -> ship\"\n//\n// TODO: Implement the builder usage.\n\n@resultBuilder\nstruct StepsBuilder {\n    static func buildBlock(_ components: String...) -> [String] {\n        return components\n    }\n}\n\nfunc buildSteps(@StepsBuilder _ content: () -> [String]) -> [String] {\n    return content()\n}\n\nlet steps = buildSteps {\n    // TODO: Add the steps\n}\n\nprint(steps.joined(separator: \" -> \"))",
+    "testCases": [
+      {
+        "expectedOutput": "forge -> cool -> ship",
+        "input": "steps"
+      }
+    ],
+    "tier": "extra",
+    "title": "DSL Builder"
+  }
+]

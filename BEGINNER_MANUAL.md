@@ -259,13 +259,25 @@ swift run forge catalog
 swift run forge catalog-projects
 ```
 
+These commands are your curriculum map: they show IDs and titles so you can browse the path without opening source files.
+
 These also generate:
 - `challenge_catalog.txt`
 - `project_catalog.txt`
 
 ---
 
-## 15) Getting Back On Track
+## 15) If You Explore The Source (Optional)
+- Curriculum data is in `Sources/forge/Curriculum/*.json`.
+- JSON is loaded by `Sources/forge/CurriculumLoader.swift`.
+- Challenge/project model types are in `Sources/forge/Challenges.swift`.
+- CLI parsing/help lives in `Sources/forge/CLI.swift`.
+- Progress/stats persistence lives in `Sources/forge/Stores.swift`.
+- Constraint tokenization/detectors live in `Sources/forge/ConstraintDetectors.swift`.
+
+---
+
+## 16) Getting Back On Track
 If you feel stuck:
 1. Run practice mode on the topic you’re failing.
 2. Use the lesson and cheatsheet.
