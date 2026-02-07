@@ -56,8 +56,8 @@ forge
 
 ## Source layout
 - `Sources/forge/CLI.swift`: top-level command models, parsing, and usage text.
-- `Sources/forge/Stores.swift`: progress/stage-gate/adaptive/performance stores and migrations.
-- `Sources/forge/ConstraintDetectors.swift`: tokenizer + syntax/OOP/concurrency detector helpers.
+- `Sources/forge/Storage/Stores.swift`: progress/stage-gate/adaptive/performance stores and migrations.
+- `Sources/forge/Constraints/ConstraintDetectors.swift`: tokenizer + syntax/OOP/concurrency detector helpers.
 - `Sources/forge/Curriculum/*.json`: challenge/project catalog data used at runtime.
 
 ## What you’ll learn

@@ -1,37 +1,52 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- `Package.swift` defines a single Swift Package Manager executable target named `forge`.
-- `Sources/forge/forge.swift` contains the CLI entry point and all challenge logic.
-- `Sources/forge/Challenges.swift` defines `Challenge` data and the curriculum (currently 1–255).
-- `workspace/` holds generated challenge files (`challenge-core-1.swift`, etc.) and the `.progress` marker used to resume.
-  - Core 3 includes a stepped closure sequence from full syntax to shorthand.
+- `Package.swift` defines one executable target (`forge`) and one test target (`forgeTests`), and copies `Sources/forge/Curriculum/` as bundled resources.
+- `Sources/forge/App/forge.swift` is the executable entrypoint plus shared rendering/output helpers.
+- Runtime logic is modularized:
+  - CLI parsing/help: `Sources/forge/CLI.swift`
+  - Command routing and app coordination: `Sources/forge/App/CommandHandlers.swift`, `Sources/forge/App/FlowRunner.swift`, `Sources/forge/App/RuntimeContext.swift`
+  - Learning flows: `Sources/forge/Flow/ChallengeFlow.swift`, `Sources/forge/Flow/PracticeFlow.swift`, `Sources/forge/Flow/ProjectFlow.swift`
+  - Persistence/migrations: `Sources/forge/Storage/Stores.swift`, `Sources/forge/Storage/WorkspaceStore.swift`
+  - Constraints: `Sources/forge/Constraints/ConstraintEngine.swift`, `Sources/forge/Constraints/ConstraintRules.swift`, `Sources/forge/Constraints/ConstraintDetectors.swift`, `Sources/forge/Constraints/ConstraintDiagnostics.swift`, `Sources/forge/Constraints/ConstraintTopicProfiles.swift`, `Sources/forge/Constraints/ConstraintMasteryStore.swift`
+  - Catalog output: `Sources/forge/Catalog.swift`
+- `Sources/forge/Challenges.swift` defines shared model types (`Challenge`, `Project`, enums, profiles).
+- `Sources/forge/Curriculum/*.json` is the curriculum source of truth (mainline, extras, bridge, projects).
+- `Sources/forge/CurriculumLoader.swift` decodes JSON resources into model arrays.
+- `workspace/` holds generated main-flow challenge files and `.progress`.
+- `workspace_random/`, `workspace_practice/`, `workspace_projects/`, `workspace_review/`, and `workspace_verify/` isolate other modes.
 
 ## Build, Test, and Development Commands
 - `swift build`: builds the executable.
 - `swift run forge`: runs the CLI and starts (or resumes) the challenge flow.
 - `swift run forge reset`: clears `workspace/.progress` and deletes generated `workspace/challenge*.swift` files.
+- `swift run forge catalog`: prints a challenge catalog map and writes `challenge_catalog.txt`.
+- `swift run forge catalog-projects`: prints a project catalog map and writes `project_catalog.txt`.
 - `scripts/check.sh`: runs the automated checks (`swift test`).
 
 ## Coding Style & Naming Conventions
 - Use Swift’s standard formatting with 4-space indentation and a line length that keeps code readable.
 - Follow Swift API Design Guidelines: `lowerCamelCase` for functions/variables, `UpperCamelCase` for types.
-- Keep string literals readable; prefer multiline strings for banner output as in `forge.swift`.
+- Keep string literals readable; use multiline strings for usage/help text where appropriate.
 - No formatter or linter is configured; keep changes consistent with existing style.
 
 ## Testing Guidelines
 - SwiftPM tests live in `Tests/forgeTests/` and run with `swift test`.
 - Manual verification is done by running the CLI and editing files in `workspace/` until output matches expected values.
 - Name test classes `SomethingTests` and test methods `testX()` to match SwiftPM defaults.
+- For CLI behavior checks, prefer non-interactive smoke commands first (for example `--help`, `catalog`, `project --list`, `stats --help`).
 
 ## Commit & Pull Request Guidelines
-- This directory is not a Git repository, so commit conventions cannot be derived from history.
-- If a repo is initialized later, prefer short, imperative commit subjects (e.g., "Add challenge 7").
+- This is a Git repository with semver-style release tags (`v0.3.x` currently).
+- Prefer short, imperative commit subjects (for example, "Simplify architecture and externalize curriculum data").
+- Keep commits scoped to one intent (curriculum data update, flow logic change, docs sync, etc.).
+- Release tags are annotated (`Release vX.Y.Z`) and should point to the release commit.
 - PRs should describe the user-visible behavior change (CLI output, challenge flow) and include steps to verify.
 
 ## Configuration Notes
 - Progress is stored in `workspace/.progress`; deleting it resets the starting challenge.
 - Challenge files are generated and overwritten by the CLI; avoid committing edited challenge files unless intentional.
+- The catalog commands are the intended "curriculum map" for learners who do not want to inspect source JSON/files.
 - During challenges/projects, press Enter to check your work; use `h` for hints, `c` for cheatsheets, `l` for lessons, and `s` for solutions.
 - You can set `workspace/.progress` to jump to a specific challenge or project:
   - Challenge number: `challenge:36` starts at Challenge 36.
@@ -50,8 +65,10 @@ Projects
 Random mode
 - Run `swift run forge random` to practice a random set (default 5).
 - Optional: add a count (e.g., `swift run forge random 10`).
-- Optional: filter by topic (`conditionals`, `loops`, `optionals`, `collections`, `functions`, `strings`, `structs`, `general`).
+- Optional: filter by topic (`conditionals`, `loops`, `optionals`, `collections`, `functions`, `strings`, `structs`, `classes`, `properties`, `protocols`, `extensions`, `accessControl`, `errors`, `generics`, `memory`, `concurrency`, `actors`, `keyPaths`, `sequences`, `propertyWrappers`, `macros`, `swiftpm`, `testing`, `interop`, `performance`, `advancedFeatures`, `general`).
 - Optional: filter by tier (`mainline`, `extra`) and/or layer (`core`, `mantle`, `crust`).
+- Optional: include `bridge` to pull only bridge challenges.
+- Optional: include `adaptive` to bias selection toward weaker topics/stale challenges.
 - Add `--help` to print the random-mode filter list.
 - Extra challenges are for random practice and are not part of the main progression.
 - Random mode uses `workspace_random/` so it does not overwrite your main `workspace/`.

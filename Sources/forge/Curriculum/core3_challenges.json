@@ -1071,21 +1071,24 @@
       "disallowedTokens": [
         "import"
       ],
-      "requiredTokens": []
+      "requiredTokens": [
+        "where"
+      ]
     },
-    "description": "Match and extract associated values",
+    "description": "Use switch pattern matching with a where clause on associated values",
     "expectedOutput": "Overheated",
     "fixtureFiles": [],
     "hints": [
-      "switch with where can add extra conditions to a case.",
-      "Handle temperature and error cases separately."
+      "Start a `switch` on `event` and handle every `Event` case.",
+      "For temperature, bind the associated value and use `where` to filter the overheated threshold.",
+      "Use a second temperature branch for non-overheated values, and keep error handling separate."
     ],
     "id": "",
     "introduces": [
       "whereClauses"
     ],
     "layer": "core",
-    "lesson": "Lesson: Enums\nEnums define a fixed set of cases.\n\nOverview:\n- Use enums for states, categories, or choices.\n- Switch statements pair well with enums.\n\nRaw values:\n    enum Metal: String { case iron, copper }\n    let m = Metal.iron.rawValue\n\nAssociated values:\n    enum Event { case temperature(Int) }\n\nSwitching:\n    switch event {\n    case .temperature(let value):\n        print(value)\n    }",
+    "lesson": "Lesson: Switch where Clauses\nUse `where` in a `switch` case to add an extra condition after pattern matching.\n\nOverview:\n- Match enum cases and bind associated values with `let`.\n- Add `where` when a case needs extra boolean filtering.\n- Order from most specific to most general.\n\nShape:\n    case .temperature(let value) where value >= limit:\n        // specific branch\n\nThen add fallback cases for the same enum case without `where`, plus any remaining enum cases.\n\nWhy this helps:\n- Matching and rule checks stay in one place.\n- You avoid extra nested `if` blocks after a match.",
     "manualCheck": false,
     "number": 74,
     "requires": [],

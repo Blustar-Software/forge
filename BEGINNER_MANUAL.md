@@ -272,8 +272,8 @@ These also generate:
 - JSON is loaded by `Sources/forge/CurriculumLoader.swift`.
 - Challenge/project model types are in `Sources/forge/Challenges.swift`.
 - CLI parsing/help lives in `Sources/forge/CLI.swift`.
-- Progress/stats persistence lives in `Sources/forge/Stores.swift`.
-- Constraint tokenization/detectors live in `Sources/forge/ConstraintDetectors.swift`.
+- Progress/stats persistence lives in `Sources/forge/Storage/Stores.swift`.
+- Constraint tokenization/detectors live in `Sources/forge/Constraints/ConstraintDetectors.swift`.
 
 ---
 

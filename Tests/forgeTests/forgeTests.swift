@@ -943,6 +943,18 @@ final class ForgeTests: XCTestCase {
         XCTAssertTrue(hasCollectionUsage(tokens: tokens, source: cleaned))
     }
 
+    func testFileIODetectorIgnoresNonFileURLUsage() {
+        let source = "let endpoint = URL(string: \"https://example.com\")"
+        let tokens = tokenizeSource(stripCommentsAndStrings(from: source))
+        XCTAssertFalse(hasFileIO(tokens))
+    }
+
+    func testFileIODetectorDetectsFileURLInitializer() {
+        let source = "let fileURL = URL(fileURLWithPath: \"/tmp/forge.txt\")"
+        let tokens = tokenizeSource(stripCommentsAndStrings(from: source))
+        XCTAssertTrue(hasFileIO(tokens))
+    }
+
     func testOptionalUsageDetectsIfLet() {
         let source = "if let value = maybe { print(value) }"
         let tokens = tokenizeSource(stripCommentsAndStrings(from: source))
@@ -953,6 +965,24 @@ final class ForgeTests: XCTestCase {
         let source = "let work = { print(\"Hi\") }"
         let tokens = tokenizeSource(stripCommentsAndStrings(from: source))
         XCTAssertTrue(hasClosureUsage(tokens))
+    }
+
+    func testTaskUsageIgnoresTaskTypeDeclaration() {
+        let source = "struct Task {}"
+        let tokens = tokenizeSource(stripCommentsAndStrings(from: source))
+        XCTAssertFalse(hasTaskUsage(tokens))
+    }
+
+    func testSwiftPMDependenciesDetectorIgnoresVariableNamedPackage() {
+        let source = "let package = \"starter\""
+        let tokens = tokenizeSource(stripCommentsAndStrings(from: source))
+        XCTAssertFalse(hasSwiftPMDependencies(tokens))
+    }
+
+    func testSwiftPMDependenciesDetectorDetectsPackageEntry() {
+        let source = "let deps: [Package.Dependency] = [.package(url: \"https://example.com/repo\", from: \"1.0.0\")]"
+        let tokens = tokenizeSource(stripCommentsAndStrings(from: source))
+        XCTAssertTrue(hasSwiftPMDependencies(tokens))
     }
 
     func testTupleUsageWarnsBeforeIntro() {
@@ -1013,6 +1043,35 @@ final class ForgeTests: XCTestCase {
         XCTAssertTrue(warnings.contains { $0.contains("file IO") })
     }
 
+    func testFileIOWarningDoesNotTriggerForNetworkURLInitializer() {
+        let introChallenge = Challenge(
+            number: 20,
+            title: "File Intro",
+            description: "",
+            starterCode: "",
+            expectedOutput: "",
+            introduces: [.fileIO],
+            topic: .general
+        )
+        let earlyChallenge = Challenge(
+            number: 5,
+            title: "Early File IO",
+            description: "",
+            starterCode: "",
+            expectedOutput: "",
+            topic: .general
+        )
+        let index = buildConstraintIndex(from: [introChallenge, earlyChallenge])
+        let source = "let endpoint = URL(string: \"https://example.com\")"
+        let warnings = constraintWarnings(
+            for: source,
+            challenge: earlyChallenge,
+            index: index,
+            enableDiMockHeuristics: true
+        )
+        XCTAssertFalse(warnings.contains { $0.contains("file IO") })
+    }
+
     func testCommandLineArgsWarnBeforeIntro() {
         let introChallenge = Challenge(
             number: 20,
@@ -1069,6 +1128,35 @@ final class ForgeTests: XCTestCase {
             enableDiMockHeuristics: true
         )
         XCTAssertTrue(warnings.contains { $0.contains("Task") })
+    }
+
+    func testTaskTypeDeclarationDoesNotWarnBeforeIntro() {
+        let introChallenge = Challenge(
+            number: 20,
+            title: "Task Intro",
+            description: "",
+            starterCode: "",
+            expectedOutput: "",
+            introduces: [.task],
+            topic: .general
+        )
+        let earlyChallenge = Challenge(
+            number: 5,
+            title: "Early Task",
+            description: "",
+            starterCode: "",
+            expectedOutput: "",
+            topic: .general
+        )
+        let index = buildConstraintIndex(from: [introChallenge, earlyChallenge])
+        let source = "struct Task {}"
+        let warnings = constraintWarnings(
+            for: source,
+            challenge: earlyChallenge,
+            index: index,
+            enableDiMockHeuristics: true
+        )
+        XCTAssertFalse(warnings.contains { $0.contains("Task") })
     }
 
     func testTaskGroupWarnsBeforeIntro() {
@@ -1156,6 +1244,50 @@ final class ForgeTests: XCTestCase {
             enableDiMockHeuristics: true
         )
         XCTAssertTrue(warnings.contains { $0.contains("generics") })
+    }
+
+    func testSwitchCaseWhereClauseDoesNotWarnAsGenerics() {
+        let introChallenge = Challenge(
+            number: 20,
+            title: "Generics Intro",
+            description: "",
+            starterCode: "",
+            expectedOutput: "",
+            introduces: [.generics],
+            topic: .general
+        )
+        let earlyChallenge = Challenge(
+            number: 5,
+            title: "Early Switch Where",
+            description: "",
+            starterCode: "",
+            expectedOutput: "",
+            topic: .general
+        )
+        let index = buildConstraintIndex(from: [introChallenge, earlyChallenge])
+        let source = """
+            enum Event {
+                case temperature(Int)
+                case error(String)
+            }
+
+            let event = Event.temperature(1600)
+            switch event {
+            case .temperature(let temp) where temp >= 1500:
+                print("Overheated")
+            case .temperature:
+                print("Normal")
+            case .error:
+                print("Error")
+            }
+            """
+        let warnings = constraintWarnings(
+            for: source,
+            challenge: earlyChallenge,
+            index: index,
+            enableDiMockHeuristics: true
+        )
+        XCTAssertFalse(warnings.contains { $0.contains("generics") })
     }
 
     func testProtocolConformanceWarnsInExtension() {

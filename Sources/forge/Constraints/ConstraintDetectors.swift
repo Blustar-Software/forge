@@ -249,6 +249,16 @@ func hasDotMember(_ tokens: [String], _ member: String) -> Bool {
     return false
 }
 
+func hasInitializerLabel(_ tokens: [String], typeName: String, firstLabel: String) -> Bool {
+    guard tokens.count >= 3 else { return false }
+    for index in 0..<(tokens.count - 2) where tokens[index] == typeName {
+        if tokens[index + 1] == "(", tokens[index + 2] == firstLabel {
+            return true
+        }
+    }
+    return false
+}
+
 func containsStringInterpolation(in source: String) -> Bool {
     let chars = Array(source)
     var i = 0
@@ -686,20 +696,24 @@ func hasCommandLineArguments(_ tokens: [String]) -> Bool {
 }
 
 func hasFileIO(_ tokens: [String]) -> Bool {
-    if tokens.contains("contentsOfFile") || tokens.contains("FileHandle") || tokens.contains("FileManager") {
+    if hasToken(tokens, "contentsOfFile") {
         return true
     }
-    if hasSequence(tokens, ["Data", ".", "contentsOf"]) {
+    if hasInitializerLabel(tokens, typeName: "Data", firstLabel: "contentsOf") {
         return true
     }
-    if hasSequence(tokens, ["String", ".", "contentsOf"]) {
+    if hasInitializerLabel(tokens, typeName: "String", firstLabel: "contentsOf") {
         return true
     }
-    if hasSequence(tokens, ["URL", ".", "fileURLWithPath"]) {
+    if hasInitializerLabel(tokens, typeName: "URL", firstLabel: "fileURLWithPath") {
         return true
     }
-    if tokens.contains("URL") || tokens.contains("Path") {
-        return true
+    for (index, token) in tokens.enumerated() where token == "FileHandle" || token == "FileManager" {
+        let prev = index > 0 ? tokens[index - 1] : ""
+        let next = index + 1 < tokens.count ? tokens[index + 1] : ""
+        if prev == "." || next == "." || next == "(" {
+            return true
+        }
     }
     return false
 }
@@ -749,16 +763,13 @@ func hasGenericDefinition(_ tokens: [String]) -> Bool {
         if tokens[j] == "<" {
             return true
         }
-        while j < tokens.count && tokens[j] != "<" && tokens[j] != "{" && tokens[j] != "(" {
+        // Only inspect the declaration header (up to the first "{").
+        // This avoids misclassifying `switch case ... where ...` inside bodies as generics.
+        while j < tokens.count && tokens[j] != "{" {
+            if tokens[j] == "<" || tokens[j] == "where" {
+                return true
+            }
             j += 1
-        }
-        if j < tokens.count && tokens[j] == "<" {
-            return true
-        }
-    }
-    if let whereIndex = tokens.firstIndex(of: "where") {
-        for index in 0..<whereIndex where anchors.contains(tokens[index]) {
-            return true
         }
     }
     return false
@@ -767,9 +778,19 @@ func hasGenericDefinition(_ tokens: [String]) -> Bool {
 func hasTaskUsage(_ tokens: [String]) -> Bool {
     let nextTokens: Set<String> = ["{", "(", ".", "<", "?", "!"]
     let prevTokens: Set<String> = [":", "->"]
+    let declarationPrevTokens: Set<String> = [
+        "struct", "class", "enum", "protocol", "typealias",
+        "let", "var", "func", "case", "init", "extension"
+    ]
     for (index, token) in tokens.enumerated() where token == "Task" {
-        if index > 0, prevTokens.contains(tokens[index - 1]) {
-            return true
+        if index > 0 {
+            let prev = tokens[index - 1]
+            if declarationPrevTokens.contains(prev) {
+                continue
+            }
+            if prevTokens.contains(prev) {
+                return true
+            }
         }
         let nextIndex = index + 1
         if nextIndex < tokens.count, nextTokens.contains(tokens[nextIndex]) {
@@ -1145,7 +1166,17 @@ func hasSwiftPMBasics(_ tokens: [String]) -> Bool {
 }
 
 func hasSwiftPMDependencies(_ tokens: [String]) -> Bool {
-    return hasToken(tokens, "dependencies") || hasToken(tokens, "package")
+    if hasSequence(tokens, [".", "package", "("]) {
+        return true
+    }
+    for (index, token) in tokens.enumerated() where token == "package" || token == "dependencies" {
+        let prev = index > 0 ? tokens[index - 1] : ""
+        let next = index + 1 < tokens.count ? tokens[index + 1] : ""
+        if prev == "." || next == ":" || next == "(" {
+            return true
+        }
+    }
+    return false
 }
 
 func hasBuildConfigs(_ tokens: [String]) -> Bool {
@@ -1162,13 +1193,9 @@ func hasNetworkUsage(tokens: [String], source: String) -> Bool {
 func hasConcurrencyUsage(tokens: [String]) -> Bool {
     return tokens.contains("async")
         || tokens.contains("await")
-        || tokens.contains("Task")
-        || tokens.contains("actor")
-        || tokens.contains("MainActor")
-        || tokens.contains("Sendable")
-        || tokens.contains("withTaskGroup")
-        || tokens.contains("withThrowingTaskGroup")
-        || tokens.contains("TaskGroup")
-        || tokens.contains("ThrowingTaskGroup")
+        || hasTaskUsage(tokens)
+        || hasToken(tokens, "actor")
+        || hasMainActorUsage(tokens)
+        || hasSendableUsage(tokens)
+        || hasTaskGroupUsage(tokens)
 }
-
