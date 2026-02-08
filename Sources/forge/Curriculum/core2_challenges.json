@@ -24,7 +24,7 @@
       "ifElse"
     ],
     "layer": "core",
-    "lesson": "Lesson: Conditionals\nConditionals choose between different paths based on Bool expressions.\n\nOverview:\n- `if` runs a block when a condition is true.\n- `else if` checks another condition if the first fails.\n- `else` is the fallback.\n\nBasic shape:\n    if temp >= 1500 {\n        print(\"Overheated\")\n    } else if temp >= 1200 {\n        print(\"Hot\")\n    } else {\n        print(\"Cool\")\n    }\n\nTips:\n- Check the most specific cases first.\n- Keep each condition focused and readable.\n\nTernary operator:\n- condition ? valueIfTrue : valueIfFalse\n    let label = temp >= 1500 ? \"Overheated\" : \"Stable\"",
+    "lesson": "Lesson: Conditionals\nConditionals choose between different paths based on Bool expressions.\n\nOverview:\n- `if` runs a block when a condition is true.\n- `else if` checks another condition if the first fails.\n- `else` is the fallback.\n\nBasic shape:\n    if heatLevel >= 4 {\n        print(\"Overheated\")\n    } else if heatLevel >= 2 {\n        print(\"Working\")\n    } else {\n        print(\"Cold\")\n    }\n\nTips:\n- Check the most specific cases first.\n- Keep each condition focused and readable.\n\nTernary operator:\n- condition ? valueIfTrue : valueIfFalse\n    let status = heatLevel >= 2 ? \"Ready\" : \"Warm-up\"",
     "manualCheck": false,
     "number": 21,
     "requires": [],
@@ -92,7 +92,7 @@
       "switchStatement"
     ],
     "layer": "core",
-    "lesson": "Lesson: Switch & Ranges\nSwitch matches a value against multiple cases.\n\nOverview:\n- Use `switch` to handle multiple discrete cases cleanly.\n- Cases must be exhaustive (or use `default`).\n\nBasic shape:\n    switch temp {\n    case 0:\n        print(\"No heat\")\n    case 1...1199:\n        print(\"Low\")\n    case 1200...1499:\n        print(\"Warm\")\n    default:\n        print(\"Hot\")\n    }\n\nRanges:\n- Closed range: 1...3 includes both ends\n- Half-open: 1..<3 excludes the upper bound\n\nTip:\n- Use ranges inside switch cases to match numeric bands.",
+    "lesson": "Lesson: Switch & Ranges\nSwitch matches a value against multiple cases.\n\nOverview:\n- Use `switch` to handle multiple discrete cases cleanly.\n- Cases must be exhaustive (or use `default`).\n\nBasic shape:\n    switch heatBand {\n    case 0:\n        print(\"Off\")\n    case 1...2:\n        print(\"Warm-up\")\n    case 3...4:\n        print(\"Forging\")\n    default:\n        print(\"Overheated\")\n    }\n\nRanges:\n- Closed range: 1...3 includes both ends\n- Half-open: 1..<3 excludes the upper bound\n\nTip:\n- Use ranges inside switch cases to group adjacent forge states.",
     "manualCheck": false,
     "number": 23,
     "requires": [],
@@ -127,7 +127,7 @@
       "ranges"
     ],
     "layer": "core",
-    "lesson": "Lesson: Switch & Ranges\nSwitch matches a value against multiple cases.\n\nOverview:\n- Use `switch` to handle multiple discrete cases cleanly.\n- Cases must be exhaustive (or use `default`).\n\nBasic shape:\n    switch temp {\n    case 0:\n        print(\"No heat\")\n    case 1...1199:\n        print(\"Low\")\n    case 1200...1499:\n        print(\"Warm\")\n    default:\n        print(\"Hot\")\n    }\n\nRanges:\n- Closed range: 1...3 includes both ends\n- Half-open: 1..<3 excludes the upper bound\n\nTip:\n- Use ranges inside switch cases to match numeric bands.",
+    "lesson": "Lesson: Switch & Ranges\nSwitch matches a value against multiple cases.\n\nOverview:\n- Use `switch` to handle multiple discrete cases cleanly.\n- Cases must be exhaustive (or use `default`).\n\nBasic shape:\n    switch heatBand {\n    case 0:\n        print(\"Off\")\n    case 1...2:\n        print(\"Warm-up\")\n    case 3...4:\n        print(\"Forging\")\n    default:\n        print(\"Overheated\")\n    }\n\nRanges:\n- Closed range: 1...3 includes both ends\n- Half-open: 1..<3 excludes the upper bound\n\nTip:\n- Use ranges inside switch cases to group adjacent forge states.",
     "manualCheck": false,
     "number": 24,
     "requires": [],
@@ -645,7 +645,7 @@
       "nilLiteral"
     ],
     "layer": "core",
-    "lesson": "Lesson: Optionals\nOptionals represent a value that may be missing (`nil`).\n\nOverview:\n- `Int?` means an Int or nil.\n- You must unwrap an Optional before using its value.\n\nCreating optionals:\n    var temp: Int? = nil\n    temp = 1500\n\nUnwrapping with if let:\n    if let value = temp {\n        print(value)\n    }\n\nUnwrapping with guard:\n    func report(_ value: Int?) {\n        guard let value = value else {\n            return\n        }\n        print(value)\n    }\n\nFallback with ??:\n    let safeValue = temp ?? 0\n\nOptional chaining:\n- Use ?. to access properties or methods on an optional.\n- The result stays optional.\n    let temps: [Int]? = [1200, 1400]\n    let first = temps?.first ?? 0\n\nCommon source:\n- Conversions like Int(\"123\") return Optional values.",
+    "lesson": "Lesson: Optionals\nOptionals represent a value that may be missing (`nil`).\n\nOverview:\n- `Int?` means an Int or nil.\n- You must unwrap an Optional before using its value.\n\nCreating optionals:\n    var temp: Int? = nil\n    temp = 1500\n\nUnwrapping with if let:\n    if let value = temp {\n        print(value)\n    }\n\nUnwrapping with guard:\n    func report(_ reading: Int?) {\n        guard let unwrapped = reading else {\n            return\n        }\n        print(unwrapped)\n    }\n\nFallback with ??:\n    let safeValue = temp ?? 0\n\nOptional chaining:\n- Use ?. to access properties or methods on an optional.\n- The result stays optional.\n    let temps: [Int]? = [1200, 1400]\n    let first = temps?.first ?? 0\n\nCommon source:\n- Conversions like Int(\"123\") return Optional values.",
     "manualCheck": false,
     "number": 39,
     "requires": [],
@@ -713,7 +713,7 @@
       "guardStatement"
     ],
     "layer": "core",
-    "lesson": "Lesson: Optionals\nOptionals represent a value that may be missing (`nil`).\n\nOverview:\n- `Int?` means an Int or nil.\n- You must unwrap an Optional before using its value.\n\nCreating optionals:\n    var temp: Int? = nil\n    temp = 1500\n\nUnwrapping with if let:\n    if let value = temp {\n        print(value)\n    }\n\nUnwrapping with guard:\n    func report(_ value: Int?) {\n        guard let value = value else {\n            return\n        }\n        print(value)\n    }\n\nFallback with ??:\n    let safeValue = temp ?? 0\n\nOptional chaining:\n- Use ?. to access properties or methods on an optional.\n- The result stays optional.\n    let temps: [Int]? = [1200, 1400]\n    let first = temps?.first ?? 0\n\nCommon source:\n- Conversions like Int(\"123\") return Optional values.",
+    "lesson": "Lesson: Optionals\nOptionals represent a value that may be missing (`nil`).\n\nOverview:\n- `Int?` means an Int or nil.\n- You must unwrap an Optional before using its value.\n\nCreating optionals:\n    var temp: Int? = nil\n    temp = 1500\n\nUnwrapping with if let:\n    if let value = temp {\n        print(value)\n    }\n\nUnwrapping with guard:\n    func report(_ reading: Int?) {\n        guard let unwrapped = reading else {\n            return\n        }\n        print(unwrapped)\n    }\n\nFallback with ??:\n    let safeValue = temp ?? 0\n\nOptional chaining:\n- Use ?. to access properties or methods on an optional.\n- The result stays optional.\n    let temps: [Int]? = [1200, 1400]\n    let first = temps?.first ?? 0\n\nCommon source:\n- Conversions like Int(\"123\") return Optional values.",
     "manualCheck": false,
     "number": 41,
     "requires": [],

@@ -183,7 +183,7 @@
     "fixtureFiles": [],
     "hints": [
       "Use an underscore in the signature: announce(_ metal: String).",
-      "When underscore is used, call it like announce(\"Iron\")."
+      "When underscore is used, call the function without an external label."
     ],
     "id": "",
     "introduces": [],
@@ -739,7 +739,7 @@
       "map"
     ],
     "layer": "core",
-    "lesson": "Lesson: Collection Transforms\nUse higher-order functions to transform data.\n\nOverview:\n- map transforms each element\n- filter keeps matching values\n- reduce combines into one value\n- compactMap unwraps and drops nils\n- flatMap flattens nested collections\n\nExamples:\n    let doubled = temps.map { $0 * 2 }\n    let hot = temps.filter { $0 >= 1500 }\n    let total = temps.reduce(0, +)\n\nNotes:\n- min()/max() return Optional values.",
+    "lesson": "Lesson: Collection Transforms\nUse higher-order functions to transform data.\n\nOverview:\n- map transforms each element\n- filter keeps matching values\n- reduce combines into one value\n- compactMap unwraps and drops nils\n- flatMap flattens nested collections\n\nExamples:\n    let doubled = values.map { $0 * 2 }\n    let selected = values.filter { $0 > threshold }\n    let total = values.reduce(0, +)\n\nNotes:\n- min()/max() return Optional values.",
     "manualCheck": false,
     "number": 64,
     "requires": [],
@@ -774,7 +774,7 @@
       "filter"
     ],
     "layer": "core",
-    "lesson": "Lesson: Collection Transforms\nUse higher-order functions to transform data.\n\nOverview:\n- map transforms each element\n- filter keeps matching values\n- reduce combines into one value\n- compactMap unwraps and drops nils\n- flatMap flattens nested collections\n\nExamples:\n    let doubled = temps.map { $0 * 2 }\n    let hot = temps.filter { $0 >= 1500 }\n    let total = temps.reduce(0, +)\n\nNotes:\n- min()/max() return Optional values.",
+    "lesson": "Lesson: Collection Transforms\nUse higher-order functions to transform data.\n\nOverview:\n- map transforms each element\n- filter keeps matching values\n- reduce combines into one value\n- compactMap unwraps and drops nils\n- flatMap flattens nested collections\n\nExamples:\n    let doubled = values.map { $0 * 2 }\n    let selected = values.filter { $0 > threshold }\n    let total = values.reduce(0, +)\n\nNotes:\n- min()/max() return Optional values.",
     "manualCheck": false,
     "number": 65,
     "requires": [],
@@ -983,7 +983,7 @@
       "enums"
     ],
     "layer": "core",
-    "lesson": "Lesson: Enums\nEnums define a fixed set of cases.\n\nOverview:\n- Use enums for states, categories, or choices.\n- Switch statements pair well with enums.\n\nRaw values:\n    enum Metal: String { case iron, copper }\n    let m = Metal.iron.rawValue\n\nAssociated values:\n    enum Event { case temperature(Int) }\n\nSwitching:\n    switch event {\n    case .temperature(let value):\n        print(value)\n    }",
+    "lesson": "Lesson: Enums\nEnums define a fixed set of cases.\n\nOverview:\n- Use enums for states, categories, or choices.\n- Switch statements pair well with enums.\n\nRaw values:\n    enum Mode: String { case idle, active }\n    let label = Mode.idle.rawValue\n\nAssociated values:\n    enum Reading { case level(Int) }\n\nSwitching:\n    switch reading {\n    case .level(let amount):\n        print(amount)\n    }",
     "manualCheck": false,
     "number": 71,
     "requires": [],
@@ -1016,7 +1016,7 @@
     "id": "",
     "introduces": [],
     "layer": "core",
-    "lesson": "Lesson: Enums\nEnums define a fixed set of cases.\n\nOverview:\n- Use enums for states, categories, or choices.\n- Switch statements pair well with enums.\n\nRaw values:\n    enum Metal: String { case iron, copper }\n    let m = Metal.iron.rawValue\n\nAssociated values:\n    enum Event { case temperature(Int) }\n\nSwitching:\n    switch event {\n    case .temperature(let value):\n        print(value)\n    }",
+    "lesson": "Lesson: Enums\nEnums define a fixed set of cases.\n\nOverview:\n- Use enums for states, categories, or choices.\n- Switch statements pair well with enums.\n\nRaw values:\n    enum Mode: String { case idle, active }\n    let label = Mode.idle.rawValue\n\nAssociated values:\n    enum Reading { case level(Int) }\n\nSwitching:\n    switch reading {\n    case .level(let amount):\n        print(amount)\n    }",
     "manualCheck": false,
     "number": 72,
     "requires": [],
@@ -1050,7 +1050,7 @@
     "id": "",
     "introduces": [],
     "layer": "core",
-    "lesson": "Lesson: Enums\nEnums define a fixed set of cases.\n\nOverview:\n- Use enums for states, categories, or choices.\n- Switch statements pair well with enums.\n\nRaw values:\n    enum Metal: String { case iron, copper }\n    let m = Metal.iron.rawValue\n\nAssociated values:\n    enum Event { case temperature(Int) }\n\nSwitching:\n    switch event {\n    case .temperature(let value):\n        print(value)\n    }",
+    "lesson": "Lesson: Enums\nEnums define a fixed set of cases.\n\nOverview:\n- Use enums for states, categories, or choices.\n- Switch statements pair well with enums.\n\nRaw values:\n    enum Mode: String { case idle, active }\n    let label = Mode.idle.rawValue\n\nAssociated values:\n    enum Reading { case level(Int) }\n\nSwitching:\n    switch reading {\n    case .level(let amount):\n        print(amount)\n    }",
     "manualCheck": false,
     "number": 73,
     "requires": [],
@@ -1093,7 +1093,7 @@
     "number": 74,
     "requires": [],
     "solution": "switch event {\ncase .temperature(let temp) where temp >= 1500:\n    print(\"Overheated\")\ncase .temperature:\n    print(\"Normal\")\ncase .error:\n    print(\"Error\")\n}",
-    "starterCode": "// Challenge 74: Enum Pattern Matching\n// Use a switch with a where clause.\n\nenum Event {\n    case temperature(Int)\n    case error(String)\n}\n\nlet event = Event.temperature(1600)\n\n// TODO: Use switch to print 'Overheated' when temp >= 1500\n// Print \"Normal\" for other temperature events\n// Print \"Error\" for error events",
+    "starterCode": "// Challenge 74: Enum Pattern Matching\n// Use a switch with a where clause.\n\nenum Event {\n    case temperature(Int)\n    case error(String)\n}\n\nlet event = Event.temperature(1600)\n\n// TODO: Use switch to print \"Overheated\" when temp >= 1500\n// Print \"Normal\" for other temperature events\n// Print \"Error\" for error events",
     "tier": "mainline",
     "title": "Enum Pattern Matching",
     "topic": "conditionals"
@@ -1109,14 +1109,21 @@
       "disallowedTokens": [
         "import"
       ],
-      "requiredTokens": []
+      "requiredTokens": [
+        "Error",
+        "throws",
+        "throw",
+        "do",
+        "try",
+        "catch"
+      ]
     },
     "description": "Introduce error throwing",
     "expectedOutput": "Error",
     "fixtureFiles": [],
     "hints": [
-      "Define an Error type for invalid input.",
-      "Throw when the temperature is out of range.",
+      "Define an Error type for temperatures outside the forge working range.",
+      "Throw when the temperature is outside 1200...1800.",
       "do/try/catch handles thrown errors."
     ],
     "id": "",
@@ -1129,12 +1136,12 @@
       "doTryCatch"
     ],
     "layer": "core",
-    "lesson": "Lesson: Errors\nThrowing functions signal failure.\n\nOverview:\n- Define your own Error types.\n- Throw errors when something goes wrong.\n- Handle errors with do/try/catch.\n\nDefine an error:\n    enum HeatError: Error {\n        case tooHot\n    }\n\nThrowing:\n    func check(_ temp: Int) throws {\n        if temp > 1600 { throw HeatError.tooHot }\n    }\n\nHandling:\n    do {\n        try check(1700)\n        print(\"OK\")\n    } catch {\n        print(\"Failed\")\n    }\n\nOptional try:\n- try? converts a thrown error to nil.",
+    "lesson": "Lesson: Errors\nThrowing functions signal failure paths explicitly.\n\nOverview:\n- `Error` is a protocol in Swift.\n- `enum ValidationError: Error` means the enum conforms to that protocol, so its cases can be thrown.\n- Mark a function as `throws` when it can fail.\n- Use `throw` inside failing branches.\n- Call throwing work with `try` inside `do/catch`.\n\nShape:\n    enum ValidationError: Error {\n        case outOfRange\n    }\n\n    func validate(_ temp: Int) throws {\n        if temp < 1200 || temp > 1800 {\n            throw ValidationError.outOfRange\n        }\n    }\n\n    do {\n        try validate(1000)\n    } catch {\n        // handle failure path\n    }\n\nOptional try:\n- `try?` converts thrown errors to `nil`.",
     "manualCheck": false,
     "number": 75,
     "requires": [],
-    "solution": "enum TempError: Error {\n    case outOfRange\n}\n\nfunc checkTemp(_ temp: Int) throws {\n    if temp < 0 {\n        throw TempError.outOfRange\n    }\n}\n\ndo {\n    try checkTemp(-1)\n} catch {\n    print(\"Error\")\n}",
-    "starterCode": "// Challenge 75: Throwing Functions\n// Validate temperature.\n\n// TODO: Create an enum TempError: Error with case outOfRange\n// TODO: Create a function 'checkTemp' that throws if temp < 0\n// TODO: Call it with -1 using do/try/catch\n// Print \"Error\" in the catch block",
+    "solution": "enum TempError: Error {\n    case outOfRange\n}\n\nfunc checkTemp(_ temp: Int) throws {\n    if temp < 1200 || temp > 1800 {\n        throw TempError.outOfRange\n    }\n}\n\ndo {\n    try checkTemp(1000)\n} catch {\n    print(\"Error\")\n}",
+    "starterCode": "// Challenge 75: Throwing Functions\n// Validate forge temperature.\n\n// TODO: Create an enum TempError: Error with case outOfRange\n// TODO: Create a function 'checkTemp' that throws outside 1200...1800\n// TODO: Call it with 1000 using do/try/catch\n// Print \"Error\" in the catch block",
     "tier": "mainline",
     "title": "Throwing Functions",
     "topic": "functions"
@@ -1157,19 +1164,19 @@
     "fixtureFiles": [],
     "hints": [
       "Use try? to convert a thrown error into nil.",
-      "Printing the optional should show nil when the call fails."
+      "Use an out-of-range value (outside 1200...1800) so the optional result is nil."
     ],
     "id": "",
     "introduces": [
       "tryOptional"
     ],
     "layer": "core",
-    "lesson": "Lesson: Errors\nThrowing functions signal failure.\n\nOverview:\n- Define your own Error types.\n- Throw errors when something goes wrong.\n- Handle errors with do/try/catch.\n\nDefine an error:\n    enum HeatError: Error {\n        case tooHot\n    }\n\nThrowing:\n    func check(_ temp: Int) throws {\n        if temp > 1600 { throw HeatError.tooHot }\n    }\n\nHandling:\n    do {\n        try check(1700)\n        print(\"OK\")\n    } catch {\n        print(\"Failed\")\n    }\n\nOptional try:\n- try? converts a thrown error to nil.",
+    "lesson": "Lesson: Optional try (`try?`)\n`try?` turns a throwing call into an optional value.\n\nOverview:\n- Success returns `.some(value)`.\n- Failure returns `nil` instead of entering `catch`.\n- This is useful when you only care whether it worked.\n\nShape:\n    let result = try? validate(temp)\n\nWith forge range checks:\n- A temperature like `1500` can return a value.\n- A temperature like `1000` (outside 1200...1800) returns `nil`.\n\nTip:\n- Use `String(describing: result)` when you want to print the optional directly.",
     "manualCheck": false,
     "number": 76,
     "requires": [],
-    "solution": "enum TempError: Error {\n    case outOfRange\n}\n\nfunc checkTemp(_ temp: Int) throws -> Int {\n    if temp < 0 {\n        throw TempError.outOfRange\n    }\n\n    return temp\n}\n\nlet result = try? checkTemp(-1)\nprint(String(describing: result))",
-    "starterCode": "// Challenge 76: try?\n// Use try? to simplify error handling.\n\n// TODO: Reuse checkTemp from the previous challenge\n// TODO: Make checkTemp return the temperature if valid\n// TODO: Call it with -1 using optional try\n// TODO: Print the result (should be nil)",
+    "solution": "enum TempError: Error {\n    case outOfRange\n}\n\nfunc checkTemp(_ temp: Int) throws -> Int {\n    if temp < 1200 || temp > 1800 {\n        throw TempError.outOfRange\n    }\n\n    return temp\n}\n\nlet result = try? checkTemp(1000)\nprint(String(describing: result))",
+    "starterCode": "// Challenge 76: try?\n// Use try? to simplify error handling.\n\n// TODO: Reuse checkTemp from the previous challenge\n// TODO: Make checkTemp return the temperature if valid (1200...1800)\n// TODO: Call it with 1000 using optional try\n// TODO: Print the result (should be nil)",
     "tier": "mainline",
     "title": "try?",
     "topic": "functions"
@@ -1187,7 +1194,7 @@
       ],
       "requiredTokens": []
     },
-    "description": "Read from standard input",
+    "description": "Read forge input from standard input",
     "expectedOutput": "You entered Iron",
     "fixtureFiles": [],
     "hints": [
@@ -1199,7 +1206,7 @@
       "readLine"
     ],
     "layer": "core",
-    "lesson": "Lesson: Input & Files\nRead input from different sources.\n\nOverview:\n- stdin via readLine()\n- CLI args via CommandLine.arguments\n- Files via String(contentsOfFile:)\n\nExamples:\n    let line = readLine()\n    let args = CommandLine.arguments\n    let text = try? String(contentsOfFile: \"data.txt\")",
+    "lesson": "Lesson: Input & Files\nRead forge data from different sources.\n\nOverview:\n- stdin via readLine() for piped input\n- CLI args via CommandLine.arguments for one-off values\n- Files via String(contentsOfFile:) for batch logs\n\nExamples:\n    let line = readLine() // e.g. \"Iron\"\n    let args = CommandLine.arguments // e.g. [\"script\", \"Iron\"]\n    let text = try? String(contentsOfFile: \"temperatures.txt\")",
     "manualCheck": false,
     "number": 77,
     "requires": [],
@@ -1224,7 +1231,7 @@
       ],
       "requiredTokens": []
     },
-    "description": "Read from CommandLine.arguments",
+    "description": "Read forge input from CommandLine.arguments",
     "expectedOutput": "Iron",
     "fixtureFiles": [],
     "hints": [
@@ -1236,7 +1243,7 @@
       "commandLineArguments"
     ],
     "layer": "core",
-    "lesson": "Lesson: Input & Files\nRead input from different sources.\n\nOverview:\n- stdin via readLine()\n- CLI args via CommandLine.arguments\n- Files via String(contentsOfFile:)\n\nExamples:\n    let line = readLine()\n    let args = CommandLine.arguments\n    let text = try? String(contentsOfFile: \"data.txt\")",
+    "lesson": "Lesson: Input & Files\nRead forge data from different sources.\n\nOverview:\n- stdin via readLine() for piped input\n- CLI args via CommandLine.arguments for one-off values\n- Files via String(contentsOfFile:) for batch logs\n\nExamples:\n    let line = readLine() // e.g. \"Iron\"\n    let args = CommandLine.arguments // e.g. [\"script\", \"Iron\"]\n    let text = try? String(contentsOfFile: \"temperatures.txt\")",
     "manualCheck": false,
     "number": 78,
     "requires": [],
@@ -1259,7 +1266,7 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Read from a file on disk",
+    "description": "Read forge data from a file on disk",
     "expectedOutput": "3",
     "fixtureFiles": [
       "temperatures.txt"
@@ -1273,7 +1280,7 @@
       "fileIO"
     ],
     "layer": "core",
-    "lesson": "Lesson: Input & Files\nRead input from different sources.\n\nOverview:\n- stdin via readLine()\n- CLI args via CommandLine.arguments\n- Files via String(contentsOfFile:)\n\nExamples:\n    let line = readLine()\n    let args = CommandLine.arguments\n    let text = try? String(contentsOfFile: \"data.txt\")",
+    "lesson": "Lesson: Input & Files\nRead forge data from different sources.\n\nOverview:\n- stdin via readLine() for piped input\n- CLI args via CommandLine.arguments for one-off values\n- Files via String(contentsOfFile:) for batch logs\n\nExamples:\n    let line = readLine() // e.g. \"Iron\"\n    let args = CommandLine.arguments // e.g. [\"script\", \"Iron\"]\n    let text = try? String(contentsOfFile: \"temperatures.txt\")",
     "manualCheck": false,
     "number": 79,
     "requires": [],
@@ -1296,7 +1303,7 @@
       ],
       "requiredTokens": []
     },
-    "description": "Check a condition and report result",
+    "description": "Check forge temperature readiness and report result",
     "expectedOutput": "Test passed",
     "fixtureFiles": [],
     "hints": [
@@ -1309,8 +1316,8 @@
     "manualCheck": false,
     "number": 80,
     "requires": [],
-    "solution": "if 2 + 2 == 4 {\n    print(\"Test passed\")\n}",
-    "starterCode": "// Challenge 80: Basic Test\n// Write a basic test case.\n//\n// Steps:\n// 1) From repo root: swift workspace/challenge77.swift\n//\n// Expected output: Test passed\n\n// TODO: If 2 + 2 == 4, print \"Test passed\"",
+    "solution": "let temp = 1500\nif temp >= 1200 && temp <= 1800 {\n    print(\"Test passed\")\n}",
+    "starterCode": "// Challenge 80: Basic Test\n// Write a basic test case.\n//\n// Steps:\n// 1) From repo root: swift workspace/challenge80.swift\n//\n// Expected output: Test passed\n\n// TODO: Create a temp constant set to 1500\n// TODO: If temp is inside 1200...1800, print \"Test passed\"",
     "tier": "mainline",
     "title": "Basic Test",
     "topic": "general"
@@ -1328,7 +1335,7 @@
       ],
       "requiredTokens": []
     },
-    "description": "Combine Core 3 concepts",
+    "description": "Combine Core 3 concepts in a forge log pipeline",
     "expectedOutput": "3100",
     "fixtureFiles": [],
     "hints": [
@@ -1572,8 +1579,8 @@
     "expectedOutput": "2",
     "fixtureFiles": [],
     "hints": [
-      "Use a defaulted subscript like inventory[\"Iron\", default: 0] += 1.",
-      "Print the value after updating it."
+      "Use a defaulted dictionary subscript so the key is safe even if missing.",
+      "Increase the iron count by one, then print the updated value."
     ],
     "id": "core-extra-inventory-update",
     "introduces": [],
