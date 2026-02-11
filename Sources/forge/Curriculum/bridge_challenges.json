@@ -26,7 +26,7 @@
     {
       "canonicalId": "",
       "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
-      "description": "Add behavior to a struct",
+      "description": "Define and call a struct method",
       "expectedOutput": "Gold: 1500",
       "fixtureFiles": [],
       "hints": [
@@ -36,7 +36,7 @@
       "id": "",
       "introduces": [],
       "layer": "mantle",
-      "lesson": "Lesson: Structs\nAdd behavior to a struct\n\nOverview:\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties\n\nPractice:\n- Implement the TODOs.\n- Press Enter to run the check.\n- Use `h` for hints and `c` for cheatsheet when stuck.",
+      "lesson": "Lesson: Struct Methods\nDefine and call a struct method\n\nOverview:\n- struct Name { var property: Type }\n- Methods are functions inside a struct\n- Use instance.method() to call behavior\n- Methods can read stored properties directly\n\nImplementation Plan:\n- Define the struct with `metal` and `heat` stored properties.\n- Add `func label() -> String` inside the struct body.\n- In `label()`, build the exact format `\"<metal>: <heat>\"`.\n- Create one instance and print `log.label()`.\n\nCommon Mistakes:\n- Defining `label()` outside the struct.\n- Forgetting to call the method (printing the instance instead).\n- Returning a near-match string with different punctuation or spacing.",
       "manualCheck": false,
       "number": 242,
       "requires": [],

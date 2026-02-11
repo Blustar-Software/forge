@@ -248,7 +248,7 @@ func validateChallenge(
     }
 
     let start = Date()
-    let (stdin, args) = prepareChallengeEnvironment(challenge, workspacePath: workspacePath)
+    let (stdin, args, copiedFixturePaths) = prepareChallengeEnvironment(challenge, workspacePath: workspacePath)
     let runResult = runSwiftProcess(file: filePath, arguments: args, stdin: stdin)
     if runResult.exitCode != 0 {
         let errorOutput = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -287,6 +287,8 @@ func validateChallenge(
         if saveProgressOnPass {
             saveProgress(nextStepIndex)
         }
+
+        removePreparedFixtureFiles(copiedFixturePaths)
 
         return true
     } else {
@@ -464,7 +466,7 @@ func runGateChallenges(
                     }
                 }
                 let start = Date()
-                let (stdin, args) = prepareChallengeEnvironment(challenge, workspacePath: challengeWorkspacePath)
+                let (stdin, args, copiedFixturePaths) = prepareChallengeEnvironment(challenge, workspacePath: challengeWorkspacePath)
                 let runResult = runSwiftProcess(file: filePath, arguments: args, stdin: stdin)
                 if runResult.exitCode != 0 {
                     let errorOutput = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -499,6 +501,7 @@ func runGateChallenges(
                         intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
                         workspacePath: statsWorkspacePath
                     )
+                    removePreparedFixtureFiles(copiedFixturePaths)
                     challengeComplete = true
                 } else {
                     print("✗ Output doesn't match.")

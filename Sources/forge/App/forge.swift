@@ -506,7 +506,7 @@ func copyFixtureFile(named name: String, to workspacePath: String) {
 func prepareChallengeEnvironment(
     _ challenge: Challenge,
     workspacePath: String
-) -> (stdin: String?, args: [String]) {
+) -> (stdin: String?, args: [String], copiedFixturePaths: [String]) {
     var stdin: String? = nil
     if let fixture = challenge.stdinFixture {
         stdin = loadFixtureContents(fixture)
@@ -518,11 +518,22 @@ func prepareChallengeEnvironment(
         args = contents.split { $0 == " " || $0 == "\n" || $0 == "\t" }.map { String($0) }
     }
 
+    var copiedFixturePaths: [String] = []
     for file in challenge.fixtureFiles {
         copyFixtureFile(named: file, to: workspacePath)
+        copiedFixturePaths.append("\(workspacePath)/\(file)")
     }
 
-    return (stdin, args)
+    return (stdin, args, copiedFixturePaths)
+}
+
+func removePreparedFixtureFiles(_ paths: [String]) {
+    let fileManager = FileManager.default
+    for path in paths {
+        if fileManager.fileExists(atPath: path) {
+            try? fileManager.removeItem(atPath: path)
+        }
+    }
 }
 
 func applySolutionToStarter(starterCode: String, solution: String) -> String {
@@ -593,7 +604,7 @@ func verifyChallengeSolutions(
         var passed = false
         var lastExitCode: Int32 = 0
         clearWorkspaceContents(at: workspacePath)
-        let (stdin, args) = prepareChallengeEnvironment(challenge, workspacePath: workspacePath)
+        let (stdin, args, _) = prepareChallengeEnvironment(challenge, workspacePath: workspacePath)
         try? solution.write(toFile: filePath, atomically: true, encoding: .utf8)
         if let source = try? String(contentsOfFile: filePath, encoding: .utf8) {
             let violations = constraintViolations(

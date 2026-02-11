@@ -638,7 +638,7 @@ func runPracticeChallenges(
                     }
                 }
                 let start = Date()
-                let (stdin, args) = prepareChallengeEnvironment(challenge, workspacePath: workspacePath)
+                let (stdin, args, copiedFixturePaths) = prepareChallengeEnvironment(challenge, workspacePath: workspacePath)
                 let runResult = runSwiftProcess(file: filePath, arguments: args, stdin: stdin)
                 if runResult.exitCode != 0 {
                     let errorOutput = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -675,6 +675,7 @@ func runPracticeChallenges(
                         intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
                         workspacePath: statsWorkspacePath
                     )
+                    removePreparedFixtureFiles(copiedFixturePaths)
                     completedFiles.append("\(workspacePath)/\(challenge.filename)")
                     challengeComplete = true
                 } else {

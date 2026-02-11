@@ -1,0 +1,67 @@
+
+
+# Operational Guide: Hybrid Use of Phi-4 Mini and Phi-4 Mini Reasoning
+
+## 1. Model Roles
+
+| Model | Primary Role | Use Case Examples |
+|-------|--------------|-----------------|
+| **Mini** | Deterministic, format-compliant output | JSON/YAML generation, API-ready structured data, exact prompt execution |
+| **Mini Reasoning** | Logical analysis and multi-step problem solving | Planning, debugging, abstract reasoning, candidate solution exploration |
+
+---
+
+## 2. Recommended Workflow
+
+### Reasoning Phase (Mini Reasoning)
+- Tasks:
+  - Step-by-step logic
+  - Deduction or inference
+  - Multi-step reasoning challenges
+- Output can be verbose; focus on accuracy over format compliance.
+
+### Compliance Phase (Mini)
+- Tasks:
+  - Convert outputs from Reasoning Phase into strict, structured outputs
+  - Enforce formatting rules (JSON, CSV, YAML)
+  - Validate against schemas or output constraints
+
+**Example Flow:**
+
+```
+[Prompt Reasoning Task] → Mini Reasoning → Analyze step-by-step solution
+↓
+[Generate structured output] → Mini → JSON/YAML compliant
+```
+
+---
+
+## 3. Task Classification
+
+| Task Type | Recommended Model | Notes |
+|-----------|-----------------|-------|
+| Structured data output | Mini | Ensures exact compliance with schemas |
+| Logical puzzles / abstract reasoning | Mini Reasoning | Focus on correctness and multi-step logic |
+| Testing / validation | Both | Reasoning explores possibilities; Mini enforces format |
+| Exploratory analysis | Mini Reasoning | Candidate solutions, multi-step decomposition |
+| Production pipelines | Mini | Deterministic, API-safe output |
+
+---
+
+## 4. Best Practices
+
+- **Separate reasoning from formatting**: Never rely on Reasoning model for strict output in pipelines.
+- **Use Mini for validation**: Ensure machine-readability even if Reasoning output is correct.
+- **Optional iterative loop**: Feed selected Reasoning output to Mini for structured output generation.
+- **Limit verbose output in pipelines**: Apply truncation or summarization when using Reasoning in production.
+
+---
+
+## 5. Summary
+
+This guide establishes a hybrid workflow:
+
+1. **Mini Reasoning**: Handles abstract, multi-step, and logical reasoning tasks.
+2. **Mini**: Produces format-compliant, deterministic outputs suitable for structured pipelines.
+
+The approach balances reasoning capability with output reliability, making it safe for both exploratory analysis and production-ready data generation.
