@@ -8,6 +8,7 @@ enum TopLevelCommand {
     case reset(args: [String])
     case aiGenerate(args: [String])
     case aiVerify(args: [String])
+    case aiPromote(args: [String])
     case stats(args: [String])
     case reportOverrides(args: [String])
     case catalog(args: [String])
@@ -59,12 +60,25 @@ struct AIVerifySettings {
     let compileOnly: Bool
 }
 
+enum AIPromoteBridgeSection: String {
+    case coreToMantle
+    case mantleToCrust
+}
+
+struct AIPromoteSettings {
+    let candidatePath: String
+    let reportPath: String
+    let targetPath: String
+    let bridgeSection: AIPromoteBridgeSection?
+}
+
 let helpTokens: Set<String> = ["help", "-h", "--help"]
 
 let topLevelCommands: Set<String> = [
     "reset",
     "ai-generate",
     "ai-verify",
+    "ai-promote",
     "practice",
     "random",
     "project",
@@ -140,6 +154,9 @@ func parseTopLevelCommand(_ args: [String]) -> TopLevelCommand {
     }
     if firstArg == "ai-verify" {
         return .aiVerify(args: remaining)
+    }
+    if firstArg == "ai-promote" {
+        return .aiPromote(args: remaining)
     }
     if firstRaw == "stats" {
         return .stats(args: remaining)
@@ -319,6 +336,101 @@ func parseAIVerifySettings(_ args: [String]) -> (settings: AIVerifySettings?, er
         AIVerifySettings(candidatePath: candidatePath, constraintsOnly: constraintsOnly, compileOnly: compileOnly),
         nil
     )
+}
+
+func parseAIPromoteSettings(_ args: [String]) -> (settings: AIPromoteSettings?, error: String?) {
+    var candidatePath = "workspace_verify/ai_candidates/candidate.json"
+    var explicitPathSet = false
+    var reportPath: String?
+    var targetPath: String?
+    var bridgeSection: AIPromoteBridgeSection?
+
+    var index = 0
+    while index < args.count {
+        let arg = args[index]
+        let lowered = arg.lowercased()
+
+        if lowered == "--report" {
+            guard index + 1 < args.count else {
+                return (nil, "Missing value for --report")
+            }
+            let value = args[index + 1].trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !value.isEmpty else {
+                return (nil, "Report path cannot be empty.")
+            }
+            reportPath = value
+            index += 2
+            continue
+        }
+        if lowered == "--target" {
+            guard index + 1 < args.count else {
+                return (nil, "Missing value for --target")
+            }
+            let value = args[index + 1].trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !value.isEmpty else {
+                return (nil, "Target path cannot be empty.")
+            }
+            targetPath = value
+            index += 2
+            continue
+        }
+        if lowered == "--bridge-section" {
+            guard index + 1 < args.count else {
+                return (nil, "Missing value for --bridge-section")
+            }
+            guard let section = parseAIPromoteBridgeSection(args[index + 1]) else {
+                return (nil, "Unsupported --bridge-section value: \(args[index + 1])")
+            }
+            bridgeSection = section
+            index += 2
+            continue
+        }
+        if lowered.hasPrefix("--") {
+            return (nil, "Unknown ai-promote option: \(arg)")
+        }
+        if explicitPathSet {
+            return (nil, "ai-promote accepts at most one candidate path.")
+        }
+        candidatePath = arg
+        explicitPathSet = true
+        index += 1
+    }
+
+    guard let targetPath, !targetPath.isEmpty else {
+        return (nil, "ai-promote requires --target <path>.")
+    }
+
+    let resolvedReportPath: String = {
+        if let reportPath, !reportPath.isEmpty {
+            return reportPath
+        }
+        let directory = (candidatePath as NSString).deletingLastPathComponent
+        if directory.isEmpty || directory == "." {
+            return "report.json"
+        }
+        return "\(directory)/report.json"
+    }()
+
+    return (
+        AIPromoteSettings(
+            candidatePath: candidatePath,
+            reportPath: resolvedReportPath,
+            targetPath: targetPath,
+            bridgeSection: bridgeSection
+        ),
+        nil
+    )
+}
+
+func parseAIPromoteBridgeSection(_ raw: String) -> AIPromoteBridgeSection? {
+    switch raw.lowercased() {
+    case "coretomantle", "core-to-mantle", "core_to_mantle":
+        return .coreToMantle
+    case "mantletocrust", "mantle-to-crust", "mantle_to_crust":
+        return .mantleToCrust
+    default:
+        return nil
+    }
 }
 
 func parseRandomArguments(
@@ -776,6 +888,7 @@ func printMainUsage() {
       swift run forge reset [--all] [--start]
       swift run forge ai-generate [--dry-run] [--live] [--provider <name>] [--model <id>] [--out <path>]
       swift run forge ai-verify [candidate-path] [--constraints-only] [--compile-only]
+      swift run forge ai-promote [candidate-path] --target <path> [--report <path>] [--bridge-section <name>]
       swift run forge stats [--reset]
       swift run forge remap-progress [target]
       swift run forge catalog
@@ -821,6 +934,7 @@ func printMainUsage() {
       swift run forge stats --help
       swift run forge ai-generate --help
       swift run forge ai-verify --help
+      swift run forge ai-promote --help
       swift run forge report --help
       swift run forge report-overrides --help
       swift run forge catalog --help
@@ -847,6 +961,7 @@ func printMainUsage() {
       swift run forge audit core
       swift run forge ai-generate --dry-run
       swift run forge ai-verify
+      swift run forge ai-promote --target Sources/forge/Curriculum/core3_challenges.json
       swift run forge report
       swift run forge catalog
       swift run forge catalog-projects
@@ -1023,6 +1138,31 @@ func printAIVerifyUsage() {
     Notes:
       - Candidate file can be either candidate.json wrapper or raw challenge draft JSON.
       - If a solution is present, ai-verify checks output against expectedOutput.
+    """)
+}
+
+func printAIPromoteUsage() {
+    print("""
+    Usage:
+      swift run forge ai-promote [candidate-path] --target <path> [--report <path>] [--bridge-section <name>]
+      swift run forge ai-promote --help
+
+    Defaults:
+      candidate-path defaults to workspace_verify/ai_candidates/candidate.json
+      --report defaults to <candidate-directory>/report.json
+
+    Options:
+      --target <path>            Target curriculum JSON file to append to (required).
+      --report <path>            ai-generate report artifact path.
+      --bridge-section <name>    Required only when target is bridge_challenges.json.
+                                 Values: core-to-mantle, mantle-to-crust.
+
+    Promotion gate:
+      - Requires valid report.json status.
+      - Requires ai-verify to pass for the candidate.
+      - Appends candidate to target curriculum JSON.
+      - Runs swift test and verify-solutions --constraints-only.
+      - Automatically reverts the curriculum file if checks fail.
     """)
 }
 

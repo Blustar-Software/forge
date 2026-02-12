@@ -149,6 +149,26 @@ func handleAIVerifyCommand(_ args: [String]) {
     _ = runAIVerify(settings: settings)
 }
 
+func handleAIPromoteCommand(_ args: [String], enableDiMockHeuristics: Bool = true) {
+    if args.contains(where: { helpTokens.contains($0.lowercased()) }) {
+        printAIPromoteUsage()
+        return
+    }
+
+    let parsed = parseAIPromoteSettings(args)
+    guard let settings = parsed.settings else {
+        if let error = parsed.error {
+            print(error)
+        } else {
+            print("Invalid ai-promote options.")
+        }
+        printAIPromoteUsage()
+        return
+    }
+
+    _ = runAIPromote(settings: settings, enableDiMockHeuristics: enableDiMockHeuristics)
+}
+
 func handleVerifyCommand(
     _ args: [String],
     allChallenges: [Challenge],

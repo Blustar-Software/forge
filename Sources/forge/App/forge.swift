@@ -1461,6 +1461,9 @@ struct Forge {
         case .aiVerify(let commandArgs):
             handleAIVerifyCommand(commandArgs)
             return
+        case .aiPromote(let commandArgs):
+            handleAIPromoteCommand(commandArgs, enableDiMockHeuristics: flags.enableDiMockHeuristics)
+            return
         case .reset(let resetArgs):
             let startAfterReset = handleResetCommand(resetArgs)
             if !startAfterReset {
@@ -1478,6 +1481,8 @@ struct Forge {
         case .aiGenerate:
             return
         case .aiVerify:
+            return
+        case .aiPromote:
             return
         case .reset:
             handleRunCommand(overrideToken: nil, runtime: runtime, paths: paths, flags: flags)

@@ -3826,5 +3826,28 @@
     "tier": "extra",
     "title": "Heat Adjustment",
     "topic": "general"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "",
+    "description": "Print Ready when temp is in 1200...1800, otherwise print Adjust.",
+    "expectedOutput": "Ready",
+    "fixtureFiles": [],
+    "hints": [
+      "Use an if\/else condition.",
+      "Check the inclusive range 1200...1800."
+    ],
+    "id": "ai-draft-phi-temp-ready",
+    "introduces": [],
+    "layer": "core",
+    "lesson": "",
+    "manualCheck": false,
+    "number": 312,
+    "requires": [],
+    "solution": "if temp >= 1200 && temp <= 1800 {\n    print(\"Ready\")\n} else {\n    print(\"Adjust\")\n}",
+    "starterCode": "\/\/ AI Draft: Forge Temperature Ready Check\nlet temp = 1500\n\/\/ TODO: Print \"Ready\" when temp is in 1200...1800, else print \"Adjust\"",
+    "tier": "mainline",
+    "title": "Forge Temperature Ready Check",
+    "topic": "conditionals"
   }
 ]

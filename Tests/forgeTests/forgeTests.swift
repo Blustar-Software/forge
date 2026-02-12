@@ -569,6 +569,13 @@ final class ForgeTests: XCTestCase {
             XCTFail("Expected ai-verify command")
         }
 
+        switch parseTopLevelCommand(["ai-promote", "--target", "Sources/forge/Curriculum/core3_challenges.json"]) {
+        case .aiPromote(let args):
+            XCTAssertEqual(args, ["--target", "Sources/forge/Curriculum/core3_challenges.json"])
+        default:
+            XCTFail("Expected ai-promote command")
+        }
+
         switch parseTopLevelCommand(["challenge:core:36"]) {
         case .run(let overrideToken):
             XCTAssertEqual(overrideToken, "challenge:core:36")
@@ -805,6 +812,49 @@ final class ForgeTests: XCTestCase {
         XCTAssertEqual(parsed.error, "Unknown ai-verify option: --unknown")
     }
 
+    func testParseAIPromoteSettingsDefaults() {
+        let parsed = parseAIPromoteSettings(["--target", "Sources/forge/Curriculum/core3_challenges.json"])
+        XCTAssertNil(parsed.error)
+        guard let settings = parsed.settings else {
+            XCTFail("Expected ai-promote settings")
+            return
+        }
+        XCTAssertEqual(settings.candidatePath, "workspace_verify/ai_candidates/candidate.json")
+        XCTAssertEqual(settings.reportPath, "workspace_verify/ai_candidates/report.json")
+        XCTAssertEqual(settings.targetPath, "Sources/forge/Curriculum/core3_challenges.json")
+        XCTAssertNil(settings.bridgeSection)
+    }
+
+    func testParseAIPromoteSettingsCustomValues() {
+        let parsed = parseAIPromoteSettings([
+            "workspace_verify/custom/candidate.json",
+            "--report", "workspace_verify/custom/report.json",
+            "--target", "Sources/forge/Curriculum/bridge_challenges.json",
+            "--bridge-section", "core-to-mantle",
+        ])
+        XCTAssertNil(parsed.error)
+        guard let settings = parsed.settings else {
+            XCTFail("Expected ai-promote settings")
+            return
+        }
+        XCTAssertEqual(settings.candidatePath, "workspace_verify/custom/candidate.json")
+        XCTAssertEqual(settings.reportPath, "workspace_verify/custom/report.json")
+        XCTAssertEqual(settings.targetPath, "Sources/forge/Curriculum/bridge_challenges.json")
+        XCTAssertEqual(settings.bridgeSection, .coreToMantle)
+    }
+
+    func testParseAIPromoteSettingsRequiresTarget() {
+        let parsed = parseAIPromoteSettings([])
+        XCTAssertNil(parsed.settings)
+        XCTAssertEqual(parsed.error, "ai-promote requires --target <path>.")
+    }
+
+    func testParseAIPromoteSettingsRejectsUnknownOption() {
+        let parsed = parseAIPromoteSettings(["--target", "file.json", "--unknown"])
+        XCTAssertNil(parsed.settings)
+        XCTAssertEqual(parsed.error, "Unknown ai-promote option: --unknown")
+    }
+
     func testRunAIGenerateScaffoldWritesArtifacts() {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         do {
@@ -985,6 +1035,94 @@ final class ForgeTests: XCTestCase {
             XCTAssertEqual(candidate.challenge.title, "Live Draft")
         } catch {
             XCTFail("Expected live success, but got error: \(error)")
+        }
+    }
+
+    func testRunAIPromoteAppendsAndRunsGateCommands() {
+        let fileManager = FileManager.default
+        let tempDir = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        do {
+            try fileManager.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer {
+                try? fileManager.removeItem(at: tempDir)
+            }
+
+            let targetPath = tempDir.appendingPathComponent("target_challenges.json").path
+            let existing = [
+                Challenge(
+                    number: 1,
+                    id: "existing-ai-promote-test",
+                    title: "Existing",
+                    description: "desc",
+                    starterCode: "print(\"Existing\")",
+                    expectedOutput: "Existing",
+                    solution: "print(\"Existing\")",
+                    topic: .general,
+                    tier: .mainline,
+                    layer: .core
+                )
+            ]
+            try encodeJSONFile(existing).write(to: URL(fileURLWithPath: targetPath), options: .atomic)
+
+            let candidatePath = tempDir.appendingPathComponent("candidate.json").path
+            let draft = AIChallengeDraft(
+                id: "ai-promote-\(UUID().uuidString.lowercased())",
+                title: "Promoted Draft",
+                description: "Draft description",
+                starterCode: "print(\"Promoted\")",
+                solution: "print(\"Promoted\")",
+                expectedOutput: "Promoted",
+                hints: ["h1", "h2"],
+                topic: "general",
+                tier: "mainline",
+                layer: "core"
+            )
+            try writeJSONArtifact(draft, to: candidatePath)
+
+            let reportPath = tempDir.appendingPathComponent("report.json").path
+            let report = AIGenerationReportArtifact(
+                schemaVersion: 1,
+                generatedAt: "2026-02-12T00:00:00Z",
+                status: "live_success",
+                provider: "phi",
+                model: "Phi-4-mini-instruct",
+                live: true,
+                dryRun: false,
+                requestPath: tempDir.appendingPathComponent("request.json").path,
+                candidatePath: candidatePath,
+                reportPath: reportPath,
+                warnings: []
+            )
+            try writeJSONArtifact(report, to: reportPath)
+
+            var commands: [[String]] = []
+            let settings = AIPromoteSettings(
+                candidatePath: candidatePath,
+                reportPath: reportPath,
+                targetPath: targetPath,
+                bridgeSection: nil
+            )
+            let result = runAIPromote(
+                settings: settings,
+                commandRunner: { args in
+                    commands.append(args)
+                    return ("ok", 0)
+                },
+                verifyRunner: { _, _ in true }
+            )
+
+            XCTAssertTrue(result)
+            XCTAssertEqual(commands, [
+                ["test"],
+                ["run", "forge", "verify-solutions", "--constraints-only"],
+            ])
+
+            let updatedData = try Data(contentsOf: URL(fileURLWithPath: targetPath))
+            let updatedChallenges = try JSONDecoder().decode([Challenge].self, from: updatedData)
+            XCTAssertEqual(updatedChallenges.count, 2)
+            XCTAssertEqual(updatedChallenges.last?.id, draft.id)
+        } catch {
+            XCTFail("Failed ai-promote test setup: \(error)")
         }
     }
 
