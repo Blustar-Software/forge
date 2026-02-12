@@ -5,6 +5,7 @@ struct AIChallengeDraft: Codable {
     let title: String
     let description: String
     let starterCode: String
+    let solution: String?
     let expectedOutput: String
     let hints: [String]
     let topic: String
@@ -29,6 +30,13 @@ struct PhiProvider: AIProvider {
             // AI Draft: Forge Temperature Ready Check
             let temp = 1500
             // TODO: Print "Ready" when temp is in 1200...1800, else print "Adjust"
+            """,
+            solution: """
+            if temp >= 1200 && temp <= 1800 {
+                print("Ready")
+            } else {
+                print("Adjust")
+            }
             """,
             expectedOutput: "Ready",
             hints: [

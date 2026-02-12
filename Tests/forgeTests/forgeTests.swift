@@ -562,6 +562,13 @@ final class ForgeTests: XCTestCase {
             XCTFail("Expected ai-generate command")
         }
 
+        switch parseTopLevelCommand(["ai-verify", "workspace_verify/ai_candidates/candidate.json"]) {
+        case .aiVerify(let args):
+            XCTAssertEqual(args, ["workspace_verify/ai_candidates/candidate.json"])
+        default:
+            XCTFail("Expected ai-verify command")
+        }
+
         switch parseTopLevelCommand(["challenge:core:36"]) {
         case .run(let overrideToken):
             XCTAssertEqual(overrideToken, "challenge:core:36")
@@ -762,6 +769,42 @@ final class ForgeTests: XCTestCase {
         XCTAssertEqual(parsed.error, "Use either --dry-run or --live, not both.")
     }
 
+    func testParseAIVerifySettingsDefaults() {
+        let parsed = parseAIVerifySettings([])
+        XCTAssertNil(parsed.error)
+        guard let settings = parsed.settings else {
+            XCTFail("Expected ai-verify settings")
+            return
+        }
+        XCTAssertEqual(settings.candidatePath, "workspace_verify/ai_candidates/candidate.json")
+        XCTAssertFalse(settings.constraintsOnly)
+        XCTAssertFalse(settings.compileOnly)
+    }
+
+    func testParseAIVerifySettingsCustomPathAndFlags() {
+        let parsed = parseAIVerifySettings(["workspace_verify/custom/candidate.json", "--compile-only"])
+        XCTAssertNil(parsed.error)
+        guard let settings = parsed.settings else {
+            XCTFail("Expected ai-verify settings")
+            return
+        }
+        XCTAssertEqual(settings.candidatePath, "workspace_verify/custom/candidate.json")
+        XCTAssertFalse(settings.constraintsOnly)
+        XCTAssertTrue(settings.compileOnly)
+    }
+
+    func testParseAIVerifySettingsRejectsConflictingFlags() {
+        let parsed = parseAIVerifySettings(["--constraints-only", "--compile-only"])
+        XCTAssertNil(parsed.settings)
+        XCTAssertEqual(parsed.error, "Use either --constraints-only or --compile-only, not both.")
+    }
+
+    func testParseAIVerifySettingsRejectsUnknownOption() {
+        let parsed = parseAIVerifySettings(["--unknown"])
+        XCTAssertNil(parsed.settings)
+        XCTAssertEqual(parsed.error, "Unknown ai-verify option: --unknown")
+    }
+
     func testRunAIGenerateScaffoldWritesArtifacts() {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         do {
@@ -804,6 +847,71 @@ final class ForgeTests: XCTestCase {
         )
 
         XCTAssertThrowsError(try runAIGenerateScaffold(settings: settings))
+    }
+
+    func testLoadAIDraftFromCandidateFileSupportsWrappedArtifact() {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        do {
+            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: tempDir) }
+
+            let path = tempDir.appendingPathComponent("candidate.json").path
+            let wrapped = AIGeneratedCandidateArtifact(
+                schemaVersion: 1,
+                generatedAt: "2026-02-12T00:00:00Z",
+                provider: "phi",
+                model: nil,
+                mode: "scaffold",
+                challenge: AIChallengeDraft(
+                    id: "wrapped-id",
+                    title: "Wrapped Draft",
+                    description: "desc",
+                    starterCode: "print(\"Hi\")",
+                    solution: "print(\"Hi\")",
+                    expectedOutput: "Hi",
+                    hints: ["hint 1", "hint 2"],
+                    topic: "general",
+                    tier: "mainline",
+                    layer: "core"
+                )
+            )
+            try writeJSONArtifact(wrapped, to: path)
+
+            let draft = try loadAIDraftFromCandidateFile(path)
+            XCTAssertEqual(draft.id, "wrapped-id")
+            XCTAssertEqual(draft.title, "Wrapped Draft")
+        } catch {
+            XCTFail("Failed wrapped candidate decode: \(error)")
+        }
+    }
+
+    func testLoadAIDraftFromCandidateFileSupportsRawDraft() {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        do {
+            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: tempDir) }
+
+            let path = tempDir.appendingPathComponent("candidate_raw.json").path
+            let draft = AIChallengeDraft(
+                id: "raw-id",
+                title: "Raw Draft",
+                description: "desc",
+                starterCode: "print(\"Ready\")",
+                solution: "print(\"Ready\")",
+                expectedOutput: "Ready",
+                hints: ["hint 1", "hint 2"],
+                topic: "general",
+                tier: "mainline",
+                layer: "core"
+            )
+            try writeJSONArtifact(draft, to: path)
+
+            let loaded = try loadAIDraftFromCandidateFile(path)
+            XCTAssertEqual(loaded.id, "raw-id")
+            XCTAssertEqual(loaded.title, "Raw Draft")
+        } catch {
+            XCTFail("Failed raw draft decode: \(error)")
+        }
     }
 
     func testRunAIGenerateScaffoldLiveFallsBackWhenMissingConfig() {

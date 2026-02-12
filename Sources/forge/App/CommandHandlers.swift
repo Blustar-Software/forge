@@ -129,6 +129,26 @@ func handleAIGenerateCommand(_ args: [String]) {
     }
 }
 
+func handleAIVerifyCommand(_ args: [String]) {
+    if args.contains(where: { helpTokens.contains($0.lowercased()) }) {
+        printAIVerifyUsage()
+        return
+    }
+
+    let parsed = parseAIVerifySettings(args)
+    guard let settings = parsed.settings else {
+        if let error = parsed.error {
+            print(error)
+        } else {
+            print("Invalid ai-verify options.")
+        }
+        printAIVerifyUsage()
+        return
+    }
+
+    _ = runAIVerify(settings: settings)
+}
+
 func handleVerifyCommand(
     _ args: [String],
     allChallenges: [Challenge],

@@ -229,7 +229,7 @@ private struct PhiChatCompletionResponse: Decodable {
 private let phiSystemPrompt = """
 You generate one Swift challenge draft for Forge.
 Return only JSON with keys:
-id,title,description,starterCode,expectedOutput,hints,topic,tier,layer
+id,title,description,starterCode,solution,expectedOutput,hints,topic,tier,layer
 """
 
 private let phiUserPrompt = """

@@ -7,6 +7,7 @@ enum TopLevelCommand {
     case help
     case reset(args: [String])
     case aiGenerate(args: [String])
+    case aiVerify(args: [String])
     case stats(args: [String])
     case reportOverrides(args: [String])
     case catalog(args: [String])
@@ -52,11 +53,18 @@ struct AIGenerateSettings {
     let outputPath: String
 }
 
+struct AIVerifySettings {
+    let candidatePath: String
+    let constraintsOnly: Bool
+    let compileOnly: Bool
+}
+
 let helpTokens: Set<String> = ["help", "-h", "--help"]
 
 let topLevelCommands: Set<String> = [
     "reset",
     "ai-generate",
+    "ai-verify",
     "practice",
     "random",
     "project",
@@ -129,6 +137,9 @@ func parseTopLevelCommand(_ args: [String]) -> TopLevelCommand {
     }
     if firstArg == "ai-generate" {
         return .aiGenerate(args: remaining)
+    }
+    if firstArg == "ai-verify" {
+        return .aiVerify(args: remaining)
     }
     if firstRaw == "stats" {
         return .stats(args: remaining)
@@ -270,6 +281,42 @@ func parseAIGenerateSettings(_ args: [String]) -> (settings: AIGenerateSettings?
 
     return (
         AIGenerateSettings(live: live, dryRun: dryRun, provider: provider, model: model, outputPath: outputPath),
+        nil
+    )
+}
+
+func parseAIVerifySettings(_ args: [String]) -> (settings: AIVerifySettings?, error: String?) {
+    var constraintsOnly = false
+    var compileOnly = false
+    var candidatePath = "workspace_verify/ai_candidates/candidate.json"
+    var explicitPathSet = false
+
+    for arg in args {
+        let lowered = arg.lowercased()
+        if lowered == "--constraints-only" {
+            constraintsOnly = true
+            continue
+        }
+        if lowered == "--compile-only" {
+            compileOnly = true
+            continue
+        }
+        if lowered.hasPrefix("--") {
+            return (nil, "Unknown ai-verify option: \(arg)")
+        }
+        if explicitPathSet {
+            return (nil, "ai-verify accepts at most one candidate path.")
+        }
+        candidatePath = arg
+        explicitPathSet = true
+    }
+
+    if constraintsOnly && compileOnly {
+        return (nil, "Use either --constraints-only or --compile-only, not both.")
+    }
+
+    return (
+        AIVerifySettings(candidatePath: candidatePath, constraintsOnly: constraintsOnly, compileOnly: compileOnly),
         nil
     )
 }
@@ -728,6 +775,7 @@ func printMainUsage() {
     Core commands:
       swift run forge reset [--all] [--start]
       swift run forge ai-generate [--dry-run] [--live] [--provider <name>] [--model <id>] [--out <path>]
+      swift run forge ai-verify [candidate-path] [--constraints-only] [--compile-only]
       swift run forge stats [--reset]
       swift run forge remap-progress [target]
       swift run forge catalog
@@ -772,6 +820,7 @@ func printMainUsage() {
       swift run forge project --help
       swift run forge stats --help
       swift run forge ai-generate --help
+      swift run forge ai-verify --help
       swift run forge report --help
       swift run forge report-overrides --help
       swift run forge catalog --help
@@ -797,6 +846,7 @@ func printMainUsage() {
       swift run forge review-progression core 1-80
       swift run forge audit core
       swift run forge ai-generate --dry-run
+      swift run forge ai-verify
       swift run forge report
       swift run forge catalog
       swift run forge catalog-projects
@@ -940,7 +990,7 @@ func printAIGenerateUsage() {
       swift run forge ai-generate --help
 
     Options:
-      --live              Opt in to live provider calls (not yet implemented).
+      --live              Opt in to live provider calls.
       --dry-run           Writes scaffold output paths only. No model calls.
       --provider <name>   Provider key (default: phi).
       --model <id>        Model identifier (optional).
@@ -954,6 +1004,25 @@ func printAIGenerateUsage() {
       - Writes request.json, candidate.json, and report.json in the output directory.
       - Generated candidates are intended to land in workspace_verify/ai_candidates/.
       - Learner runtime flow is unchanged.
+    """)
+}
+
+func printAIVerifyUsage() {
+    print("""
+    Usage:
+      swift run forge ai-verify [candidate-path] [--constraints-only] [--compile-only]
+      swift run forge ai-verify --help
+
+    Defaults:
+      candidate-path defaults to workspace_verify/ai_candidates/candidate.json
+
+    Options:
+      --constraints-only  Skip compile/run checks; run constraint + audit checks only.
+      --compile-only      Skip constraint + audit checks; run compile/run checks only.
+
+    Notes:
+      - Candidate file can be either candidate.json wrapper or raw challenge draft JSON.
+      - If a solution is present, ai-verify checks output against expectedOutput.
     """)
 }
 
