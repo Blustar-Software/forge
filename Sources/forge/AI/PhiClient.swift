@@ -17,6 +17,7 @@ struct OllamaClientConfig {
     let endpoint: URL
     let apiKey: String?
     let model: String
+    let timeoutSeconds: Int
 }
 
 enum PhiClientError: LocalizedError {
@@ -110,8 +111,13 @@ func loadOllamaClientConfig(modelOverride: String?, environment: [String: String
     let model = modelOverride
         ?? environment["FORGE_AI_OLLAMA_MODEL"]?.trimmingCharacters(in: .whitespacesAndNewlines)
         ?? "phi4-mini"
+    let timeoutSeconds: Int = {
+        let raw = environment["FORGE_AI_OLLAMA_TIMEOUT_SECONDS"]?.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let raw, let parsed = Int(raw) else { return 90 }
+        return max(10, parsed)
+    }()
 
-    return OllamaClientConfig(endpoint: endpoint, apiKey: apiKey, model: model)
+    return OllamaClientConfig(endpoint: endpoint, apiKey: apiKey, model: model, timeoutSeconds: timeoutSeconds)
 }
 
 func normalizedPhiEndpoint(_ raw: String) -> String {
@@ -139,6 +145,7 @@ func normalizedOllamaEndpoint(_ raw: String) -> String {
 func fetchPhiLiveDraft(
     modelOverride: String?,
     environment: [String: String],
+    retryFeedback: String? = nil,
     transport: PhiHTTPTransport? = nil
 ) throws -> AIChallengeDraft {
     let config = try loadPhiClientConfig(modelOverride: modelOverride, environment: environment)
@@ -153,7 +160,7 @@ func fetchPhiLiveDraft(
         temperature: 0.2,
         messages: [
             PhiChatMessage(role: "system", content: phiSystemPrompt),
-            PhiChatMessage(role: "user", content: phiUserPrompt)
+            PhiChatMessage(role: "user", content: buildPhiUserPrompt(retryFeedback: retryFeedback))
         ]
     )
 
@@ -176,6 +183,7 @@ func fetchPhiLiveDraft(
 func fetchOllamaLiveDraft(
     modelOverride: String?,
     environment: [String: String],
+    retryFeedback: String? = nil,
     transport: OllamaHTTPTransport? = nil
 ) throws -> AIChallengeDraft {
     let config = try loadOllamaClientConfig(modelOverride: modelOverride, environment: environment)
@@ -192,7 +200,7 @@ func fetchOllamaLiveDraft(
         temperature: 0.2,
         messages: [
             PhiChatMessage(role: "system", content: phiSystemPrompt),
-            PhiChatMessage(role: "user", content: phiUserPrompt)
+            PhiChatMessage(role: "user", content: buildPhiUserPrompt(retryFeedback: retryFeedback))
         ]
     )
 
@@ -202,7 +210,9 @@ func fetchOllamaLiveDraft(
         throw PhiClientError.requestEncodingFailed(error)
     }
 
-    let httpTransport = transport ?? defaultPhiHTTPTransport
+    let httpTransport = transport ?? { request in
+        try defaultOllamaHTTPTransport(request, timeoutSeconds: config.timeoutSeconds)
+    }
     let (data, response) = try httpTransport(request)
     guard (200..<300).contains(response.statusCode) else {
         let body = String(data: data, encoding: .utf8) ?? ""
@@ -229,16 +239,23 @@ func decodeLiveDraft(from data: Data) throws -> AIChallengeDraft {
     }
 
     let jsonText = extractJSONObjectText(from: message)
-    guard let jsonData = jsonText.data(using: .utf8) else {
-        throw PhiClientError.invalidDraftPayload("Response was not UTF-8.")
+    let candidates = [jsonText, sanitizeLooseJSONText(jsonText)]
+    for candidate in candidates {
+        guard let jsonData = candidate.data(using: .utf8) else {
+            continue
+        }
+        if let strict = try? JSONDecoder().decode(AIChallengeDraft.self, from: jsonData) {
+            return strict
+        }
+        if let lenient = decodeAIDraftLenient(from: jsonData) {
+            return lenient
+        }
     }
-    if let strict = try? JSONDecoder().decode(AIChallengeDraft.self, from: jsonData) {
-        return strict
+
+    if let loose = decodeAIDraftFromLooseText(message) {
+        return loose
     }
-    if let lenient = decodeAIDraftLenient(from: jsonData) {
-        return lenient
-    }
-    let preview = String(data: jsonData.prefix(300), encoding: .utf8) ?? "<non-utf8>"
+    let preview = String(message.prefix(300))
     throw PhiClientError.invalidDraftPayload(preview)
 }
 
@@ -347,7 +364,157 @@ func draftHints(from payload: [String: Any]) -> [String] {
     ]
 }
 
+func sanitizeLooseJSONText(_ text: String) -> String {
+    var value = stripCodeFences(text)
+    value = replacingRegexMatches(
+        pattern: ",\\s*([}\\]])",
+        in: value,
+        with: "$1",
+        options: []
+    )
+    return value
+}
+
+func decodeAIDraftFromLooseText(_ text: String) -> AIChallengeDraft? {
+    let id = looseStringValue(for: ["id", "challengeId", "challenge_id"], in: text)
+        ?? "ai-draft-local-\(UUID().uuidString.lowercased().prefix(8))"
+    let title = looseStringValue(for: ["title", "name"], in: text)
+        ?? "AI Generated Challenge"
+    let description = looseStringValue(for: ["description", "prompt"], in: text)
+        ?? "Generated challenge draft."
+    let starterCode = looseStringValue(for: ["starterCode", "starter_code", "starter", "code"], in: text)
+        ?? "// TODO: Implement the challenge solution."
+    let solution = looseStringValue(for: ["solution", "answer", "referenceSolution", "reference_solution"], in: text)
+    let expectedOutput = looseStringValue(for: ["expectedOutput", "expected_output", "expected", "output"], in: text)
+        ?? "TODO"
+    let hints = looseHints(in: text)
+    let topic = looseStringValue(for: ["topic", "concept", "category"], in: text) ?? "general"
+    let tier = looseStringValue(for: ["tier", "difficultyTier", "difficulty_tier"], in: text) ?? "mainline"
+    let layer = looseStringValue(for: ["layer", "stage"], in: text) ?? "core"
+
+    return AIChallengeDraft(
+        id: id,
+        title: title,
+        description: description,
+        starterCode: starterCode,
+        solution: solution,
+        expectedOutput: expectedOutput,
+        hints: hints,
+        topic: topic,
+        tier: tier,
+        layer: layer
+    )
+}
+
+func looseStringValue(for keys: [String], in text: String) -> String? {
+    for key in keys {
+        let escapedKey = NSRegularExpression.escapedPattern(for: key)
+        let quotedPattern = "\"\(escapedKey)\"\\s*:\\s*\"((?:\\\\.|[^\"\\\\])*)\""
+        if let raw = firstRegexCapture(pattern: quotedPattern, in: text),
+           let decoded = decodeJSONStringFragment(raw),
+           !decoded.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return decoded
+        }
+
+        let barePattern = "\"\(escapedKey)\"\\s*:\\s*([A-Za-z0-9_:\\.-]+)"
+        if let raw = firstRegexCapture(pattern: barePattern, in: text),
+           !raw.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return raw
+        }
+    }
+    return nil
+}
+
+func looseHints(in text: String) -> [String] {
+    let arrayPattern = "\"hints\"\\s*:\\s*\\[(.*?)\\]"
+    if let body = firstRegexCapture(pattern: arrayPattern, in: text, options: [.dotMatchesLineSeparators]) {
+        let stringPattern = "\"((?:\\\\.|[^\"\\\\])*)\""
+        let captures = allRegexCaptures(pattern: stringPattern, in: body)
+        let decoded = captures.compactMap(decodeJSONStringFragment).map {
+            $0.trimmingCharacters(in: .whitespacesAndNewlines)
+        }.filter { !$0.isEmpty }
+        if !decoded.isEmpty {
+            return decoded
+        }
+    }
+
+    if let hintText = looseStringValue(for: ["hints", "hint"], in: text) {
+        let split = hintText
+            .split(whereSeparator: { $0 == "\n" || $0 == ";" })
+            .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        if !split.isEmpty {
+            return split
+        }
+    }
+
+    return [
+        "Use print(...) to produce the expected output.",
+        "Match expected output exactly, including punctuation."
+    ]
+}
+
+func decodeJSONStringFragment(_ fragment: String) -> String? {
+    let wrapped = "\"\(fragment)\""
+    guard let data = wrapped.data(using: .utf8) else { return nil }
+    return try? JSONDecoder().decode(String.self, from: data)
+}
+
+func firstRegexCapture(
+    pattern: String,
+    in text: String,
+    options: NSRegularExpression.Options = []
+) -> String? {
+    guard let regex = try? NSRegularExpression(pattern: pattern, options: options) else {
+        return nil
+    }
+    let fullRange = NSRange(text.startIndex..<text.endIndex, in: text)
+    guard let match = regex.firstMatch(in: text, range: fullRange), match.numberOfRanges > 1,
+          let range = Range(match.range(at: 1), in: text) else {
+        return nil
+    }
+    return String(text[range])
+}
+
+func allRegexCaptures(
+    pattern: String,
+    in text: String,
+    options: NSRegularExpression.Options = []
+) -> [String] {
+    guard let regex = try? NSRegularExpression(pattern: pattern, options: options) else {
+        return []
+    }
+    let fullRange = NSRange(text.startIndex..<text.endIndex, in: text)
+    return regex.matches(in: text, range: fullRange).compactMap { match in
+        guard match.numberOfRanges > 1, let range = Range(match.range(at: 1), in: text) else {
+            return nil
+        }
+        return String(text[range])
+    }
+}
+
+func replacingRegexMatches(
+    pattern: String,
+    in text: String,
+    with template: String,
+    options: NSRegularExpression.Options = []
+) -> String {
+    guard let regex = try? NSRegularExpression(pattern: pattern, options: options) else {
+        return text
+    }
+    let fullRange = NSRange(text.startIndex..<text.endIndex, in: text)
+    return regex.stringByReplacingMatches(in: text, range: fullRange, withTemplate: template)
+}
+
 func defaultPhiHTTPTransport(_ request: URLRequest) throws -> (Data, HTTPURLResponse) {
+    return try runHTTPTransport(request, timeoutSeconds: 30)
+}
+
+func defaultOllamaHTTPTransport(_ request: URLRequest, timeoutSeconds: Int) throws -> (Data, HTTPURLResponse) {
+    return try runHTTPTransport(request, timeoutSeconds: timeoutSeconds)
+}
+
+func runHTTPTransport(_ request: URLRequest, timeoutSeconds: Int) throws -> (Data, HTTPURLResponse) {
     let semaphore = DispatchSemaphore(value: 0)
     let box = PhiTransportResultBox()
 
@@ -357,7 +524,7 @@ func defaultPhiHTTPTransport(_ request: URLRequest) throws -> (Data, HTTPURLResp
     }
     task.resume()
 
-    let timeout = DispatchTime.now() + .seconds(30)
+    let timeout = DispatchTime.now() + .seconds(timeoutSeconds)
     if semaphore.wait(timeout: timeout) == .timedOut {
         task.cancel()
         throw PhiClientError.timedOut
@@ -438,6 +605,8 @@ private let phiUserPrompt = """
 Generate one beginner-safe Swift challenge in Forge style.
 Constraints:
 - starterCode must compile once TODOs are implemented.
+- Keep the challenge deterministic: use constants, not user/file/network input.
+- Do not use `readLine`, `CommandLine.arguments`, file IO, networking, async tasks, or timers.
 - Use Swift comments only (`//`), never `#`.
 - Do not add markdown fences.
 - Do not add "End of solution" markers.
@@ -448,6 +617,22 @@ Constraints:
 - hints must be an array of 2 short hints.
 Output only JSON.
 """
+
+func buildPhiUserPrompt(retryFeedback: String?) -> String {
+    guard let feedback = retryFeedback?.trimmingCharacters(in: .whitespacesAndNewlines),
+          !feedback.isEmpty else {
+        return phiUserPrompt
+    }
+
+    return """
+    \(phiUserPrompt)
+    Retry instructions:
+    - Your previous draft failed validation.
+    - Correct the issues and return a fresh full JSON draft.
+    - Ensure the provided solution compiles and prints `expectedOutput` exactly.
+    Failure summary: \(feedback)
+    """
+}
 
 private final class PhiTransportResultBox: @unchecked Sendable {
     private let lock = NSLock()

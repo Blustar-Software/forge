@@ -1025,7 +1025,7 @@ final class ForgeTests: XCTestCase {
                   "choices": [
                     {
                       "message": {
-                        "content": "{\\"id\\":\\"live-id\\",\\"title\\":\\"Live Draft\\",\\"description\\":\\"Live description\\",\\"starterCode\\":\\"print(\\\\\\"Ready\\\\\\")\\",\\"expectedOutput\\":\\"Ready\\",\\"hints\\":[\\"Use print.\\",\\"Match output exactly.\\"],\\"topic\\":\\"general\\",\\"tier\\":\\"mainline\\",\\"layer\\":\\"core\\"}"
+                        "content": "{\\"id\\":\\"live-id\\",\\"title\\":\\"Live Draft\\",\\"description\\":\\"Live description\\",\\"starterCode\\":\\"// TODO: print Ready\\",\\"solution\\":\\"print(\\\\\\"Ready\\\\\\")\\",\\"expectedOutput\\":\\"Ready\\",\\"hints\\":[\\"Use print.\\",\\"Match output exactly.\\"],\\"topic\\":\\"general\\",\\"tier\\":\\"mainline\\",\\"layer\\":\\"core\\"}"
                       }
                     }
                   ]
@@ -1083,7 +1083,7 @@ final class ForgeTests: XCTestCase {
                   "choices": [
                     {
                       "message": {
-                        "content": "{\\"id\\":\\"ollama-live-id\\",\\"title\\":\\"Ollama Live Draft\\",\\"description\\":\\"Live description\\",\\"starterCode\\":\\"print(\\\\\\"Ready\\\\\\")\\",\\"expectedOutput\\":\\"Ready\\",\\"hints\\":[\\"Use print.\\",\\"Match output exactly.\\"],\\"topic\\":\\"general\\",\\"tier\\":\\"mainline\\",\\"layer\\":\\"core\\"}"
+                        "content": "{\\"id\\":\\"ollama-live-id\\",\\"title\\":\\"Ollama Live Draft\\",\\"description\\":\\"Live description\\",\\"starterCode\\":\\"// TODO: print Ready\\",\\"solution\\":\\"print(\\\\\\"Ready\\\\\\")\\",\\"expectedOutput\\":\\"Ready\\",\\"hints\\":[\\"Use print.\\",\\"Match output exactly.\\"],\\"topic\\":\\"general\\",\\"tier\\":\\"mainline\\",\\"layer\\":\\"core\\"}"
                       }
                     }
                   ]
@@ -1241,6 +1241,252 @@ final class ForgeTests: XCTestCase {
             XCTAssertEqual(candidate.challenge.expectedOutput, "Hello")
         } catch {
             XCTFail("Expected lenient local decode success, but got error: \(error)")
+        }
+    }
+
+    func testRunAIGenerateScaffoldLiveSupportsMalformedJSONViaLooseTextFallback() {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        do {
+            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: tempDir) }
+
+            let outputPath = tempDir.appendingPathComponent("ai_candidates_live_loose").path
+            let settings = AIGenerateSettings(
+                live: true,
+                dryRun: false,
+                provider: "ollama",
+                model: "phi4-mini:latest",
+                outputPath: outputPath
+            )
+            let env: [String: String] = [
+                "FORGE_AI_OLLAMA_ENDPOINT": "http://127.0.0.1:11434/v1",
+            ]
+
+            let transport: PhiHTTPTransport = { request in
+                let malformedObject = """
+                {
+                  "id": "001",
+                  "title": "Hello World in Swift",
+                  "description": "Create a simple challenge.",
+                  "starterCode": "// Print \\"Hello\\"",
+                  "solution": "print(\\"Hello\\")",
+                  "expectedOutput": "\\"Hello\\"",
+                  "hints": ["Use print", "Match exact output",],
+                  "topic": core,
+                  "tier": mainline,
+                  "layer": core,
+                }
+                """
+                let body = """
+                {
+                  "choices": [
+                    { "message": { "content": \(try! String(data: JSONEncoder().encode(malformedObject), encoding: .utf8)!) } }
+                  ]
+                }
+                """
+                let data = Data(body.utf8)
+                let response = HTTPURLResponse(
+                    url: request.url ?? URL(string: "http://127.0.0.1:11434/v1/chat/completions")!,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: nil
+                )!
+                return (data, response)
+            }
+
+            let result = try runAIGenerateScaffold(settings: settings, environment: env, transport: transport)
+            XCTAssertEqual(result.status, "live_success")
+
+            let candidateData = try Data(contentsOf: URL(fileURLWithPath: result.candidatePath))
+            let candidate = try JSONDecoder().decode(AIGeneratedCandidateArtifact.self, from: candidateData)
+            XCTAssertEqual(candidate.challenge.title, "Hello World in Swift")
+            XCTAssertEqual(candidate.challenge.topic, "general")
+            XCTAssertEqual(candidate.challenge.layer, "core")
+            XCTAssertEqual(candidate.challenge.tier, "mainline")
+            XCTAssertEqual(candidate.challenge.expectedOutput, "Hello")
+        } catch {
+            XCTFail("Expected loose local decode success, but got error: \(error)")
+        }
+    }
+
+    func testRunAIGenerateScaffoldLiveRetriesAfterInvalidFirstDraft() {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        do {
+            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: tempDir) }
+
+            let outputPath = tempDir.appendingPathComponent("ai_candidates_live_retry").path
+            let settings = AIGenerateSettings(
+                live: true,
+                dryRun: false,
+                provider: "ollama",
+                model: "phi4-mini:latest",
+                outputPath: outputPath
+            )
+            let env: [String: String] = [
+                "FORGE_AI_OLLAMA_ENDPOINT": "http://127.0.0.1:11434/v1",
+            ]
+
+            var requestCount = 0
+            let transport: PhiHTTPTransport = { request in
+                requestCount += 1
+                let content: String
+                if requestCount == 1 {
+                    content = """
+                    {
+                      "id": "retry-id",
+                      "title": "Retry Draft",
+                      "description": "desc",
+                      "starterCode": "let heat = 1400\\n// TODO: Print Stable",
+                      "solution": "todo: String? = nil",
+                      "expectedOutput": "Stable",
+                      "hints": ["Use if", "Print output"],
+                      "topic": "conditionals",
+                      "tier": "mainline",
+                      "layer": "core"
+                    }
+                    """
+                } else {
+                    content = """
+                    {
+                      "id": "retry-id",
+                      "title": "Retry Draft",
+                      "description": "desc",
+                      "starterCode": "let heat = 1400\\n// TODO: Print Stable",
+                      "solution": "if heat >= 1000 && heat <= 1600 {\\n    print(\\"Stable\\")\\n} else {\\n    print(\\"Tune\\")\\n}",
+                      "expectedOutput": "Stable",
+                      "hints": ["Use if", "Print output"],
+                      "topic": "conditionals",
+                      "tier": "mainline",
+                      "layer": "core"
+                    }
+                    """
+                }
+                let encodedContent = try! String(data: JSONEncoder().encode(content), encoding: .utf8)!
+                let body = """
+                {
+                  "choices": [
+                    { "message": { "content": \(encodedContent) } }
+                  ]
+                }
+                """
+                let data = Data(body.utf8)
+                let response = HTTPURLResponse(
+                    url: request.url ?? URL(string: "http://127.0.0.1:11434/v1/chat/completions")!,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: nil
+                )!
+                return (data, response)
+            }
+
+            let result = try runAIGenerateScaffold(settings: settings, environment: env, transport: transport)
+            XCTAssertEqual(result.status, "live_success")
+            XCTAssertEqual(requestCount, 2)
+            XCTAssertTrue(result.warnings.contains { $0.contains("retry 2") })
+        } catch {
+            XCTFail("Expected retry live success, but got error: \(error)")
+        }
+    }
+
+    func testRunAIGenerateScaffoldLiveFallsBackWhenDraftFailsQualityChecks() {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        do {
+            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: tempDir) }
+
+            let outputPath = tempDir.appendingPathComponent("ai_candidates_live_quality_fail").path
+            let settings = AIGenerateSettings(
+                live: true,
+                dryRun: false,
+                provider: "ollama",
+                model: "phi4-mini:latest",
+                outputPath: outputPath
+            )
+            let env: [String: String] = [
+                "FORGE_AI_OLLAMA_ENDPOINT": "http://127.0.0.1:11434/v1",
+            ]
+
+            let transport: PhiHTTPTransport = { request in
+                let body = """
+                {
+                  "choices": [
+                    {
+                      "message": {
+                        "content": "{\\"id\\":\\"bad-id\\",\\"title\\":\\"Bad Draft\\",\\"description\\":\\"desc\\",\\"starterCode\\":\\"let heat = 1400\\n// TODO\\",\\"solution\\":\\"todo: String? = nil\\",\\"expectedOutput\\":\\"Stable\\",\\"hints\\":[\\"Use if\\",\\"Print output\\"],\\"topic\\":\\"conditionals\\",\\"tier\\":\\"mainline\\",\\"layer\\":\\"core\\"}"
+                      }
+                    }
+                  ]
+                }
+                """
+                let data = Data(body.utf8)
+                let response = HTTPURLResponse(
+                    url: request.url ?? URL(string: "http://127.0.0.1:11434/v1/chat/completions")!,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: nil
+                )!
+                return (data, response)
+            }
+
+            let result = try runAIGenerateScaffold(settings: settings, environment: env, transport: transport)
+            XCTAssertEqual(result.status, "live_fallback_scaffold")
+            XCTAssertTrue(result.warnings.contains { $0.contains("failed quality checks") })
+        } catch {
+            XCTFail("Expected quality-check fallback, but got error: \(error)")
+        }
+    }
+
+    func testRunAIGenerateScaffoldLiveSalvagesMissingSolutionFromCompleteStarter() {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        do {
+            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: tempDir) }
+
+            let outputPath = tempDir.appendingPathComponent("ai_candidates_live_salvage_solution").path
+            let settings = AIGenerateSettings(
+                live: true,
+                dryRun: false,
+                provider: "ollama",
+                model: "phi4-mini:latest",
+                outputPath: outputPath
+            )
+            let env: [String: String] = [
+                "FORGE_AI_OLLAMA_ENDPOINT": "http://127.0.0.1:11434/v1",
+            ]
+
+            let transport: PhiHTTPTransport = { request in
+                let body = """
+                {
+                  "choices": [
+                    {
+                      "message": {
+                        "content": "{\\"id\\":\\"salvage-id\\",\\"title\\":\\"Salvage Draft\\",\\"description\\":\\"desc\\",\\"starterCode\\":\\"print(\\\\\\"Stable\\\\\\")\\",\\"solution\\":\\"\\",\\"expectedOutput\\":\\"Stable\\",\\"hints\\":[\\"Use print\\",\\"Match exact output\\"],\\"topic\\":\\"general\\",\\"tier\\":\\"mainline\\",\\"layer\\":\\"core\\"}"
+                      }
+                    }
+                  ]
+                }
+                """
+                let data = Data(body.utf8)
+                let response = HTTPURLResponse(
+                    url: request.url ?? URL(string: "http://127.0.0.1:11434/v1/chat/completions")!,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: nil
+                )!
+                return (data, response)
+            }
+
+            let result = try runAIGenerateScaffold(settings: settings, environment: env, transport: transport)
+            XCTAssertEqual(result.status, "live_success")
+            XCTAssertTrue(result.warnings.contains { $0.contains("Missing solution; moved starterCode into solution") })
+
+            let candidateData = try Data(contentsOf: URL(fileURLWithPath: result.candidatePath))
+            let candidate = try JSONDecoder().decode(AIGeneratedCandidateArtifact.self, from: candidateData)
+            XCTAssertEqual(candidate.challenge.starterCode, "// TODO: Implement the solution.")
+            XCTAssertEqual(candidate.challenge.solution, "print(\"Stable\")")
+        } catch {
+            XCTFail("Expected missing-solution salvage, but got error: \(error)")
         }
     }
 
