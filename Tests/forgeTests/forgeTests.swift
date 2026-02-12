@@ -806,16 +806,78 @@ final class ForgeTests: XCTestCase {
         XCTAssertThrowsError(try runAIGenerateScaffold(settings: settings))
     }
 
-    func testRunAIGenerateScaffoldRejectsLiveMode() {
+    func testRunAIGenerateScaffoldLiveFallsBackWhenMissingConfig() {
         let settings = AIGenerateSettings(
             live: true,
             dryRun: false,
             provider: "phi",
             model: nil,
-            outputPath: "workspace_verify/live_mode"
+            outputPath: "workspace_verify/live_mode_fallback"
         )
+        do {
+            let result = try runAIGenerateScaffold(settings: settings, environment: [:])
+            XCTAssertEqual(result.status, "live_fallback_scaffold")
+            XCTAssertTrue(result.warnings.contains { $0.contains("Live provider call failed:") })
+        } catch {
+            XCTFail("Expected fallback result, but got error: \(error)")
+        }
+    }
 
-        XCTAssertThrowsError(try runAIGenerateScaffold(settings: settings))
+    func testRunAIGenerateScaffoldLiveSuccessWithStubTransport() {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        do {
+            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: tempDir) }
+
+            let outputPath = tempDir.appendingPathComponent("ai_candidates_live").path
+            let settings = AIGenerateSettings(
+                live: true,
+                dryRun: false,
+                provider: "phi",
+                model: nil,
+                outputPath: outputPath
+            )
+            let env: [String: String] = [
+                "FORGE_AI_PHI_ENDPOINT": "https://example.com/v1",
+                "FORGE_AI_PHI_API_KEY": "test-key",
+                "FORGE_AI_PHI_MODEL": "phi-live-test",
+            ]
+
+            let transport: PhiHTTPTransport = { request in
+                XCTAssertEqual(request.httpMethod, "POST")
+                let body = """
+                {
+                  "choices": [
+                    {
+                      "message": {
+                        "content": "{\\"id\\":\\"live-id\\",\\"title\\":\\"Live Draft\\",\\"description\\":\\"Live description\\",\\"starterCode\\":\\"print(\\\\\\"Ready\\\\\\")\\",\\"expectedOutput\\":\\"Ready\\",\\"hints\\":[\\"Use print.\\",\\"Match output exactly.\\"],\\"topic\\":\\"general\\",\\"tier\\":\\"mainline\\",\\"layer\\":\\"core\\"}"
+                      }
+                    }
+                  ]
+                }
+                """
+                let data = Data(body.utf8)
+                let response = HTTPURLResponse(
+                    url: request.url ?? URL(string: "https://example.com/v1/chat/completions")!,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: nil
+                )!
+                return (data, response)
+            }
+
+            let result = try runAIGenerateScaffold(settings: settings, environment: env, transport: transport)
+            XCTAssertEqual(result.status, "live_success")
+            XCTAssertEqual(result.warnings.count, 0)
+
+            let candidateData = try Data(contentsOf: URL(fileURLWithPath: result.candidatePath))
+            let candidate = try JSONDecoder().decode(AIGeneratedCandidateArtifact.self, from: candidateData)
+            XCTAssertEqual(candidate.mode, "live")
+            XCTAssertEqual(candidate.challenge.id, "live-id")
+            XCTAssertEqual(candidate.challenge.title, "Live Draft")
+        } catch {
+            XCTFail("Expected live success, but got error: \(error)")
+        }
     }
 
     func testParseProjectListAndRandomArguments() {

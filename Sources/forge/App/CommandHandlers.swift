@@ -106,7 +106,11 @@ func handleAIGenerateCommand(_ args: [String]) {
         } else {
             print("Model: (not set)")
         }
-        if result.dryRun {
+        if result.live, result.status == "live_success" {
+            print("Mode: live provider call.")
+        } else if result.live {
+            print("Mode: live fallback (scaffold).")
+        } else if result.dryRun {
             print("Mode: dry-run (no model calls).")
         } else {
             print("Mode: scaffold-only (provider integration pending).")

@@ -948,6 +948,8 @@ func printAIGenerateUsage() {
 
     Notes:
       - Live mode must be explicitly enabled with --live.
+      - Live mode reads FORGE_AI_PHI_ENDPOINT and FORGE_AI_PHI_API_KEY.
+      - Optional FORGE_AI_PHI_MODEL is used when --model is not provided.
       - This command is a scaffold for maintainer AI generation workflows.
       - Writes request.json, candidate.json, and report.json in the output directory.
       - Generated candidates are intended to land in workspace_verify/ai_candidates/.

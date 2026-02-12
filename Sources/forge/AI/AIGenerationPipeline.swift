@@ -1,15 +1,12 @@
 import Foundation
 
 enum AIGenerationPipelineError: LocalizedError {
-    case liveModeUnavailable
     case unsupportedProvider(String)
     case createDirectoryFailed(String, Error)
     case writeFailed(String, Error)
 
     var errorDescription: String? {
         switch self {
-        case .liveModeUnavailable:
-            return "Live mode is not implemented yet. Re-run without --live."
         case .unsupportedProvider(let provider):
             return "Unsupported provider: \(provider)"
         case .createDirectoryFailed(let path, let error):
@@ -20,11 +17,11 @@ enum AIGenerationPipelineError: LocalizedError {
     }
 }
 
-func runAIGenerateScaffold(settings: AIGenerateSettings) throws -> AIGenerateRunResult {
-    if settings.live {
-        throw AIGenerationPipelineError.liveModeUnavailable
-    }
-
+func runAIGenerateScaffold(
+    settings: AIGenerateSettings,
+    environment: [String: String] = ProcessInfo.processInfo.environment,
+    transport: PhiHTTPTransport? = nil
+) throws -> AIGenerateRunResult {
     guard let provider = makeAIProvider(named: settings.provider) else {
         throw AIGenerationPipelineError.unsupportedProvider(settings.provider)
     }
@@ -51,8 +48,32 @@ func runAIGenerateScaffold(settings: AIGenerateSettings) throws -> AIGenerateRun
         outputPath: outputPath
     )
 
-    let draft = provider.scaffoldDraft(model: settings.model)
-    let mode = settings.dryRun ? "dry-run" : "scaffold"
+    var draft = provider.scaffoldDraft(model: settings.model)
+    var mode = settings.dryRun ? "dry-run" : "scaffold"
+    var status = settings.dryRun ? "dry_run_scaffold" : "scaffold"
+    var warnings: [String] = []
+
+    if settings.live {
+        do {
+            draft = try liveDraft(
+                for: provider.key,
+                model: settings.model,
+                environment: environment,
+                transport: transport
+            )
+            mode = "live"
+            status = "live_success"
+        } catch {
+            mode = "live-fallback-scaffold"
+            status = "live_fallback_scaffold"
+            warnings.append("Live provider call failed: \(error.localizedDescription)")
+        }
+    } else if settings.dryRun {
+        warnings.append("Dry run enabled: no provider API calls were made.")
+    } else {
+        warnings.append("Provider API integration is not implemented yet; generated candidate is scaffolded.")
+    }
+
     let candidateArtifact = AIGeneratedCandidateArtifact(
         schemaVersion: 1,
         generatedAt: generatedAt,
@@ -61,11 +82,6 @@ func runAIGenerateScaffold(settings: AIGenerateSettings) throws -> AIGenerateRun
         mode: mode,
         challenge: draft
     )
-
-    let warnings: [String] = settings.dryRun
-        ? ["Dry run enabled: no provider API calls were made."]
-        : ["Provider API integration is not implemented yet; generated candidate is scaffolded."]
-    let status = settings.dryRun ? "dry_run_scaffold" : "scaffold"
 
     let reportArtifact = AIGenerationReportArtifact(
         schemaVersion: 1,
@@ -97,6 +113,20 @@ func runAIGenerateScaffold(settings: AIGenerateSettings) throws -> AIGenerateRun
         status: status,
         warnings: warnings
     )
+}
+
+func liveDraft(
+    for providerKey: String,
+    model: String?,
+    environment: [String: String],
+    transport: PhiHTTPTransport?
+) throws -> AIChallengeDraft {
+    switch providerKey {
+    case "phi":
+        return try fetchPhiLiveDraft(modelOverride: model, environment: environment, transport: transport)
+    default:
+        throw AIGenerationPipelineError.unsupportedProvider(providerKey)
+    }
 }
 
 func writeJSONArtifact<T: Encodable>(_ value: T, to path: String) throws {
