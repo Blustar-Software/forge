@@ -330,6 +330,10 @@ private let phiUserPrompt = """
 Generate one beginner-safe Swift challenge in Forge style.
 Constraints:
 - starterCode must compile once TODOs are implemented.
+- Use Swift comments only (`//`), never `#`.
+- Do not add markdown fences.
+- Do not add "End of solution" markers.
+- Use `import Foundation` only when genuinely required.
 - topic must be one of Forge topics.
 - tier must be mainline or extra.
 - layer must be core, mantle, or crust.

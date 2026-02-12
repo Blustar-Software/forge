@@ -55,12 +55,16 @@ func runAIGenerateScaffold(
 
     if settings.live {
         do {
-            draft = try liveDraft(
+            let liveCandidate = try liveDraft(
                 for: provider.key,
                 model: settings.model,
                 environment: environment,
                 transport: transport
             )
+            let normalized = normalizeAIDraft(liveCandidate)
+            draft = normalized.draft
+            warnings += normalized.warnings
+            _ = try makeChallengeFromAIDraft(draft)
             mode = "live"
             status = "live_success"
         } catch {

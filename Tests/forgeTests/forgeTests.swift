@@ -1112,6 +1112,83 @@ final class ForgeTests: XCTestCase {
         }
     }
 
+    func testNormalizeAIDraftFixesCommonLocalModelIssues() {
+        let draft = AIChallengeDraft(
+            id: "001",
+            title: "Hello",
+            description: "desc",
+            starterCode: "# TODO: Print output",
+            solution: "import Foundation\nprint(\"Hello\")\n# End of solution",
+            expectedOutput: "\"Hello\"",
+            hints: ["Use print", "Don't forget to import Foundation"],
+            topic: "core",
+            tier: "mainline",
+            layer: "crust"
+        )
+
+        let normalized = normalizeAIDraft(draft)
+        XCTAssertEqual(normalized.draft.topic, "general")
+        XCTAssertEqual(normalized.draft.expectedOutput, "Hello")
+        XCTAssertTrue(normalized.draft.starterCode.contains("// TODO:"))
+        XCTAssertFalse(normalized.draft.solution?.contains("import Foundation") ?? false)
+        XCTAssertFalse(normalized.draft.hints.joined(separator: " ").contains("import Foundation"))
+        XCTAssertTrue(normalized.warnings.contains { $0.contains("Topic") || $0.contains("topic") })
+    }
+
+    func testRunAIGenerateScaffoldLiveNormalizesInvalidTopicFromLocalModel() {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        do {
+            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: tempDir) }
+
+            let outputPath = tempDir.appendingPathComponent("ai_candidates_live_normalized").path
+            let settings = AIGenerateSettings(
+                live: true,
+                dryRun: false,
+                provider: "ollama",
+                model: "phi4-mini:latest",
+                outputPath: outputPath
+            )
+            let env: [String: String] = [
+                "FORGE_AI_OLLAMA_ENDPOINT": "http://127.0.0.1:11434/v1",
+            ]
+
+            let transport: PhiHTTPTransport = { request in
+                let body = """
+                {
+                  "choices": [
+                    {
+                      "message": {
+                        "content": "{\\"id\\":\\"local-id\\",\\"title\\":\\"Local Draft\\",\\"description\\":\\"desc\\",\\"starterCode\\":\\"# TODO: Print \\\\\\"Hello\\\\\\"\\",\\"solution\\":\\"import Foundation\\\\nprint(\\\\\\"Hello\\\\\\")\\",\\"expectedOutput\\":\\"\\\\\\"Hello\\\\\\"\\",\\"hints\\":[\\"Use print\\",\\"Don't forget to import Foundation\\"],\\"topic\\":\\"core\\",\\"tier\\":\\"mainline\\",\\"layer\\":\\"core\\"}"
+                      }
+                    }
+                  ]
+                }
+                """
+                let data = Data(body.utf8)
+                let response = HTTPURLResponse(
+                    url: request.url ?? URL(string: "http://127.0.0.1:11434/v1/chat/completions")!,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: nil
+                )!
+                return (data, response)
+            }
+
+            let result = try runAIGenerateScaffold(settings: settings, environment: env, transport: transport)
+            XCTAssertEqual(result.status, "live_success")
+            XCTAssertTrue(result.warnings.contains { $0.contains("defaulted topic to 'general'") })
+
+            let candidateData = try Data(contentsOf: URL(fileURLWithPath: result.candidatePath))
+            let candidate = try JSONDecoder().decode(AIGeneratedCandidateArtifact.self, from: candidateData)
+            XCTAssertEqual(candidate.challenge.topic, "general")
+            XCTAssertEqual(candidate.challenge.expectedOutput, "Hello")
+            XCTAssertTrue(candidate.challenge.starterCode.contains("// TODO:"))
+        } catch {
+            XCTFail("Expected normalization success, but got error: \(error)")
+        }
+    }
+
     func testRunAIPromoteAppendsAndRunsGateCommands() {
         let fileManager = FileManager.default
         let tempDir = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
