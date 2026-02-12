@@ -232,11 +232,119 @@ func decodeLiveDraft(from data: Data) throws -> AIChallengeDraft {
     guard let jsonData = jsonText.data(using: .utf8) else {
         throw PhiClientError.invalidDraftPayload("Response was not UTF-8.")
     }
-    do {
-        return try JSONDecoder().decode(AIChallengeDraft.self, from: jsonData)
-    } catch {
-        throw PhiClientError.invalidDraftPayload(error.localizedDescription)
+    if let strict = try? JSONDecoder().decode(AIChallengeDraft.self, from: jsonData) {
+        return strict
     }
+    if let lenient = decodeAIDraftLenient(from: jsonData) {
+        return lenient
+    }
+    let preview = String(data: jsonData.prefix(300), encoding: .utf8) ?? "<non-utf8>"
+    throw PhiClientError.invalidDraftPayload(preview)
+}
+
+func decodeAIDraftLenient(from data: Data) -> AIChallengeDraft? {
+    guard let object = try? JSONSerialization.jsonObject(with: data),
+          var payload = object as? [String: Any] else {
+        return nil
+    }
+
+    if let wrapped = payload["challenge"] as? [String: Any] {
+        payload = wrapped
+    } else if let wrapped = payload["draft"] as? [String: Any] {
+        payload = wrapped
+    } else if let wrapped = payload["candidate"] as? [String: Any] {
+        payload = wrapped
+    } else if let wrapped = payload["output"] as? [String: Any] {
+        payload = wrapped
+    }
+
+    let id = draftString(for: ["id", "challengeId", "challenge_id"], in: payload)
+        ?? "ai-draft-local-\(UUID().uuidString.lowercased().prefix(8))"
+    let title = draftString(for: ["title", "name"], in: payload)
+        ?? "AI Generated Challenge"
+    let description = draftString(for: ["description", "prompt"], in: payload)
+        ?? "Generated challenge draft."
+    let starterCode = draftString(for: ["starterCode", "starter_code", "starter", "code"], in: payload)
+        ?? "// TODO: Implement the challenge solution."
+    let solution = draftString(for: ["solution", "answer", "referenceSolution", "reference_solution"], in: payload)
+    let expectedOutput = draftString(for: ["expectedOutput", "expected_output", "expected", "output"], in: payload)
+        ?? "TODO"
+    let hints = draftHints(from: payload)
+    let topic = draftString(for: ["topic", "concept", "category"], in: payload) ?? "general"
+    let tier = draftString(for: ["tier", "difficultyTier", "difficulty_tier"], in: payload) ?? "mainline"
+    let layer = draftString(for: ["layer", "stage"], in: payload) ?? "core"
+
+    return AIChallengeDraft(
+        id: id,
+        title: title,
+        description: description,
+        starterCode: starterCode,
+        solution: solution,
+        expectedOutput: expectedOutput,
+        hints: hints,
+        topic: topic,
+        tier: tier,
+        layer: layer
+    )
+}
+
+func draftString(for keys: [String], in payload: [String: Any]) -> String? {
+    for key in keys {
+        guard let raw = payload[key] else { continue }
+        if let value = draftString(from: raw), !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return value
+        }
+    }
+    return nil
+}
+
+func draftString(from raw: Any) -> String? {
+    switch raw {
+    case let value as String:
+        return value
+    case let value as NSNumber:
+        return value.stringValue
+    case let value as [String: Any]:
+        if let text = value["text"] as? String {
+            return text
+        }
+        if let valueField = value["value"] {
+            return draftString(from: valueField)
+        }
+        return nil
+    default:
+        return nil
+    }
+}
+
+func draftHints(from payload: [String: Any]) -> [String] {
+    let rawHints = payload["hints"]
+    if let values = rawHints as? [String] {
+        let trimmed = values.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+        if !trimmed.isEmpty {
+            return trimmed
+        }
+    }
+    if let values = rawHints as? [Any] {
+        let strings = values.compactMap { draftString(from: $0)?.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        if !strings.isEmpty {
+            return strings
+        }
+    }
+    if let single = draftString(for: ["hints", "hint"], in: payload) {
+        let split = single
+            .split(whereSeparator: { $0 == "\n" || $0 == ";" })
+            .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        if !split.isEmpty {
+            return split
+        }
+    }
+    return [
+        "Use print(...) to produce the expected output.",
+        "Match expected output exactly, including punctuation."
+    ]
 }
 
 func defaultPhiHTTPTransport(_ request: URLRequest) throws -> (Data, HTTPURLResponse) {

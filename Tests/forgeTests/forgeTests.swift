@@ -1189,6 +1189,61 @@ final class ForgeTests: XCTestCase {
         }
     }
 
+    func testRunAIGenerateScaffoldLiveSupportsLenientDraftShapeFromLocalModel() {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        do {
+            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: tempDir) }
+
+            let outputPath = tempDir.appendingPathComponent("ai_candidates_live_lenient").path
+            let settings = AIGenerateSettings(
+                live: true,
+                dryRun: false,
+                provider: "ollama",
+                model: "phi4-mini:latest",
+                outputPath: outputPath
+            )
+            let env: [String: String] = [
+                "FORGE_AI_OLLAMA_ENDPOINT": "http://127.0.0.1:11434/v1",
+            ]
+
+            let transport: PhiHTTPTransport = { request in
+                let body = """
+                {
+                  "choices": [
+                    {
+                      "message": {
+                        "content": "{\\"challenge\\":{\\"challenge_id\\":\\"x-1\\",\\"name\\":\\"Lenient Draft\\",\\"prompt\\":\\"desc\\",\\"starter_code\\":\\"# TODO: Print \\\\\\"Hello\\\\\\"\\",\\"answer\\":\\"import Foundation\\\\nprint(\\\\\\"Hello\\\\\\")\\",\\"expected_output\\":\\"\\\\\\"Hello\\\\\\"\\",\\"hints\\":\\"Use print\\\\nMatch exact output\\",\\"concept\\":\\"core\\",\\"difficulty_tier\\":\\"mainline\\",\\"stage\\":\\"core\\"}}"
+                      }
+                    }
+                  ]
+                }
+                """
+                let data = Data(body.utf8)
+                let response = HTTPURLResponse(
+                    url: request.url ?? URL(string: "http://127.0.0.1:11434/v1/chat/completions")!,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: nil
+                )!
+                return (data, response)
+            }
+
+            let result = try runAIGenerateScaffold(settings: settings, environment: env, transport: transport)
+            XCTAssertEqual(result.status, "live_success")
+
+            let candidateData = try Data(contentsOf: URL(fileURLWithPath: result.candidatePath))
+            let candidate = try JSONDecoder().decode(AIGeneratedCandidateArtifact.self, from: candidateData)
+            XCTAssertEqual(candidate.challenge.id, "x-1")
+            XCTAssertEqual(candidate.challenge.title, "Lenient Draft")
+            XCTAssertEqual(candidate.challenge.topic, "general")
+            XCTAssertTrue(candidate.challenge.starterCode.contains("// TODO:"))
+            XCTAssertEqual(candidate.challenge.expectedOutput, "Hello")
+        } catch {
+            XCTFail("Expected lenient local decode success, but got error: \(error)")
+        }
+    }
+
     func testRunAIPromoteAppendsAndRunsGateCommands() {
         let fileManager = FileManager.default
         let tempDir = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
