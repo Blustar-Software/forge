@@ -45,6 +45,7 @@ struct CLIPaths {
 }
 
 struct AIGenerateSettings {
+    let live: Bool
     let dryRun: Bool
     let provider: String
     let model: String?
@@ -203,6 +204,7 @@ func parseStatsSettings(_ args: [String]) -> (reset: Bool, resetAll: Bool, limit
 }
 
 func parseAIGenerateSettings(_ args: [String]) -> (settings: AIGenerateSettings?, error: String?) {
+    var live = false
     var dryRun = false
     var provider = "phi"
     var model: String?
@@ -213,6 +215,11 @@ func parseAIGenerateSettings(_ args: [String]) -> (settings: AIGenerateSettings?
         let arg = args[index]
         let lowered = arg.lowercased()
 
+        if lowered == "--live" {
+            live = true
+            index += 1
+            continue
+        }
         if lowered == "--dry-run" {
             dryRun = true
             index += 1
@@ -257,8 +264,12 @@ func parseAIGenerateSettings(_ args: [String]) -> (settings: AIGenerateSettings?
         return (nil, "Unknown ai-generate option: \(arg)")
     }
 
+    if live && dryRun {
+        return (nil, "Use either --dry-run or --live, not both.")
+    }
+
     return (
-        AIGenerateSettings(dryRun: dryRun, provider: provider, model: model, outputPath: outputPath),
+        AIGenerateSettings(live: live, dryRun: dryRun, provider: provider, model: model, outputPath: outputPath),
         nil
     )
 }
@@ -716,7 +727,7 @@ func printMainUsage() {
 
     Core commands:
       swift run forge reset [--all] [--start]
-      swift run forge ai-generate [--dry-run] [--provider <name>] [--model <id>] [--out <path>]
+      swift run forge ai-generate [--dry-run] [--live] [--provider <name>] [--model <id>] [--out <path>]
       swift run forge stats [--reset]
       swift run forge remap-progress [target]
       swift run forge catalog
@@ -925,16 +936,18 @@ func printProjectUsage() {
 func printAIGenerateUsage() {
     print("""
     Usage:
-      swift run forge ai-generate [--dry-run] [--provider <name>] [--model <id>] [--out <path>]
+      swift run forge ai-generate [--dry-run] [--live] [--provider <name>] [--model <id>] [--out <path>]
       swift run forge ai-generate --help
 
     Options:
+      --live              Opt in to live provider calls (not yet implemented).
       --dry-run           Writes scaffold output paths only. No model calls.
       --provider <name>   Provider key (default: phi).
       --model <id>        Model identifier (optional).
       --out <path>        Output directory (default: workspace_verify/ai_candidates).
 
     Notes:
+      - Live mode must be explicitly enabled with --live.
       - This command is a scaffold for maintainer AI generation workflows.
       - Writes request.json, candidate.json, and report.json in the output directory.
       - Generated candidates are intended to land in workspace_verify/ai_candidates/.

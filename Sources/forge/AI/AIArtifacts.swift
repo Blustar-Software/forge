@@ -5,6 +5,7 @@ struct AIGenerationRequestArtifact: Codable {
     let generatedAt: String
     let provider: String
     let model: String?
+    let live: Bool
     let dryRun: Bool
     let outputPath: String
 }
@@ -24,6 +25,7 @@ struct AIGenerationReportArtifact: Codable {
     let status: String
     let provider: String
     let model: String?
+    let live: Bool
     let dryRun: Bool
     let requestPath: String
     let candidatePath: String
@@ -34,6 +36,7 @@ struct AIGenerationReportArtifact: Codable {
 struct AIGenerateRunResult {
     let provider: String
     let model: String?
+    let live: Bool
     let dryRun: Bool
     let outputPath: String
     let requestPath: String

@@ -707,6 +707,7 @@ final class ForgeTests: XCTestCase {
             XCTFail("Expected ai-generate settings")
             return
         }
+        XCTAssertFalse(settings.live)
         XCTAssertFalse(settings.dryRun)
         XCTAssertEqual(settings.provider, "phi")
         XCTAssertNil(settings.model)
@@ -725,10 +726,22 @@ final class ForgeTests: XCTestCase {
             XCTFail("Expected ai-generate settings")
             return
         }
+        XCTAssertFalse(settings.live)
         XCTAssertTrue(settings.dryRun)
         XCTAssertEqual(settings.provider, "phi")
         XCTAssertEqual(settings.model, "Phi-4-mini-instruct")
         XCTAssertEqual(settings.outputPath, "workspace_verify/custom_candidates")
+    }
+
+    func testParseAIGenerateSettingsLiveFlag() {
+        let parsed = parseAIGenerateSettings(["--live", "--provider", "phi"])
+        XCTAssertNil(parsed.error)
+        guard let settings = parsed.settings else {
+            XCTFail("Expected ai-generate settings")
+            return
+        }
+        XCTAssertTrue(settings.live)
+        XCTAssertFalse(settings.dryRun)
     }
 
     func testParseAIGenerateSettingsUnknownOption() {
@@ -743,6 +756,12 @@ final class ForgeTests: XCTestCase {
         XCTAssertEqual(parsed.error, "Missing value for --model")
     }
 
+    func testParseAIGenerateSettingsRejectsLiveAndDryRunTogether() {
+        let parsed = parseAIGenerateSettings(["--live", "--dry-run"])
+        XCTAssertNil(parsed.settings)
+        XCTAssertEqual(parsed.error, "Use either --dry-run or --live, not both.")
+    }
+
     func testRunAIGenerateScaffoldWritesArtifacts() {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         do {
@@ -751,6 +770,7 @@ final class ForgeTests: XCTestCase {
 
             let outputPath = tempDir.appendingPathComponent("ai_candidates").path
             let settings = AIGenerateSettings(
+                live: false,
                 dryRun: true,
                 provider: "phi",
                 model: "Phi-4-mini-instruct",
@@ -767,6 +787,7 @@ final class ForgeTests: XCTestCase {
             XCTAssertEqual(report.status, "dry_run_scaffold")
             XCTAssertEqual(report.provider, "phi")
             XCTAssertEqual(report.model, "Phi-4-mini-instruct")
+            XCTAssertFalse(report.live)
             XCTAssertTrue(report.dryRun)
         } catch {
             XCTFail("Failed to run ai-generate scaffold: \(error)")
@@ -775,10 +796,23 @@ final class ForgeTests: XCTestCase {
 
     func testRunAIGenerateScaffoldRejectsUnknownProvider() {
         let settings = AIGenerateSettings(
+            live: false,
             dryRun: true,
             provider: "unknown",
             model: nil,
             outputPath: "workspace_verify/invalid_provider"
+        )
+
+        XCTAssertThrowsError(try runAIGenerateScaffold(settings: settings))
+    }
+
+    func testRunAIGenerateScaffoldRejectsLiveMode() {
+        let settings = AIGenerateSettings(
+            live: true,
+            dryRun: false,
+            provider: "phi",
+            model: nil,
+            outputPath: "workspace_verify/live_mode"
         )
 
         XCTAssertThrowsError(try runAIGenerateScaffold(settings: settings))

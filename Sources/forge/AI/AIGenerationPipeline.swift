@@ -1,12 +1,15 @@
 import Foundation
 
 enum AIGenerationPipelineError: LocalizedError {
+    case liveModeUnavailable
     case unsupportedProvider(String)
     case createDirectoryFailed(String, Error)
     case writeFailed(String, Error)
 
     var errorDescription: String? {
         switch self {
+        case .liveModeUnavailable:
+            return "Live mode is not implemented yet. Re-run without --live."
         case .unsupportedProvider(let provider):
             return "Unsupported provider: \(provider)"
         case .createDirectoryFailed(let path, let error):
@@ -18,6 +21,10 @@ enum AIGenerationPipelineError: LocalizedError {
 }
 
 func runAIGenerateScaffold(settings: AIGenerateSettings) throws -> AIGenerateRunResult {
+    if settings.live {
+        throw AIGenerationPipelineError.liveModeUnavailable
+    }
+
     guard let provider = makeAIProvider(named: settings.provider) else {
         throw AIGenerationPipelineError.unsupportedProvider(settings.provider)
     }
@@ -39,6 +46,7 @@ func runAIGenerateScaffold(settings: AIGenerateSettings) throws -> AIGenerateRun
         generatedAt: generatedAt,
         provider: provider.key,
         model: settings.model,
+        live: settings.live,
         dryRun: settings.dryRun,
         outputPath: outputPath
     )
@@ -65,6 +73,7 @@ func runAIGenerateScaffold(settings: AIGenerateSettings) throws -> AIGenerateRun
         status: status,
         provider: provider.key,
         model: settings.model,
+        live: settings.live,
         dryRun: settings.dryRun,
         requestPath: requestPath,
         candidatePath: candidatePath,
@@ -79,6 +88,7 @@ func runAIGenerateScaffold(settings: AIGenerateSettings) throws -> AIGenerateRun
     return AIGenerateRunResult(
         provider: provider.key,
         model: settings.model,
+        live: settings.live,
         dryRun: settings.dryRun,
         outputPath: outputPath,
         requestPath: requestPath,
