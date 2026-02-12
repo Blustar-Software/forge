@@ -936,6 +936,7 @@ func printAIGenerateUsage() {
 
     Notes:
       - This command is a scaffold for maintainer AI generation workflows.
+      - Writes request.json, candidate.json, and report.json in the output directory.
       - Generated candidates are intended to land in workspace_verify/ai_candidates/.
       - Learner runtime flow is unchanged.
     """)

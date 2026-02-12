@@ -743,6 +743,47 @@ final class ForgeTests: XCTestCase {
         XCTAssertEqual(parsed.error, "Missing value for --model")
     }
 
+    func testRunAIGenerateScaffoldWritesArtifacts() {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        do {
+            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: tempDir) }
+
+            let outputPath = tempDir.appendingPathComponent("ai_candidates").path
+            let settings = AIGenerateSettings(
+                dryRun: true,
+                provider: "phi",
+                model: "Phi-4-mini-instruct",
+                outputPath: outputPath
+            )
+            let result = try runAIGenerateScaffold(settings: settings)
+
+            XCTAssertTrue(FileManager.default.fileExists(atPath: result.requestPath))
+            XCTAssertTrue(FileManager.default.fileExists(atPath: result.candidatePath))
+            XCTAssertTrue(FileManager.default.fileExists(atPath: result.reportPath))
+
+            let reportData = try Data(contentsOf: URL(fileURLWithPath: result.reportPath))
+            let report = try JSONDecoder().decode(AIGenerationReportArtifact.self, from: reportData)
+            XCTAssertEqual(report.status, "dry_run_scaffold")
+            XCTAssertEqual(report.provider, "phi")
+            XCTAssertEqual(report.model, "Phi-4-mini-instruct")
+            XCTAssertTrue(report.dryRun)
+        } catch {
+            XCTFail("Failed to run ai-generate scaffold: \(error)")
+        }
+    }
+
+    func testRunAIGenerateScaffoldRejectsUnknownProvider() {
+        let settings = AIGenerateSettings(
+            dryRun: true,
+            provider: "unknown",
+            model: nil,
+            outputPath: "workspace_verify/invalid_provider"
+        )
+
+        XCTAssertThrowsError(try runAIGenerateScaffold(settings: settings))
+    }
+
     func testParseProjectListAndRandomArguments() {
         let listParsed = parseProjectListArguments(["extra", "mantle"])
         XCTAssertEqual(listParsed.tier, .extra)

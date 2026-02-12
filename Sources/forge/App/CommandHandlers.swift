@@ -97,22 +97,32 @@ func handleAIGenerateCommand(_ args: [String]) {
         return
     }
 
-    setupWorkspace(at: settings.outputPath)
-
-    print("AI generation scaffold is active.")
-    print("Provider: \(settings.provider)")
-    if let model = settings.model {
-        print("Model: \(model)")
-    } else {
-        print("Model: (not set)")
+    do {
+        let result = try runAIGenerateScaffold(settings: settings)
+        print("AI generation scaffold is active.")
+        print("Provider: \(result.provider)")
+        if let model = result.model {
+            print("Model: \(model)")
+        } else {
+            print("Model: (not set)")
+        }
+        if result.dryRun {
+            print("Mode: dry-run (no model calls).")
+        } else {
+            print("Mode: scaffold-only (provider integration pending).")
+        }
+        print("Output path: \(result.outputPath)")
+        print("Status: \(result.status)")
+        print("Artifacts:")
+        print("- \(result.requestPath)")
+        print("- \(result.candidatePath)")
+        print("- \(result.reportPath)")
+        for warning in result.warnings {
+            print("Warning: \(warning)")
+        }
+    } catch {
+        print("ai-generate failed: \(error.localizedDescription)")
     }
-    if settings.dryRun {
-        print("Mode: dry-run (no model calls).")
-    } else {
-        print("Mode: scaffold-only (provider integration pending).")
-    }
-    print("Output path: \(settings.outputPath)")
-    print("Status: Not implemented yet.")
 }
 
 func handleVerifyCommand(
