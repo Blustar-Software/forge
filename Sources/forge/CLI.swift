@@ -6,6 +6,7 @@ enum TopLevelCommand {
     case run(overrideToken: String?)
     case help
     case reset(args: [String])
+    case aiGenerate(args: [String])
     case stats(args: [String])
     case reportOverrides(args: [String])
     case catalog(args: [String])
@@ -43,10 +44,18 @@ struct CLIPaths {
     let explicitPracticeWorkspace = "workspace_practice"
 }
 
+struct AIGenerateSettings {
+    let dryRun: Bool
+    let provider: String
+    let model: String?
+    let outputPath: String
+}
+
 let helpTokens: Set<String> = ["help", "-h", "--help"]
 
 let topLevelCommands: Set<String> = [
     "reset",
+    "ai-generate",
     "practice",
     "random",
     "project",
@@ -112,9 +121,13 @@ func parseTopLevelCommand(_ args: [String]) -> TopLevelCommand {
         return .run(overrideToken: overrideToken)
     }
 
+    let firstArg = firstRaw.lowercased()
     let remaining = Array(args.dropFirst())
     if firstRaw == "reset" {
         return .reset(args: remaining)
+    }
+    if firstArg == "ai-generate" {
+        return .aiGenerate(args: remaining)
     }
     if firstRaw == "stats" {
         return .stats(args: remaining)
@@ -132,7 +145,6 @@ func parseTopLevelCommand(_ args: [String]) -> TopLevelCommand {
         return .report(args: remaining)
     }
 
-    let firstArg = firstRaw.lowercased()
     if ["verify-solutions", "verify"].contains(firstArg) {
         return .verify(args: remaining)
     }
@@ -188,6 +200,67 @@ func parseStatsSettings(_ args: [String]) -> (reset: Bool, resetAll: Bool, limit
     }
 
     return (reset, resetAll, limit)
+}
+
+func parseAIGenerateSettings(_ args: [String]) -> (settings: AIGenerateSettings?, error: String?) {
+    var dryRun = false
+    var provider = "phi"
+    var model: String?
+    var outputPath = "workspace_verify/ai_candidates"
+
+    var index = 0
+    while index < args.count {
+        let arg = args[index]
+        let lowered = arg.lowercased()
+
+        if lowered == "--dry-run" {
+            dryRun = true
+            index += 1
+            continue
+        }
+        if lowered == "--provider" {
+            guard index + 1 < args.count else {
+                return (nil, "Missing value for --provider")
+            }
+            let value = args[index + 1].trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !value.isEmpty else {
+                return (nil, "Provider value cannot be empty.")
+            }
+            provider = value
+            index += 2
+            continue
+        }
+        if lowered == "--model" {
+            guard index + 1 < args.count else {
+                return (nil, "Missing value for --model")
+            }
+            let value = args[index + 1].trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !value.isEmpty else {
+                return (nil, "Model value cannot be empty.")
+            }
+            model = value
+            index += 2
+            continue
+        }
+        if lowered == "--out" {
+            guard index + 1 < args.count else {
+                return (nil, "Missing value for --out")
+            }
+            let value = args[index + 1].trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !value.isEmpty else {
+                return (nil, "Output path cannot be empty.")
+            }
+            outputPath = value
+            index += 2
+            continue
+        }
+        return (nil, "Unknown ai-generate option: \(arg)")
+    }
+
+    return (
+        AIGenerateSettings(dryRun: dryRun, provider: provider, model: model, outputPath: outputPath),
+        nil
+    )
 }
 
 func parseRandomArguments(
@@ -643,6 +716,7 @@ func printMainUsage() {
 
     Core commands:
       swift run forge reset [--all] [--start]
+      swift run forge ai-generate [--dry-run] [--provider <name>] [--model <id>] [--out <path>]
       swift run forge stats [--reset]
       swift run forge remap-progress [target]
       swift run forge catalog
@@ -686,6 +760,7 @@ func printMainUsage() {
       swift run forge random --help
       swift run forge project --help
       swift run forge stats --help
+      swift run forge ai-generate --help
       swift run forge report --help
       swift run forge report-overrides --help
       swift run forge catalog --help
@@ -710,6 +785,7 @@ func printMainUsage() {
       swift run forge verify-solutions core --constraints-only
       swift run forge review-progression core 1-80
       swift run forge audit core
+      swift run forge ai-generate --dry-run
       swift run forge report
       swift run forge catalog
       swift run forge catalog-projects
@@ -846,6 +922,25 @@ func printProjectUsage() {
     """)
 }
 
+func printAIGenerateUsage() {
+    print("""
+    Usage:
+      swift run forge ai-generate [--dry-run] [--provider <name>] [--model <id>] [--out <path>]
+      swift run forge ai-generate --help
+
+    Options:
+      --dry-run           Writes scaffold output paths only. No model calls.
+      --provider <name>   Provider key (default: phi).
+      --model <id>        Model identifier (optional).
+      --out <path>        Output directory (default: workspace_verify/ai_candidates).
+
+    Notes:
+      - This command is a scaffold for maintainer AI generation workflows.
+      - Generated candidates are intended to land in workspace_verify/ai_candidates/.
+      - Learner runtime flow is unchanged.
+    """)
+}
+
 func printStatsUsage() {
     print("""
     Usage:
@@ -910,4 +1005,3 @@ func printAuditUsage() {
     Filters match verify-solutions/review-progression (range/topic/tier/layer/bridge).
     """)
 }
-

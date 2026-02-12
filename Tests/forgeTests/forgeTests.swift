@@ -555,6 +555,13 @@ final class ForgeTests: XCTestCase {
             XCTFail("Expected project command")
         }
 
+        switch parseTopLevelCommand(["ai-generate", "--dry-run"]) {
+        case .aiGenerate(let args):
+            XCTAssertEqual(args, ["--dry-run"])
+        default:
+            XCTFail("Expected ai-generate command")
+        }
+
         switch parseTopLevelCommand(["challenge:core:36"]) {
         case .run(let overrideToken):
             XCTAssertEqual(overrideToken, "challenge:core:36")
@@ -691,6 +698,49 @@ final class ForgeTests: XCTestCase {
         let parsedResetAll = parseStatsSettings(["--reset-all"])
         XCTAssertTrue(parsedResetAll.resetAll)
         XCTAssertFalse(parsedResetAll.reset)
+    }
+
+    func testParseAIGenerateSettingsDefaults() {
+        let parsed = parseAIGenerateSettings([])
+        XCTAssertNil(parsed.error)
+        guard let settings = parsed.settings else {
+            XCTFail("Expected ai-generate settings")
+            return
+        }
+        XCTAssertFalse(settings.dryRun)
+        XCTAssertEqual(settings.provider, "phi")
+        XCTAssertNil(settings.model)
+        XCTAssertEqual(settings.outputPath, "workspace_verify/ai_candidates")
+    }
+
+    func testParseAIGenerateSettingsCustomFlags() {
+        let parsed = parseAIGenerateSettings([
+            "--dry-run",
+            "--provider", "phi",
+            "--model", "Phi-4-mini-instruct",
+            "--out", "workspace_verify/custom_candidates",
+        ])
+        XCTAssertNil(parsed.error)
+        guard let settings = parsed.settings else {
+            XCTFail("Expected ai-generate settings")
+            return
+        }
+        XCTAssertTrue(settings.dryRun)
+        XCTAssertEqual(settings.provider, "phi")
+        XCTAssertEqual(settings.model, "Phi-4-mini-instruct")
+        XCTAssertEqual(settings.outputPath, "workspace_verify/custom_candidates")
+    }
+
+    func testParseAIGenerateSettingsUnknownOption() {
+        let parsed = parseAIGenerateSettings(["--unknown"])
+        XCTAssertNil(parsed.settings)
+        XCTAssertEqual(parsed.error, "Unknown ai-generate option: --unknown")
+    }
+
+    func testParseAIGenerateSettingsMissingValue() {
+        let parsed = parseAIGenerateSettings(["--model"])
+        XCTAssertNil(parsed.settings)
+        XCTAssertEqual(parsed.error, "Missing value for --model")
     }
 
     func testParseProjectListAndRandomArguments() {

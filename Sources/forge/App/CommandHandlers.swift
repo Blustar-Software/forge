@@ -80,6 +80,41 @@ func handleReportCommand(_ args: [String]) {
     printForgeReport()
 }
 
+func handleAIGenerateCommand(_ args: [String]) {
+    if args.contains(where: { helpTokens.contains($0.lowercased()) }) {
+        printAIGenerateUsage()
+        return
+    }
+
+    let parsed = parseAIGenerateSettings(args)
+    guard let settings = parsed.settings else {
+        if let error = parsed.error {
+            print(error)
+        } else {
+            print("Invalid ai-generate options.")
+        }
+        printAIGenerateUsage()
+        return
+    }
+
+    setupWorkspace(at: settings.outputPath)
+
+    print("AI generation scaffold is active.")
+    print("Provider: \(settings.provider)")
+    if let model = settings.model {
+        print("Model: \(model)")
+    } else {
+        print("Model: (not set)")
+    }
+    if settings.dryRun {
+        print("Mode: dry-run (no model calls).")
+    } else {
+        print("Mode: scaffold-only (provider integration pending).")
+    }
+    print("Output path: \(settings.outputPath)")
+    print("Status: Not implemented yet.")
+}
+
 func handleVerifyCommand(
     _ args: [String],
     allChallenges: [Challenge],
