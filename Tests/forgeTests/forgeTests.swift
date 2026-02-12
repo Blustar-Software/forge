@@ -1074,21 +1074,38 @@ final class ForgeTests: XCTestCase {
                 "FORGE_AI_OLLAMA_MODEL": "ollama-local-test",
             ]
 
+            var requestCount = 0
             let transport: PhiHTTPTransport = { request in
+                requestCount += 1
                 XCTAssertEqual(request.httpMethod, "POST")
                 XCTAssertEqual(request.url?.absoluteString, "http://127.0.0.1:11434/v1/chat/completions")
                 XCTAssertNil(request.value(forHTTPHeaderField: "Authorization"))
-                let body = """
-                {
-                  "choices": [
+                let body: String
+                if requestCount == 1 {
+                    body = """
                     {
-                      "message": {
-                        "content": "{\\"id\\":\\"ollama-live-id\\",\\"title\\":\\"Ollama Live Draft\\",\\"description\\":\\"Live description\\",\\"starterCode\\":\\"// TODO: print Ready\\",\\"solution\\":\\"print(\\\\\\"Ready\\\\\\")\\",\\"expectedOutput\\":\\"Ready\\",\\"hints\\":[\\"Use print.\\",\\"Match output exactly.\\"],\\"topic\\":\\"general\\",\\"tier\\":\\"mainline\\",\\"layer\\":\\"core\\"}"
-                      }
+                      "choices": [
+                        {
+                          "message": {
+                            "content": "{\\"id\\":\\"ollama-live-id\\",\\"title\\":\\"Ollama Live Draft\\",\\"description\\":\\"Live description\\",\\"starterCode\\":\\"// TODO: print Ready\\",\\"solution\\":\\"print(\\\\\\"Ready\\\\\\")\\",\\"expectedOutput\\":\\"Ready\\",\\"hints\\":[\\"Use print.\\",\\"Match output exactly.\\"],\\"topic\\":\\"general\\",\\"tier\\":\\"mainline\\",\\"layer\\":\\"core\\"}"
+                          }
+                        }
+                      ]
                     }
-                  ]
+                    """
+                } else {
+                    body = """
+                    {
+                      "choices": [
+                        {
+                          "message": {
+                            "content": "{\\"approved\\":true,\\"risk\\":\\"low\\",\\"summary\\":\\"Looks good.\\",\\"findings\\":[\\"No critical issues\\"],\\"recommendations\\":[\\"Proceed with verify\\"]}"
+                          }
+                        }
+                      ]
+                    }
+                    """
                 }
-                """
                 let data = Data(body.utf8)
                 let response = HTTPURLResponse(
                     url: request.url ?? URL(string: "http://127.0.0.1:11434/v1/chat/completions")!,
@@ -1101,12 +1118,22 @@ final class ForgeTests: XCTestCase {
 
             let result = try runAIGenerateScaffold(settings: settings, environment: env, transport: transport)
             XCTAssertEqual(result.status, "live_success")
+            XCTAssertEqual(result.auditStatus, "audit_passed")
+            XCTAssertNotNil(result.auditPath)
+            XCTAssertEqual(requestCount, 2)
 
             let candidateData = try Data(contentsOf: URL(fileURLWithPath: result.candidatePath))
             let candidate = try JSONDecoder().decode(AIGeneratedCandidateArtifact.self, from: candidateData)
             XCTAssertEqual(candidate.mode, "live")
             XCTAssertEqual(candidate.challenge.id, "ollama-live-id")
             XCTAssertEqual(candidate.challenge.title, "Ollama Live Draft")
+
+            if let auditPath = result.auditPath {
+                let auditData = try Data(contentsOf: URL(fileURLWithPath: auditPath))
+                let audit = try JSONDecoder().decode(AIGenerationAuditArtifact.self, from: auditData)
+                XCTAssertEqual(audit.status, "audit_passed")
+                XCTAssertEqual(audit.approved, true)
+            }
         } catch {
             XCTFail("Expected local ollama live success, but got error: \(error)")
         }
@@ -1382,10 +1409,82 @@ final class ForgeTests: XCTestCase {
 
             let result = try runAIGenerateScaffold(settings: settings, environment: env, transport: transport)
             XCTAssertEqual(result.status, "live_success")
-            XCTAssertEqual(requestCount, 2)
+            XCTAssertEqual(requestCount, 3)
             XCTAssertTrue(result.warnings.contains { $0.contains("retry 2") })
         } catch {
             XCTFail("Expected retry live success, but got error: \(error)")
+        }
+    }
+
+    func testRunAIGenerateScaffoldLocalAuditRejectsDraftToFallback() {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        do {
+            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: tempDir) }
+
+            let outputPath = tempDir.appendingPathComponent("ai_candidates_live_audit_reject").path
+            let settings = AIGenerateSettings(
+                live: true,
+                dryRun: false,
+                provider: "ollama",
+                model: "phi4-mini:latest",
+                outputPath: outputPath
+            )
+            let env: [String: String] = [
+                "FORGE_AI_OLLAMA_ENDPOINT": "http://127.0.0.1:11434/v1",
+            ]
+
+            var requestCount = 0
+            let transport: PhiHTTPTransport = { request in
+                requestCount += 1
+                let body: String
+                if requestCount == 1 {
+                    body = """
+                    {
+                      "choices": [
+                        {
+                          "message": {
+                            "content": "{\\"id\\":\\"audit-reject-id\\",\\"title\\":\\"Audit Reject Draft\\",\\"description\\":\\"desc\\",\\"starterCode\\":\\"// TODO: print Stable\\",\\"solution\\":\\"print(\\\\\\"Stable\\\\\\")\\",\\"expectedOutput\\":\\"Stable\\",\\"hints\\":[\\"Use print\\",\\"Match output\\"],\\"topic\\":\\"general\\",\\"tier\\":\\"mainline\\",\\"layer\\":\\"core\\"}"
+                          }
+                        }
+                      ]
+                    }
+                    """
+                } else {
+                    body = """
+                    {
+                      "choices": [
+                        {
+                          "message": {
+                            "content": "{\\"approved\\":false,\\"risk\\":\\"high\\",\\"summary\\":\\"Solution is too trivial for this prompt.\\",\\"findings\\":[\\"Weak pedagogical value\\"],\\"recommendations\\":[\\"Regenerate with clearer learning objective\\"]}"
+                          }
+                        }
+                      ]
+                    }
+                    """
+                }
+                let data = Data(body.utf8)
+                let response = HTTPURLResponse(
+                    url: request.url ?? URL(string: "http://127.0.0.1:11434/v1/chat/completions")!,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: nil
+                )!
+                return (data, response)
+            }
+
+            let result = try runAIGenerateScaffold(settings: settings, environment: env, transport: transport)
+            XCTAssertEqual(result.status, "live_fallback_scaffold")
+            XCTAssertEqual(result.auditStatus, "audit_rejected")
+            XCTAssertEqual(requestCount, 2)
+            XCTAssertTrue(result.warnings.contains { $0.contains("Reasoning audit rejected draft") })
+
+            let candidateData = try Data(contentsOf: URL(fileURLWithPath: result.candidatePath))
+            let candidate = try JSONDecoder().decode(AIGeneratedCandidateArtifact.self, from: candidateData)
+            XCTAssertEqual(candidate.mode, "live-fallback-scaffold")
+            XCTAssertNotEqual(candidate.challenge.id, "audit-reject-id")
+        } catch {
+            XCTFail("Expected audit rejection fallback, but got error: \(error)")
         }
     }
 

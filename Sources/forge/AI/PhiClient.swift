@@ -20,6 +20,15 @@ struct OllamaClientConfig {
     let timeoutSeconds: Int
 }
 
+struct AIDraftAuditDecision {
+    let model: String
+    let approved: Bool
+    let risk: String
+    let summary: String
+    let findings: [String]
+    let recommendations: [String]
+}
+
 enum PhiClientError: LocalizedError {
     case missingEnvironment(String)
     case invalidEndpoint(String)
@@ -31,6 +40,7 @@ enum PhiClientError: LocalizedError {
     case emptyChoices
     case emptyContent
     case invalidDraftPayload(String)
+    case invalidAuditPayload(String)
 
     var errorDescription: String? {
         switch self {
@@ -57,6 +67,8 @@ enum PhiClientError: LocalizedError {
             return "Live provider returned empty content."
         case .invalidDraftPayload(let detail):
             return "Live provider payload was not a valid challenge draft: \(detail)"
+        case .invalidAuditPayload(let detail):
+            return "Live provider payload was not a valid audit decision: \(detail)"
         }
     }
 }
@@ -118,6 +130,22 @@ func loadOllamaClientConfig(modelOverride: String?, environment: [String: String
     }()
 
     return OllamaClientConfig(endpoint: endpoint, apiKey: apiKey, model: model, timeoutSeconds: timeoutSeconds)
+}
+
+func resolvedOllamaAuditModel(environment: [String: String]) -> String {
+    let raw = environment["FORGE_AI_OLLAMA_AUDIT_MODEL"]?.trimmingCharacters(in: .whitespacesAndNewlines)
+    if let raw, !raw.isEmpty {
+        return raw
+    }
+    return "phi4-mini-reasoning:latest"
+}
+
+func resolvedOllamaAuditTimeoutSeconds(environment: [String: String], baseTimeout: Int) -> Int {
+    let raw = environment["FORGE_AI_OLLAMA_AUDIT_TIMEOUT_SECONDS"]?.trimmingCharacters(in: .whitespacesAndNewlines)
+    if let raw, let parsed = Int(raw) {
+        return max(20, parsed)
+    }
+    return max(120, baseTimeout)
 }
 
 func normalizedPhiEndpoint(_ raw: String) -> String {
@@ -222,6 +250,68 @@ func fetchOllamaLiveDraft(
     return try decodeLiveDraft(from: data)
 }
 
+func fetchOllamaDraftAudit(
+    draft: AIChallengeDraft,
+    environment: [String: String],
+    transport: OllamaHTTPTransport? = nil
+) throws -> AIDraftAuditDecision {
+    let config = try loadOllamaClientConfig(modelOverride: nil, environment: environment)
+    let auditModel = resolvedOllamaAuditModel(environment: environment)
+    let timeoutSeconds = resolvedOllamaAuditTimeoutSeconds(environment: environment, baseTimeout: config.timeoutSeconds)
+
+    var request = URLRequest(url: config.endpoint)
+    request.httpMethod = "POST"
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    if let apiKey = config.apiKey {
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+    }
+
+    let draftJSON: String = {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        guard let data = try? encoder.encode(draft),
+              let text = String(data: data, encoding: .utf8) else {
+            return "{}"
+        }
+        return text
+    }()
+
+    let payload = PhiChatRequest(
+        model: auditModel,
+        temperature: 0.1,
+        messages: [
+            PhiChatMessage(role: "system", content: ollamaAuditSystemPrompt),
+            PhiChatMessage(role: "user", content: buildOllamaAuditUserPrompt(draftJSON: draftJSON))
+        ]
+    )
+
+    do {
+        request.httpBody = try JSONEncoder().encode(payload)
+    } catch {
+        throw PhiClientError.requestEncodingFailed(error)
+    }
+
+    let httpTransport = transport ?? { request in
+        try defaultOllamaHTTPTransport(request, timeoutSeconds: timeoutSeconds)
+    }
+    let (data, response) = try httpTransport(request)
+    guard (200..<300).contains(response.statusCode) else {
+        let body = String(data: data, encoding: .utf8) ?? ""
+        throw PhiClientError.badStatus(response.statusCode, body)
+    }
+
+    var decision = try decodeLiveAuditDecision(from: data)
+    decision = AIDraftAuditDecision(
+        model: auditModel,
+        approved: decision.approved,
+        risk: decision.risk,
+        summary: decision.summary,
+        findings: decision.findings,
+        recommendations: decision.recommendations
+    )
+    return decision
+}
+
 func decodeLiveDraft(from data: Data) throws -> AIChallengeDraft {
     let completion: PhiChatCompletionResponse
     do {
@@ -257,6 +347,43 @@ func decodeLiveDraft(from data: Data) throws -> AIChallengeDraft {
     }
     let preview = String(message.prefix(300))
     throw PhiClientError.invalidDraftPayload(preview)
+}
+
+func decodeLiveAuditDecision(from data: Data) throws -> AIDraftAuditDecision {
+    let completion: PhiChatCompletionResponse
+    do {
+        completion = try JSONDecoder().decode(PhiChatCompletionResponse.self, from: data)
+    } catch {
+        throw PhiClientError.invalidAuditPayload(error.localizedDescription)
+    }
+
+    guard let message = completion.choices.first?.message.content?.trimmingCharacters(in: .whitespacesAndNewlines),
+          !message.isEmpty else {
+        if completion.choices.isEmpty {
+            throw PhiClientError.emptyChoices
+        }
+        throw PhiClientError.emptyContent
+    }
+
+    let jsonText = extractJSONObjectText(from: message)
+    let candidates = [jsonText, sanitizeLooseJSONText(jsonText)]
+    for candidate in candidates {
+        guard let jsonData = candidate.data(using: .utf8) else {
+            continue
+        }
+        if let strict = try? JSONDecoder().decode(AIDraftAuditDecisionPayload.self, from: jsonData) {
+            return strict.normalized
+        }
+        if let lenient = decodeAIAuditDecisionLenient(from: jsonData) {
+            return lenient
+        }
+    }
+
+    if let loose = decodeAIAuditDecisionFromLooseText(message) {
+        return loose
+    }
+    let preview = String(message.prefix(300))
+    throw PhiClientError.invalidAuditPayload(preview)
 }
 
 func decodeAIDraftLenient(from data: Data) -> AIChallengeDraft? {
@@ -303,6 +430,169 @@ func decodeAIDraftLenient(from data: Data) -> AIChallengeDraft? {
         tier: tier,
         layer: layer
     )
+}
+
+private struct AIDraftAuditDecisionPayload: Decodable {
+    let approved: Bool
+    let risk: String
+    let summary: String
+    let findings: [String]?
+    let recommendations: [String]?
+
+    var normalized: AIDraftAuditDecision {
+        AIDraftAuditDecision(
+            model: "",
+            approved: approved,
+            risk: normalizeAuditRisk(risk),
+            summary: summary.trimmingCharacters(in: .whitespacesAndNewlines),
+            findings: normalizeAuditItems(findings ?? []),
+            recommendations: normalizeAuditItems(recommendations ?? [])
+        )
+    }
+}
+
+func decodeAIAuditDecisionLenient(from data: Data) -> AIDraftAuditDecision? {
+    guard let object = try? JSONSerialization.jsonObject(with: data),
+          let payload = object as? [String: Any] else {
+        return nil
+    }
+    let hasAuditSignal = payload.keys.contains { key in
+        let lowered = key.lowercased()
+        return [
+            "approved",
+            "risk",
+            "summary",
+            "verdict",
+            "findings",
+            "recommendations",
+            "issues",
+            "actions",
+            "suggestions",
+        ].contains(lowered)
+    }
+    guard hasAuditSignal else {
+        return nil
+    }
+
+    let approved = parseAuditApproved(payload: payload)
+    let risk = parseAuditRisk(payload: payload)
+    let summary = draftString(for: ["summary", "notes", "reason", "verdict"], in: payload) ?? "No summary provided."
+    let findings = parseAuditItems(keys: ["findings", "issues", "problems"], payload: payload)
+    let recommendations = parseAuditItems(keys: ["recommendations", "actions", "suggestions"], payload: payload)
+
+    return AIDraftAuditDecision(
+        model: "",
+        approved: approved,
+        risk: risk,
+        summary: summary,
+        findings: findings,
+        recommendations: recommendations
+    )
+}
+
+func decodeAIAuditDecisionFromLooseText(_ text: String) -> AIDraftAuditDecision? {
+    let hasAuditSignal =
+        text.localizedCaseInsensitiveContains("\"approved\"")
+        || text.localizedCaseInsensitiveContains("\"risk\"")
+        || text.localizedCaseInsensitiveContains("\"summary\"")
+        || text.localizedCaseInsensitiveContains("\"verdict\"")
+    guard hasAuditSignal else {
+        return nil
+    }
+
+    let approved: Bool = {
+        if let raw = firstRegexCapture(pattern: "\"approved\"\\s*:\\s*(true|false)", in: text, options: [.caseInsensitive]) {
+            return raw.lowercased() == "true"
+        }
+        if let raw = looseStringValue(for: ["approved", "verdict"], in: text) {
+            let lowered = raw.lowercased()
+            return ["true", "pass", "approved", "yes"].contains(lowered)
+        }
+        return false
+    }()
+
+    let risk = normalizeAuditRisk(looseStringValue(for: ["risk", "severity"], in: text) ?? "medium")
+    let summary = looseStringValue(for: ["summary", "notes", "reason", "verdict"], in: text)
+        ?? "No summary provided."
+    let findings = looseStringArrayValue(for: ["findings", "issues", "problems"], in: text)
+    let recommendations = looseStringArrayValue(for: ["recommendations", "actions", "suggestions"], in: text)
+
+    return AIDraftAuditDecision(
+        model: "",
+        approved: approved,
+        risk: risk,
+        summary: summary,
+        findings: findings,
+        recommendations: recommendations
+    )
+}
+
+func parseAuditApproved(payload: [String: Any]) -> Bool {
+    if let value = payload["approved"] as? Bool {
+        return value
+    }
+    if let value = payload["approved"] as? NSNumber {
+        return value.intValue != 0
+    }
+    if let text = draftString(for: ["approved", "verdict", "result"], in: payload)?.lowercased() {
+        return ["true", "pass", "approved", "yes"].contains(text)
+    }
+    return false
+}
+
+func parseAuditRisk(payload: [String: Any]) -> String {
+    let raw = draftString(for: ["risk", "severity", "confidence"], in: payload) ?? "medium"
+    return normalizeAuditRisk(raw)
+}
+
+func parseAuditItems(keys: [String], payload: [String: Any]) -> [String] {
+    for key in keys {
+        guard let raw = payload[key] else { continue }
+        if let values = raw as? [String] {
+            let normalized = normalizeAuditItems(values)
+            if !normalized.isEmpty {
+                return normalized
+            }
+        }
+        if let values = raw as? [Any] {
+            let normalized = normalizeAuditItems(values.compactMap { draftString(from: $0) })
+            if !normalized.isEmpty {
+                return normalized
+            }
+        }
+        if let single = draftString(from: raw) {
+            let split = single
+                .split(whereSeparator: { $0 == "\n" || $0 == ";" })
+                .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+            if !split.isEmpty {
+                return split
+            }
+        }
+    }
+    return []
+}
+
+func normalizeAuditRisk(_ raw: String) -> String {
+    let lowered = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    if ["low", "medium", "high"].contains(lowered) {
+        return lowered
+    }
+    if ["critical", "severe"].contains(lowered) {
+        return "high"
+    }
+    if ["moderate", "mid"].contains(lowered) {
+        return "medium"
+    }
+    if ["minor", "safe"].contains(lowered) {
+        return "low"
+    }
+    return "medium"
+}
+
+func normalizeAuditItems(_ items: [String]) -> [String] {
+    items.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        .filter { !$0.isEmpty }
 }
 
 func draftString(for keys: [String], in payload: [String: Any]) -> String? {
@@ -452,6 +742,32 @@ func looseHints(in text: String) -> [String] {
         "Use print(...) to produce the expected output.",
         "Match expected output exactly, including punctuation."
     ]
+}
+
+func looseStringArrayValue(for keys: [String], in text: String) -> [String] {
+    for key in keys {
+        let escaped = NSRegularExpression.escapedPattern(for: key)
+        let arrayPattern = "\"\(escaped)\"\\s*:\\s*\\[(.*?)\\]"
+        if let body = firstRegexCapture(pattern: arrayPattern, in: text, options: [.dotMatchesLineSeparators]) {
+            let stringPattern = "\"((?:\\\\.|[^\"\\\\])*)\""
+            let captures = allRegexCaptures(pattern: stringPattern, in: body)
+            let decoded = normalizeAuditItems(captures.compactMap(decodeJSONStringFragment))
+            if !decoded.isEmpty {
+                return decoded
+            }
+        }
+
+        if let single = looseStringValue(for: [key], in: text) {
+            let split = single
+                .split(whereSeparator: { $0 == "\n" || $0 == ";" })
+                .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+            if !split.isEmpty {
+                return split
+            }
+        }
+    }
+    return []
 }
 
 func decodeJSONStringFragment(_ fragment: String) -> String? {
@@ -617,6 +933,33 @@ Constraints:
 - hints must be an array of 2 short hints.
 Output only JSON.
 """
+
+private let ollamaAuditSystemPrompt = """
+You audit a Swift learning challenge draft for Forge.
+Return only JSON with keys:
+approved,risk,summary,findings,recommendations
+"""
+
+func buildOllamaAuditUserPrompt(draftJSON: String) -> String {
+    return """
+    Audit this Swift challenge draft.
+    Criteria:
+    - Reject if the solution is likely invalid Swift or likely fails to produce expectedOutput.
+    - Reject if instructions, starterCode, and solution are inconsistent.
+    - Reject if the draft has obvious pedagogy issues for a beginner challenge.
+    - Keep findings concrete and short.
+    Output rules:
+    - JSON only.
+    - approved: boolean
+    - risk: low|medium|high
+    - summary: one short sentence
+    - findings: array of short strings
+    - recommendations: array of short strings
+
+    Draft:
+    \(draftJSON)
+    """
+}
 
 func buildPhiUserPrompt(retryFeedback: String?) -> String {
     guard let feedback = retryFeedback?.trimmingCharacters(in: .whitespacesAndNewlines),

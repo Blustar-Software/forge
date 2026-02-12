@@ -121,6 +121,9 @@ func handleAIGenerateCommand(_ args: [String]) {
         print("- \(result.requestPath)")
         print("- \(result.candidatePath)")
         print("- \(result.reportPath)")
+        if let auditPath = result.auditPath {
+            print("- \(auditPath)")
+        }
         for warning in result.warnings {
             print("Warning: \(warning)")
         }

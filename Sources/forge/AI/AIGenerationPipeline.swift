@@ -41,6 +41,7 @@ func runAIGenerateScaffold(
     let requestPath = "\(outputPath)/request.json"
     let candidatePath = "\(outputPath)/candidate.json"
     let reportPath = "\(outputPath)/report.json"
+    let auditPath = "\(outputPath)/audit.json"
 
     let requestArtifact = AIGenerationRequestArtifact(
         schemaVersion: 1,
@@ -56,6 +57,8 @@ func runAIGenerateScaffold(
     var mode = settings.dryRun ? "dry-run" : "scaffold"
     var status = settings.dryRun ? "dry_run_scaffold" : "scaffold"
     var warnings: [String] = []
+    var auditStatus: String?
+    var shouldWriteAudit = false
 
     if settings.live {
         do {
@@ -69,6 +72,46 @@ func runAIGenerateScaffold(
             warnings += validation.warnings
             mode = "live"
             status = "live_success"
+
+            if shouldRunLocalReasoningAudit(providerKey: provider.key, settings: settings, environment: environment) {
+                shouldWriteAudit = true
+                do {
+                    let audit = try runLocalReasoningAudit(
+                        draft: draft,
+                        candidatePath: candidatePath,
+                        generatedAt: generatedAt,
+                        environment: environment,
+                        transport: transport
+                    )
+                    auditStatus = audit.status
+                    warnings += audit.warnings
+                    try writeJSONArtifact(audit.artifact, to: auditPath)
+
+                    if !audit.isApproved {
+                        mode = "live-fallback-scaffold"
+                        status = "live_fallback_scaffold"
+                        draft = provider.scaffoldDraft(model: settings.model)
+                        warnings.append("Reasoning audit rejected draft; reverted to scaffold candidate.")
+                    }
+                } catch {
+                    auditStatus = "audit_error"
+                    let errorArtifact = AIGenerationAuditArtifact(
+                        schemaVersion: 1,
+                        generatedAt: generatedAt,
+                        provider: provider.key,
+                        model: resolvedOllamaAuditModel(environment: environment),
+                        candidatePath: candidatePath,
+                        status: "audit_error",
+                        approved: nil,
+                        risk: nil,
+                        summary: error.localizedDescription,
+                        findings: [],
+                        recommendations: []
+                    )
+                    try? writeJSONArtifact(errorArtifact, to: auditPath)
+                    warnings.append("Reasoning audit failed: \(error.localizedDescription)")
+                }
+            }
         } catch {
             mode = "live-fallback-scaffold"
             status = "live_fallback_scaffold"
@@ -100,7 +143,9 @@ func runAIGenerateScaffold(
         requestPath: requestPath,
         candidatePath: candidatePath,
         reportPath: reportPath,
-        warnings: warnings
+        warnings: warnings,
+        auditPath: shouldWriteAudit ? auditPath : nil,
+        auditStatus: auditStatus
     )
 
     try writeJSONArtifact(requestArtifact, to: requestPath)
@@ -116,6 +161,8 @@ func runAIGenerateScaffold(
         requestPath: requestPath,
         candidatePath: candidatePath,
         reportPath: reportPath,
+        auditPath: shouldWriteAudit ? auditPath : nil,
+        auditStatus: auditStatus,
         status: status,
         warnings: warnings
     )
@@ -243,6 +290,72 @@ func writeJSONArtifact<T: Encodable>(_ value: T, to path: String) throws {
     } catch {
         throw AIGenerationPipelineError.writeFailed(path, error)
     }
+}
+
+func shouldRunLocalReasoningAudit(
+    providerKey: String,
+    settings: AIGenerateSettings,
+    environment: [String: String]
+) -> Bool {
+    guard settings.live, providerKey == "ollama" else {
+        return false
+    }
+    guard let raw = environment["FORGE_AI_LOCAL_AUDIT_ENABLED"]?.trimmingCharacters(in: .whitespacesAndNewlines),
+          !raw.isEmpty else {
+        return true
+    }
+    let lowered = raw.lowercased()
+    return !["0", "false", "off", "no"].contains(lowered)
+}
+
+private struct LocalReasoningAuditResult {
+    let artifact: AIGenerationAuditArtifact
+    let warnings: [String]
+    let isApproved: Bool
+    let status: String
+}
+
+private func runLocalReasoningAudit(
+    draft: AIChallengeDraft,
+    candidatePath: String,
+    generatedAt: String,
+    environment: [String: String],
+    transport: PhiHTTPTransport?
+) throws -> LocalReasoningAuditResult {
+    let decision = try fetchOllamaDraftAudit(
+        draft: draft,
+        environment: environment,
+        transport: transport
+    )
+
+    let status = decision.approved ? "audit_passed" : "audit_rejected"
+    let artifact = AIGenerationAuditArtifact(
+        schemaVersion: 1,
+        generatedAt: generatedAt,
+        provider: "ollama",
+        model: decision.model,
+        candidatePath: candidatePath,
+        status: status,
+        approved: decision.approved,
+        risk: decision.risk,
+        summary: decision.summary,
+        findings: decision.findings,
+        recommendations: decision.recommendations
+    )
+
+    var warnings: [String] = []
+    if decision.approved {
+        warnings.append("Reasoning audit passed (\(decision.risk)).")
+    } else {
+        warnings.append("Reasoning audit rejected draft: \(decision.summary)")
+    }
+
+    return LocalReasoningAuditResult(
+        artifact: artifact,
+        warnings: warnings,
+        isApproved: decision.approved,
+        status: status
+    )
 }
 
 func iso8601TimestampNow() -> String {

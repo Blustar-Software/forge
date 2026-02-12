@@ -1129,6 +1129,8 @@ func printAIGenerateUsage() {
       - Local live mode defaults to provider ollama.
       - Ollama live mode reads FORGE_AI_OLLAMA_ENDPOINT (optional), FORGE_AI_OLLAMA_MODEL (optional),
         and FORGE_AI_OLLAMA_API_KEY (optional; usually not required for local servers).
+      - Local ollama live mode runs a reasoning audit by default using FORGE_AI_OLLAMA_AUDIT_MODEL
+        (default: phi4-mini-reasoning:latest). Set FORGE_AI_LOCAL_AUDIT_ENABLED=0 to disable.
       - Phi live mode reads FORGE_AI_PHI_ENDPOINT and FORGE_AI_PHI_API_KEY.
       - Optional FORGE_AI_PHI_MODEL is used when --model is not provided.
       - This command is a scaffold for maintainer AI generation workflows.
