@@ -555,6 +555,20 @@ final class ForgeTests: XCTestCase {
             XCTFail("Expected project command")
         }
 
+        switch parseTopLevelCommand(["state-export", "forge_state.json"]) {
+        case .stateExport(let args):
+            XCTAssertEqual(args, ["forge_state.json"])
+        default:
+            XCTFail("Expected state-export command")
+        }
+
+        switch parseTopLevelCommand(["state-import", "forge_state.json"]) {
+        case .stateImport(let args):
+            XCTAssertEqual(args, ["forge_state.json"])
+        default:
+            XCTFail("Expected state-import command")
+        }
+
         switch parseTopLevelCommand(["challenge:core:36"]) {
         case .run(let overrideToken):
             XCTAssertEqual(overrideToken, "challenge:core:36")
@@ -567,6 +581,66 @@ final class ForgeTests: XCTestCase {
             break
         default:
             XCTFail("Expected help command")
+        }
+    }
+
+    func testExportAndImportForgeStateRoundTrip() {
+        let fileManager = FileManager.default
+        let tempDir = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        do {
+            try fileManager.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer { try? fileManager.removeItem(at: tempDir) }
+
+            let workspacePath = tempDir.appendingPathComponent("workspace").path
+            try fileManager.createDirectory(atPath: workspacePath, withIntermediateDirectories: true)
+
+            try "challenge:core:36".write(
+                toFile: "\(workspacePath)/.progress",
+                atomically: true,
+                encoding: .utf8
+            )
+            try "conditionals|pass=2,fail=1".write(
+                toFile: "\(workspacePath)/.adaptive_stats",
+                atomically: true,
+                encoding: .utf8
+            )
+            try "{\"event\":\"pass\"}".write(
+                toFile: "\(workspacePath)/.performance_log",
+                atomically: true,
+                encoding: .utf8
+            )
+
+            let snapshotPath = tempDir.appendingPathComponent("forge_state.json").path
+            let exported = try exportForgeState(to: snapshotPath, workspacePath: workspacePath)
+            XCTAssertEqual(exported.schemaVersion, 1)
+            XCTAssertTrue(exported.files.contains { $0.name == ".progress" })
+            XCTAssertTrue(exported.files.contains { $0.name == ".adaptive_stats" })
+            XCTAssertTrue(exported.files.contains { $0.name == ".performance_log" })
+
+            try "challenge:core:99".write(
+                toFile: "\(workspacePath)/.progress",
+                atomically: true,
+                encoding: .utf8
+            )
+            try "temp".write(
+                toFile: "\(workspacePath)/.pending_practice",
+                atomically: true,
+                encoding: .utf8
+            )
+
+            let imported = try importForgeState(from: snapshotPath, workspacePath: workspacePath)
+            XCTAssertEqual(imported.files.count, exported.files.count)
+
+            let progress = try String(contentsOfFile: "\(workspacePath)/.progress", encoding: .utf8)
+            XCTAssertEqual(progress, "challenge:core:36")
+
+            let adaptive = try String(contentsOfFile: "\(workspacePath)/.adaptive_stats", encoding: .utf8)
+            XCTAssertEqual(adaptive, "conditionals|pass=2,fail=1")
+
+            XCTAssertFalse(fileManager.fileExists(atPath: "\(workspacePath)/.pending_practice"))
+        } catch {
+            XCTFail("State round-trip failed: \(error)")
         }
     }
 

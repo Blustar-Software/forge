@@ -1460,6 +1460,12 @@ struct Forge {
             if !startAfterReset {
                 return
             }
+        case .stateExport(let commandArgs):
+            handleStateExportCommand(commandArgs)
+            return
+        case .stateImport(let commandArgs):
+            handleStateImportCommand(commandArgs)
+            return
         default:
             break
         }
@@ -1518,6 +1524,10 @@ struct Forge {
             handleRemapProgressCommand(commandArgs, runtime: runtime)
         case .progress(let commandArgs):
             handleProgressCommand(commandArgs, runtime: runtime)
+        case .stateExport:
+            return
+        case .stateImport:
+            return
         case .run(let overrideToken):
             handleRunCommand(overrideToken: overrideToken, runtime: runtime, paths: paths, flags: flags)
         }

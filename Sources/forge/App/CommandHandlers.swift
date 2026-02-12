@@ -517,6 +517,66 @@ func handleProgressCommand(_ args: [String], runtime: RuntimeContext) {
     print("Progress set to step \(startIndex) (\(stepLabel(for: runtime.steps, index: startIndex))).")
 }
 
+func handleStateExportCommand(_ args: [String]) {
+    if args.first?.lowercased() == "help" || args.first == "--help" || args.first == "-h" {
+        printStateExportUsage()
+        return
+    }
+
+    if let invalid = args.first(where: { $0.hasPrefix("--") }) {
+        print("Unknown state-export option: \(invalid)")
+        printStateExportUsage()
+        return
+    }
+    if args.count > 1 {
+        print("state-export accepts at most one snapshot path.")
+        printStateExportUsage()
+        return
+    }
+
+    let outputPath = args.first?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+        ? args.first!
+        : "forge_state.json"
+
+    do {
+        let snapshot = try exportForgeState(to: outputPath)
+        print("State export path: \(outputPath)")
+        print("Exported files: \(snapshot.files.count)")
+    } catch {
+        print("state-export failed: \(error.localizedDescription)")
+    }
+}
+
+func handleStateImportCommand(_ args: [String]) {
+    if args.first?.lowercased() == "help" || args.first == "--help" || args.first == "-h" {
+        printStateImportUsage()
+        return
+    }
+
+    if let invalid = args.first(where: { $0.hasPrefix("--") }) {
+        print("Unknown state-import option: \(invalid)")
+        printStateImportUsage()
+        return
+    }
+    if args.count > 1 {
+        print("state-import accepts at most one snapshot path.")
+        printStateImportUsage()
+        return
+    }
+
+    let inputPath = args.first?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+        ? args.first!
+        : "forge_state.json"
+
+    do {
+        let snapshot = try importForgeState(from: inputPath)
+        print("State import path: \(inputPath)")
+        print("Imported files: \(snapshot.files.count)")
+    } catch {
+        print("state-import failed: \(error.localizedDescription)")
+    }
+}
+
 func handleRunCommand(
     overrideToken: String?,
     runtime: RuntimeContext,

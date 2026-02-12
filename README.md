@@ -80,6 +80,33 @@ Progress helpers:
 - `swift run forge report-overrides [--threshold <n>]` prints suggested extra-parent overrides when an extra is far from its parent.
 - `swift run forge catalog` / `swift run forge catalog-projects` provide a readable curriculum map without opening source files.
 
+## Sync progress between computers
+Use Forge's built-in state snapshot commands:
+
+```sh
+swift run forge state-export forge_state.json
+swift run forge state-import forge_state.json
+```
+
+Workflow:
+- On computer A, run `state-export`.
+- Move `forge_state.json` to computer B.
+- On computer B, run `state-import`.
+
+State synced by these commands:
+- `workspace/.progress`
+- `workspace/.stage_gate`
+- `workspace/.stage_gate_summary`
+- `workspace/.adaptive_stats`
+- `workspace/.adaptive_challenge_stats`
+- `workspace/.pending_practice`
+- `workspace/.performance_log`
+- `workspace/.constraint_mastery`
+
+Notes:
+- `state-export` and `state-import` default to `forge_state.json` if no path is provided.
+- Import mirrors managed state files to the snapshot contents.
+
 ## Practice mode
 ```sh
 swift run forge practice

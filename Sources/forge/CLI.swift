@@ -19,6 +19,8 @@ enum TopLevelCommand {
     case project(args: [String])
     case remapProgress(args: [String])
     case progress(args: [String])
+    case stateExport(args: [String])
+    case stateImport(args: [String])
 }
 
 struct GlobalFlags {
@@ -52,6 +54,8 @@ let topLevelCommands: Set<String> = [
     "project",
     "progress",
     "remap-progress",
+    "state-export",
+    "state-import",
     "verify-solutions",
     "verify",
     "review-progression",
@@ -153,6 +157,12 @@ func parseTopLevelCommand(_ args: [String]) -> TopLevelCommand {
     }
     if firstArg == "remap-progress" {
         return .remapProgress(args: remaining)
+    }
+    if firstArg == "state-export" {
+        return .stateExport(args: remaining)
+    }
+    if firstArg == "state-import" {
+        return .stateImport(args: remaining)
     }
     if firstArg == "progress" {
         return .progress(args: remaining)
@@ -645,6 +655,8 @@ func printMainUsage() {
       swift run forge reset [--all] [--start]
       swift run forge stats [--reset]
       swift run forge remap-progress [target]
+      swift run forge state-export [snapshot-path]
+      swift run forge state-import [snapshot-path]
       swift run forge catalog
       swift run forge catalog-projects
       swift run forge practice [count] [topic] [tier] [layer]
@@ -682,6 +694,8 @@ func printMainUsage() {
     Help:
       swift run forge --help
       swift run forge remap-progress --help
+      swift run forge state-export --help
+      swift run forge state-import --help
       swift run forge practice --help
       swift run forge random --help
       swift run forge project --help
@@ -706,6 +720,8 @@ func printMainUsage() {
       swift run forge progress project:core2a
       swift run forge progress step:19
       swift run forge remap-progress challenge:18
+      swift run forge state-export forge_state.json
+      swift run forge state-import forge_state.json
       swift run forge verify-solutions crust
       swift run forge verify-solutions core --constraints-only
       swift run forge review-progression core 1-80
@@ -736,6 +752,8 @@ func printMainUsage() {
       swift run forge audit --help
       swift run forge catalog --help
       swift run forge catalog-projects --help
+      swift run forge state-export --help
+      swift run forge state-import --help
     """)
 }
 
@@ -783,6 +801,39 @@ func printRemapProgressUsage() {
       swift run forge remap-progress challenge:core:18.1
       swift run forge remap-progress project:core1a
       swift run forge remap-progress step:42
+    """)
+}
+
+func printStateExportUsage() {
+    print("""
+    Usage:
+      swift run forge state-export [snapshot-path]
+
+    Defaults:
+      snapshot-path defaults to forge_state.json
+
+    Exports progress-critical workspace state:
+      - .progress
+      - .stage_gate
+      - .stage_gate_summary
+      - .adaptive_stats
+      - .adaptive_challenge_stats
+      - .pending_practice
+      - .performance_log
+      - .constraint_mastery
+    """)
+}
+
+func printStateImportUsage() {
+    print("""
+    Usage:
+      swift run forge state-import [snapshot-path]
+
+    Defaults:
+      snapshot-path defaults to forge_state.json
+
+    Imports the same progress-critical workspace state exported by state-export.
+    Managed state files are mirrored to the snapshot contents.
     """)
 }
 
@@ -910,4 +961,3 @@ func printAuditUsage() {
     Filters match verify-solutions/review-progression (range/topic/tier/layer/bridge).
     """)
 }
-
