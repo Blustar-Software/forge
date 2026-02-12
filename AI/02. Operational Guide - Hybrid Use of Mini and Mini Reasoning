@@ -65,3 +65,91 @@ This guide establishes a hybrid workflow:
 2. **Mini**: Produces format-compliant, deterministic outputs suitable for structured pipelines.
 
 The approach balances reasoning capability with output reliability, making it safe for both exploratory analysis and production-ready data generation.
+
+---
+
+## 6. Forge CLI Runbook (Current Implementation, February 12, 2026)
+
+This runbook describes the current command path implemented in Forge for experimental AI-assisted challenge authoring.
+
+### 6.1 Intended Usage
+
+- Maintainer-only pipeline for generating and promoting curriculum candidates.
+- Not part of learner runtime flow.
+- Promotion is gated with verification and automatic rollback on downstream failures.
+
+### 6.2 Canonical Command Sequence
+
+Generate artifacts:
+
+```sh
+swift run forge ai-generate --dry-run
+```
+
+Optional live generation via Phi:
+
+```sh
+export FORGE_AI_PHI_ENDPOINT="https://<endpoint>"
+export FORGE_AI_PHI_API_KEY="<key>"
+export FORGE_AI_PHI_MODEL="Phi-4-mini-instruct" # optional
+swift run forge ai-generate --live
+```
+
+Verify candidate:
+
+```sh
+swift run forge ai-verify
+```
+
+Promote candidate:
+
+```sh
+swift run forge ai-promote --target Sources/forge/Curriculum/core3_challenges.json
+```
+
+### 6.3 Artifact Contract
+
+Default artifact directory:
+
+`workspace_verify/ai_candidates/`
+
+Expected files:
+
+- `request.json`
+- `candidate.json`
+- `report.json`
+
+### 6.4 Promotion Gates and Guardrails
+
+`ai-promote` enforces all of the following:
+
+1. `report.json` must parse and have an allowed status:
+   - `scaffold`
+   - `dry_run_scaffold`
+   - `live_success`
+   - `live_fallback_scaffold`
+2. `report.json.candidatePath` must match the provided candidate path.
+3. Full `ai-verify` must pass.
+4. Candidate is appended to target curriculum JSON.
+5. Post-append checks must pass:
+   - `swift test`
+   - `swift run forge verify-solutions --constraints-only`
+6. If either post-append check fails, the target file is restored automatically.
+
+### 6.5 Targeting Rules
+
+- Standard target files:
+  - `Sources/forge/Curriculum/core1_challenges.json`
+  - `Sources/forge/Curriculum/core2_challenges.json`
+  - `Sources/forge/Curriculum/core3_challenges.json`
+  - `Sources/forge/Curriculum/mantle_challenges.json`
+  - `Sources/forge/Curriculum/crust_challenges.json`
+- Bridge target:
+  - `Sources/forge/Curriculum/bridge_challenges.json`
+  - Requires `--bridge-section core-to-mantle` or `--bridge-section mantle-to-crust`
+
+### 6.6 Operational Notes
+
+- Keep this flow on a dedicated branch (for example, `ai-integration`) until promoted content is validated.
+- Prefer one promoted challenge per commit for easier review/revert.
+- Run `scripts/check.sh` before opening a PR.

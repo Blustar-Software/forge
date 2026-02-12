@@ -74,6 +74,49 @@ swift run forge
 When prompted, press Enter to check your work. Type `h` for a hint, `c` for a cheatsheet, `l` for a lesson, or `s` for a solution (challenges and projects).
 Use `swift run forge --help` for usage and `swift run forge <command> --help` for subcommands.
 
+## AI maintainer workflow (experimental)
+This workflow is for maintainers creating curriculum candidates. It does not change learner runtime behavior.
+
+Generate candidate artifacts:
+```sh
+swift run forge ai-generate --dry-run
+```
+
+Or opt into a live Phi call:
+```sh
+export FORGE_AI_PHI_ENDPOINT="https://<endpoint>"
+export FORGE_AI_PHI_API_KEY="<key>"
+export FORGE_AI_PHI_MODEL="Phi-4-mini-instruct" # optional
+swift run forge ai-generate --live
+```
+
+Verify candidate quality:
+```sh
+swift run forge ai-verify
+```
+
+Promote to curriculum:
+```sh
+swift run forge ai-promote --target Sources/forge/Curriculum/core3_challenges.json
+```
+
+Promotion defaults and options:
+- Default candidate path: `workspace_verify/ai_candidates/candidate.json`
+- Default report path: `workspace_verify/ai_candidates/report.json`
+- Custom report/candidate: `swift run forge ai-promote <candidate-path> --report <report-path> --target <file>`
+- Bridge target requires section:
+  - `swift run forge ai-promote --target Sources/forge/Curriculum/bridge_challenges.json --bridge-section core-to-mantle`
+  - `swift run forge ai-promote --target Sources/forge/Curriculum/bridge_challenges.json --bridge-section mantle-to-crust`
+
+Promotion guardrails:
+- `ai-promote` only accepts report statuses: `scaffold`, `dry_run_scaffold`, `live_success`, `live_fallback_scaffold`.
+- Report candidate path must match the candidate file being promoted.
+- Full `ai-verify` must pass before writing.
+- After append, `ai-promote` runs:
+  - `swift test`
+  - `swift run forge verify-solutions --constraints-only`
+- If either post-append check fails, the target curriculum file is automatically restored to its pre-promotion state.
+
 Progress helpers:
 - `swift run forge progress <target>` sets `.progress` using a challenge/project/step target.
 - `swift run forge remap-progress <target>` translates legacy numeric challenge targets to layered IDs (e.g., `challenge:18` → `challenge:core:18`).
