@@ -234,9 +234,10 @@ func parseStatsSettings(_ args: [String]) -> (reset: Bool, resetAll: Bool, limit
 func parseAIGenerateSettings(_ args: [String]) -> (settings: AIGenerateSettings?, error: String?) {
     var live = false
     var dryRun = false
-    var provider = "phi"
+    var provider = "ollama"
     var model: String?
     var outputPath = "workspace_verify/ai_candidates"
+    var localMode = false
 
     var index = 0
     while index < args.count {
@@ -250,6 +251,13 @@ func parseAIGenerateSettings(_ args: [String]) -> (settings: AIGenerateSettings?
         }
         if lowered == "--dry-run" {
             dryRun = true
+            index += 1
+            continue
+        }
+        if lowered == "--local" {
+            localMode = true
+            live = true
+            provider = "ollama"
             index += 1
             continue
         }
@@ -294,6 +302,9 @@ func parseAIGenerateSettings(_ args: [String]) -> (settings: AIGenerateSettings?
 
     if live && dryRun {
         return (nil, "Use either --dry-run or --live, not both.")
+    }
+    if localMode && provider.lowercased() != "ollama" {
+        return (nil, "Use --local with provider ollama only.")
     }
 
     return (
@@ -886,7 +897,7 @@ func printMainUsage() {
 
     Core commands:
       swift run forge reset [--all] [--start]
-      swift run forge ai-generate [--dry-run] [--live] [--provider <name>] [--model <id>] [--out <path>]
+      swift run forge ai-generate [--dry-run] [--live] [--local] [--provider <name>] [--model <id>] [--out <path>]
       swift run forge ai-verify [candidate-path] [--constraints-only] [--compile-only]
       swift run forge ai-promote [candidate-path] --target <path> [--report <path>] [--bridge-section <name>]
       swift run forge stats [--reset]
@@ -960,6 +971,7 @@ func printMainUsage() {
       swift run forge review-progression core 1-80
       swift run forge audit core
       swift run forge ai-generate --dry-run
+      swift run forge ai-generate --local
       swift run forge ai-verify
       swift run forge ai-promote --target Sources/forge/Curriculum/core3_challenges.json
       swift run forge report
@@ -1101,19 +1113,23 @@ func printProjectUsage() {
 func printAIGenerateUsage() {
     print("""
     Usage:
-      swift run forge ai-generate [--dry-run] [--live] [--provider <name>] [--model <id>] [--out <path>]
+      swift run forge ai-generate [--dry-run] [--live] [--local] [--provider <name>] [--model <id>] [--out <path>]
       swift run forge ai-generate --help
 
     Options:
       --live              Opt in to live provider calls.
+      --local             Shortcut for --live --provider ollama.
       --dry-run           Writes scaffold output paths only. No model calls.
-      --provider <name>   Provider key (default: phi).
+      --provider <name>   Provider key (default: ollama).
       --model <id>        Model identifier (optional).
       --out <path>        Output directory (default: workspace_verify/ai_candidates).
 
     Notes:
       - Live mode must be explicitly enabled with --live.
-      - Live mode reads FORGE_AI_PHI_ENDPOINT and FORGE_AI_PHI_API_KEY.
+      - Local live mode defaults to provider ollama.
+      - Ollama live mode reads FORGE_AI_OLLAMA_ENDPOINT (optional), FORGE_AI_OLLAMA_MODEL (optional),
+        and FORGE_AI_OLLAMA_API_KEY (optional; usually not required for local servers).
+      - Phi live mode reads FORGE_AI_PHI_ENDPOINT and FORGE_AI_PHI_API_KEY.
       - Optional FORGE_AI_PHI_MODEL is used when --model is not provided.
       - This command is a scaffold for maintainer AI generation workflows.
       - Writes request.json, candidate.json, and report.json in the output directory.

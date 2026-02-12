@@ -86,13 +86,19 @@ Generate artifacts:
 swift run forge ai-generate --dry-run
 ```
 
+Local live generation (default local provider path):
+
+```sh
+swift run forge ai-generate --local
+```
+
 Optional live generation via Phi:
 
 ```sh
 export FORGE_AI_PHI_ENDPOINT="https://<endpoint>"
 export FORGE_AI_PHI_API_KEY="<key>"
 export FORGE_AI_PHI_MODEL="Phi-4-mini-instruct" # optional
-swift run forge ai-generate --live
+swift run forge ai-generate --live --provider phi
 ```
 
 Verify candidate:

@@ -82,12 +82,24 @@ Generate candidate artifacts:
 swift run forge ai-generate --dry-run
 ```
 
+Or run local live generation (default local provider):
+```sh
+swift run forge ai-generate --local
+```
+
+Optional local provider env overrides:
+```sh
+export FORGE_AI_OLLAMA_ENDPOINT="http://127.0.0.1:11434/v1"
+export FORGE_AI_OLLAMA_MODEL="phi4-mini"
+export FORGE_AI_OLLAMA_API_KEY="local" # optional
+```
+
 Or opt into a live Phi call:
 ```sh
 export FORGE_AI_PHI_ENDPOINT="https://<endpoint>"
 export FORGE_AI_PHI_API_KEY="<key>"
 export FORGE_AI_PHI_MODEL="Phi-4-mini-instruct" # optional
-swift run forge ai-generate --live
+swift run forge ai-generate --live --provider phi
 ```
 
 Verify candidate quality:

@@ -723,7 +723,7 @@ final class ForgeTests: XCTestCase {
         }
         XCTAssertFalse(settings.live)
         XCTAssertFalse(settings.dryRun)
-        XCTAssertEqual(settings.provider, "phi")
+        XCTAssertEqual(settings.provider, "ollama")
         XCTAssertNil(settings.model)
         XCTAssertEqual(settings.outputPath, "workspace_verify/ai_candidates")
     }
@@ -756,6 +756,23 @@ final class ForgeTests: XCTestCase {
         }
         XCTAssertTrue(settings.live)
         XCTAssertFalse(settings.dryRun)
+    }
+
+    func testParseAIGenerateSettingsLocalShortcut() {
+        let parsed = parseAIGenerateSettings(["--local"])
+        XCTAssertNil(parsed.error)
+        guard let settings = parsed.settings else {
+            XCTFail("Expected ai-generate settings")
+            return
+        }
+        XCTAssertTrue(settings.live)
+        XCTAssertEqual(settings.provider, "ollama")
+    }
+
+    func testParseAIGenerateSettingsRejectsLocalWithNonOllamaProvider() {
+        let parsed = parseAIGenerateSettings(["--local", "--provider", "phi"])
+        XCTAssertNil(parsed.settings)
+        XCTAssertEqual(parsed.error, "Use --local with provider ollama only.")
     }
 
     func testParseAIGenerateSettingsUnknownOption() {
@@ -1035,6 +1052,63 @@ final class ForgeTests: XCTestCase {
             XCTAssertEqual(candidate.challenge.title, "Live Draft")
         } catch {
             XCTFail("Expected live success, but got error: \(error)")
+        }
+    }
+
+    func testRunAIGenerateScaffoldLiveSuccessWithOllamaStubWithoutAPIKey() {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        do {
+            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: tempDir) }
+
+            let outputPath = tempDir.appendingPathComponent("ai_candidates_ollama_live").path
+            let settings = AIGenerateSettings(
+                live: true,
+                dryRun: false,
+                provider: "ollama",
+                model: nil,
+                outputPath: outputPath
+            )
+            let env: [String: String] = [
+                "FORGE_AI_OLLAMA_ENDPOINT": "http://127.0.0.1:11434/v1",
+                "FORGE_AI_OLLAMA_MODEL": "ollama-local-test",
+            ]
+
+            let transport: PhiHTTPTransport = { request in
+                XCTAssertEqual(request.httpMethod, "POST")
+                XCTAssertEqual(request.url?.absoluteString, "http://127.0.0.1:11434/v1/chat/completions")
+                XCTAssertNil(request.value(forHTTPHeaderField: "Authorization"))
+                let body = """
+                {
+                  "choices": [
+                    {
+                      "message": {
+                        "content": "{\\"id\\":\\"ollama-live-id\\",\\"title\\":\\"Ollama Live Draft\\",\\"description\\":\\"Live description\\",\\"starterCode\\":\\"print(\\\\\\"Ready\\\\\\")\\",\\"expectedOutput\\":\\"Ready\\",\\"hints\\":[\\"Use print.\\",\\"Match output exactly.\\"],\\"topic\\":\\"general\\",\\"tier\\":\\"mainline\\",\\"layer\\":\\"core\\"}"
+                      }
+                    }
+                  ]
+                }
+                """
+                let data = Data(body.utf8)
+                let response = HTTPURLResponse(
+                    url: request.url ?? URL(string: "http://127.0.0.1:11434/v1/chat/completions")!,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: nil
+                )!
+                return (data, response)
+            }
+
+            let result = try runAIGenerateScaffold(settings: settings, environment: env, transport: transport)
+            XCTAssertEqual(result.status, "live_success")
+
+            let candidateData = try Data(contentsOf: URL(fileURLWithPath: result.candidatePath))
+            let candidate = try JSONDecoder().decode(AIGeneratedCandidateArtifact.self, from: candidateData)
+            XCTAssertEqual(candidate.mode, "live")
+            XCTAssertEqual(candidate.challenge.id, "ollama-live-id")
+            XCTAssertEqual(candidate.challenge.title, "Ollama Live Draft")
+        } catch {
+            XCTFail("Expected local ollama live success, but got error: \(error)")
         }
     }
 

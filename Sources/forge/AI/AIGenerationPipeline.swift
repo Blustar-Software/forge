@@ -122,6 +122,8 @@ func liveDraft(
     transport: PhiHTTPTransport?
 ) throws -> AIChallengeDraft {
     switch providerKey {
+    case "ollama":
+        return try fetchOllamaLiveDraft(modelOverride: model, environment: environment, transport: transport)
     case "phi":
         return try fetchPhiLiveDraft(modelOverride: model, environment: environment, transport: transport)
     default:

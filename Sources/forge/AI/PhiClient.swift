@@ -3,11 +3,19 @@ import Foundation
 import FoundationNetworking
 #endif
 
-typealias PhiHTTPTransport = (URLRequest) throws -> (Data, HTTPURLResponse)
+typealias AIHTTPTransport = (URLRequest) throws -> (Data, HTTPURLResponse)
+typealias PhiHTTPTransport = AIHTTPTransport
+typealias OllamaHTTPTransport = AIHTTPTransport
 
 struct PhiClientConfig {
     let endpoint: URL
     let apiKey: String
+    let model: String
+}
+
+struct OllamaClientConfig {
+    let endpoint: URL
+    let apiKey: String?
     let model: String
 }
 
@@ -52,6 +60,17 @@ enum PhiClientError: LocalizedError {
     }
 }
 
+enum OllamaClientError: LocalizedError {
+    case invalidEndpoint(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidEndpoint(let value):
+            return "Invalid endpoint URL: \(value)"
+        }
+    }
+}
+
 func loadPhiClientConfig(modelOverride: String?, environment: [String: String]) throws -> PhiClientConfig {
     guard let endpointRaw = environment["FORGE_AI_PHI_ENDPOINT"]?.trimmingCharacters(in: .whitespacesAndNewlines),
           !endpointRaw.isEmpty else {
@@ -74,7 +93,39 @@ func loadPhiClientConfig(modelOverride: String?, environment: [String: String]) 
     return PhiClientConfig(endpoint: endpoint, apiKey: apiKey, model: model)
 }
 
+func loadOllamaClientConfig(modelOverride: String?, environment: [String: String]) throws -> OllamaClientConfig {
+    let endpointRaw = environment["FORGE_AI_OLLAMA_ENDPOINT"]?.trimmingCharacters(in: .whitespacesAndNewlines)
+        ?? "http://127.0.0.1:11434/v1"
+    let endpointString = normalizedOllamaEndpoint(endpointRaw)
+    guard let endpoint = URL(string: endpointString) else {
+        throw OllamaClientError.invalidEndpoint(endpointRaw)
+    }
+
+    let apiKey: String? = {
+        guard let raw = environment["FORGE_AI_OLLAMA_API_KEY"]?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !raw.isEmpty else { return nil }
+        return raw
+    }()
+
+    let model = modelOverride
+        ?? environment["FORGE_AI_OLLAMA_MODEL"]?.trimmingCharacters(in: .whitespacesAndNewlines)
+        ?? "phi4-mini"
+
+    return OllamaClientConfig(endpoint: endpoint, apiKey: apiKey, model: model)
+}
+
 func normalizedPhiEndpoint(_ raw: String) -> String {
+    var value = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+    while value.hasSuffix("/") {
+        value.removeLast()
+    }
+    if value.hasSuffix("/chat/completions") {
+        return value
+    }
+    return value + "/chat/completions"
+}
+
+func normalizedOllamaEndpoint(_ raw: String) -> String {
     var value = raw.trimmingCharacters(in: .whitespacesAndNewlines)
     while value.hasSuffix("/") {
         value.removeLast()
@@ -119,6 +170,49 @@ func fetchPhiLiveDraft(
         throw PhiClientError.badStatus(response.statusCode, body)
     }
 
+    return try decodeLiveDraft(from: data)
+}
+
+func fetchOllamaLiveDraft(
+    modelOverride: String?,
+    environment: [String: String],
+    transport: OllamaHTTPTransport? = nil
+) throws -> AIChallengeDraft {
+    let config = try loadOllamaClientConfig(modelOverride: modelOverride, environment: environment)
+
+    var request = URLRequest(url: config.endpoint)
+    request.httpMethod = "POST"
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    if let apiKey = config.apiKey {
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+    }
+
+    let payload = PhiChatRequest(
+        model: config.model,
+        temperature: 0.2,
+        messages: [
+            PhiChatMessage(role: "system", content: phiSystemPrompt),
+            PhiChatMessage(role: "user", content: phiUserPrompt)
+        ]
+    )
+
+    do {
+        request.httpBody = try JSONEncoder().encode(payload)
+    } catch {
+        throw PhiClientError.requestEncodingFailed(error)
+    }
+
+    let httpTransport = transport ?? defaultPhiHTTPTransport
+    let (data, response) = try httpTransport(request)
+    guard (200..<300).contains(response.statusCode) else {
+        let body = String(data: data, encoding: .utf8) ?? ""
+        throw PhiClientError.badStatus(response.statusCode, body)
+    }
+
+    return try decodeLiveDraft(from: data)
+}
+
+func decodeLiveDraft(from data: Data) throws -> AIChallengeDraft {
     let completion: PhiChatCompletionResponse
     do {
         completion = try JSONDecoder().decode(PhiChatCompletionResponse.self, from: data)
