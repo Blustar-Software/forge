@@ -1,0 +1,368 @@
+[
+  {
+    "canonicalId": "",
+    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Define a struct and create an instance",
+    "expectedOutput": "Iron",
+    "fixtureFiles": [],
+    "hints": [
+      "Model the item as a value type with a single stored property.",
+      "Use dot syntax to read the property for output."
+    ],
+    "id": "",
+    "introduces": [
+      "structs",
+      "properties"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "manualCheck": false,
+    "number": 124,
+    "requires": [],
+    "solution": "struct ForgeItem {\n    var name: String\n}\n\nlet item = ForgeItem(name: \"Iron\")\nprint(item.name)",
+    "starterCode": "// Challenge 124: Struct Basics\n// Define a struct and create an instance.\n\n// TODO: Create a struct named 'ForgeItem' with a 'name' property\n// TODO: Create an instance named 'item' with name \"Iron\"\n// TODO: Print 'item.name'",
+    "tier": "mainline",
+    "title": "Struct Basics",
+    "topic": "structs"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Read and update stored properties",
+    "expectedOutput": "1500",
+    "fixtureFiles": [],
+    "hints": [
+      "Stored properties can be updated on a var instance."
+    ],
+    "id": "",
+    "introduces": [
+      "properties"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "manualCheck": false,
+    "number": 125,
+    "requires": [],
+    "solution": "furnace.heat = 1500\nprint(furnace.heat)",
+    "starterCode": "// Challenge 125: Stored Properties\n// Read and update stored properties.\n\nstruct Furnace {\n    var heat: Int\n}\n\nvar furnace = Furnace(heat: 1200)\n\n// TODO: Update 'furnace.heat' to 1500\n// TODO: Print 'furnace.heat'",
+    "tier": "mainline",
+    "title": "Stored Properties",
+    "topic": "structs"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add a method that uses self",
+    "expectedOutput": "Strikes: 0",
+    "fixtureFiles": [],
+    "hints": [
+      "Use self to build the return string from the property."
+    ],
+    "id": "",
+    "introduces": [
+      "selfKeyword"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "manualCheck": false,
+    "number": 126,
+    "requires": [],
+    "solution": "struct Hammer {\n    var strikes: Int\n\n    func summary() -> String {\n        return \"Strikes: \\(strikes)\"\n    }\n}\n\nvar hammer = Hammer(strikes: 0)\nprint(hammer.summary())",
+    "starterCode": "// Challenge 126: Methods + self\n// Add a method that reads state.\n\nstruct Hammer {\n    var strikes: Int\n    // TODO: Add a method 'summary()' that returns \"Strikes: <value>\"\n}\n\nvar hammer = Hammer(strikes: 0)\n// TODO: Print 'hammer.summary()'",
+    "tier": "mainline",
+    "title": "Methods + self",
+    "topic": "structs"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Write a custom initializer",
+    "expectedOutput": "Copper\n1",
+    "fixtureFiles": [],
+    "hints": [
+      "Custom initializers can set default values."
+    ],
+    "id": "",
+    "introduces": [
+      "initializers"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Custom Initializers\nCustom initializers allow you to control how a `struct` instance is created, providing flexibility beyond the default memberwise initializer.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add one or more `init(...)` methods to set up values at creation.\n- Use `self.property = value` inside the initializer to assign properties.\n- Combine with `mutating` methods to modify instances after creation.\n\nExample:\n    struct Tool {\n        var type: String\n        var durability: Int\n\n        // Custom initializer sets a default durability\n        init(type: String) {\n            self.type = type\n            self.durability = 100\n        }\n\n        mutating func use() {\n            durability -= 10\n        }\n    }\n\n// Usage\nvar hammer = Tool(type: \"Hammer\")\nprint(hammer.type)        // Hammer\nprint(hammer.durability)  // 100\n\nGuidelines:\n- Use `let` for properties that should never change after initialization.\n- Favor custom initializers when you need validation, default logic, or computed starting values.\n- Keep behavior (methods) close to data for clarity.",
+    "manualCheck": false,
+    "number": 127,
+    "requires": [],
+    "solution": "struct Ingot {\n    var metal: String\n    var weight: Int\n\n    init(metal: String) {\n        self.metal = metal\n        self.weight = 1\n    }\n}\n\nlet ingot = Ingot(metal: \"Copper\")\nprint(ingot.metal)\nprint(ingot.weight)",
+    "starterCode": "// Challenge 127: Custom Init\n// Create a custom initializer.\n\nstruct Ingot {\n    var metal: String\n    var weight: Int\n    // TODO: Add init(metal:) that sets 'weight' to 1\n}\n\n// TODO: Create an Ingot with metal \"Copper\"\n// TODO: Print the metal and weight on separate lines",
+    "tier": "mainline",
+    "title": "Custom Init",
+    "topic": "structs"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use mutating to update struct state",
+    "expectedOutput": "3",
+    "fixtureFiles": [],
+    "hints": [
+      "Use mutating when a struct method changes properties."
+    ],
+    "id": "",
+    "introduces": [
+      "mutatingMethods"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "manualCheck": false,
+    "number": 128,
+    "requires": [],
+    "solution": "struct Crucible {\n    var level: Int\n\n    mutating func raise() {\n        level += 1\n    }\n}\n\nvar crucible = Crucible(level: 1)\ncrucible.raise()\ncrucible.raise()\nprint(crucible.level)",
+    "starterCode": "// Challenge 128: Mutating Method\n// Use mutating for state changes.\n\nstruct Crucible {\n    var level: Int\n    // TODO: Add mutating func 'raise' that increments 'level'\n}\n\nvar crucible = Crucible(level: 1)\n// TODO: Call 'raise()' twice\n// TODO: Print 'crucible.level'",
+    "tier": "mainline",
+    "title": "Mutating Method",
+    "topic": "structs"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Show independent copies of a struct",
+    "expectedOutput": "1\n2",
+    "fixtureFiles": [],
+    "hints": [
+      "Changing a copy does not affect the original."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "manualCheck": false,
+    "number": 129,
+    "requires": [],
+    "solution": "struct Mold {\n    var size: Int\n}\n\nlet original = Mold(size: 1)\nvar copy = original\ncopy.size = 2\n\nprint(original.size)\nprint(copy.size)",
+    "starterCode": "// Challenge 129: Value Semantics\n// Show that structs are copied on assignment.\n\nstruct Mold {\n    var size: Int\n}\n\nlet original = Mold(size: 1)\nvar copy = original\n\n// TODO: Change 'copy.size' to 2\n// TODO: Print 'original.size' and 'copy.size' on separate lines",
+    "tier": "mainline",
+    "title": "Value Semantics",
+    "topic": "structs"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Classes\n- class Name { var property: Type }\n- Classes are reference types\n- deinit runs when an instance is released",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Define and instantiate a class",
+    "expectedOutput": "10",
+    "fixtureFiles": [],
+    "hints": [
+      "Classes need an initializer if they have stored properties."
+    ],
+    "id": "",
+    "introduces": [
+      "classes"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Classes\nClasses are reference types, so multiple variables can point to one instance.\n\nOverview:\n- `class` supports inheritance and `deinit`.\n- Assignment copies the reference, not the data.\n- Use classes when shared mutable state is intentional.\n\nExample:\n    class Furnace {\n        var level = 0\n    }\n    let a = Furnace()\n    let b = a\n    b.level = 3   // a.level is also 3\n\nGuidelines:\n- Be explicit about ownership.\n- Watch for unintended shared mutation.",
+    "manualCheck": false,
+    "number": 130,
+    "requires": [],
+    "solution": "let anvil = Anvil(weight: 10)\nprint(anvil.weight)",
+    "starterCode": "// Challenge 130: Class Basics\n// Define and instantiate a class.\n\nclass Anvil {\n    var weight: Int\n    init(weight: Int) {\n        self.weight = weight\n    }\n}\n\n// TODO: Create an Anvil with weight 10\n// TODO: Print the weight",
+    "tier": "mainline",
+    "title": "Class Basics",
+    "topic": "classes"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Classes\n- class Name { var property: Type }\n- Classes are reference types\n- deinit runs when an instance is released",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Show shared state in classes",
+    "expectedOutput": "3",
+    "fixtureFiles": [],
+    "hints": [
+      "Changing a reference affects all references to the same instance."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Classes\nClasses are reference types, so multiple variables can point to one instance.\n\nOverview:\n- `class` supports inheritance and `deinit`.\n- Assignment copies the reference, not the data.\n- Use classes when shared mutable state is intentional.\n\nExample:\n    class Furnace {\n        var level = 0\n    }\n    let a = Furnace()\n    let b = a\n    b.level = 3   // a.level is also 3\n\nGuidelines:\n- Be explicit about ownership.\n- Watch for unintended shared mutation.",
+    "manualCheck": false,
+    "number": 131,
+    "requires": [],
+    "solution": "secondary.power = 3\nprint(primary.power)",
+    "starterCode": "// Challenge 131: Reference Semantics\n// Show that classes share references.\n\nclass Bellows {\n    var power: Int\n    init(power: Int) {\n        self.power = power\n    }\n}\n\nlet primary = Bellows(power: 1)\nlet secondary = primary\n\n// TODO: Set 'secondary.power' to 3\n// TODO: Print 'primary.power'",
+    "tier": "mainline",
+    "title": "Reference Semantics",
+    "topic": "classes"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Classes\n- class Name { var property: Type }\n- Classes are reference types\n- deinit runs when an instance is released",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Observe deinitialization",
+    "expectedOutput": "Torch 1 released",
+    "fixtureFiles": [],
+    "hints": [
+      "deinit runs when the last strong reference is released."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Classes\nClasses are reference types, so multiple variables can point to one instance.\n\nOverview:\n- `class` supports inheritance and `deinit`.\n- Assignment copies the reference, not the data.\n- Use classes when shared mutable state is intentional.\n\nExample:\n    class Furnace {\n        var level = 0\n    }\n    let a = Furnace()\n    let b = a\n    b.level = 3   // a.level is also 3\n\nGuidelines:\n- Be explicit about ownership.\n- Watch for unintended shared mutation.",
+    "manualCheck": false,
+    "number": 132,
+    "requires": [],
+    "solution": "class Torch {\n    let id: Int\n    init(id: Int) {\n        self.id = id\n    }\n\n    deinit {\n        print(\"Torch \\(id) released\")\n    }\n}\n\nvar torch: Torch? = Torch(id: 1)\ntorch = nil",
+    "starterCode": "// Challenge 132: Deinit\n// Add a deinit message.\n\nclass Torch {\n    let id: Int\n    init(id: Int) {\n        self.id = id\n    }\n    // TODO: Add deinit that prints \"Torch <id> released\"\n}\n\n// TODO: Create an optional Torch, then set it to nil",
+    "tier": "mainline",
+    "title": "Deinit",
+    "topic": "classes"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Classes\n- class Name { var property: Type }\n- Classes are reference types\n- deinit runs when an instance is released",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Choose the right type",
+    "expectedOutput": "Batch-A\nOnline",
+    "fixtureFiles": [],
+    "hints": [
+      "Use a struct for independent values and a class for shared state."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Classes\nClasses are reference types, so multiple variables can point to one instance.\n\nOverview:\n- `class` supports inheritance and `deinit`.\n- Assignment copies the reference, not the data.\n- Use classes when shared mutable state is intentional.\n\nExample:\n    class Furnace {\n        var level = 0\n    }\n    let a = Furnace()\n    let b = a\n    b.level = 3   // a.level is also 3\n\nGuidelines:\n- Be explicit about ownership.\n- Watch for unintended shared mutation.",
+    "manualCheck": false,
+    "number": 133,
+    "requires": [],
+    "solution": "struct Tag {\n    var label: String\n}\n\nclass ForgeController {\n    var status: String\n    init(status: String) {\n        self.status = status\n    }\n}\n\nlet tag = Tag(label: \"Batch-A\")\nlet controller = ForgeController(status: \"Online\")\nprint(tag.label)\nprint(controller.status)",
+    "starterCode": "// Challenge 133: Struct vs Class\n// Decide which type fits the scenario.\n\n// TODO: Create a struct for a simple 'Tag' (value type)\n// TODO: Create a class for a shared 'ForgeController' (reference type)\n// TODO: Print one property from each",
+    "tier": "mainline",
+    "title": "Struct vs Class",
+    "topic": "classes"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add a computed property",
+    "expectedOutput": "5",
+    "fixtureFiles": [],
+    "hints": [
+      "Computed properties can translate values in get/set."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "manualCheck": false,
+    "number": 134,
+    "requires": [],
+    "solution": "struct Press {\n    var force: Int\n\n    var doubleForce: Int {\n        get { force * 2 }\n        set { force = newValue / 2 }\n    }\n}\n\nvar press = Press(force: 2)\npress.doubleForce = 10\nprint(press.force)",
+    "starterCode": "// Challenge 134: Computed Property\n// Use get/set on a computed property.\n\nstruct Press {\n    var force: Int\n    // TODO: Add computed property 'doubleForce' with get/set\n}\n\nvar press = Press(force: 2)\n// TODO: Set 'press.doubleForce' to 10\n// TODO: Print 'press.force'",
+    "tier": "mainline",
+    "title": "Computed Property",
+    "topic": "properties"
+  }
+]

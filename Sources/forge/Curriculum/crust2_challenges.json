@@ -1,0 +1,609 @@
+[
+  {
+    "canonicalId": "",
+    "cheatsheet": "Sequences\n- Sequence can be iterated once with for-in\n- Collection adds indices and count\n- lazy creates deferred transformations",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requireCollectionUsage": false,
+      "requiredTokens": []
+    },
+    "description": "Implement next() manually",
+    "expectedOutput": "1200\n1300",
+    "fixtureFiles": [],
+    "hints": [
+      "Return nil after current exceeds max.",
+      "Update current after returning the old value."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "manualCheck": false,
+    "number": 190,
+    "requires": [],
+    "solution": "import Foundation\n\nstruct HeatIterator: IteratorProtocol {\n    var current: Int\n    let max: Int\n\n    mutating func next() -> Int? {\n        guard current <= max else { return nil }\n        defer { current += 100 }\n        return current\n    }\n}\n\nvar iterator = HeatIterator(current: 1200, max: 1400)\nprint(iterator.next()!)\nprint(iterator.next()!)",
+    "starterCode": "// Challenge 190: Custom Iterator\n// Implement next() manually.\n\nimport Foundation\n\nstruct HeatIterator: IteratorProtocol {\n    var current: Int\n    let max: Int\n\n    // TODO: Return current, then add 100 until max is reached\n}\n\nvar iterator = HeatIterator(current: 1200, max: 1400)\nprint(iterator.next()!)\nprint(iterator.next()!)",
+    "tier": "mainline",
+    "title": "Custom Iterator",
+    "topic": "sequences"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Sequences\n- Sequence can be iterated once with for-in\n- Collection adds indices and count\n- lazy creates deferred transformations",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requireCollectionUsage": false,
+      "requiredTokens": []
+    },
+    "description": "Materialize a sequence to access count",
+    "expectedOutput": "Count: 3\nLast: 1",
+    "fixtureFiles": [],
+    "hints": [
+      "Array(sequence) materializes the values.",
+      "Use items.count and items.last to format output."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "manualCheck": false,
+    "number": 191,
+    "requires": [],
+    "solution": "import Foundation\n\nstruct Counter: Sequence {\n    let start: Int\n    func makeIterator() -> CounterIterator {\n        return CounterIterator(current: start)\n    }\n}\n\nstruct CounterIterator: IteratorProtocol {\n    var current: Int\n    mutating func next() -> Int? {\n        guard current > 0 else { return nil }\n        defer { current -= 1 }\n        return current\n    }\n}\n\nlet sequence = Counter(start: 3)\nlet items = Array(sequence)\nprint(\"Count: \\(items.count)\")\nprint(\"Last: \\(items.last ?? 0)\")",
+    "starterCode": "// Challenge 191: Sequence vs Collection\n// Materialize a sequence to access count.\n\nimport Foundation\n\nstruct Counter: Sequence {\n    let start: Int\n    func makeIterator() -> CounterIterator {\n        return CounterIterator(current: start)\n    }\n}\n\nstruct CounterIterator: IteratorProtocol {\n    var current: Int\n    mutating func next() -> Int? {\n        guard current > 0 else { return nil }\n        defer { current -= 1 }\n        return current\n    }\n}\n\nlet sequence = Counter(start: 3)\n// TODO: Convert the sequence to an Array\n// TODO: Print \"Count: 3\" and \"Last: 1\"",
+    "tier": "mainline",
+    "title": "Sequence vs Collection",
+    "topic": "sequences"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Actors\n- actor isolates mutable state\n- actor methods are accessed with await\n- @MainActor marks main-thread-bound work",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Combine async, actors, and wrappers",
+    "expectedOutput": "Heat: 2000",
+    "fixtureFiles": [],
+    "hints": [
+      "The wrapper clamps heat to 2000.",
+      "Use await to call actor methods."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 192,
+    "requires": [
+      "asyncAwait",
+      "task",
+      "actors",
+      "propertyWrappers"
+    ],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\n@propertyWrapper\nstruct Clamped {\n    private var value: Int\n    private let range: ClosedRange<Int>\n\n    var wrappedValue: Int {\n        get { value }\n        set { value = min(max(newValue, range.lowerBound), range.upperBound) }\n    }\n\n    init(wrappedValue: Int, _ range: ClosedRange<Int>) {\n        self.range = range\n        self.value = min(max(wrappedValue, range.lowerBound), range.upperBound)\n    }\n}\n\nactor Furnace {\n    @Clamped(0...2000) var heat: Int = 0\n\n    func addHeat(_ value: Int) {\n        heat += value\n    }\n\n    func currentHeat() -> Int {\n        return heat\n    }\n}\n\nlet furnace = Furnace()\nrunAsync {\n    await furnace.addHeat(2200)\n    let current = await furnace.currentHeat()\n    print(\"Heat: \\(current)\")\n}\n",
+    "starterCode": "// Challenge 192: Integration Challenge\n// Combine async, actors, and wrappers.\n// Prereqs: async/await, actors, property wrappers.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\n@propertyWrapper\nstruct Clamped {\n    private var value: Int\n    private let range: ClosedRange<Int>\n\n    var wrappedValue: Int {\n        get { value }\n        set { value = min(max(newValue, range.lowerBound), range.upperBound) }\n    }\n\n    init(wrappedValue: Int, _ range: ClosedRange<Int>) {\n        self.range = range\n        self.value = min(max(wrappedValue, range.lowerBound), range.upperBound)\n    }\n}\n\nactor Furnace {\n    @Clamped(0...2000) var heat: Int = 0\n    // TODO: Add addHeat(_:) to increase heat\n    // TODO: Add currentHeat() -> Int to return heat\n}\n\nlet furnace = Furnace()\nrunAsync {\n    // TODO: await furnace.addHeat(2200)\n    // TODO: Print \"Heat: 2000\"\n}\n",
+    "tier": "mainline",
+    "title": "Integration Challenge",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Generics\n- some returns an opaque type\n- any uses an existential type\n- Type erasure hides concrete types\n- where clauses add constraints",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Return an opaque type with some",
+    "expectedOutput": "Metal: Iron",
+    "fixtureFiles": [],
+    "hints": [
+      "Return a concrete type that conforms to Metal.",
+      "Use the name property when printing."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Generics\nAdvanced generics express relationships between types.\n\nOverview:\n- Associated types describe placeholder types in protocols.\n- `where` clauses constrain combinations of generic types.\n- Protocol extensions can add constrained default behavior.\n\nExample:\n    protocol Store {\n        associatedtype Item\n        mutating func add(_ item: Item)\n    }\n\nGuidelines:\n- Encode real constraints in the type system.\n- Prefer simpler signatures unless constraints add clear value.",
+    "manualCheck": false,
+    "number": 193,
+    "requires": [],
+    "solution": "protocol Metal {\n    var name: String { get }\n}\n\nstruct Ingot: Metal {\n    let name: String\n}\n\nfunc makeMetal() -> some Metal {\n    return Ingot(name: \"Iron\")\n}\n\nlet metal = makeMetal()\nprint(\"Metal: \\(metal.name)\")",
+    "starterCode": "// Challenge 193: Opaque Types\n// Return an opaque type with some.\n\nprotocol Metal {\n    var name: String { get }\n}\n\nstruct Ingot: Metal {\n    let name: String\n}\n\n// TODO: Return an Ingot named \"Iron\"\nfunc makeMetal() -> some Metal {\n}\n\nlet metal = makeMetal()\nprint(\"Metal: \\(metal.name)\")",
+    "tier": "mainline",
+    "title": "Opaque Types",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Generics\n- some returns an opaque type\n- any uses an existential type\n- Type erasure hides concrete types\n- where clauses add constraints",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Store mixed conforming types with any",
+    "expectedOutput": "Temp\nPressure",
+    "fixtureFiles": [],
+    "hints": [
+      "any Sensor stores values with different concrete types.",
+      "Loop and print the name for each sensor."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Generics\nAdvanced generics express relationships between types.\n\nOverview:\n- Associated types describe placeholder types in protocols.\n- `where` clauses constrain combinations of generic types.\n- Protocol extensions can add constrained default behavior.\n\nExample:\n    protocol Store {\n        associatedtype Item\n        mutating func add(_ item: Item)\n    }\n\nGuidelines:\n- Encode real constraints in the type system.\n- Prefer simpler signatures unless constraints add clear value.",
+    "manualCheck": false,
+    "number": 194,
+    "requires": [],
+    "solution": "protocol Sensor {\n    var name: String { get }\n}\n\nstruct TempSensor: Sensor { let name = \"Temp\" }\nstruct PressureSensor: Sensor { let name = \"Pressure\" }\n\nfunc report(_ sensors: [any Sensor]) {\n    for sensor in sensors {\n        print(sensor.name)\n    }\n}\n\nlet sensors: [any Sensor] = [TempSensor(), PressureSensor()]\nreport(sensors)",
+    "starterCode": "// Challenge 194: Existentials\n// Store mixed conforming types with any.\n\nprotocol Sensor {\n    var name: String { get }\n}\n\nstruct TempSensor: Sensor { let name = \"Temp\" }\nstruct PressureSensor: Sensor { let name = \"Pressure\" }\n\nfunc report(_ sensors: [any Sensor]) {\n    // TODO: Print each sensor name on its own line\n}\n\nlet sensors: [any Sensor] = [TempSensor(), PressureSensor()]\nreport(sensors)",
+    "tier": "mainline",
+    "title": "Existentials",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Generics\n- some returns an opaque type\n- any uses an existential type\n- Type erasure hides concrete types\n- where clauses add constraints",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Hide concrete types behind a wrapper",
+    "expectedOutput": "Sum: 7",
+    "fixtureFiles": [],
+    "hints": [
+      "Capture the base.read method in the initializer.",
+      "read() should call the stored closure."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Generics\nAdvanced generics express relationships between types.\n\nOverview:\n- Associated types describe placeholder types in protocols.\n- `where` clauses constrain combinations of generic types.\n- Protocol extensions can add constrained default behavior.\n\nExample:\n    protocol Store {\n        associatedtype Item\n        mutating func add(_ item: Item)\n    }\n\nGuidelines:\n- Encode real constraints in the type system.\n- Prefer simpler signatures unless constraints add clear value.",
+    "manualCheck": false,
+    "number": 195,
+    "requires": [],
+    "solution": "protocol Reader {\n    func read() -> Int\n}\n\nstruct FixedReader: Reader {\n    let value: Int\n    func read() -> Int { value }\n}\n\nstruct AnyReader: Reader {\n    private let _read: () -> Int\n\n    init<R: Reader>(_ base: R) {\n        _read = base.read\n    }\n\n    func read() -> Int {\n        return _read()\n    }\n}\n\nlet readers: [AnyReader] = [AnyReader(FixedReader(value: 3)), AnyReader(FixedReader(value: 4))]\nlet total = readers.reduce(0) { $0 + $1.read() }\nprint(\"Sum: \\(total)\")",
+    "starterCode": "// Challenge 195: Type Erasure\n// Hide concrete types behind a wrapper.\n\nprotocol Reader {\n    func read() -> Int\n}\n\nstruct FixedReader: Reader {\n    let value: Int\n    func read() -> Int { value }\n}\n\nstruct AnyReader: Reader {\n    private let _read: () -> Int\n\n    // TODO: Add init that stores the base reader's read method\n    // TODO: Implement read() to call the stored closure\n}\n\nlet readers: [AnyReader] = [AnyReader(FixedReader(value: 3)), AnyReader(FixedReader(value: 4))]\nlet total = readers.reduce(0) { $0 + $1.read() }\nprint(\"Sum: \\(total)\")",
+    "tier": "mainline",
+    "title": "Type Erasure",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Generics\n- some returns an opaque type\n- any uses an existential type\n- Type erasure hides concrete types\n- where clauses add constraints",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use generic protocol syntax",
+    "expectedOutput": "Top: 3",
+    "fixtureFiles": [],
+    "hints": [
+      "A primary associated type lets you write Stack<Int>.",
+      "Use items.last to get the top value."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Generics\nAdvanced generics express relationships between types.\n\nOverview:\n- Associated types describe placeholder types in protocols.\n- `where` clauses constrain combinations of generic types.\n- Protocol extensions can add constrained default behavior.\n\nExample:\n    protocol Store {\n        associatedtype Item\n        mutating func add(_ item: Item)\n    }\n\nGuidelines:\n- Encode real constraints in the type system.\n- Prefer simpler signatures unless constraints add clear value.",
+    "manualCheck": false,
+    "number": 196,
+    "requires": [],
+    "solution": "protocol Stack<Element> {\n    associatedtype Element\n    var items: [Element] { get }\n}\n\nstruct IntStack: Stack {\n    let items: [Int]\n}\n\nlet stack: any Stack<Int> = IntStack(items: [1, 2, 3])\nprint(\"Top: \\(stack.items.last ?? 0)\")",
+    "starterCode": "// Challenge 196: Primary Associated Types\n// Use generic protocol syntax.\n\nprotocol Stack<Element> {\n    associatedtype Element\n    var items: [Element] { get }\n}\n\nstruct IntStack: Stack {\n    let items: [Int]\n}\n\nlet stack: any Stack<Int> = IntStack(items: [1, 2, 3])\n// TODO: Print the top item as \"Top: 3\"",
+    "tier": "mainline",
+    "title": "Primary Associated Types",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Generics\n- some returns an opaque type\n- any uses an existential type\n- Type erasure hides concrete types\n- where clauses add constraints",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add extra generic constraints",
+    "expectedOutput": "true",
+    "fixtureFiles": [],
+    "hints": [
+      "Use a where clause or a generic constraint on the function.",
+      "Return the equality check result."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Generics\nAdvanced generics express relationships between types.\n\nOverview:\n- Associated types describe placeholder types in protocols.\n- `where` clauses constrain combinations of generic types.\n- Protocol extensions can add constrained default behavior.\n\nExample:\n    protocol Store {\n        associatedtype Item\n        mutating func add(_ item: Item)\n    }\n\nGuidelines:\n- Encode real constraints in the type system.\n- Prefer simpler signatures unless constraints add clear value.",
+    "manualCheck": false,
+    "number": 197,
+    "requires": [],
+    "solution": "func areEqual<T>(_ a: T, _ b: T) -> Bool where T: Equatable {\n    return a == b\n}\n\nprint(areEqual(4, 4))",
+    "starterCode": "// Challenge 197: Where Clauses\n// Add extra generic constraints.\n\n// TODO: Write areEqual(_:_:), constrained to Equatable, that returns Bool\n// TODO: Print the result of areEqual(4, 4)",
+    "tier": "mainline",
+    "title": "Where Clauses",
+    "topic": "generics"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Performance\n- Arrays use copy-on-write behavior\n- MemoryLayout reports size/stride/alignment\n- Measure before optimizing",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Observe value semantics in collections",
+    "expectedOutput": "2\n3",
+    "fixtureFiles": [],
+    "hints": [
+      "Arrays copy on write when mutated.",
+      "Update second, then print both counts."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Performance\nOptimize with measurement first, then targeted changes.\n\nOverview:\n- Reduce repeated allocations and unnecessary copies.\n- Avoid repeated work inside loops.\n- Prefer linear passes over nested scans when possible.\n\nExample:\n- Cache derived values when reused.\n- Use `Set` for frequent membership checks.\n\nGuidelines:\n- Keep code correct first.\n- Verify gains with realistic inputs.",
+    "manualCheck": false,
+    "number": 198,
+    "requires": [],
+    "solution": "var first = [1, 2]\nvar second = first\n\nsecond.append(3)\n\nprint(first.count)\nprint(second.count)",
+    "starterCode": "// Challenge 198: Copy-on-Write\n// Observe value semantics in collections.\n\nvar first = [1, 2]\nvar second = first\n\n// TODO: Append 3 to second\n// TODO: Print first.count then second.count",
+    "tier": "mainline",
+    "title": "Copy-on-Write",
+    "topic": "performance"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Performance\n- Arrays use copy-on-write behavior\n- MemoryLayout reports size/stride/alignment\n- Measure before optimizing",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Inspect type sizes",
+    "expectedOutput": "1\n1",
+    "fixtureFiles": [],
+    "hints": [
+      "MemoryLayout<T>.size returns the size in bytes.",
+      "Use the same pattern for both types."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Memory\nMemory behavior affects performance and correctness in larger systems.\n\nOverview:\n- Understand value vs reference semantics.\n- Watch ARC churn in high-frequency paths.\n- Avoid retain cycles in closure-heavy code.\n\nExample:\n- Capture `[weak self]` in escaping closures tied to object lifetime.\n- Prefer value types for independent snapshots.\n\nGuidelines:\n- Measure before micro-optimizing.\n- Choose ownership rules that are explicit and simple.",
+    "manualCheck": false,
+    "number": 199,
+    "requires": [],
+    "solution": "print(MemoryLayout<UInt8>.size)\nprint(MemoryLayout<Bool>.size)",
+    "starterCode": "// Challenge 199: MemoryLayout\n// Inspect type sizes.\n\n// TODO: Print MemoryLayout<UInt8>.size\n// TODO: Print MemoryLayout<Bool>.size",
+    "tier": "mainline",
+    "title": "MemoryLayout",
+    "topic": "memory"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Performance\n- Arrays use copy-on-write behavior\n- MemoryLayout reports size/stride/alignment\n- Measure before optimizing",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Measure before optimizing",
+    "expectedOutput": "Total: 5000050000\nElapsed: 0.00",
+    "fixtureFiles": [],
+    "hints": [
+      "Use string interpolation to show the elapsed time.",
+      "Print the total first, then the elapsed line."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Performance\nOptimize with measurement first, then targeted changes.\n\nOverview:\n- Reduce repeated allocations and unnecessary copies.\n- Avoid repeated work inside loops.\n- Prefer linear passes over nested scans when possible.\n\nExample:\n- Cache derived values when reused.\n- Use `Set` for frequent membership checks.\n\nGuidelines:\n- Keep code correct first.\n- Verify gains with realistic inputs.",
+    "manualCheck": false,
+    "number": 200,
+    "requires": [],
+    "solution": "import Foundation\n\nvar total = 0\nfor value in 1...100_000 {\n    total += value\n}\nlet elapsed = 0.0\n\nprint(\"Total: \\(total)\")\nprint(String(format: \"Elapsed: %.2f\", elapsed))",
+    "starterCode": "// Challenge 200: Profiling Mindset\n// Measure before optimizing.\n// Use a fixed elapsed value for deterministic output.\n//\n// Expected output:\n// Total: 5000050000\n// Elapsed: 0.00\n\nimport Foundation\n\nvar total = 0\nfor value in 1...100_000 {\n    total += value\n}\nlet elapsed = 0.0\n\n// TODO: Print total and elapsed time (format is up to you)\n// Example: \"Total: 5000050000\" and \"Elapsed: 0.00\"",
+    "tier": "mainline",
+    "title": "Profiling Mindset",
+    "topic": "performance"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Define a new infix operator",
+    "expectedOutput": "7",
+    "fixtureFiles": [],
+    "hints": [
+      "Use infix operator and a matching function implementation.",
+      "The operator function should return an Int."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 201,
+    "requires": [],
+    "solution": "infix operator +++: AdditionPrecedence\n\nfunc +++ (lhs: Int, rhs: Int) -> Int {\n    return lhs + rhs\n}\n\nprint(3 +++ 4)",
+    "starterCode": "// Challenge 201: Custom Operators\n// Define a new infix operator.\n\n// TODO: Declare infix operator +++ with AdditionPrecedence\n// TODO: Implement +++ for Int that adds two values\n// TODO: Print the result of 3 +++ 4",
+    "tier": "mainline",
+    "title": "Custom Operators",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add a subscript with two parameters",
+    "expectedOutput": "4",
+    "fixtureFiles": [],
+    "hints": [
+      "Subscripts can accept multiple parameters.",
+      "Return values[row][col] inside the subscript."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 202,
+    "requires": [],
+    "solution": "struct Grid {\n    let values: [[Int]]\n    subscript(_ row: Int, _ col: Int) -> Int {\n        return values[row][col]\n    }\n}\n\nlet grid = Grid(values: [[1, 2], [4, 5]])\nprint(grid[1, 0])",
+    "starterCode": "// Challenge 202: Custom Subscripts\n// Add a subscript with two parameters.\n\nstruct Grid {\n    let values: [[Int]]\n    // TODO: Add subscript(_:_:) -> Int\n}\n\nlet grid = Grid(values: [[1, 2], [4, 5]])\nprint(grid[1, 0])",
+    "tier": "mainline",
+    "title": "Custom Subscripts",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Forward unknown members",
+    "expectedOutput": "safe\n3",
+    "fixtureFiles": [],
+    "hints": [
+      "dynamicMemberLookup requires a dynamicMember subscript.",
+      "Return values[member] with a default if missing."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 203,
+    "requires": [],
+    "solution": "@dynamicMemberLookup\nstruct Settings {\n    var values: [String: String]\n    subscript(dynamicMember member: String) -> String {\n        return values[member, default: \"\"]\n    }\n}\n\nlet settings = Settings(values: [\"mode\": \"safe\", \"level\": \"3\"])\nprint(settings.mode)\nprint(settings.level)",
+    "starterCode": "// Challenge 203: dynamicMemberLookup\n// Forward unknown members.\n\n@dynamicMemberLookup\nstruct Settings {\n    var values: [String: String]\n    // TODO: Add dynamicMember subscript returning String\n}\n\nlet settings = Settings(values: [\"mode\": \"safe\", \"level\": \"3\"])\nprint(settings.mode)\nprint(settings.level)",
+    "tier": "mainline",
+    "title": "dynamicMemberLookup",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Forward calls to a type",
+    "expectedOutput": "24",
+    "fixtureFiles": [],
+    "hints": [
+      "dynamicallyCall receives an array of arguments.",
+      "Multiply all values in the array."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 204,
+    "requires": [],
+    "solution": "@dynamicCallable\nstruct Multiplier {\n    func dynamicallyCall(withArguments args: [Int]) -> Int {\n        return args.reduce(1, *)\n    }\n}\n\nlet multiply = Multiplier()\nprint(multiply(2, 3, 4))",
+    "starterCode": "// Challenge 204: dynamicCallable\n// Forward calls to a type.\n\n@dynamicCallable\nstruct Multiplier {\n    // TODO: Implement dynamicallyCall(withArguments:) -> Int\n}\n\nlet multiply = Multiplier()\nprint(multiply(2, 3, 4))",
+    "tier": "mainline",
+    "title": "dynamicCallable",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Build values with a result builder",
+    "expectedOutput": "Forge Ready",
+    "fixtureFiles": [],
+    "hints": [
+      "The builder collects string literals into an array.",
+      "Join the pieces with a separator before printing."
+    ],
+    "id": "",
+    "introduces": [
+      "resultBuilders"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "manualCheck": false,
+    "number": 205,
+    "requires": [],
+    "solution": "@resultBuilder\nstruct MessageBuilder {\n    static func buildBlock(_ components: String...) -> [String] {\n        return components\n    }\n}\n\nfunc makeMessages(@MessageBuilder _ content: () -> [String]) -> [String] {\n    return content()\n}\n\nlet messages = makeMessages {\n    \"Forge\"\n    \"Ready\"\n}\n\nprint(messages.joined(separator: \" \"))",
+    "starterCode": "// Challenge 205: Result Builders (Use)\n// Build values with a result builder.\n\n@resultBuilder\nstruct MessageBuilder {\n    static func buildBlock(_ components: String...) -> [String] {\n        return components\n    }\n}\n\nfunc makeMessages(@MessageBuilder _ content: () -> [String]) -> [String] {\n    return content()\n}\n\n// TODO: Use makeMessages to build [\"Forge\", \"Ready\"]\n// TODO: Print \"Forge Ready\"",
+    "tier": "mainline",
+    "title": "Result Builders (Use)",
+    "topic": "advancedFeatures"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Advanced Features\n- Custom operators declare precedence\n- Subscripts can accept multiple parameters\n- dynamicMemberLookup forwards unknown members\n- dynamicCallable forwards calls",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Review how macro usage looks in Swift",
+    "expectedOutput": "Macro: compile-time code generation",
+    "fixtureFiles": [],
+    "hints": [
+      "Macros expand at compile time.",
+      "Output a short summary of what macros do."
+    ],
+    "id": "",
+    "introduces": [
+      "macros"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Macros\nMacros generate Swift code at compile time.\n\nOverview:\n- Use macros to remove repetitive boilerplate.\n- Prefer small, predictable expansions.\n- Keep generated behavior obvious to readers.\n\nExample:\n- Attached macros can add members or conformances.\n- Freestanding macros can transform expressions/declarations.\n\nGuidelines:\n- Validate generated output during development.\n- Avoid macros when a simple function solves the problem.",
+    "manualCheck": false,
+    "number": 206,
+    "requires": [],
+    "solution": "print(\"Macro: compile-time code generation\")",
+    "starterCode": "// Challenge 206: Macros (Usage)\n// Macros expand at compile time.\n//\n// Expected output: Macro: compile-time code generation\n\n// TODO: Print \"Macro: compile-time code generation\"",
+    "tier": "mainline",
+    "title": "Macros (Usage)",
+    "topic": "macros"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "SwiftPM\n- Package.swift defines targets and dependencies\n- Executable targets produce CLI tools\n- Library targets expose modules",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Read Package.swift for target types",
+    "expectedOutput": "Targets: forge, forgeTests",
+    "fixtureFiles": [],
+    "hints": [
+      "Package.swift lists executable and test targets.",
+      "Report the target names in a single line."
+    ],
+    "id": "",
+    "introduces": [
+      "swiftpmBasics"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: SwiftPM\nSwift Package Manager defines how modules build and depend on each other.\n\nOverview:\n- `Package.swift` declares products, targets, and dependencies.\n- Targets control source layout and resource inclusion.\n- Build configs and flags tune behavior by environment.\n\nExample:\n- Add a library dependency and link it in a target.\n- Keep package boundaries small and purposeful.\n\nGuidelines:\n- Favor simple package graphs.\n- Keep public APIs stable across package boundaries.",
+    "manualCheck": false,
+    "number": 207,
+    "requires": [],
+    "solution": "print(\"Targets: forge, forgeTests\")",
+    "starterCode": "// Challenge 207: SwiftPM Basics\n// Expected output: Targets: forge, forgeTests\n\n// TODO: Print \"Targets: forge, forgeTests\"",
+    "tier": "mainline",
+    "title": "SwiftPM Basics",
+    "topic": "swiftpm"
+  }
+]

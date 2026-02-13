@@ -8,14 +8,11 @@ This document summarizes the curriculum as implemented in `Sources/forge/Challen
 - `swift run forge catalog-projects` / `project_catalog.txt` for projects
 
 ## Structure Overview
-- **Core mainline**: 81 challenges  
-  - Core 1: 1–20  
-  - Core 2: 21–42  
-  - Core 3: 43–81  
-- **Mantle mainline**: 35 challenges  
-  - Includes bridge challenges 241–242 (tagged as Mantle).  
-- **Crust mainline**: 56 challenges  
-  - Includes bridge challenges 243–244 (tagged as Crust).  
+- **Core mainline**: 81 challenges split into Core 1 (1–20), Core 2 (21–42), Core 3 (43–81)  
+- **Mantle mainline**: 33 challenges split into Mantle 1 (124–134), Mantle 2 (135–144), Mantle 3 (145–156)  
+-  - Includes bridge challenges 241–242 (tagged as Mantle).  
+- **Crust mainline**: 54 challenges split into Crust 1 (175–189), Crust 2 (190–207), Crust 3 (208–228)  
+-  - Includes bridge challenges 243–244 (tagged as Crust).  
 - **Extras**: Core 75, Mantle 36, Crust 28  
   - Extras are spread across the global numbering range; use the catalog for exact ids.  
 - **Total challenges**: 311
@@ -62,6 +59,8 @@ This document summarizes the curriculum as implemented in `Sources/forge/Challen
 - Practice/random run in `workspace_practice/` and `workspace_random/`; main flow uses `workspace/`.
 - Practice/adaptive stats are recorded to `workspace/.adaptive_stats` and `workspace/.adaptive_challenge_stats`.
 
+Each pass now lives in its own JSON bundle (`mantle1_challenges.json`, `mantle2_challenges.json`, `mantle3_challenges.json`, `crust1_challenges.json`, `crust2_challenges.json`, `crust3_challenges.json`); `CurriculumLoader` aggregates them so the runtime still sees combined Mantle/Crust playlists while stage gates and project hooks keep each pass self-contained.
+
 ## Practice Filters
 Topics:
 - conditionals
@@ -81,4 +80,3 @@ Layers:
 - core
 - mantle
 - crust
-

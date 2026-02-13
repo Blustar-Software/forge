@@ -31,12 +31,36 @@ func makeCore3Challenges() -> [Challenge] {
     return requiredCurriculumResource("core3_challenges", as: [Challenge].self)
 }
 
+func makeMantle1Challenges() -> [Challenge] {
+    return requiredCurriculumResource("mantle1_challenges", as: [Challenge].self)
+}
+
+func makeMantle2Challenges() -> [Challenge] {
+    return requiredCurriculumResource("mantle2_challenges", as: [Challenge].self)
+}
+
+func makeMantle3Challenges() -> [Challenge] {
+    return requiredCurriculumResource("mantle3_challenges", as: [Challenge].self)
+}
+
 func makeMantleChallenges() -> [Challenge] {
-    return requiredCurriculumResource("mantle_challenges", as: [Challenge].self)
+    return makeMantle1Challenges() + makeMantle2Challenges() + makeMantle3Challenges()
+}
+
+func makeCrust1Challenges() -> [Challenge] {
+    return requiredCurriculumResource("crust1_challenges", as: [Challenge].self)
+}
+
+func makeCrust2Challenges() -> [Challenge] {
+    return requiredCurriculumResource("crust2_challenges", as: [Challenge].self)
+}
+
+func makeCrust3Challenges() -> [Challenge] {
+    return requiredCurriculumResource("crust3_challenges", as: [Challenge].self)
 }
 
 func makeCrustChallenges() -> [Challenge] {
-    return requiredCurriculumResource("crust_challenges", as: [Challenge].self)
+    return makeCrust1Challenges() + makeCrust2Challenges() + makeCrust3Challenges()
 }
 
 func makeBridgeChallenges() -> (coreToMantle: [Challenge], mantleToCrust: [Challenge]) {

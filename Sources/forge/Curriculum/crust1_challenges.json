@@ -1,0 +1,518 @@
+[
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Write and await a simple async function",
+    "expectedOutput": "Heat: 1500",
+    "fixtureFiles": [],
+    "hints": [
+      "Async functions are declared with async and called with await.",
+      "Await the result inside the runAsync block, then report it.",
+      "runAsync uses a Task to bridge async work in a script."
+    ],
+    "id": "",
+    "introduces": [
+      "asyncAwait",
+      "task"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 175,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let semaphore = DispatchSemaphore(value: 0)\n    Task {\n        await operation()\n        semaphore.signal()\n    }\n\n    while semaphore.wait(timeout: .now()) != .success {\n        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.01))\n    }\n}\n\nfunc fetchHeat() async -> Int {\n    return 1500\n}\n\nrunAsync {\n    let value = await fetchHeat()\n    print(\"Heat: \\(value)\")\n}\n",
+    "starterCode": "// Challenge 175: Async/Await Basics\n// Write and await a simple async function.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let semaphore = DispatchSemaphore(value: 0)\n    Task {\n        await operation()\n        semaphore.signal()\n    }\n\n    while semaphore.wait(timeout: .now()) != .success {\n        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.01))\n    }\n}\n\n// TODO: Write an async function fetchHeat() that returns 1500\n\nrunAsync {\n    // TODO: Call fetchHeat() and print \"Heat: 1500\"\n}\n",
+    "tier": "mainline",
+    "title": "Async/Await Basics",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Run async work in a Task",
+    "expectedOutput": "Forged",
+    "fixtureFiles": [],
+    "hints": [
+      "Use a Task to run the async function and capture its result.",
+      "task.value returns the Task result."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 176,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nfunc forgeName() async -> String {\n    return \"Forged\"\n}\n\nrunAsync {\n    let task = Task { await forgeName() }\n    let result = await task.value\n    print(result)\n}\n",
+    "starterCode": "// Challenge 176: Task Basics\n// Run async work in a Task.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\n// TODO: Write an async function forgeName() that returns \"Forged\"\n\nrunAsync {\n    // TODO: Start a Task that awaits forgeName()\n    // TODO: Await task.value and print the result\n}\n",
+    "tier": "mainline",
+    "title": "Task Basics",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Sum values using a task group",
+    "expectedOutput": "Sum: 6",
+    "fixtureFiles": [],
+    "hints": [
+      "Add a task for each value and sum the results as they arrive.",
+      "Return the sum from the task group scope."
+    ],
+    "id": "",
+    "introduces": [
+      "taskGroup"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 177,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nrunAsync {\n    let sum = await withTaskGroup(of: Int.self) { group -> Int in\n        for value in [1, 2, 3] {\n            group.addTask { value }\n        }\n\n        var total = 0\n        for await value in group {\n            total += value\n        }\n        return total\n    }\n\n    print(\"Sum: \\(sum)\")\n}\n",
+    "starterCode": "// Challenge 177: Structured Concurrency\n// Sum values using a task group.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nrunAsync {\n    // TODO: Use withTaskGroup to sum [1, 2, 3]\n    // TODO: Print \"Sum: 6\"\n}\n",
+    "tier": "mainline",
+    "title": "Structured Concurrency",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Iterate an AsyncStream",
+    "expectedOutput": "Total: 6",
+    "fixtureFiles": [],
+    "hints": [
+      "Yield values into the stream, then finish it when done.",
+      "for await iterates async sequences."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 178,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nfunc makeStream() -> AsyncStream<Int> {\n    return AsyncStream { continuation in\n        continuation.yield(1)\n        continuation.yield(2)\n        continuation.yield(3)\n        continuation.finish()\n    }\n}\n\nrunAsync {\n    var total = 0\n    let stream = makeStream()\n\n    for await value in stream {\n        total += value\n    }\n\n    print(\"Total: \\(total)\")\n}\n",
+    "starterCode": "// Challenge 178: Async Sequences\n// Iterate an AsyncStream of values.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\n// TODO: Build an AsyncStream that yields 1, 2, 3 then finishes\nfunc makeStream() -> AsyncStream<Int> {\n    return AsyncStream { continuation in\n        // TODO: Yield 1, 2, 3 and finish\n    }\n}\n\nrunAsync {\n    var total = 0\n    let stream = makeStream()\n\n    // TODO: Sum values from the stream with for await\n    // TODO: Print \"Total: 6\"\n}\n",
+    "tier": "mainline",
+    "title": "Async Sequences",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Respect Task cancellation",
+    "expectedOutput": "Cancelled: 0",
+    "fixtureFiles": [],
+    "hints": [
+      "Task.isCancelled lets you exit early.",
+      "Cancel the task before awaiting task.value."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 179,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nrunAsync {\n    let task = Task<Int, Never> {\n        await Task.yield()\n        if Task.isCancelled {\n            return 0\n        }\n        return 3\n    }\n\n    task.cancel()\n    let result = await task.value\n    print(\"Cancelled: \\(result)\")\n}\n",
+    "starterCode": "// Challenge 179: Cancellation\n// Respect Task cancellation.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nrunAsync {\n    let task = Task<Int, Never> {\n        await Task.yield()\n        // TODO: If Task.isCancelled, return 0\n        // TODO: Otherwise return 3\n    }\n\n    // TODO: Cancel the task\n    // TODO: Await task.value and print \"Cancelled: 0\"\n}\n",
+    "tier": "mainline",
+    "title": "Cancellation",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Actors\n- actor isolates mutable state\n- actor methods are accessed with await\n- @MainActor marks main-thread-bound work",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Isolate state with an actor",
+    "expectedOutput": "Count: 2",
+    "fixtureFiles": [],
+    "hints": [
+      "Actor methods are accessed with await.",
+      "Store the result from current() before printing."
+    ],
+    "id": "",
+    "introduces": [
+      "actors"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Actors\nActors protect mutable state from data races.\n\nOverview:\n- Actor methods are isolated by default.\n- Access actor state with `await` from outside.\n- Use actors for shared mutable state across tasks.\n\nExample:\n    actor Counter {\n        private var value = 0\n        func inc() { value += 1 }\n        func read() -> Int { value }\n    }\n\nGuidelines:\n- Keep actor APIs small.\n- Avoid unnecessary cross-actor hops in tight loops.",
+    "manualCheck": false,
+    "number": 180,
+    "requires": [],
+    "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nactor Counter {\n    private var value = 0\n\n    func increment() {\n        value += 1\n    }\n\n    func current() -> Int {\n        return value\n    }\n}\n\nlet counter = Counter()\nrunAsync {\n    await counter.increment()\n    await counter.increment()\n    let value = await counter.current()\n    print(\"Count: \\(value)\")\n}\n",
+    "starterCode": "// Challenge 180: Actor Basics\n// Isolate state with an actor.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nactor Counter {\n    private var value = 0\n    // TODO: Add increment() to add 1\n    // TODO: Add current() -> Int to return value\n}\n\nlet counter = Counter()\nrunAsync {\n    // TODO: Call increment twice\n    // TODO: Print \"Count: 2\"\n}\n",
+    "tier": "mainline",
+    "title": "Actor Basics",
+    "topic": "actors"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Actors\n- actor isolates mutable state\n- actor methods are accessed with await\n- @MainActor marks main-thread-bound work",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Run work on the main actor",
+    "expectedOutput": "Status: 3",
+    "fixtureFiles": [],
+    "hints": [
+      "@MainActor functions run on the main actor.",
+      "Run the work on the main actor inside a Task.",
+      "Run the main run loop briefly so the task can execute."
+    ],
+    "id": "",
+    "introduces": [
+      "mainActor"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Actors\nActors protect mutable state from data races.\n\nOverview:\n- Actor methods are isolated by default.\n- Access actor state with `await` from outside.\n- Use actors for shared mutable state across tasks.\n\nExample:\n    actor Counter {\n        private var value = 0\n        func inc() { value += 1 }\n        func read() -> Int { value }\n    }\n\nGuidelines:\n- Keep actor APIs small.\n- Avoid unnecessary cross-actor hops in tight loops.",
+    "manualCheck": false,
+    "number": 181,
+    "requires": [
+      "task"
+    ],
+    "solution": "import Foundation\n\n@MainActor\nfunc updateStatus(value: Int) -> String {\n    return \"Status: \\(value)\"\n}\n\nTask { @MainActor in\n    let status = updateStatus(value: 3)\n    print(status)\n}\n\nRunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))\n",
+    "starterCode": "// Challenge 181: MainActor\n// Run work on the main actor.\n\nimport Foundation\n\n@MainActor\nfunc updateStatus(value: Int) -> String {\n    // TODO: Return \"Status: <value>\"\n}\n\n// TODO: Create a Task on the main actor that prints updateStatus(value: 3)\n// TODO: Keep the run loop alive briefly so the task can finish\n",
+    "tier": "mainline",
+    "title": "MainActor",
+    "topic": "actors"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Concurrency\n- async functions can suspend and resume\n- await calls async work and returns the value\n- Task runs async work concurrently\n- withTaskGroup manages child tasks",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Mark values as safe to send across tasks",
+    "expectedOutput": "Heat: 1200",
+    "fixtureFiles": [],
+    "hints": [
+      "Sendable is a marker for concurrency safety.",
+      "Use the stored value in the output."
+    ],
+    "id": "",
+    "introduces": [
+      "sendable"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "manualCheck": false,
+    "number": 182,
+    "requires": [],
+    "solution": "import Foundation\n\nstruct HeatReport: Sendable {\n    let value: Int\n}\n\nlet report = HeatReport(value: 1200)\nprint(\"Heat: \\(report.value)\")\n",
+    "starterCode": "// Challenge 182: Sendable\n// Mark values as safe to send across tasks.\n\nimport Foundation\n\nstruct HeatReport: Sendable {\n    let value: Int\n}\n\nlet report = HeatReport(value: 1200)\n// TODO: Print \"Heat: 1200\"\n",
+    "tier": "mainline",
+    "title": "Sendable",
+    "topic": "concurrency"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Property Wrappers\n- @propertyWrapper wraps get/set logic\n- wrappedValue is the stored interface\n- projectedValue is accessed via $name",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Use a provided property wrapper",
+    "expectedOutput": "100",
+    "fixtureFiles": [],
+    "hints": [
+      "The wrapper clamps values into the provided range.",
+      "Declare the wrapped property on a type, then print it."
+    ],
+    "id": "",
+    "introduces": [
+      "propertyWrappers"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Property Wrappers\nProperty wrappers package repeated property behavior.\n\nOverview:\n- Define wrapper with `@propertyWrapper`.\n- Expose wrapped value via `wrappedValue`.\n- Optionally expose extra API via `projectedValue`.\n\nExample:\n    @propertyWrapper\n    struct Clamped {\n        private var value: Int\n        var wrappedValue: Int {\n            get { value }\n            set { value = max(0, min(100, newValue)) }\n        }\n        init(wrappedValue: Int) { value = wrappedValue }\n    }\n\nGuidelines:\n- Use wrappers for cross-cutting rules.\n- Keep wrapper behavior unsurprising.",
+    "manualCheck": false,
+    "number": 183,
+    "requires": [],
+    "solution": "import Foundation\n\n@propertyWrapper\nstruct Clamped {\n    private var value: Int\n    private let range: ClosedRange<Int>\n\n    var wrappedValue: Int {\n        get { value }\n        set { value = min(max(newValue, range.lowerBound), range.upperBound) }\n    }\n\n    init(wrappedValue: Int, _ range: ClosedRange<Int>) {\n        self.range = range\n        self.value = min(max(wrappedValue, range.lowerBound), range.upperBound)\n    }\n}\n\nstruct Furnace {\n    @Clamped(0...100) var heat = 120\n}\n\nvar furnace = Furnace()\nprint(furnace.heat)\n",
+    "starterCode": "// Challenge 183: Property Wrapper Usage\n// Use a provided property wrapper.\n\nimport Foundation\n\n@propertyWrapper\nstruct Clamped {\n    private var value: Int\n    private let range: ClosedRange<Int>\n\n    var wrappedValue: Int {\n        get { value }\n        set { value = min(max(newValue, range.lowerBound), range.upperBound) }\n    }\n\n    init(wrappedValue: Int, _ range: ClosedRange<Int>) {\n        self.range = range\n        self.value = min(max(wrappedValue, range.lowerBound), range.upperBound)\n    }\n}\n\nstruct Furnace {\n    // TODO: Create @Clamped(0...100) var heat = 120\n}\n\nvar furnace = Furnace()\n// TODO: Print heat (should be 100)\n",
+    "tier": "mainline",
+    "title": "Property Wrapper Usage",
+    "topic": "propertyWrappers"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Property Wrappers\n- @propertyWrapper wraps get/set logic\n- wrappedValue is the stored interface\n- projectedValue is accessed via $name",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Build a wrapper that normalizes input",
+    "expectedOutput": "iron",
+    "fixtureFiles": [],
+    "hints": [
+      "wrappedValue should return the stored value and lowercased on set.",
+      "Lowercase the initial wrappedValue in the initializer."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Property Wrappers\nProperty wrappers package repeated property behavior.\n\nOverview:\n- Define wrapper with `@propertyWrapper`.\n- Expose wrapped value via `wrappedValue`.\n- Optionally expose extra API via `projectedValue`.\n\nExample:\n    @propertyWrapper\n    struct Clamped {\n        private var value: Int\n        var wrappedValue: Int {\n            get { value }\n            set { value = max(0, min(100, newValue)) }\n        }\n        init(wrappedValue: Int) { value = wrappedValue }\n    }\n\nGuidelines:\n- Use wrappers for cross-cutting rules.\n- Keep wrapper behavior unsurprising.",
+    "manualCheck": false,
+    "number": 184,
+    "requires": [],
+    "solution": "import Foundation\n\n@propertyWrapper\nstruct Lowercased {\n    private var value: String\n\n    var wrappedValue: String {\n        get { value }\n        set { value = newValue.lowercased() }\n    }\n\n    init(wrappedValue: String) {\n        value = wrappedValue.lowercased()\n    }\n}\n\nstruct Label {\n    @Lowercased var name: String\n}\n\nlet label = Label(name: \"IRON\")\nprint(label.name)\n",
+    "starterCode": "// Challenge 184: Custom Property Wrapper\n// Build a wrapper that normalizes input.\n\nimport Foundation\n\n@propertyWrapper\nstruct Lowercased {\n    private var value: String\n\n    // TODO: Add wrappedValue that lowercases on set\n    // TODO: Add init(wrappedValue:) that lowercases the initial value\n}\n\nstruct Label {\n    @Lowercased var name: String\n}\n\nlet label = Label(name: \"IRON\")\n// TODO: Print label.name (should be \"iron\")\n",
+    "tier": "mainline",
+    "title": "Custom Property Wrapper",
+    "topic": "propertyWrappers"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Property Wrappers\n- @propertyWrapper wraps get/set logic\n- wrappedValue is the stored interface\n- projectedValue is accessed via $name",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Use projected values from a wrapper",
+    "expectedOutput": "Updates: 2",
+    "fixtureFiles": [],
+    "hints": [
+      "Projected values are accessed with a $ prefix.",
+      "Use the projected value on the instance after two assignments."
+    ],
+    "id": "",
+    "introduces": [
+      "projectedValues"
+    ],
+    "layer": "crust",
+    "lesson": "Lesson: Property Wrappers\nProperty wrappers package repeated property behavior.\n\nOverview:\n- Define wrapper with `@propertyWrapper`.\n- Expose wrapped value via `wrappedValue`.\n- Optionally expose extra API via `projectedValue`.\n\nExample:\n    @propertyWrapper\n    struct Clamped {\n        private var value: Int\n        var wrappedValue: Int {\n            get { value }\n            set { value = max(0, min(100, newValue)) }\n        }\n        init(wrappedValue: Int) { value = wrappedValue }\n    }\n\nGuidelines:\n- Use wrappers for cross-cutting rules.\n- Keep wrapper behavior unsurprising.",
+    "manualCheck": false,
+    "number": 185,
+    "requires": [],
+    "solution": "import Foundation\n\n@propertyWrapper\nstruct Tracked {\n    private var value: Int\n    private(set) var projectedValue: Int = 0\n\n    var wrappedValue: Int {\n        get { value }\n        set { value = newValue; projectedValue += 1 }\n    }\n\n    init(wrappedValue: Int) {\n        value = wrappedValue\n    }\n}\n\nstruct Furnace {\n    @Tracked var heat = 1200\n}\n\nvar furnace = Furnace()\nfurnace.heat = 1300\nfurnace.heat = 1400\nprint(\"Updates: \\(furnace.$heat)\")\n",
+    "starterCode": "// Challenge 185: Projected Values\n// Use projected values from a wrapper.\n\nimport Foundation\n\n@propertyWrapper\nstruct Tracked {\n    private var value: Int\n    private(set) var projectedValue: Int = 0\n\n    var wrappedValue: Int {\n        get { value }\n        set { value = newValue; projectedValue += 1 }\n    }\n\n    init(wrappedValue: Int) {\n        value = wrappedValue\n    }\n}\n\nstruct Furnace {\n    @Tracked var heat = 1200\n}\n\nvar furnace = Furnace()\nfurnace.heat = 1300\nfurnace.heat = 1400\n// TODO: Print \"Updates: 2\" using the projected value\n",
+    "tier": "mainline",
+    "title": "Projected Values",
+    "topic": "propertyWrappers"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Key Paths\n- Syntax: \\Type.property\n- Access with value[keyPath: path]\n- Map with \\Type.property",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Read a value using a key path",
+    "expectedOutput": "Iron",
+    "fixtureFiles": [],
+    "hints": [
+      "Key paths use the \\Type.property syntax.",
+      "Access with value[keyPath: path]."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Key Paths\nKey paths reference properties as values.\n\nOverview:\n- `\\Type.property` captures a readable path.\n- Use key paths with APIs like `map` and sorting helpers.\n- Writable key paths enable generic mutation utilities.\n\nExample:\n    struct Reading { let temp: Int }\n    let temps = readings.map(\\.temp)\n\nGuidelines:\n- Prefer key paths when extracting one property repeatedly.\n- Keep transformations readable and explicit.",
+    "manualCheck": false,
+    "number": 186,
+    "requires": [],
+    "solution": "import Foundation\n\nstruct Ore {\n    let name: String\n    let purity: Int\n}\n\nlet ore = Ore(name: \"Iron\", purity: 90)\nlet nameKey = \\Ore.name\nprint(ore[keyPath: nameKey])",
+    "starterCode": "// Challenge 186: Key Path Syntax\n// Read a value using a key path.\n\nimport Foundation\n\nstruct Ore {\n    let name: String\n    let purity: Int\n}\n\nlet ore = Ore(name: \"Iron\", purity: 90)\n\n// TODO: Create a key path for name and print it",
+    "tier": "mainline",
+    "title": "Key Path Syntax",
+    "topic": "keyPaths"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Key Paths\n- Syntax: \\Type.property\n- Access with value[keyPath: path]\n- Map with \\Type.property",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requiredTokens": []
+    },
+    "description": "Map values using key paths",
+    "expectedOutput": "Iron,Gold",
+    "fixtureFiles": [],
+    "hints": [
+      "map can take a key path like \\.name.",
+      "Use joined(separator:) to format the array."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Key Paths\nKey paths reference properties as values.\n\nOverview:\n- `\\Type.property` captures a readable path.\n- Use key paths with APIs like `map` and sorting helpers.\n- Writable key paths enable generic mutation utilities.\n\nExample:\n    struct Reading { let temp: Int }\n    let temps = readings.map(\\.temp)\n\nGuidelines:\n- Prefer key paths when extracting one property repeatedly.\n- Keep transformations readable and explicit.",
+    "manualCheck": false,
+    "number": 187,
+    "requires": [],
+    "solution": "import Foundation\n\nstruct Ore {\n    let name: String\n}\n\nlet ores = [Ore(name: \"Iron\"), Ore(name: \"Gold\")]\nlet names = ores.map(\\.name)\nprint(names.joined(separator: \",\"))",
+    "starterCode": "// Challenge 187: Key Path Mapping\n// Map values using key paths.\n\nimport Foundation\n\nstruct Ore {\n    let name: String\n}\n\nlet ores = [Ore(name: \"Iron\"), Ore(name: \"Gold\")]\n\n// TODO: Use map with a key path to get names\n// TODO: Print the names joined by a comma",
+    "tier": "mainline",
+    "title": "Key Path Mapping",
+    "topic": "keyPaths"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Sequences\n- Sequence can be iterated once with for-in\n- Collection adds indices and count\n- lazy creates deferred transformations",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requireCollectionUsage": false,
+      "requiredTokens": []
+    },
+    "description": "Defer work with lazy",
+    "expectedOutput": "[2, 4, 6]",
+    "fixtureFiles": [],
+    "hints": [
+      "lazy creates a deferred sequence.",
+      "Wrap the lazy result in Array(...) to print it."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "manualCheck": false,
+    "number": 188,
+    "requires": [],
+    "solution": "import Foundation\n\nlet numbers = [1, 2, 3]\nlet doubled = numbers.lazy.map { $0 * 2 }\nprint(Array(doubled))",
+    "starterCode": "// Challenge 188: Lazy Collections\n// Defer work with lazy.\n\nimport Foundation\n\nlet numbers = [1, 2, 3]\n\n// TODO: Use lazy and map to double the numbers\n// TODO: Convert to Array and print the result",
+    "tier": "mainline",
+    "title": "Lazy Collections",
+    "topic": "sequences"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Sequences\n- Sequence can be iterated once with for-in\n- Collection adds indices and count\n- lazy creates deferred transformations",
+    "constraintProfile": {
+      "allowConcurrency": true,
+      "allowFileIO": true,
+      "allowNetwork": false,
+      "allowedImports": [
+        "Foundation"
+      ],
+      "disallowedTokens": [],
+      "requireCollectionUsage": false,
+      "requiredTokens": []
+    },
+    "description": "Create a sequence that counts down",
+    "expectedOutput": "3\n2\n1",
+    "fixtureFiles": [],
+    "hints": [
+      "Return nil when the sequence is done.",
+      "Use defer or manual decrement to update current."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "crust",
+    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "manualCheck": false,
+    "number": 189,
+    "requires": [],
+    "solution": "import Foundation\n\nstruct Countdown: Sequence {\n    let start: Int\n    func makeIterator() -> CountdownIterator {\n        return CountdownIterator(current: start)\n    }\n}\n\nstruct CountdownIterator: IteratorProtocol {\n    var current: Int\n    mutating func next() -> Int? {\n        guard current > 0 else { return nil }\n        defer { current -= 1 }\n        return current\n    }\n}\n\nlet countdown = Countdown(start: 3)\nfor value in countdown {\n    print(value)\n}",
+    "starterCode": "// Challenge 189: Custom Sequence\n// Create a sequence that counts down.\n\nimport Foundation\n\nstruct Countdown: Sequence {\n    let start: Int\n    func makeIterator() -> CountdownIterator {\n        return CountdownIterator(current: start)\n    }\n}\n\nstruct CountdownIterator: IteratorProtocol {\n    var current: Int\n    // TODO: Implement next() to return current, then decrement until 0\n}\n\nlet countdown = Countdown(start: 3)\nfor value in countdown {\n    print(value)\n}",
+    "tier": "mainline",
+    "title": "Custom Sequence",
+    "topic": "sequences"
+  }
+]

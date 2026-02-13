@@ -1,0 +1,331 @@
+[
+  {
+    "canonicalId": "",
+    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use willSet and didSet",
+    "expectedOutput": "Will set to 2\nDid set from 1",
+    "fixtureFiles": [],
+    "hints": [
+      "Observers can print before and after changes."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "manualCheck": false,
+    "number": 135,
+    "requires": [],
+    "solution": "struct Gauge {\n    var pressure: Int {\n        willSet {\n            print(\"Will set to \\(newValue)\")\n        }\n        didSet {\n            print(\"Did set from \\(oldValue)\")\n        }\n    }\n}\n\nvar gauge = Gauge(pressure: 1)\ngauge.pressure = 2",
+    "starterCode": "// Challenge 135: Property Observers\n// Observe changes with willSet/didSet.\n\nstruct Gauge {\n    var pressure: Int {\n        // TODO: Add willSet/didSet prints\n    }\n}\n\nvar gauge = Gauge(pressure: 1)\n// TODO: Change 'gauge.pressure' to 2",
+    "tier": "mainline",
+    "title": "Property Observers",
+    "topic": "properties"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Initialize a property lazily",
+    "expectedOutput": "Report 1",
+    "fixtureFiles": [],
+    "hints": [
+      "Lazy properties are created the first time they are accessed."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "manualCheck": false,
+    "number": 136,
+    "requires": [],
+    "solution": "struct ForgeReport {\n    var id: Int\n    lazy var summary: String = \"Report \\(id)\"\n}\n\nvar report = ForgeReport(id: 1)\nprint(report.summary)",
+    "starterCode": "// Challenge 136: Lazy Property\n// Use lazy to defer creation.\n\nstruct ForgeReport {\n    var id: Int\n    // TODO: Add lazy var 'summary' that returns \"Report <id>\"\n}\n\nvar report = ForgeReport(id: 1)\n// TODO: Print 'report.summary'",
+    "tier": "mainline",
+    "title": "Lazy Property",
+    "topic": "properties"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use static properties",
+    "expectedOutput": "8\n6",
+    "fixtureFiles": [],
+    "hints": [
+      "Static properties live on the type, not the instance."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "manualCheck": false,
+    "number": 137,
+    "requires": [],
+    "solution": "print(Shift.maxHours)\nprint(shift.hours)",
+    "starterCode": "// Challenge 137: Static vs Instance\n// Use a static property.\n\nstruct Shift {\n    static let maxHours = 8\n    var hours: Int\n}\n\nlet shift = Shift(hours: 6)\n// TODO: Print 'Shift.maxHours'\n// TODO: Print 'shift.hours'",
+    "tier": "mainline",
+    "title": "Static vs Instance",
+    "topic": "properties"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Define a protocol",
+    "expectedOutput": "Inspectable ready",
+    "fixtureFiles": [],
+    "hints": [
+      "Protocols define required properties or methods."
+    ],
+    "id": "",
+    "introduces": [
+      "protocols"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 138,
+    "requires": [],
+    "solution": "protocol Inspectable {\n    var status: String { get }\n}\n\nprint(\"Inspectable ready\")",
+    "starterCode": "// Challenge 138: Protocol Definition\n// Define a protocol with requirements.\n\n// TODO: Create a protocol 'Inspectable' with a read-only 'status' String\n// TODO: Print \"Inspectable ready\"",
+    "tier": "mainline",
+    "title": "Protocol Definition",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Adopt a protocol in a struct",
+    "expectedOutput": "Ready",
+    "fixtureFiles": [],
+    "hints": [
+      "Provide the required property to conform."
+    ],
+    "id": "",
+    "introduces": [
+      "protocolConformance"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 139,
+    "requires": [],
+    "solution": "struct Furnace: Inspectable {\n    let status: String\n}\n\nlet furnace = Furnace(status: \"Ready\")\nprint(furnace.status)",
+    "starterCode": "// Challenge 139: Conformance\n// Make a struct conform to a protocol.\n\nprotocol Inspectable {\n    var status: String { get }\n}\n\n// TODO: Create a struct 'Furnace' that conforms to Inspectable\n// TODO: Print its status",
+    "tier": "mainline",
+    "title": "Conformance",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use a protocol as a parameter type",
+    "expectedOutput": "1200",
+    "fixtureFiles": [],
+    "hints": [
+      "Protocol types let you accept a conforming type."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 140,
+    "requires": [],
+    "solution": "func reportHeat(source: HeatSource) {\n    print(source.heat)\n}\n\nlet burner = Burner(heat: 1200)\nreportHeat(source: burner)",
+    "starterCode": "// Challenge 140: Protocol as Type\n// Use a protocol in a function signature.\n\nprotocol HeatSource {\n    var heat: Int { get }\n}\n\nstruct Burner: HeatSource {\n    let heat: Int\n}\n\n// TODO: Write a function 'reportHeat(source:)' that prints 'source.heat'\n// TODO: Call it with a Burner",
+    "tier": "mainline",
+    "title": "Protocol as Type",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Use A & B in a parameter",
+    "expectedOutput": "2\n3",
+    "fixtureFiles": [],
+    "hints": [
+      "Use protocol composition to require both capabilities."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 141,
+    "requires": [],
+    "solution": "func report(_ source: Fueling & Venting) {\n    print(source.fuel)\n    print(source.airflow)\n}\n\nlet vent = Vent(fuel: 2, airflow: 3)\nreport(vent)",
+    "starterCode": "// Challenge 141: Protocol Composition\n// Use multiple protocol requirements.\n\nprotocol Fueling {\n    var fuel: Int { get }\n}\n\nprotocol Venting {\n    var airflow: Int { get }\n}\n\nstruct Vent: Fueling, Venting {\n    let fuel: Int\n    let airflow: Int\n}\n\n// TODO: Write a function 'report(_:)' that accepts Fueling & Venting\n// TODO: Print fuel and airflow on separate lines",
+    "tier": "mainline",
+    "title": "Protocol Composition",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Refine a protocol",
+    "expectedOutput": "OK",
+    "fixtureFiles": [],
+    "hints": [
+      "Protocol inheritance adds requirements on top of another protocol."
+    ],
+    "id": "",
+    "introduces": [],
+    "layer": "mantle",
+    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "manualCheck": false,
+    "number": 142,
+    "requires": [],
+    "solution": "protocol InspectableComponent: Component {\n    var status: String { get }\n}\n\nstruct Sensor: InspectableComponent {\n    let id: String\n    let status: String\n}\n\nlet sensor = Sensor(id: \"S1\", status: \"OK\")\nprint(sensor.status)",
+    "starterCode": "// Challenge 142: Protocol Inheritance\n// Inherit requirements from another protocol.\n\nprotocol Component {\n    var id: String { get }\n}\n\n// TODO: Create protocol 'InspectableComponent' inheriting Component with 'status'\n// TODO: Create a type that conforms and print its status",
+    "tier": "mainline",
+    "title": "Protocol Inheritance",
+    "topic": "protocols"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add methods with an extension",
+    "expectedOutput": "Ingot 5",
+    "fixtureFiles": [],
+    "hints": [
+      "Extensions can add computed properties and methods."
+    ],
+    "id": "",
+    "introduces": [
+      "extensions"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Extensions\nExtensions add behavior to existing types without subclassing.\n\nOverview:\n- Add methods, computed properties, and protocol conformance.\n- Keep related helpers grouped by purpose.\n- Protocol extensions can provide default behavior.\n\nExample:\n    extension Int {\n        var isHot: Bool { self >= 1400 }\n    }\n\nGuidelines:\n- Prefer extensions for organization and reuse.\n- Avoid hiding critical behavior across too many files.",
+    "manualCheck": false,
+    "number": 143,
+    "requires": [],
+    "solution": "extension Ingot {\n    func label() -> String {\n        return \"Ingot \\(weight)\"\n    }\n}\n\nlet ingot = Ingot(weight: 5)\nprint(ingot.label())",
+    "starterCode": "// Challenge 143: Extensions\n// Add behavior using an extension.\n\nstruct Ingot {\n    let weight: Int\n}\n\n// TODO: Add an extension that adds a method 'label()' -> String\n// TODO: Create an Ingot and print its label",
+    "tier": "mainline",
+    "title": "Extensions",
+    "topic": "extensions"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Add default behavior with a protocol extension",
+    "expectedOutput": "Report ready",
+    "fixtureFiles": [],
+    "hints": [
+      "Use a protocol extension to add a default method."
+    ],
+    "id": "",
+    "introduces": [
+      "protocolExtensions",
+      "defaultImplementations"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Extensions\nExtensions add behavior to existing types without subclassing.\n\nOverview:\n- Add methods, computed properties, and protocol conformance.\n- Keep related helpers grouped by purpose.\n- Protocol extensions can provide default behavior.\n\nExample:\n    extension Int {\n        var isHot: Bool { self >= 1400 }\n    }\n\nGuidelines:\n- Prefer extensions for organization and reuse.\n- Avoid hiding critical behavior across too many files.",
+    "manualCheck": false,
+    "number": 144,
+    "requires": [],
+    "solution": "extension Reportable {\n    func printReport() {\n        print(message)\n    }\n}\n\nstruct Report: Reportable {\n    let message: String\n}\n\nlet report = Report(message: \"Report ready\")\nreport.printReport()",
+    "starterCode": "// Challenge 144: Default Implementations\n// Provide default behavior with a protocol extension.\n\nprotocol Reportable {\n    var message: String { get }\n}\n\n// TODO: Add a default method 'printReport()' in a protocol extension\n// TODO: Conform a struct and call 'printReport()'",
+    "tier": "mainline",
+    "title": "Default Implementations",
+    "topic": "extensions"
+  }
+]
