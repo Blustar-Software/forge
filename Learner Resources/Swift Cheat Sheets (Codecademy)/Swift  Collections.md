@@ -1,14 +1,3 @@
----
-title: "Swift | Collections"
-source: "https://www.codecademy.com/resources/docs/swift/collections"
-author:
-  - "[[Codecademy]]"
-published: 2023-11-14
-created: 2025-12-27
-description: "Data structures for organizing, managing, and manipulating multiple elements."
-tags:
-  - "clippings"
----
 **Collections** are fundamental data structures in Swift for organizing, managing, and manipulating multiple elements. A collection’s structure and efficient operations make them essential tools for user interface development and general programming tasks. The most common types of collections in Swift include:
 
 - [Arrays](https://www.codecademy.com/resources/docs/swift/arrays)

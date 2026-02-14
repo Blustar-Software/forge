@@ -1,14 +1,3 @@
----
-title: "Swift | Dictionaries"
-source: "https://www.codecademy.com/resources/docs/swift/dictionaries"
-author:
-  - "[[Codecademy]]"
-published: 2021-08-04
-created: 2025-12-27
-description: "A dictionary is an unordered collection of paired data referred to as a key and value pair, where the key is used to access its corresponding value."
-tags:
-  - "clippings"
----
 A **dictionary** is an unordered collection of paired data or `key: value` pairs.
 
 ## Syntax

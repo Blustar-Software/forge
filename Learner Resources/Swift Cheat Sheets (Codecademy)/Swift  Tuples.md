@@ -1,14 +1,3 @@
----
-title: "Swift | Tuples"
-source: "https://www.codecademy.com/resources/docs/swift/tuples"
-author:
-  - "[[Codecademy]]"
-published: 2021-11-17
-created: 2025-12-27
-description: "Compounds multiple values into a single value."
-tags:
-  - "clippings"
----
 **Tuples** are a data structure introduced in [Swift 4.0](https://www.swift.org/blog/swift-4.0-released/). It is used to group multiple values, separated by commas `,`, into a single value that is enclosed in parentheses `()`.
 
 > **Note:** Tuples are compound types. This means that they can combine different types of data.

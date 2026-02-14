@@ -1,14 +1,3 @@
----
-title: "Swift | Arrays"
-source: "https://www.codecademy.com/resources/docs/swift/arrays"
-author:
-  - "[[Codecademy]]"
-published: 2021-05-06
-created: 2025-12-27
-description: "Arrays are ordered collections of values that are all of the same type, contained in the same structure."
-tags:
-  - "clippings"
----
 **Arrays** are ordered lists of values, all of the same [data type](https://www.codecademy.com/resources/docs/swift/data-types) and contained in the same [structure](https://www.codecademy.com/resources/docs/swift/structures). Swift, a very type-safe language, will throw compiler errors if values of different types are stored in a single array (e.g., a `String` in an `Int` array). However, values can be repeated; every occurrence of the same value gets stored in a different location.
 
 ## Creating Arrays

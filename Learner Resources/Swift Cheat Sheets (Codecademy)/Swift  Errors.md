@@ -1,14 +1,3 @@
----
-title: "Swift | Errors"
-source: "https://www.codecademy.com/resources/docs/swift/errors"
-author:
-  - "[[Codecademy]]"
-published: 2023-07-10
-created: 2025-12-27
-description: "Errors provide a robust mechanism to handle program faults."
-tags:
-  - "clippings"
----
 **Errors** allow a Swift program to flag and handle unexpected errors that might appear during the program runtime. They are a part of the error handling mechanism that permits a program to identify the type of an error and respond accordingly based on the type of the error.
 
 `Error` is an empty protocol built in Swift, so any type can represent an error condition by conforming to the protocol.

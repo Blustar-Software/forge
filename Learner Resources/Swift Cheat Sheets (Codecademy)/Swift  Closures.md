@@ -1,14 +1,3 @@
----
-title: "Swift | Closures"
-source: "https://www.codecademy.com/resources/docs/swift/closures"
-author:
-  - "[[Codecademy]]"
-published: 2021-11-21
-created: 2025-12-27
-description: "Closures allow for more flexible code."
-tags:
-  - "clippings"
----
 **Closures** in Swift contain chunks of code that can be passed around and reused within the same code.
 
 They can store and capture references to variables and constants which is also referred to as closing over constants and variables. The best part is that all memory management is handled by Swift.

@@ -1,14 +1,3 @@
----
-title: "Swift | Structures"
-source: "https://www.codecademy.com/resources/docs/swift/structures"
-author:
-  - "[[Codecademy]]"
-published: 2021-08-04
-created: 2025-12-27
-description: "Structures are used to programmatically represent a real-life object. They are created with the struct keyword followed by its name and body."
-tags:
-  - "clippings"
----
 **Structures**, are used to programmatically represent a real-life object in code. They are created with the `struct` keyword, followed by its name, and then body which contains its properties and methods.
 
 ```

@@ -1,14 +1,3 @@
----
-title: "Swift | Optionals"
-source: "https://www.codecademy.com/resources/docs/swift/optionals"
-author:
-  - "[[Codecademy]]"
-published: 2022-02-19
-created: 2025-12-27
-description: "Optionals are types that deal with scenarios involving the potential presence or absence of a value (nil)."
-tags:
-  - "clippings"
----
 **Optionals** are types that deal with scenarios involving the potential presence or absence of a value (`nil`).
 
 ## Syntax

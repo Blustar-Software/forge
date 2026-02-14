@@ -1,14 +1,3 @@
----
-title: "Swift | Sets"
-source: "https://www.codecademy.com/resources/docs/swift/sets"
-author:
-  - "[[Codecademy]]"
-published: 2021-08-04
-created: 2025-12-27
-description: "Store unique elements of the same data type."
-tags:
-  - "clippings"
----
 In Swift, a **set** is used to store unique elements of the same data type.
 
 ## Syntax

@@ -1,14 +1,3 @@
----
-title: "Swift | Comments"
-source: "https://www.codecademy.com/resources/docs/swift/comments"
-author:
-  - "[[Codecademy]]"
-published: 2021-05-06
-created: 2025-12-27
-description: "In Swift, single-line and multi-line comments represent text that explains the raw code in a program."
-tags:
-  - "clippings"
----
 **Comments** in Swift represent text that is ignored by the compiler at-compile time, but is useful to the programmer or development team. They are ideal for documenting important concepts or ideas that require explanation beyond the syntax of the raw code. Both single-line and multi-line comments are supported in Swift.
 
 Famous software engineer Martin Fowler once wrote,

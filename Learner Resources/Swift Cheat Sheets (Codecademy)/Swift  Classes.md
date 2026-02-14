@@ -1,14 +1,3 @@
----
-title: "Swift | Classes"
-source: "https://www.codecademy.com/resources/docs/swift/classes"
-author:
-  - "[[Codecademy]]"
-published: 2021-11-17
-created: 2025-12-27
-description: "Classes in Swift define characteristics and behaviors of an object."
-tags:
-  - "clippings"
----
 **Classes** serve as a template to define characteristics and behaviors of an object.
 
 They are reference types, meaning all instances of a class carry the same characteristics and behaviors.

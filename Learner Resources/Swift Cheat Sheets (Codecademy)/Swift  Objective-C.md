@@ -1,14 +1,3 @@
----
-title: "Swift | Objective-C"
-source: "https://www.codecademy.com/resources/docs/swift/objective-c"
-author:
-  - "[[Codecademy]]"
-published: 2022-08-24
-created: 2025-12-27
-description: "Objective-C is a programming language that builds upon the C language by adding object-oriented programming with Smalltalk-style messaging."
-tags:
-  - "clippings"
----
 **Objective-C** is a programming language that builds upon the [C](https://www.codecademy.com/resources/docs/c) language by adding [object-oriented programming](https://www.codecademy.com/resources/docs/general/programming-paradigms/object-oriented-programming) with Smalltalk-style messaging.
 
 ## History

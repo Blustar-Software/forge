@@ -1,14 +1,3 @@
----
-title: "Swift | Inheritance"
-source: "https://www.codecademy.com/resources/docs/swift/inheritance"
-author:
-  - "[[Codecademy]]"
-published: 2022-02-09
-created: 2025-12-27
-description: "Inheritance allows code reusability by sharing features between classes."
-tags:
-  - "clippings"
----
 **Inheritance** allows properties, methods, and other characteristics to be transferred between classes. This is a feature that differentiates [classes](https://www.codecademy.com/resources/docs/swift/classes) from other [data types](https://www.codecademy.com/resources/docs/swift/data-types).
 
 A class that inherits features is known as the child class or subclass. The class that the subclass inherited from is known as the parent class or superclass.

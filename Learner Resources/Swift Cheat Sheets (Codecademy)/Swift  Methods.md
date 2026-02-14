@@ -1,14 +1,3 @@
----
-title: "Swift | Methods"
-source: "https://www.codecademy.com/resources/docs/swift/methods"
-author:
-  - "[[Codecademy]]"
-published: 2023-08-29
-created: 2025-12-27
-description: "Methods in Swift are used to perform actions and provide functionality for instances of a class, struct, or enum."
-tags:
-  - "clippings"
----
 **Methods** in Swift allow developers to define behaviors for objects (like classes, structures, and enumerations) and make them more interactive. They provide a way for objects to perform specific actions and enhance functionality. By using methods, Swift code is more organized, reusable, and efficient.
 
 Methods are functions that are encapsulated within a defined `class`, `struct`, or `enum` and are called on an instance of an object type.

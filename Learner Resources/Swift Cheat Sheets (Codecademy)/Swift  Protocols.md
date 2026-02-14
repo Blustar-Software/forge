@@ -1,14 +1,3 @@
----
-title: "Swift | Protocols"
-source: "https://www.codecademy.com/resources/docs/swift/protocols"
-author:
-  - "[[Codecademy]]"
-published: 2021-11-17
-created: 2025-12-27
-description: "A collection of methods, properties, and rules that a class, structure, or enumeration can adopt."
-tags:
-  - "clippings"
----
 A **protocol** is a collection of methods, properties, and rules that a `class`, `struct`, or `enum` can adopt.
 
 ## Syntax

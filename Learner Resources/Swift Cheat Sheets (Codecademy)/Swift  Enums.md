@@ -1,14 +1,3 @@
----
-title: "Swift | Enums"
-source: "https://www.codecademy.com/resources/docs/swift/enums"
-author:
-  - "[[Codecademy]]"
-published: 2022-02-19
-created: 2025-12-27
-description: "A collection of set values that can be referenced throughout a program."
-tags:
-  - "clippings"
----
 In Swift, an **enumeration (enum)** is a collection of set values that can be referenced throughout a program.
 
 ## Syntax

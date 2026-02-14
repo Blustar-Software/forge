@@ -1,14 +1,3 @@
----
-title: "Swift | Extensions"
-source: "https://www.codecademy.com/resources/docs/swift/extensions"
-author:
-  - "[[Codecademy]]"
-published: 2023-07-28
-created: 2025-12-27
-description: "Extensions add new functionality to existing data types."
-tags:
-  - "clippings"
----
 **Extensions** allow adding new functionality to existing data types without modifying their original code.
 
 They can add methods, computed properties, and new initializers to existing types. An extension can also make an existing type conform to a protocol.

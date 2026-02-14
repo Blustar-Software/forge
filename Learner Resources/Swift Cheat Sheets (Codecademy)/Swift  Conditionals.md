@@ -1,14 +1,3 @@
----
-title: "Swift | Conditionals"
-source: "https://www.codecademy.com/resources/docs/swift/conditionals"
-author:
-  - "[[Codecademy]]"
-published: 2021-08-04
-created: 2025-12-27
-description: "Conditionals are expressions that evaluate to either true or false and determine what the program will do next."
-tags:
-  - "clippings"
----
 **Conditionals** are expressions that evaluate to either `true` or `false` and determine what the program will do next. As programs become more complex, conditionals can make programs more flexible and robust by addressing multiple scenarios.
 
 As we write more complex programs, conditionals allow us to address multiple scenarios and make our programs more robust.

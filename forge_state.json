@@ -1,0 +1,27 @@
+{
+  "exportedAt" : "2026-02-14T02:41:31Z",
+  "files" : [
+    {
+      "base64Data" : "OTY=",
+      "name" : ".progress"
+    },
+    {
+      "base64Data" : "c3RydWN0c3xjb21waWxlX2ZhaWw9MSxmYWlsPTIscGFzcz02",
+      "name" : ".adaptive_stats"
+    },
+    {
+      "base64Data" : "bWFudGxlOjF8cGFzcz0xLHBhc3NfYXNzaXN0ZWQ9MCxmYWlsPTAsY29tcGlsZV9mYWlsPTAsbWFudWFsX3Bhc3M9MCxsYXN0PTE3NzA5NzIxOTAKbWFudGxlOjJ8cGFzcz0xLHBhc3NfYXNzaXN0ZWQ9MCxmYWlsPTAsY29tcGlsZV9mYWlsPTAsbWFudWFsX3Bhc3M9MCxsYXN0PTE3NzA5NzIyNjgKbWFudGxlOjN8cGFzcz0xLHBhc3NfYXNzaXN0ZWQ9MCxmYWlsPTEsY29tcGlsZV9mYWlsPTEsbWFudWFsX3Bhc3M9MCxsYXN0PTE3NzA5NzI0MTAKbWFudGxlOjR8cGFzcz0xLHBhc3NfYXNzaXN0ZWQ9MCxmYWlsPTAsY29tcGlsZV9mYWlsPTAsbWFudWFsX3Bhc3M9MCxsYXN0PTE3NzA5ODU1MDAKbWFudGxlOjV8cGFzcz0xLHBhc3NfYXNzaXN0ZWQ9MCxmYWlsPTEsY29tcGlsZV9mYWlsPTAsbWFudWFsX3Bhc3M9MCxsYXN0PTE3NzA5ODYzMzgKbWFudGxlOjZ8cGFzcz0xLHBhc3NfYXNzaXN0ZWQ9MCxmYWlsPTAsY29tcGlsZV9mYWlsPTAsbWFudWFsX3Bhc3M9MCxsYXN0PTE3NzEwMDg0OTY=",
+      "name" : ".adaptive_challenge_stats"
+    },
+    {
+      "base64Data" : "eyJldmVudCI6ImNoYWxsZW5nZV9hdHRlbXB0IiwidGltZXN0YW1wIjoiMjAyNi0wMi0xM1QwODo0MzoxMFoiLCJpZCI6Im1hbnRsZToxIiwicmVzdWx0IjoicGFzcyIsIm51bWJlciI6MSwic2Vjb25kcyI6MX0KeyJldmVudCI6ImNoYWxsZW5nZV9hdHRlbXB0IiwidGltZXN0YW1wIjoiMjAyNi0wMi0xM1QwODo0NDoyOFoiLCJpZCI6Im1hbnRsZToyIiwicmVzdWx0IjoicGFzcyIsIm51bWJlciI6Miwic2Vjb25kcyI6MH0KeyJldmVudCI6ImNoYWxsZW5nZV9hdHRlbXB0IiwidGltZXN0YW1wIjoiMjAyNi0wMi0xM1QwODo0NTo1MVoiLCJpZCI6Im1hbnRsZTozIiwicmVzdWx0IjoiY29tcGlsZV9mYWlsIiwibnVtYmVyIjozLCJzZWNvbmRzIjowfQp7ImV2ZW50IjoiY2hhbGxlbmdlX2F0dGVtcHQiLCJ0aW1lc3RhbXAiOiIyMDI2LTAyLTEzVDA4OjQ2OjEzWiIsImlkIjoibWFudGxlOjMiLCJyZXN1bHQiOiJmYWlsIiwibnVtYmVyIjozLCJzZWNvbmRzIjowfQp7ImV2ZW50IjoiY2hhbGxlbmdlX2F0dGVtcHQiLCJ0aW1lc3RhbXAiOiIyMDI2LTAyLTEzVDA4OjQ2OjUwWiIsImlkIjoibWFudGxlOjMiLCJyZXN1bHQiOiJwYXNzIiwibnVtYmVyIjozLCJzZWNvbmRzIjowfQp7ImV2ZW50IjoiY2hhbGxlbmdlX2F0dGVtcHQiLCJ0aW1lc3RhbXAiOiIyMDI2LTAyLTEzVDEyOjI1OjAwWiIsImlkIjoibWFudGxlOjQiLCJyZXN1bHQiOiJwYXNzIiwibnVtYmVyIjo0LCJzZWNvbmRzIjowfQp7ImV2ZW50IjoiY2hhbGxlbmdlX2F0dGVtcHQiLCJ0aW1lc3RhbXAiOiIyMDI2LTAyLTEzVDEyOjM4OjQ0WiIsImlkIjoibWFudGxlOjUiLCJyZXN1bHQiOiJmYWlsIiwibnVtYmVyIjo1LCJzZWNvbmRzIjoyfQp7ImV2ZW50IjoiY2hhbGxlbmdlX2F0dGVtcHQiLCJ0aW1lc3RhbXAiOiIyMDI2LTAyLTEzVDEyOjM4OjU4WiIsImlkIjoibWFudGxlOjUiLCJyZXN1bHQiOiJwYXNzIiwibnVtYmVyIjo1LCJzZWNvbmRzIjowfQp7ImV2ZW50IjoiY2hhbGxlbmdlX2F0dGVtcHQiLCJ0aW1lc3RhbXAiOiIyMDI2LTAyLTEzVDE4OjQ4OjE2WiIsImlkIjoibWFudGxlOjYiLCJyZXN1bHQiOiJwYXNzIiwibnVtYmVyIjo2LCJzZWNvbmRzIjowfQ==",
+      "name" : ".performance_log"
+    },
+    {
+      "base64Data" : "c3RydWN0c3xzdGF0ZT13YXJuLHdhcm49MCxjbGVhbj0w",
+      "name" : ".constraint_mastery"
+    }
+  ],
+  "schemaVersion" : 1,
+  "workspacePath" : "workspace"
+}

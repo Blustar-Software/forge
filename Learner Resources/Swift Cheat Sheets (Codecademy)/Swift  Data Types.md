@@ -1,14 +1,3 @@
----
-title: "Swift | Data Types"
-source: "https://www.codecademy.com/resources/docs/swift/data-types"
-author:
-  - "[[Codecademy]]"
-published: 2021-05-06
-created: 2025-12-27
-description: "Swift data types include Int, Float, Double, String, Character, and Bool. It is a type-safe language where variables hold values of a known data type."
-tags:
-  - "clippings"
----
 Swift, like all programming languages, designate certain [**data types**](https://www.codecademy.com/resources/docs/general/data-types) that help the operating system and computer hardware allocate memory based on what is going to be stored. These data types include numeric, textual, and logical values.
 
 In a type-safe language like Swift, values are generally stored in [variables](https://www.codecademy.com/resources/docs/swift/variables), which are containers that hold data. The data type determines how big that variable container is and where the computer is going to store it for later access.

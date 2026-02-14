@@ -1,14 +1,3 @@
----
-title: "Swift | Switch"
-source: "https://www.codecademy.com/resources/docs/swift/switch"
-author:
-  - "[[Codecademy]]"
-published: 2021-08-04
-created: 2025-12-27
-description: "The switch statement is a type of conditional used to check the value of an expression against multiple cases."
-tags:
-  - "clippings"
----
 The **`switch`** statement is a type of conditional used to check the value of an expression against multiple cases.
 
 A `case` executes when it matches the value of the expression. When there are no matches between the `case` statements and the expression, the `default` statement executes.

@@ -1,14 +1,3 @@
----
-title: "Swift | Ranges"
-source: "https://www.codecademy.com/resources/docs/swift/ranges"
-author:
-  - "[[Codecademy]]"
-published: 2023-11-27
-created: 2025-12-27
-description: "Ranges are used to create an interval of values."
-tags:
-  - "clippings"
----
 **Ranges** are used to create an interval of values. There are two kinds of range [structures](https://www.codecademy.com/resources/docs/swift/structures), `Range` for creating half-open ranges and `ClosedRange` for creating closed ranges.
 
 ## Creating Ranges

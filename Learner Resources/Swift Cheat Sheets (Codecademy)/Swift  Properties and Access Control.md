@@ -1,16 +1,3 @@
----
-title: "Implement properties and access control in Swift."
-source: "https://www.codecademy.com/learning-outcomes/ca33933d10f448048922c183d3309946"
-author:
-  - "[[Codecademy]]"
-published:
-created: 2026-01-02
-description: "Implement properties and access control in Swift."
-tags:
-  - "clippings"
----
-Review cards
-
 - Access Control
 	Access control specifies which methods and properties can be accessed from outside that scope of a structure, file, or module. Access control makes it possible to hide implementation details and protect properties from being changed at unexpected times.
 - Access Levels

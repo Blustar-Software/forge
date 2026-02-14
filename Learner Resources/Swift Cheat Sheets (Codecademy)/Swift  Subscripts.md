@@ -1,14 +1,3 @@
----
-title: "Swift | Subscripts"
-source: "https://www.codecademy.com/resources/docs/swift/subscripts"
-author:
-  - "[[Codecademy]]"
-published: 2023-06-29
-created: 2025-12-27
-description: "Subscripts are used to get and set values in collections such as arrays and dictionaries."
-tags:
-  - "clippings"
----
 **Subscripts** are used to get and set values in collections such as [arrays](https://www.codecademy.com/resources/docs/swift/arrays) and [dictionaries](https://www.codecademy.com/resources/docs/swift/dictionaries). It’s also possible to define one or more subscripts for a [class](https://www.codecademy.com/resources/docs/swift/classes), [structure](https://www.codecademy.com/resources/docs/swift/structures), or [enum](https://www.codecademy.com/resources/docs/swift/enums) so values can easily be retrieved or set using an index or key, rather than using methods.
 
 ## Using Subscripts to Get and Set Values

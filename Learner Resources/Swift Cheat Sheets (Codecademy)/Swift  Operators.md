@@ -1,14 +1,3 @@
----
-title: "Swift | Operators"
-source: "https://www.codecademy.com/resources/docs/swift/operators"
-author:
-  - "[[Codecademy]]"
-published: 2021-05-06
-created: 2025-12-27
-description: "Operators are unique characters or phrases that Swift uses to manipulate and validate values."
-tags:
-  - "clippings"
----
 **Operators** are unique characters or phrases that Swift uses to manipulate and validate values. Swift was specifically designed to enhance the operators from several programming languages to create more capability with less code for the programmer.
 
 ## Operators

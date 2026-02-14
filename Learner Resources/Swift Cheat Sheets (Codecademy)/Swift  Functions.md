@@ -1,14 +1,3 @@
----
-title: "Swift | Functions"
-source: "https://www.codecademy.com/resources/docs/swift/functions"
-author:
-  - "[[Codecademy]]"
-published: 2023-06-28
-created: 2025-12-27
-description: "Functions are blocks of code organized together to preform a specific task."
-tags:
-  - "clippings"
----
 **Functions** are blocks of code organized together to perform a specific task. A function is given a name that identifies what it does, and this name is used to “call” the function to perform its task when needed.
 
 ## How to Define and Call a Function
