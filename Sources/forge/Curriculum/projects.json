@@ -291,17 +291,19 @@
     "title": "Event Router"
   },
   {
-    "cheatsheet": "Project Cheatsheet: Forge Inventory Model\n- Structs model data with stored properties\n- Computed properties derive values\n- Methods bundle behavior",
+    "cheatsheet": "Structs (Value Types)\n- Definition: struct Name { var property: Type }\n- Initialization: let instance = Name(property: value) (memberwise init)\n- Access: Use dot notation: instance.property\n- Mutability: Use 'var' for instances you want to modify\n- Copying: Assigning a struct to a new variable creates a full, independent copy\n- Methods: Methods that modify properties must be marked 'mutating'",
     "completionMessage": "You can now model real data with custom types.",
     "completionTitle": "🏗️ Mantle 1 Complete!",
     "description": "Model inventory with structs and computed properties",
     "hints": [
       "Use a computed property to multiply count and unitWeight.",
-      "Build label() with string interpolation."
+      "Build label() with string interpolation.",
+      "The 'InventoryItem' struct should have 'name', 'count', and 'unitWeight' as stored properties.",
+      "Total weight is a derived value, so it makes sense as a computed property: 'var totalWeight: Int { ... }'."
     ],
     "id": "mantle1a",
     "layer": "mantle",
-    "lesson": "Lesson: Forge Inventory Model\nGoal:\nModel inventory with structs and computed properties\n\nKey Concepts:\n- Structs model data with stored properties\n- Computed properties derive values\n- Methods bundle behavior\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "lesson": "Lesson: Forge Inventory Model\nIn this project, you will apply your knowledge of structs to build a small inventory management system.\n\nKey Learning Objectives:\n1. Struct Definition: Define a model that represents a single item in the forge's inventory.\n2. Stored vs. Computed Properties: Use stored properties for fixed data (name, count) and computed properties for derived data (total weight).\n3. Encapsulation: Group data and the behavior that acts on that data (like generating a label) into a single unit.\n\nProject Steps:\n- Define the 'InventoryItem' struct with the required properties.\n- Implement the 'totalWeight' computed property.\n- Implement the 'label()' method using string interpolation.\n- Use the provided test code to verify your implementation.\n\nBest Practices:\n- Use 'let' for properties that don't need to change once an item is created.\n- Keep your methods short and focused on a single responsibility.",
     "pass": 4,
     "solution": "struct InventoryItem {\n    let name: String\n    let count: Int\n    let unitWeight: Int\n\n    var totalWeight: Int {\n        return count * unitWeight\n    }\n\n    func label() -> String {\n        return \"\\(name): \\(count)\"\n    }\n}",
     "starterCode": "// Mantle 1 Project A: Forge Inventory Model\n// Model inventory items and compute totals.\n//\n// Requirements:\n// - Define a struct 'InventoryItem' with:\n//   - name: String\n//   - count: Int\n//   - unitWeight: Int\n// - Add a computed property totalWeight (count * unitWeight)\n// - Add a method label() -> String that returns \"<name>: <count>\"\n// - Create an array of two items:\n//   - (\"Iron\", 3, 2)\n//   - (\"Copper\", 2, 3)\n// - Print:\n//   \"Iron: 3\"\n//   \"Copper: 2\"\n//   \"Total weight: 12\"\n//\n// TODO: Implement InventoryItem and the reporting logic.\n\n// Test code (don't modify):\nlet items = [\n    InventoryItem(name: \"Iron\", count: 3, unitWeight: 2),\n    InventoryItem(name: \"Copper\", count: 2, unitWeight: 3),\n]\nfor item in items {\n    print(item.label())\n}\nlet total = items.reduce(0) { $0 + $1.totalWeight }\nprint(\"Total weight: \\(total)\")",
@@ -323,17 +325,19 @@
     "title": "Forge Inventory Model"
   },
   {
-    "cheatsheet": "Project Cheatsheet: Shift Tracker\n- Mutating methods update struct state\n- Computed properties derive totals",
+    "cheatsheet": "Structs (Value Types)\n- Definition: struct Name { var property: Type }\n- Initialization: let instance = Name(property: value) (memberwise init)\n- Access: Use dot notation: instance.property\n- Mutability: Use 'var' for instances you want to modify\n- Copying: Assigning a struct to a new variable creates a full, independent copy\n- Methods: Methods that modify properties must be marked 'mutating'",
     "completionMessage": "Great work applying mutating methods and computed properties.",
     "completionTitle": "✨ Mantle 1 Extra Project Complete!",
     "description": "Track shifts with mutating methods and computed totals",
     "hints": [
       "addShift should increase shifts by 1.",
-      "totalHours multiplies shifts by hoursPerShift."
+      "totalHours multiplies shifts by hoursPerShift.",
+      "The 'addShift' method must be marked 'mutating' because it modifies the 'shifts' stored property.",
+      "The 'Worker' instance 'ada' must be declared with 'var' to allow calling mutating methods."
     ],
     "id": "mantle1b",
     "layer": "mantle",
-    "lesson": "Lesson: Shift Tracker\nGoal:\nTrack shifts with mutating methods and computed totals\n\nKey Concepts:\n- Mutating methods update struct state\n- Computed properties derive totals\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "lesson": "Lesson: Shift Tracker\nThis project focuses on managing state within a struct using mutating methods and providing convenient access to calculated data via computed properties.\n\nKey Learning Objectives:\n1. Mutability in Structs: Understand why and when to use the 'mutating' keyword for methods.\n2. Instance Mutability: Learn that even if a method is marked 'mutating', you cannot call it on a struct instance declared with 'let'.\n3. Derived State: Practice using computed properties to keep your data model clean and consistent.\n\nProject Steps:\n- Create the 'Worker' struct.\n- Implement 'addShift()' as a mutating method.\n- Implement 'totalHours' as a computed property.\n- In the test code, use 'var' for workers who will have shifts added.\n\nBest Practices:\n- Only mark a method 'mutating' if it actually changes the struct's state.\n- Prefer computed properties over manually updating 'total' fields to avoid state synchronization bugs.",
     "pass": 4,
     "solution": "struct Worker {\n    let name: String\n    var shifts: Int\n    let hoursPerShift: Int\n\n    mutating func addShift() {\n        shifts += 1\n    }\n\n    var totalHours: Int {\n        shifts * hoursPerShift\n    }\n}",
     "starterCode": "// Mantle 1 Project B: Shift Tracker\n// Track worker shifts and total hours.\n//\n// Requirements:\n// - Define a struct Worker with:\n//   - name: String\n//   - shifts: Int\n//   - hoursPerShift: Int\n// - Add a mutating method addShift()\n// - Add computed property totalHours (shifts * hoursPerShift)\n// - Create:\n//   - Worker \"Ada\" with shifts 2, hoursPerShift 4\n//   - Worker \"Ben\" with shifts 1, hoursPerShift 5\n// - Call addShift() once on Ada\n// - Print:\n//   \"Ada: 12\"\n//   \"Ben: 5\"\n//   \"Total: 17\"\n//\n// TODO: Implement Worker and the reporting logic.\n\n// Test code (don't modify):\nvar ada = Worker(name: \"Ada\", shifts: 2, hoursPerShift: 4)\nlet ben = Worker(name: \"Ben\", shifts: 1, hoursPerShift: 5)\nada.addShift()\nprint(\"\\(ada.name): \\(ada.totalHours)\")\nprint(\"\\(ben.name): \\(ben.totalHours)\")\nprint(\"Total: \\(ada.totalHours + ben.totalHours)\")",
@@ -355,16 +359,18 @@
     "title": "Shift Tracker"
   },
   {
-    "cheatsheet": "Project Cheatsheet: Shared Controller\n- Classes are reference types\n- Updates are shared across references",
+    "cheatsheet": "Classes (Reference Types)\n- Definition: class Name { var property: Type; init(...) { ... } }\n- Reference Semantics: Multiple variables can point to the same instance\n- Identity: Use === to check if two variables point to the same instance\n- Initializers: Unlike structs, classes DO NOT get a memberwise initializer automatically\n- Deinit: A deinitializer runs when the last reference to an instance is released\n- Inheritance: Classes can inherit from other classes (subclassing)",
     "completionMessage": "Reference semantics are now clear.",
     "completionTitle": "✨ Mantle 1 Extra Project Complete!",
     "description": "Show shared state with classes",
     "hints": [
-      "Classes share state across references."
+      "Classes share state across references.",
+      "Changing a property on 'secondary' will affect 'primary' because they both point to the same object.",
+      "Don't forget to write an 'init' method for your 'Controller' class, as classes don't get one for free."
     ],
     "id": "mantle1c",
     "layer": "mantle",
-    "lesson": "Lesson: Shared Controller\nGoal:\nShow shared state with classes\n\nKey Concepts:\n- Classes are reference types\n- Updates are shared across references\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "lesson": "Lesson: Shared Controller\nThis project demonstrates the core difference between structs (value types) and classes (reference types) through shared state.\n\nKey Learning Objectives:\n1. Reference Semantics: Observe how multiple references to the same class instance allow shared mutation.\n2. Class Initialization: Practice writing required initializers for classes.\n3. Comparison: Contrast this behavior with how structs would behave in the same situation (where each variable would have its own independent copy).\n\nProject Steps:\n- Define the 'Controller' class with a 'mode' property.\n- Implement the 'init' method.\n- Create two references to the same instance.\n- Mutate the instance through one reference and verify the change through the other.\n\nBest Practices:\n- Use classes when you want to ensure that all parts of your app are looking at the exact same data source.",
     "pass": 4,
     "solution": "class Controller {\n    var mode: String\n\n    init(mode: String) {\n        self.mode = mode\n    }\n}",
     "starterCode": "// Mantle 1 Project C: Shared Controller\n// Show class reference behavior.\n//\n// Requirements:\n// - Define a class Controller with a mode String\n// - Create 'primary' with mode \"Idle\"\n// - Assign 'secondary' = primary\n// - Set secondary.mode to \"Active\"\n// - Print:\n//   \"Primary: Active\"\n//   \"Secondary: Active\"\n//\n// TODO: Implement the Controller class.\n\n// Test code (don't modify):\nlet primary = Controller(mode: \"Idle\")\nlet secondary = primary\nsecondary.mode = \"Active\"\nprint(\"Primary: \\(primary.mode)\")\nprint(\"Secondary: \\(secondary.mode)\")",
@@ -382,17 +388,19 @@
     "title": "Shared Controller"
   },
   {
-    "cheatsheet": "Project Cheatsheet: Component Inspector\n- Protocols define shared requirements\n- Extensions add default behavior\n- Access control scopes API surface",
+    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
     "completionMessage": "Protocols and extensions are now part of your toolkit.",
     "completionTitle": "🏗️ Mantle 2 Complete!",
     "description": "Use protocols, extensions, and access control",
     "hints": [
       "Use a protocol extension to format the report string.",
-      "Conform both structs to Inspectable."
+      "Conform both structs to Inspectable.",
+      "The 'Inspectable' protocol should require 'id' and 'status' properties.",
+      "The protocol extension should provide a default implementation for 'report() -> String'."
     ],
     "id": "mantle2a",
     "layer": "mantle",
-    "lesson": "Lesson: Component Inspector\nGoal:\nUse protocols, extensions, and access control\n\nKey Concepts:\n- Protocols define shared requirements\n- Extensions add default behavior\n- Access control scopes API surface\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "lesson": "Lesson: Component Inspector\nIn this project, you will use protocols and extensions to build a unified reporting system for different types of forge components.\n\nKey Learning Objectives:\n1. Protocol Definition: Create a common interface ('Inspectable') that different types can share.\n2. Default Implementations: Use a protocol extension to provide a standard 'report()' format, reducing code duplication.\n3. Polymorphism: Use the protocol as a type in an array ('[Inspectable]') to treat different structs as if they were the same type.\n\nProject Steps:\n- Define the 'Inspectable' protocol.\n- Extend 'Inspectable' to add the default 'report()' method.\n- Define 'Valve' and 'Sensor' structs that conform to the protocol.\n- Verify that both types correctly use the default reporting behavior.\n\nBest Practices:\n- Protocols should describe 'capabilities' or 'traits'.\n- Use default implementations for logic that is identical across most conforming types.",
     "pass": 5,
     "solution": "protocol Inspectable {\n    var id: String { get }\n    var status: String { get }\n}\n\nextension Inspectable {\n    func report() -> String {\n        return \"\\(id): \\(status)\"\n    }\n}\n\nstruct Valve: Inspectable {\n    let id: String\n    let status: String\n}\n\nstruct Sensor: Inspectable {\n    let id: String\n    let status: String\n}",
     "starterCode": "// Mantle 2 Project A: Component Inspector\n// Define components and print inspection reports.\n//\n// Requirements:\n// - Define a protocol Inspectable with:\n//   - id: String\n//   - status: String\n// - Add a default method report() -> String in a protocol extension\n// - Create a struct 'Valve' that conforms (id: \"V1\", status: \"OK\")\n// - Create a struct 'Sensor' that conforms (id: \"S2\", status: \"WARN\")\n// - Print:\n//   \"V1: OK\"\n//   \"S2: WARN\"\n//\n// TODO: Implement Inspectable, the extension, and the structs.\n\n// Test code (don't modify):\nlet items: [Inspectable] = [\n    Valve(id: \"V1\", status: \"OK\"),\n    Sensor(id: \"S2\", status: \"WARN\"),\n]\nfor item in items {\n    print(item.report())\n}",
@@ -410,16 +418,18 @@
     "title": "Component Inspector"
   },
   {
-    "cheatsheet": "Project Cheatsheet: Inspection Line\n- Protocol composition combines requirements\n- Extensions can add shared formatting",
+    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
     "completionMessage": "Nice use of protocol composition.",
     "completionTitle": "✨ Mantle 2 Extra Project Complete!",
     "description": "Use protocol composition with shared formatting",
     "hints": [
-      "Inherit both protocols in Inspectable, then add report() in an extension."
+      "Inherit both protocols in Inspectable, then add report() in an extension.",
+      "The 'Inspectable' protocol can be empty if it just inherits from 'Identifiable' and 'Statused'.",
+      "By extending 'Inspectable', you get access to properties from both parent protocols."
     ],
     "id": "mantle2b",
     "layer": "mantle",
-    "lesson": "Lesson: Inspection Line\nGoal:\nUse protocol composition with shared formatting\n\nKey Concepts:\n- Protocol composition combines requirements\n- Extensions can add shared formatting\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "lesson": "Lesson: Inspection Line\nThis project explores protocol inheritance and composition, allowing you to build complex requirements from simple, reusable blocks.\n\nKey Learning Objectives:\n1. Protocol Inheritance: Create a 'master' protocol that combines requirements from multiple parent protocols.\n2. Layered Design: Build a hierarchy of protocols to represent different levels of abstraction.\n3. Protocol-Oriented Formatting: Centralize output logic in a single extension that works for any type meeting multiple criteria.\n\nProject Steps:\n- Define 'Identifiable' and 'Statused' protocols.\n- Define 'Inspectable' which inherits from both.\n- Add the 'report()' method to an extension of 'Inspectable'.\n- Conform structs to the 'Inspectable' protocol.\n\nBest Practices:\n- Decomposition: Start with the smallest possible protocols and compose them into larger ones as needed.",
     "pass": 5,
     "solution": "protocol Identifiable {\n    var id: String { get }\n}\n\nprotocol Statused {\n    var status: String { get }\n}\n\nprotocol Inspectable: Identifiable, Statused {}\n\nextension Inspectable {\n    func report() -> String {\n        return \"\\(id): \\(status)\"\n    }\n}\n\nstruct Valve: Inspectable {\n    let id: String\n    let status: String\n}\n\nstruct Sensor: Inspectable {\n    let id: String\n    let status: String\n}",
     "starterCode": "// Mantle 2 Project B: Inspection Line\n// Compose protocols and build a report.\n//\n// Requirements:\n// - Define protocol Identifiable (id: String)\n// - Define protocol Statused (status: String)\n// - Define protocol Inspectable that inherits Identifiable and Statused\n// - Add an extension on Inspectable with report() -> String\n// - Create a struct Valve and Sensor that conform to Inspectable\n// - Print:\n//   \"V1: OK\"\n//   \"S2: WARN\"\n//\n// TODO: Implement the protocols, extension, and structs.\n\n// Test code (don't modify):\nlet valve = Valve(id: \"V1\", status: \"OK\")\nlet sensor = Sensor(id: \"S2\", status: \"WARN\")\nprint(valve.report())\nprint(sensor.report())",
@@ -437,16 +447,19 @@
     "title": "Inspection Line"
   },
   {
-    "cheatsheet": "Project Cheatsheet: Safe Heater\n- Throwing functions signal failures\n- do/try/catch handles errors",
+    "cheatsheet": "Error Handling\n- Defining Errors: Use an enum that conforms to 'Error'.\n- Throwing: Use 'throw MyError.something' inside a function marked 'throws'.\n- Handling:\n  - do { try function() } catch { ... }\n  - try?: Returns an optional, nil if an error was thrown.\n  - try!: Disables error propagation; crashes if an error is thrown.\n- Rethrows: Used when a function takes a throwing closure and propagates its errors.",
     "completionMessage": "Solid error handling practice.",
     "completionTitle": "✨ Mantle 2 Extra Project Complete!",
     "description": "Throw and handle errors safely",
     "hints": [
-      "Throw when the temperature is below the threshold."
+      "Throw when the temperature is below the threshold.",
+      "The 'Heater' struct should have a function 'heat(to level: Int) throws'.",
+      "Use 'throw HeatError.tooCold' inside an 'if' statement.",
+      "In the test code, use 'do { try ... } catch { ... }' to handle the potential failure."
     ],
     "id": "mantle2c",
     "layer": "mantle",
-    "lesson": "Lesson: Safe Heater\nGoal:\nThrow and handle errors safely\n\nKey Concepts:\n- Throwing functions signal failures\n- do/try/catch handles errors\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "lesson": "Lesson: Safe Heater\nIn this project, you will implement a robust error handling system to prevent the forge from operating under unsafe conditions.\n\nKey Learning Objectives:\n1. Error Modeling: Use an enum to represent specific, meaningful error cases.\n2. Propagation: Practice marking functions with 'throws' to indicate they can fail.\n3. Handling: Use do-try-catch blocks to gracefully handle errors and provide feedback to the user.\n\nProject Steps:\n- Define the 'HeatError' enum.\n- Implement the 'heat(to:)' throwing function in the 'Heater' struct.\n- Add logic to throw the error when the temperature is too low.\n- Use the provided test code to verify that both success and failure paths work as expected.\n\nBest Practices:\n- Specificity: Throw specific errors instead of generic ones to help with debugging.\n- Documentation: In real projects, document why a function throws and what cases it covers.",
     "pass": 5,
     "solution": "enum HeatError: Error {\n    case tooCold\n}\n\nstruct Heater {\n    func heat(to level: Int) throws {\n        if level < 1000 {\n            throw HeatError.tooCold\n        }\n    }\n}",
     "starterCode": "// Mantle 2 Project C: Safe Heater\n// Throw errors and handle them with do/try/catch.\n//\n// Requirements:\n// - Define enum HeatError: Error with case tooCold\n// - Define struct Heater with func heat(to:) throws\n// - Throw tooCold if level < 1000\n// - In test code, call with 900 and 1200\n// - Print:\n//   \"Too cold\"\n//   \"Heated\"\n//\n// TODO: Implement HeatError and Heater.\n\n// Test code (don't modify):\nlet heater = Heater()\ndo {\n    try heater.heat(to: 900)\n} catch {\n    print(\"Too cold\")\n}\ndo {\n    try heater.heat(to: 1200)\n    print(\"Heated\")\n} catch {\n    print(\"Too cold\")\n}",
@@ -464,17 +477,19 @@
     "title": "Safe Heater"
   },
   {
-    "cheatsheet": "Project Cheatsheet: Task Manager\n- Generics make reusable containers\n- Protocol extensions add shared behavior\n- weak references prevent cycles",
+    "cheatsheet": "Memory Management (ARC)\n- ARC: Automatic Reference Counting manages memory for class instances.\n- Strong Reference: The default. Keeps the instance alive as long as the reference exists.\n- Weak Reference: Does not keep the instance alive. Automatically becomes 'nil' when the instance is released. Must be 'var' and optional.\n- Reference Cycle: Occurs when two instances hold strong references to each other, preventing them from ever being released.\n- [weak self]: Used in closure capture lists to avoid reference cycles.",
     "completionMessage": "You can now build more structured systems in Swift.",
     "completionTitle": "🏗️ Mantle 3 Complete!",
     "description": "Combine generics, protocol defaults, and ARC safety",
     "hints": [
       "Use a protocol extension for the label.",
-      "Make the Manager reference weak on the Worker side."
+      "Make the Manager reference weak on the Worker side.",
+      "The 'Manager' holds a strong reference to 'Worker', so 'Worker' should hold a 'weak' reference back to 'Manager' to avoid a cycle.",
+      "The 'Box' struct should be generic: 'struct Box<T> { let value: T }'."
     ],
     "id": "mantle3a",
     "layer": "mantle",
-    "lesson": "Lesson: Task Manager\nGoal:\nCombine generics, protocol defaults, and ARC safety\n\nKey Concepts:\n- Generics make reusable containers\n- Protocol extensions add shared behavior\n- weak references prevent cycles\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "lesson": "Lesson: Task Manager\nThis capstone project for the Mantle layer combines generics, protocol-oriented programming, and safe memory management.\n\nKey Learning Objectives:\n1. Generics: Build a reusable container ('Box') that can hold any type of data.\n2. Protocol Extensions: Centralize behavior ('label()') for any type conforming to 'Named'.\n3. ARC Safety: Identify and break a potential reference cycle between 'Manager' and 'Worker' class instances.\n\nProject Steps:\n- Define the 'Named' protocol and its extension.\n- Implement the generic 'Box' struct.\n- Implement 'Manager' and 'Worker' classes.\n- Use the 'weak' keyword to ensure the parent-child relationship doesn't leak memory.\n\nBest Practices:\n- Ownership: Always decide which object 'owns' another. The owner should have a strong reference, and the child should have a weak reference back.",
     "pass": 6,
     "solution": "protocol Named {\n    var name: String { get }\n}\n\nextension Named {\n    func label() -> String {\n        return \"Task: \\(name)\"\n    }\n}\n\nstruct Box<T> {\n    let value: T\n}\n\nclass Manager {\n    var worker: Worker?\n}\n\nclass Worker: Named {\n    let name: String\n    weak var manager: Manager?\n\n    init(name: String) {\n        self.name = name\n    }\n}",
     "starterCode": "// Mantle 3 Project A: Task Manager\n// Build a small model with generics and safe references.\n//\n// Requirements:\n// - Define a protocol Named with name: String\n// - Add a default method label() -> String in a protocol extension\n// - Define a generic struct Box<T> to store a value\n// - Define a class Manager with a Worker reference\n// - Define a class Worker with name and a weak Manager reference\n// - Print:\n//   \"Task: Forge\"\n//   \"Boxed: 5\"\n//   \"Link ok\"\n//\n// TODO: Implement the types and prints.\n\n// Test code (don't modify):\nlet worker = Worker(name: \"Forge\")\nlet manager = Manager()\nmanager.worker = worker\nworker.manager = manager\nprint(worker.label())\n\nlet boxed = Box(value: 5)\nprint(\"Boxed: \\(boxed.value)\")\n\nprint(\"Link ok\")",
@@ -496,16 +511,19 @@
     "title": "Task Manager"
   },
   {
-    "cheatsheet": "Project Cheatsheet: Generic Stack\n- Generics allow reusable containers\n- Mutating methods update stored arrays",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "completionMessage": "Generics are becoming second nature.",
     "completionTitle": "✨ Mantle 3 Extra Project Complete!",
     "description": "Build a generic stack with push/pop",
     "hints": [
-      "pop should remove and return the last element."
+      "pop should remove and return the last element.",
+      "The stack should store items in an array: 'var items: [T]'.",
+      "Use 'items.append(item)' for 'push' and 'items.removeLast()' for 'pop'.",
+      "Both 'push' and 'pop' must be marked 'mutating' because they change the 'items' array."
     ],
     "id": "mantle3b",
     "layer": "mantle",
-    "lesson": "Lesson: Generic Stack\nGoal:\nBuild a generic stack with push/pop\n\nKey Concepts:\n- Generics allow reusable containers\n- Mutating methods update stored arrays\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "lesson": "Lesson: Generic Stack\nIn this project, you will build a classic Data Structure: a Stack. Stacks follow the 'Last-In, First-Out' (LIFO) principle.\n\nKey Learning Objectives:\n1. Generic Containers: Create a type that can handle any data, from integers to custom forge components.\n2. Array Management: Use built-in array methods like 'append' and 'removeLast' to manage the stack's state.\n3. Mutating State: Practice managing value type state transitions in a generic context.\n\nProject Steps:\n- Define 'struct Stack<T>'.\n- Implement 'push(_:)' to add an element.\n- Implement 'pop()' to remove and return the most recently added element.\n- Use the test code to push and pop values, verifying the LIFO order.\n\nBest Practices:\n- Error Handling: In a production stack, you might want to handle 'pop' on an empty stack (e.g., by returning an optional or throwing an error). For this project, we assume the stack is not empty.",
     "pass": 6,
     "solution": "struct Stack<T> {\n    var items: [T]\n\n    mutating func push(_ item: T) {\n        items.append(item)\n    }\n\n    mutating func pop() -> T {\n        return items.removeLast()\n    }\n}",
     "starterCode": "// Mantle 3 Project B: Generic Stack\n// Implement a basic generic stack.\n//\n// Requirements:\n// - Define struct Stack<T> with items: [T]\n// - Add mutating push(_:) and pop() -> T\n// - Use it with Ints:\n//   - Push 3, push 5, pop and print\n//   - Push 7, pop and print\n// - Output:\n//   \"5\"\n//   \"7\"\n//\n// TODO: Implement Stack.\n\n// Test code (don't modify):\nvar stack = Stack(items: [])\nstack.push(3)\nstack.push(5)\nprint(stack.pop())\nstack.push(7)\nprint(stack.pop())",
@@ -523,17 +541,19 @@
     "title": "Generic Stack"
   },
   {
-    "cheatsheet": "Project Cheatsheet: Constraint Report\n- where clauses add constraints\n- Protocol extensions add shared behavior",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "completionMessage": "Great control of constraints and defaults.",
     "completionTitle": "✨ Mantle 3 Extra Project Complete!",
-    "description": "Combine where clauses and protocol defaults",
+    "description": "Use generic constraints and protocol extensions.",
     "hints": [
       "Use a constrained extension for Box where T: Named.",
-      "isEqual should return a Bool comparison."
+      "isEqual should return a Bool comparison.",
+      "The constrained extension should be 'extension Box where T: Named { ... }'.",
+      "The 'isEqual' function needs a constraint: 'func isEqual<T: Equatable>(...) -> Bool'."
     ],
     "id": "mantle3c",
     "layer": "mantle",
-    "lesson": "Lesson: Constraint Report\nGoal:\nCombine where clauses and protocol defaults\n\nKey Concepts:\n- where clauses add constraints\n- Protocol extensions add shared behavior\n\nImplementation Plan:\n- Define data models and interfaces first (`struct`/`class`/`protocol`) before wiring logic.\n- Keep behavior close to the owning type (methods and computed properties).\n- Validate state transitions and final output formatting against expected lines.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Blurring ownership boundaries, which makes mutability bugs harder to spot.",
+    "lesson": "Lesson: Constraint Report\nThis project demonstrates how to add specialized behavior to generic types using 'where' clauses and protocol constraints.\n\nKey Learning Objectives:\n1. Constrained Extensions: Learn how to add methods to a generic type that only exist when the type parameter meets certain criteria.\n2. Protocol-Based Logic: Use constraints to ensure that types passed to functions support the necessary operations (like equality checks).\n3. Reusability: Build functions that work across many types while remaining strictly typed.\n\nProject Steps:\n- Define the 'Named' protocol.\n- Define the generic 'Box' struct.\n- Add a constrained extension to 'Box' that uses 'Named' methods.\n- Write a generic 'isEqual' function constrained to 'Equatable'.\n\nBest Practices:\n- Constraints: Use the most general constraint possible to maximize reusability.",
     "pass": 6,
     "solution": "protocol Named {\n    var name: String { get }\n}\n\nextension Named {\n    func label() -> String {\n        return \"Boxed: \\(name)\"\n    }\n}\n\nstruct Box<T> {\n    let value: T\n}\n\nextension Box where T: Named {\n    func label() -> String {\n        return value.label()\n    }\n}\n\nfunc isEqual<T: Equatable>(_ first: T, _ second: T) -> Bool {\n    return first == second\n}",
     "starterCode": "// Mantle 3 Project C: Constraint Report\n// Use generic constraints and protocol extensions.\n//\n// Requirements:\n// - Define protocol Named with name: String\n// - Add default method label() -> String returning \"Boxed: <name>\"\n// - Define struct Box<T> { let value: T }\n// - Extend Box where T: Named with method label()\n// - Define generic function isEqual<T: Equatable>(_:_:) -> Bool\n// - Print:\n//   \"Boxed: Steel\"\n//   \"true\"\n//\n// TODO: Implement the types and function.\n\n// Test code (don't modify):\nstruct Alloy: Named { let name: String }\nlet boxed = Box(value: Alloy(name: \"Steel\"))\nprint(boxed.label())\nprint(isEqual(2, 2))",

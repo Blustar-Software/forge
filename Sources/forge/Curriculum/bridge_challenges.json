@@ -2,46 +2,48 @@
   "coreToMantle": [
     {
       "canonicalId": "",
-      "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+      "cheatsheet": "Structs (Value Types)\n- Definition: struct Name { var property: Type }\n- Initialization: let instance = Name(property: value) (memberwise init)\n- Access: Use dot notation: instance.property\n- Mutability: Use 'var' for instances you want to modify\n- Copying: Assigning a struct to a new variable creates a full, independent copy",
       "description": "Move from loose values to a struct",
       "expectedOutput": "Iron @ 1400",
       "fixtureFiles": [],
       "hints": [
-        "A struct bundles related values together.",
-        "Use its stored properties to form the output line."
+        "A struct bundles related values together into a single type.",
+        "Define 'struct Snapshot' with stored properties 'metal' and 'heat'.",
+        "Use the memberwise initializer: 'Snapshot(metal: ..., heat: ...)'."
       ],
       "id": "",
       "introduces": [],
       "layer": "mantle",
-      "lesson": "Lesson: Structs\nMove from loose values to a struct\n\nOverview:\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties\n\nPractice:\n- Implement the TODOs.\n- Press Enter to run the check.\n- Use `h` for hints and `c` for cheatsheet when stuck.",
+      "lesson": "Lesson: Structs\nStructs allow you to create your own custom data types that bundle related values together.\n\nKey Concepts:\n1. Definition: Use 'struct Name { ... }' to define a new type.\n2. Properties: Variables (var) and constants (let) inside a struct are called properties.\n3. Initialization: Swift provides a default 'memberwise initializer' for structs, so you don't need to write 'init' manually.\n4. Value Type: Structs are copied when passed around, making them safe and predictable.\n\nExample:\n    struct Coordinate {\n        let x: Int\n        let y: Int\n    }\n    let point = Coordinate(x: 10, y: 20)\n\nBest Practices:\n- Name structs with UpperCamelCase (e.g., 'Snapshot').\n- Use structs for data models that represent a value (like a point, a date, or a snapshot).",
       "manualCheck": false,
       "number": 241,
       "requires": [],
       "solution": "struct Snapshot {\n    let metal: String\n    let heat: Int\n}\n\nlet snapshot = Snapshot(metal: \"Iron\", heat: 1400)\nprint(\"\\(snapshot.metal) @ \\(snapshot.heat)\")",
-      "starterCode": "// Bridge Challenge 1: Struct Snapshot\n// Move from loose values to a struct.\n//\n// TODO: Define a struct Snapshot with metal (String) and heat (Int)\n// TODO: Create a snapshot for \"Iron\" at 1400\n// TODO: Print \"Iron @ 1400\"",
+      "starterCode": "// Bridge Challenge 1: Struct Snapshot\n// Move from loose values to a struct.\n//\n// TODO: Define a struct Snapshot with metal (String) and heat (Int)\n// TODO: Create a snapshot instance for \"Iron\" at 1400\n// TODO: Print the snapshot description: \"Iron @ 1400\"",
       "tier": "mainline",
       "title": "Bridge: Struct Snapshot",
       "topic": "structs"
     },
     {
       "canonicalId": "",
-      "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+      "cheatsheet": "Structs (Value Types)\n- Definition: struct Name { var property: Type }\n- Initialization: let instance = Name(property: value) (memberwise init)\n- Access: Use dot notation: instance.property\n- Mutability: Use 'var' for instances you want to modify\n- Copying: Assigning a struct to a new variable creates a full, independent copy",
       "description": "Define and call a struct method",
       "expectedOutput": "Gold: 1500",
       "fixtureFiles": [],
       "hints": [
-        "Methods can format stored properties into strings.",
-        "Call the method on the instance to get the output text."
+        "Methods are functions defined inside a struct.",
+        "They can access the struct's properties directly (e.g., just 'metal', or 'self.metal').",
+        "Define 'func label() -> String' inside 'ForgeLog' and use string interpolation."
       ],
       "id": "",
       "introduces": [],
       "layer": "mantle",
-      "lesson": "Lesson: Struct Methods\nDefine and call a struct method\n\nOverview:\n- struct Name { var property: Type }\n- Methods are functions inside a struct\n- Use instance.method() to call behavior\n- Methods can read stored properties directly\n\nImplementation Plan:\n- Define the struct with `metal` and `heat` stored properties.\n- Add `func label() -> String` inside the struct body.\n- In `label()`, build the exact format `\"<metal>: <heat>\"`.\n- Create one instance and print `log.label()`.\n\nCommon Mistakes:\n- Defining `label()` outside the struct.\n- Forgetting to call the method (printing the instance instead).\n- Returning a near-match string with different punctuation or spacing.",
+      "lesson": "Lesson: Struct Methods\nMethods allow you to add behavior to your data types.\n\nCore Concepts:\n1. Encapsulation: By putting functions inside the struct, you keep data and logic together.\n2. Access: Methods automatically have access to all the properties of the struct instance they are called on.\n3. Calling: Call a method using dot syntax: 'instance.method()'.\n\nExample:\n    struct Box {\n        let item: String\n        func description() -> String {\n            return \"Contains: \\(item)\"\n        }\n    }\n    let box = Box(item: \"Iron\")\n    print(box.description()) // Prints \"Contains: Iron\"\n\nBest Practices:\n- Use methods for logic that is specific to the data in the struct.\n- If a method needs to modify properties, mark it with 'mutating'.",
       "manualCheck": false,
       "number": 242,
       "requires": [],
       "solution": "struct ForgeLog {\n    let metal: String\n    let heat: Int\n\n    func label() -> String {\n        return \"\\(metal): \\(heat)\"\n    }\n}\n\nlet log = ForgeLog(metal: \"Gold\", heat: 1500)\nprint(log.label())",
-      "starterCode": "// Bridge Challenge 2: Struct Method\n// Add behavior to a struct.\n//\n// TODO: Define a struct ForgeLog with metal (String) and heat (Int)\n// TODO: Add a method label() -> String that returns \"<metal>: <heat>\"\n// TODO: Create a log for \"Gold\" at 1500 and print label()",
+      "starterCode": "// Bridge Challenge 2: Struct Method\n// Add behavior to a struct.\n//\n// TODO: Define a struct ForgeLog with metal (String) and heat (Int)\n// TODO: Add a method label() -> String that returns \"<metal>: <heat>\"\n// TODO: Create a log for \"Gold\" at 1500\n// TODO: Print the result of calling label() on the log",
       "tier": "mainline",
       "title": "Bridge: Struct Method",
       "topic": "structs"

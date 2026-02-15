@@ -1,7 +1,7 @@
 [
   {
     "canonicalId": "",
-    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "cheatsheet": "Structs (Value Types)\n- Definition: struct Name { var property: Type }\n- Initialization: let instance = Name(property: value) (memberwise init)\n- Access: Use dot notation: instance.property\n- Mutability: Use 'var' for instances you want to modify\n- Copying: Assigning a struct to a new variable creates a full, independent copy\n- Methods: Methods that modify properties must be marked 'mutating'",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -17,7 +17,8 @@
     "fixtureFiles": [],
     "hints": [
       "Model the item as a value type with a single stored property.",
-      "Use dot syntax to read the property for output."
+      "Use dot syntax to read the property for output.",
+      "Structs get a free 'memberwise' initializer, so you don't need to write 'init' manually here."
     ],
     "id": "",
     "introduces": [
@@ -25,7 +26,7 @@
       "properties"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "lesson": "Lesson: Structs\nStructs are the building blocks of most Swift programs. They are 'value types', meaning they are copied when passed around.\n\nCore Concepts:\n1. Definition: Use the 'struct' keyword. Properties are variables or constants defined inside.\n2. Memberwise Initializer: Swift automatically provides an initializer based on your properties.\n3. Value Semantics: When you assign a struct to a new variable, you get a copy. Changes to the copy don't affect the original.\n4. Mutability: If you want to change a struct's properties, the instance itself must be declared with 'var'.\n\nExample:\n    struct ForgeItem {\n        var name: String\n        var weight: Int\n    }\n    var item = ForgeItem(name: \"Iron\", weight: 5)\n    item.weight = 10 // Only works because 'item' is var\n\nBest Practices:\n- Use structs for simple data models.\n- Favor immutability (let) whenever possible.",
     "manualCheck": false,
     "number": 124,
     "requires": [],
@@ -37,7 +38,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "cheatsheet": "Structs (Value Types)\n- Definition: struct Name { var property: Type }\n- Initialization: let instance = Name(property: value) (memberwise init)\n- Access: Use dot notation: instance.property\n- Mutability: Use 'var' for instances you want to modify\n- Copying: Assigning a struct to a new variable creates a full, independent copy\n- Methods: Methods that modify properties must be marked 'mutating'",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -52,14 +53,16 @@
     "expectedOutput": "1500",
     "fixtureFiles": [],
     "hints": [
-      "Stored properties can be updated on a var instance."
+      "Stored properties can be updated on a var instance.",
+      "Access the 'heat' property using dot notation: furnace.heat = 1500.",
+      "Make sure to print the value after you update it."
     ],
     "id": "",
     "introduces": [
       "properties"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "lesson": "Lesson: Structs\nStructs are the building blocks of most Swift programs. They are 'value types', meaning they are copied when passed around.\n\nCore Concepts:\n1. Definition: Use the 'struct' keyword. Properties are variables or constants defined inside.\n2. Memberwise Initializer: Swift automatically provides an initializer based on your properties.\n3. Value Semantics: When you assign a struct to a new variable, you get a copy. Changes to the copy don't affect the original.\n4. Mutability: If you want to change a struct's properties, the instance itself must be declared with 'var'.\n\nExample:\n    struct ForgeItem {\n        var name: String\n        var weight: Int\n    }\n    var item = ForgeItem(name: \"Iron\", weight: 5)\n    item.weight = 10 // Only works because 'item' is var\n\nBest Practices:\n- Use structs for simple data models.\n- Favor immutability (let) whenever possible.",
     "manualCheck": false,
     "number": 125,
     "requires": [],
@@ -71,7 +74,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "cheatsheet": "Structs (Value Types)\n- Definition: struct Name { var property: Type }\n- Initialization: let instance = Name(property: value) (memberwise init)\n- Access: Use dot notation: instance.property\n- Mutability: Use 'var' for instances you want to modify\n- Copying: Assigning a struct to a new variable creates a full, independent copy\n- Methods: Methods that modify properties must be marked 'mutating'",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -86,14 +89,16 @@
     "expectedOutput": "Strikes: 0",
     "fixtureFiles": [],
     "hints": [
-      "Use self to build the return string from the property."
+      "Use self to build the return string from the property.",
+      "Inside 'summary()', you can access the 'strikes' property directly or via 'self.strikes'.",
+      "Use string interpolation: \"Strikes: \\(strikes)\"."
     ],
     "id": "",
     "introduces": [
       "selfKeyword"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "lesson": "Lesson: Structs\nStructs are the building blocks of most Swift programs. They are 'value types', meaning they are copied when passed around.\n\nCore Concepts:\n1. Definition: Use the 'struct' keyword. Properties are variables or constants defined inside.\n2. Memberwise Initializer: Swift automatically provides an initializer based on your properties.\n3. Value Semantics: When you assign a struct to a new variable, you get a copy. Changes to the copy don't affect the original.\n4. Mutability: If you want to change a struct's properties, the instance itself must be declared with 'var'.\n\nExample:\n    struct ForgeItem {\n        var name: String\n        var weight: Int\n    }\n    var item = ForgeItem(name: \"Iron\", weight: 5)\n    item.weight = 10 // Only works because 'item' is var\n\nBest Practices:\n- Use structs for simple data models.\n- Favor immutability (let) whenever possible.",
     "manualCheck": false,
     "number": 126,
     "requires": [],
@@ -105,7 +110,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "cheatsheet": "Structs (Value Types)\n- Definition: struct Name { var property: Type }\n- Initialization: let instance = Name(property: value) (memberwise init)\n- Access: Use dot notation: instance.property\n- Mutability: Use 'var' for instances you want to modify\n- Copying: Assigning a struct to a new variable creates a full, independent copy\n- Methods: Methods that modify properties must be marked 'mutating'",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -120,26 +125,28 @@
     "expectedOutput": "Copper\n1",
     "fixtureFiles": [],
     "hints": [
-      "Custom initializers can set default values."
+      "Custom initializers can set default values.",
+      "Assign 'self.metal = metal' and 'self.weight = 1' inside your init block.",
+      "The parameter name in 'init' usually matches the property name, so use 'self' to distinguish them."
     ],
     "id": "",
     "introduces": [
       "initializers"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Custom Initializers\nCustom initializers allow you to control how a `struct` instance is created, providing flexibility beyond the default memberwise initializer.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add one or more `init(...)` methods to set up values at creation.\n- Use `self.property = value` inside the initializer to assign properties.\n- Combine with `mutating` methods to modify instances after creation.\n\nExample:\n    struct Tool {\n        var type: String\n        var durability: Int\n\n        // Custom initializer sets a default durability\n        init(type: String) {\n            self.type = type\n            self.durability = 100\n        }\n\n        mutating func use() {\n            durability -= 10\n        }\n    }\n\n// Usage\nvar hammer = Tool(type: \"Hammer\")\nprint(hammer.type)        // Hammer\nprint(hammer.durability)  // 100\n\nGuidelines:\n- Use `let` for properties that should never change after initialization.\n- Favor custom initializers when you need validation, default logic, or computed starting values.\n- Keep behavior (methods) close to data for clarity.",
+    "lesson": "Lesson: Custom Initializers\nCustom initializers allow you to control how a 'struct' instance is created, providing flexibility beyond the default memberwise initializer.\n\nOverview:\n1. Define one or more 'init(...)' methods to set up values at creation.\n2. Inside the initializer, use 'self.property = value' to assign initial state.\n3. Once you define a custom initializer, Swift no longer provides the automatic memberwise one.\n\nExample:\n    struct Tool {\n        var type: String\n        var durability: Int\n        init(type: String) {\n            self.type = type\n            self.durability = 100 // default value\n        }\n    }\n\nGuidelines:\n- Use custom initializers for validation or to provide default values for some properties.\n- Keep them simple; their primary job is to ensure the instance is fully and correctly initialized.",
     "manualCheck": false,
     "number": 127,
     "requires": [],
     "solution": "struct Ingot {\n    var metal: String\n    var weight: Int\n\n    init(metal: String) {\n        self.metal = metal\n        self.weight = 1\n    }\n}\n\nlet ingot = Ingot(metal: \"Copper\")\nprint(ingot.metal)\nprint(ingot.weight)",
-    "starterCode": "// Challenge 127: Custom Init\n// Create a custom initializer.\n\nstruct Ingot {\n    var metal: String\n    var weight: Int\n    // TODO: Add init(metal:) that sets 'weight' to 1\n}\n\n// TODO: Create an Ingot with metal \"Copper\"\n// TODO: Print the metal and weight on separate lines",
+    "starterCode": "// Challenge 127: Custom Init\n// Create a custom initializer.\n\nstruct Ingot {\n    var metal: String\n    var weight: Int\n    // TODO: Add init(metal:) that sets 'weight' to 1\n}\n\n// TODO: Create an Ingot with metal \"Copper\"\n// TODO: Print the metal\n// TODO: Print the weight",
     "tier": "mainline",
     "title": "Custom Init",
     "topic": "structs"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "cheatsheet": "Structs (Value Types)\n- Definition: struct Name { var property: Type }\n- Initialization: let instance = Name(property: value) (memberwise init)\n- Access: Use dot notation: instance.property\n- Mutability: Use 'var' for instances you want to modify\n- Copying: Assigning a struct to a new variable creates a full, independent copy\n- Methods: Methods that modify properties must be marked 'mutating'",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -154,14 +161,16 @@
     "expectedOutput": "3",
     "fixtureFiles": [],
     "hints": [
-      "Use mutating when a struct method changes properties."
+      "Use mutating when a struct method changes properties.",
+      "Methods in a struct cannot change properties unless they are marked with the 'mutating' keyword.",
+      "The 'mutating' keyword goes before the 'func' keyword."
     ],
     "id": "",
     "introduces": [
       "mutatingMethods"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "lesson": "Lesson: Structs\nStructs are the building blocks of most Swift programs. They are 'value types', meaning they are copied when passed around.\n\nCore Concepts:\n1. Definition: Use the 'struct' keyword. Properties are variables or constants defined inside.\n2. Memberwise Initializer: Swift automatically provides an initializer based on your properties.\n3. Value Semantics: When you assign a struct to a new variable, you get a copy. Changes to the copy don't affect the original.\n4. Mutability: If you want to change a struct's properties, the instance itself must be declared with 'var'.\n\nExample:\n    struct ForgeItem {\n        var name: String\n        var weight: Int\n    }\n    var item = ForgeItem(name: \"Iron\", weight: 5)\n    item.weight = 10 // Only works because 'item' is var\n\nBest Practices:\n- Use structs for simple data models.\n- Favor immutability (let) whenever possible.",
     "manualCheck": false,
     "number": 128,
     "requires": [],
@@ -173,7 +182,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "cheatsheet": "Structs (Value Types)\n- Definition: struct Name { var property: Type }\n- Initialization: let instance = Name(property: value) (memberwise init)\n- Access: Use dot notation: instance.property\n- Mutability: Use 'var' for instances you want to modify\n- Copying: Assigning a struct to a new variable creates a full, independent copy\n- Methods: Methods that modify properties must be marked 'mutating'",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -188,24 +197,26 @@
     "expectedOutput": "1\n2",
     "fixtureFiles": [],
     "hints": [
-      "Changing a copy does not affect the original."
+      "Changing a copy does not affect the original.",
+      "Assigning 'original' to 'copy' creates a second, separate instance of the Mold.",
+      "This is what we mean by 'Value Semantics' – the value itself is passed, not a reference to it."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "lesson": "Lesson: Structs\nStructs are the building blocks of most Swift programs. They are 'value types', meaning they are copied when passed around.\n\nCore Concepts:\n1. Definition: Use the 'struct' keyword. Properties are variables or constants defined inside.\n2. Memberwise Initializer: Swift automatically provides an initializer based on your properties.\n3. Value Semantics: When you assign a struct to a new variable, you get a copy. Changes to the copy don't affect the original.\n4. Mutability: If you want to change a struct's properties, the instance itself must be declared with 'var'.\n\nExample:\n    struct ForgeItem {\n        var name: String\n        var weight: Int\n    }\n    var item = ForgeItem(name: \"Iron\", weight: 5)\n    item.weight = 10 // Only works because 'item' is var\n\nBest Practices:\n- Use structs for simple data models.\n- Favor immutability (let) whenever possible.",
     "manualCheck": false,
     "number": 129,
     "requires": [],
     "solution": "struct Mold {\n    var size: Int\n}\n\nlet original = Mold(size: 1)\nvar copy = original\ncopy.size = 2\n\nprint(original.size)\nprint(copy.size)",
-    "starterCode": "// Challenge 129: Value Semantics\n// Show that structs are copied on assignment.\n\nstruct Mold {\n    var size: Int\n}\n\nlet original = Mold(size: 1)\nvar copy = original\n\n// TODO: Change 'copy.size' to 2\n// TODO: Print 'original.size' and 'copy.size' on separate lines",
+    "starterCode": "// Challenge 129: Value Semantics\n// Show that structs are copied on assignment.\n\nstruct Mold {\n    var size: Int\n}\n\nlet original = Mold(size: 1)\nvar copy = original\n\n// TODO: Change 'copy.size' to 2\n// TODO: Print 'original.size'\n// TODO: Print 'copy.size'",
     "tier": "mainline",
     "title": "Value Semantics",
     "topic": "structs"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Classes\n- class Name { var property: Type }\n- Classes are reference types\n- deinit runs when an instance is released",
+    "cheatsheet": "Classes (Reference Types)\n- Definition: class Name { var property: Type; init(...) { ... } }\n- Reference Semantics: Multiple variables can point to the same instance\n- Identity: Use === to check if two variables point to the same instance\n- Initializers: Unlike structs, classes DO NOT get a memberwise initializer automatically\n- Deinit: A deinitializer runs when the last reference to an instance is released\n- Inheritance: Classes can inherit from other classes (subclassing)",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -220,14 +231,16 @@
     "expectedOutput": "10",
     "fixtureFiles": [],
     "hints": [
-      "Classes need an initializer if they have stored properties."
+      "Classes need an initializer if they have stored properties.",
+      "The 'init' method sets up the initial state of the object.",
+      "Create an instance using 'Anvil(weight: 10)'."
     ],
     "id": "",
     "introduces": [
       "classes"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Classes\nClasses are reference types, so multiple variables can point to one instance.\n\nOverview:\n- `class` supports inheritance and `deinit`.\n- Assignment copies the reference, not the data.\n- Use classes when shared mutable state is intentional.\n\nExample:\n    class Furnace {\n        var level = 0\n    }\n    let a = Furnace()\n    let b = a\n    b.level = 3   // a.level is also 3\n\nGuidelines:\n- Be explicit about ownership.\n- Watch for unintended shared mutation.",
+    "lesson": "Lesson: Classes\nClasses are 'reference types'. When you assign a class instance to a new variable, both variables point to the same object in memory.\n\nKey Differences from Structs:\n1. Reference Semantics: Changing a property through one reference affects all other references to that same instance.\n2. Mandatory Initializers: You must provide an 'init' method if your properties don't have default values.\n3. Identity vs. Equality: Use '==' for value equality and '===' for reference identity.\n4. Lifetime: Classes use Automatic Reference Counting (ARC) to determine when they should be destroyed.\n\nExample:\n    class Bellows {\n        var power: Int\n        init(power: Int) { self.power = power }\n    }\n    let p1 = Bellows(power: 1)\n    let p2 = p1\n    p2.power = 10 // p1.power is now also 10\n\nWhen to Use:\n- Use classes when you need shared mutable state or identity.\n- Use classes for inheritance or when you need to perform cleanup on deinit.",
     "manualCheck": false,
     "number": 130,
     "requires": [],
@@ -239,7 +252,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Classes\n- class Name { var property: Type }\n- Classes are reference types\n- deinit runs when an instance is released",
+    "cheatsheet": "Classes (Reference Types)\n- Definition: class Name { var property: Type; init(...) { ... } }\n- Reference Semantics: Multiple variables can point to the same instance\n- Identity: Use === to check if two variables point to the same instance\n- Initializers: Unlike structs, classes DO NOT get a memberwise initializer automatically\n- Deinit: A deinitializer runs when the last reference to an instance is released\n- Inheritance: Classes can inherit from other classes (subclassing)",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -254,12 +267,14 @@
     "expectedOutput": "3",
     "fixtureFiles": [],
     "hints": [
-      "Changing a reference affects all references to the same instance."
+      "Changing a reference affects all references to the same instance.",
+      "Since 'primary' and 'secondary' point to the same object, 'primary.power' will reflect the change made via 'secondary'.",
+      "Notice that 'primary' is declared with 'let', but you can still change its properties because it's a class."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Classes\nClasses are reference types, so multiple variables can point to one instance.\n\nOverview:\n- `class` supports inheritance and `deinit`.\n- Assignment copies the reference, not the data.\n- Use classes when shared mutable state is intentional.\n\nExample:\n    class Furnace {\n        var level = 0\n    }\n    let a = Furnace()\n    let b = a\n    b.level = 3   // a.level is also 3\n\nGuidelines:\n- Be explicit about ownership.\n- Watch for unintended shared mutation.",
+    "lesson": "Lesson: Classes\nClasses are 'reference types'. When you assign a class instance to a new variable, both variables point to the same object in memory.\n\nKey Differences from Structs:\n1. Reference Semantics: Changing a property through one reference affects all other references to that same instance.\n2. Mandatory Initializers: You must provide an 'init' method if your properties don't have default values.\n3. Identity vs. Equality: Use '==' for value equality and '===' for reference identity.\n4. Lifetime: Classes use Automatic Reference Counting (ARC) to determine when they should be destroyed.\n\nExample:\n    class Bellows {\n        var power: Int\n        init(power: Int) { self.power = power }\n    }\n    let p1 = Bellows(power: 1)\n    let p2 = p1\n    p2.power = 10 // p1.power is now also 10\n\nWhen to Use:\n- Use classes when you need shared mutable state or identity.\n- Use classes for inheritance or when you need to perform cleanup on deinit.",
     "manualCheck": false,
     "number": 131,
     "requires": [],
@@ -271,7 +286,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Classes\n- class Name { var property: Type }\n- Classes are reference types\n- deinit runs when an instance is released",
+    "cheatsheet": "Classes (Reference Types)\n- Definition: class Name { var property: Type; init(...) { ... } }\n- Reference Semantics: Multiple variables can point to the same instance\n- Identity: Use === to check if two variables point to the same instance\n- Initializers: Unlike structs, classes DO NOT get a memberwise initializer automatically\n- Deinit: A deinitializer runs when the last reference to an instance is released\n- Inheritance: Classes can inherit from other classes (subclassing)",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -286,24 +301,27 @@
     "expectedOutput": "Torch 1 released",
     "fixtureFiles": [],
     "hints": [
-      "deinit runs when the last strong reference is released."
+      "deinit runs when the last strong reference is released.",
+      "Declare 'deinit { ... }' inside the class body.",
+      "Setting an optional reference to 'nil' releases the instance if it was the only reference.",
+      "To create an optional Torch, use the syntax: 'var torch: Torch? = Torch(id: 1)'."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Classes\nClasses are reference types, so multiple variables can point to one instance.\n\nOverview:\n- `class` supports inheritance and `deinit`.\n- Assignment copies the reference, not the data.\n- Use classes when shared mutable state is intentional.\n\nExample:\n    class Furnace {\n        var level = 0\n    }\n    let a = Furnace()\n    let b = a\n    b.level = 3   // a.level is also 3\n\nGuidelines:\n- Be explicit about ownership.\n- Watch for unintended shared mutation.",
+    "lesson": "Lesson: Classes\nClasses are 'reference types'. When you assign a class instance to a new variable, both variables point to the same object in memory.\n\nKey Differences from Structs:\n1. Reference Semantics: Changing a property through one reference affects all other references to that same instance.\n2. Mandatory Initializers: You must provide an 'init' method if your properties don't have default values.\n3. Identity vs. Equality: Use '==' for value equality and '===' for reference identity.\n4. Lifetime: Classes use Automatic Reference Counting (ARC) to determine when they should be destroyed.\n\nExample:\n    class Bellows {\n        var power: Int\n        init(power: Int) { self.power = power }\n    }\n    let p1 = Bellows(power: 1)\n    let p2 = p1\n    p2.power = 10 // p1.power is now also 10\n\nWhen to Use:\n- Use classes when you need shared mutable state or identity.\n- Use classes for inheritance or when you need to perform cleanup on deinit.",
     "manualCheck": false,
     "number": 132,
     "requires": [],
     "solution": "class Torch {\n    let id: Int\n    init(id: Int) {\n        self.id = id\n    }\n\n    deinit {\n        print(\"Torch \\(id) released\")\n    }\n}\n\nvar torch: Torch? = Torch(id: 1)\ntorch = nil",
-    "starterCode": "// Challenge 132: Deinit\n// Add a deinit message.\n\nclass Torch {\n    let id: Int\n    init(id: Int) {\n        self.id = id\n    }\n    // TODO: Add deinit that prints \"Torch <id> released\"\n}\n\n// TODO: Create an optional Torch, then set it to nil",
+    "starterCode": "// Challenge 132: Deinit\n// Add a deinit message.\n\nclass Torch {\n    let id: Int\n    init(id: Int) {\n        self.id = id\n    }\n    // TODO: Add deinit that prints \"Torch <id> released\"\n}\n\n// TODO: Create an optional variable of type 'Torch?' and initialize it with an instance\n// TODO: Set that variable to 'nil' to release the instance and trigger 'deinit'",
     "tier": "mainline",
     "title": "Deinit",
     "topic": "classes"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Classes\n- class Name { var property: Type }\n- Classes are reference types\n- deinit runs when an instance is released",
+    "cheatsheet": "Classes (Reference Types)\n- Definition: class Name { var property: Type; init(...) { ... } }\n- Reference Semantics: Multiple variables can point to the same instance\n- Identity: Use === to check if two variables point to the same instance\n- Initializers: Unlike structs, classes DO NOT get a memberwise initializer automatically\n- Deinit: A deinitializer runs when the last reference to an instance is released\n- Inheritance: Classes can inherit from other classes (subclassing)",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -318,12 +336,14 @@
     "expectedOutput": "Batch-A\nOnline",
     "fixtureFiles": [],
     "hints": [
-      "Use a struct for independent values and a class for shared state."
+      "Use a struct for independent values and a class for shared state.",
+      "The 'Tag' should be a struct because it represents a simple value.",
+      "The 'ForgeController' should be a class because it might be shared across the system."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Classes\nClasses are reference types, so multiple variables can point to one instance.\n\nOverview:\n- `class` supports inheritance and `deinit`.\n- Assignment copies the reference, not the data.\n- Use classes when shared mutable state is intentional.\n\nExample:\n    class Furnace {\n        var level = 0\n    }\n    let a = Furnace()\n    let b = a\n    b.level = 3   // a.level is also 3\n\nGuidelines:\n- Be explicit about ownership.\n- Watch for unintended shared mutation.",
+    "lesson": "Lesson: Classes\nClasses are 'reference types'. When you assign a class instance to a new variable, both variables point to the same object in memory.\n\nKey Differences from Structs:\n1. Reference Semantics: Changing a property through one reference affects all other references to that same instance.\n2. Mandatory Initializers: You must provide an 'init' method if your properties don't have default values.\n3. Identity vs. Equality: Use '==' for value equality and '===' for reference identity.\n4. Lifetime: Classes use Automatic Reference Counting (ARC) to determine when they should be destroyed.\n\nExample:\n    class Bellows {\n        var power: Int\n        init(power: Int) { self.power = power }\n    }\n    let p1 = Bellows(power: 1)\n    let p2 = p1\n    p2.power = 10 // p1.power is now also 10\n\nWhen to Use:\n- Use classes when you need shared mutable state or identity.\n- Use classes for inheritance or when you need to perform cleanup on deinit.",
     "manualCheck": false,
     "number": 133,
     "requires": [],
@@ -335,7 +355,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "cheatsheet": "Properties\n- Stored Properties: Hold values directly.\n- Computed Properties: Do not store a value; instead, they provide a getter and an optional setter to calculate other properties indirectly.\n- Property Observers: 'willSet' (runs before) and 'didSet' (runs after) a property changes.\n- Lazy Properties: Initialized only when first accessed; must be 'var'.\n- Static Properties: Shared across all instances of the type.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -350,12 +370,14 @@
     "expectedOutput": "5",
     "fixtureFiles": [],
     "hints": [
-      "Computed properties can translate values in get/set."
+      "Computed properties can translate values in get/set.",
+      "The 'get' block should return 'force * 2'.",
+      "The 'set' block should update 'force' using 'newValue / 2'."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "lesson": "Lesson: Properties\nProperties associate values with a particular class, structure, or enumeration.\n\nTypes of Properties:\n1. Stored Properties: Store constant and variable values as part of an instance.\n2. Computed Properties: Calculate (rather than store) a value. They use 'get' for reading and 'set' for writing.\n3. Observers: React to changes in a property's value. Useful for UI updates or logging.\n4. Lazy: Useful for properties whose initial values are expensive to compute or depend on external factors.\n\nExample of Computed Property:\n    struct Square {\n        var side: Int\n        var area: Int {\n            get { return side * side }\n            set { side = Int(Double(newValue).squareRoot()) }\n        }\n    }\n\nBest Practices:\n- Use computed properties for values that can be derived from other state.\n- Keep property observers lightweight.",
     "manualCheck": false,
     "number": 134,
     "requires": [],

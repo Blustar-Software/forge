@@ -1,7 +1,7 @@
 [
   {
     "canonicalId": "",
-    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "cheatsheet": "Properties\n- Stored Properties: Hold values directly.\n- Computed Properties: Do not store a value; instead, they provide a getter and an optional setter to calculate other properties indirectly.\n- Property Observers: 'willSet' (runs before) and 'didSet' (runs after) a property changes.\n- Lazy Properties: Initialized only when first accessed; must be 'var'.\n- Static Properties: Shared across all instances of the type.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -16,12 +16,14 @@
     "expectedOutput": "Will set to 2\nDid set from 1",
     "fixtureFiles": [],
     "hints": [
-      "Observers can print before and after changes."
+      "Observers can print before and after changes.",
+      "Use 'newValue' inside 'willSet' to see the value that is about to be set.",
+      "Use 'oldValue' inside 'didSet' to see the value that was replaced."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "lesson": "Lesson: Properties\nProperties associate values with a particular class, structure, or enumeration.\n\nTypes of Properties:\n1. Stored Properties: Store constant and variable values as part of an instance.\n2. Computed Properties: Calculate (rather than store) a value. They use 'get' for reading and 'set' for writing.\n3. Observers: React to changes in a property's value. Useful for UI updates or logging.\n4. Lazy: Useful for properties whose initial values are expensive to compute or depend on external factors.\n\nExample of Computed Property:\n    struct Square {\n        var side: Int\n        var area: Int {\n            get { return side * side }\n            set { side = Int(Double(newValue).squareRoot()) }\n        }\n    }\n\nBest Practices:\n- Use computed properties for values that can be derived from other state.\n- Keep property observers lightweight.",
     "manualCheck": false,
     "number": 135,
     "requires": [],
@@ -33,7 +35,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "cheatsheet": "Properties\n- Stored Properties: Hold values directly.\n- Computed Properties: Do not store a value; instead, they provide a getter and an optional setter to calculate other properties indirectly.\n- Property Observers: 'willSet' (runs before) and 'didSet' (runs after) a property changes.\n- Lazy Properties: Initialized only when first accessed; must be 'var'.\n- Static Properties: Shared across all instances of the type.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -48,12 +50,14 @@
     "expectedOutput": "Report 1",
     "fixtureFiles": [],
     "hints": [
-      "Lazy properties are created the first time they are accessed."
+      "Lazy properties are created the first time they are accessed.",
+      "A lazy property must always be declared as a variable (using 'var'), because its initial value might not be retrieved until after instance initialization completes.",
+      "The value of a lazy property is only calculated once, the first time it is used."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "lesson": "Lesson: Properties\nProperties associate values with a particular class, structure, or enumeration.\n\nTypes of Properties:\n1. Stored Properties: Store constant and variable values as part of an instance.\n2. Computed Properties: Calculate (rather than store) a value. They use 'get' for reading and 'set' for writing.\n3. Observers: React to changes in a property's value. Useful for UI updates or logging.\n4. Lazy: Useful for properties whose initial values are expensive to compute or depend on external factors.\n\nExample of Computed Property:\n    struct Square {\n        var side: Int\n        var area: Int {\n            get { return side * side }\n            set { side = Int(Double(newValue).squareRoot()) }\n        }\n    }\n\nBest Practices:\n- Use computed properties for values that can be derived from other state.\n- Keep property observers lightweight.",
     "manualCheck": false,
     "number": 136,
     "requires": [],
@@ -65,7 +69,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "cheatsheet": "Properties\n- Stored Properties: Hold values directly.\n- Computed Properties: Do not store a value; instead, they provide a getter and an optional setter to calculate other properties indirectly.\n- Property Observers: 'willSet' (runs before) and 'didSet' (runs after) a property changes.\n- Lazy Properties: Initialized only when first accessed; must be 'var'.\n- Static Properties: Shared across all instances of the type.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -80,12 +84,14 @@
     "expectedOutput": "8\n6",
     "fixtureFiles": [],
     "hints": [
-      "Static properties live on the type, not the instance."
+      "Static properties live on the type, not the instance.",
+      "Access a static property by prefixing it with the type name: 'Shift.maxHours'.",
+      "Instance properties are accessed via an instance of the type: 'shift.hours'."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "lesson": "Lesson: Properties\nProperties associate values with a particular class, structure, or enumeration.\n\nTypes of Properties:\n1. Stored Properties: Store constant and variable values as part of an instance.\n2. Computed Properties: Calculate (rather than store) a value. They use 'get' for reading and 'set' for writing.\n3. Observers: React to changes in a property's value. Useful for UI updates or logging.\n4. Lazy: Useful for properties whose initial values are expensive to compute or depend on external factors.\n\nExample of Computed Property:\n    struct Square {\n        var side: Int\n        var area: Int {\n            get { return side * side }\n            set { side = Int(Double(newValue).squareRoot()) }\n        }\n    }\n\nBest Practices:\n- Use computed properties for values that can be derived from other state.\n- Keep property observers lightweight.",
     "manualCheck": false,
     "number": 137,
     "requires": [],
@@ -97,7 +103,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -112,14 +118,16 @@
     "expectedOutput": "Inspectable ready",
     "fixtureFiles": [],
     "hints": [
-      "Protocols define required properties or methods."
+      "Protocols define required properties or methods.",
+      "A read-only property in a protocol is defined as 'var status: String { get }'.",
+      "Protocols do not have curly braces for implementations, just the signature followed by a semicolon or line break (for methods) or the { get } / { get set } requirements."
     ],
     "id": "",
     "introduces": [
       "protocols"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "lesson": "Lesson: Protocols\nA protocol defines a blueprint of methods, properties, and other requirements that suit a particular task or piece of functionality.\n\nCore Concepts:\n1. Blueprint: Protocols don't provide implementations themselves, only the requirements.\n2. Type Safety: You can use a protocol as a type, allowing you to work with any object that conforms to it without knowing its concrete class or struct.\n3. Decoupling: Protocols help decouple your code, making it more modular and easier to test.\n\nExample:\n    protocol Inspectable {\n        var status: String { get }\n    }\n    struct Valve: Inspectable {\n        let status: String = \"OK\"\n    }\n\nBest Practices:\n- Name protocols based on what they DO (e.g., 'Runnable', 'Equateable') or what they ARE (e.g., 'Inspectable').\n- Keep protocols small and focused.",
     "manualCheck": false,
     "number": 138,
     "requires": [],
@@ -131,7 +139,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -146,14 +154,16 @@
     "expectedOutput": "Ready",
     "fixtureFiles": [],
     "hints": [
-      "Provide the required property to conform."
+      "Provide the required property to conform.",
+      "The struct 'Furnace' should be declared as 'struct Furnace: Inspectable'.",
+      "Since the protocol requires 'status', your struct must have a property or computed property named 'status'."
     ],
     "id": "",
     "introduces": [
       "protocolConformance"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "lesson": "Lesson: Protocols\nA protocol defines a blueprint of methods, properties, and other requirements that suit a particular task or piece of functionality.\n\nCore Concepts:\n1. Blueprint: Protocols don't provide implementations themselves, only the requirements.\n2. Type Safety: You can use a protocol as a type, allowing you to work with any object that conforms to it without knowing its concrete class or struct.\n3. Decoupling: Protocols help decouple your code, making it more modular and easier to test.\n\nExample:\n    protocol Inspectable {\n        var status: String { get }\n    }\n    struct Valve: Inspectable {\n        let status: String = \"OK\"\n    }\n\nBest Practices:\n- Name protocols based on what they DO (e.g., 'Runnable', 'Equateable') or what they ARE (e.g., 'Inspectable').\n- Keep protocols small and focused.",
     "manualCheck": false,
     "number": 139,
     "requires": [],
@@ -165,7 +175,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -180,12 +190,14 @@
     "expectedOutput": "1200",
     "fixtureFiles": [],
     "hints": [
-      "Protocol types let you accept a conforming type."
+      "Protocol types let you accept a conforming type.",
+      "The parameter 'source' in your function should be of type 'HeatSource'.",
+      "Because the function accepts the protocol, it can access any properties defined in that protocol, such as 'heat'."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "lesson": "Lesson: Protocols\nA protocol defines a blueprint of methods, properties, and other requirements that suit a particular task or piece of functionality.\n\nCore Concepts:\n1. Blueprint: Protocols don't provide implementations themselves, only the requirements.\n2. Type Safety: You can use a protocol as a type, allowing you to work with any object that conforms to it without knowing its concrete class or struct.\n3. Decoupling: Protocols help decouple your code, making it more modular and easier to test.\n\nExample:\n    protocol Inspectable {\n        var status: String { get }\n    }\n    struct Valve: Inspectable {\n        let status: String = \"OK\"\n    }\n\nBest Practices:\n- Name protocols based on what they DO (e.g., 'Runnable', 'Equateable') or what they ARE (e.g., 'Inspectable').\n- Keep protocols small and focused.",
     "manualCheck": false,
     "number": 140,
     "requires": [],
@@ -197,7 +209,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -212,12 +224,14 @@
     "expectedOutput": "2\n3",
     "fixtureFiles": [],
     "hints": [
-      "Use protocol composition to require both capabilities."
+      "Use protocol composition to require both capabilities.",
+      "The type of the parameter should be 'Fueling & Venting'.",
+      "Inside the function, you can access properties from both protocols on the single parameter."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "lesson": "Lesson: Protocols\nA protocol defines a blueprint of methods, properties, and other requirements that suit a particular task or piece of functionality.\n\nCore Concepts:\n1. Blueprint: Protocols don't provide implementations themselves, only the requirements.\n2. Type Safety: You can use a protocol as a type, allowing you to work with any object that conforms to it without knowing its concrete class or struct.\n3. Decoupling: Protocols help decouple your code, making it more modular and easier to test.\n\nExample:\n    protocol Inspectable {\n        var status: String { get }\n    }\n    struct Valve: Inspectable {\n        let status: String = \"OK\"\n    }\n\nBest Practices:\n- Name protocols based on what they DO (e.g., 'Runnable', 'Equateable') or what they ARE (e.g., 'Inspectable').\n- Keep protocols small and focused.",
     "manualCheck": false,
     "number": 141,
     "requires": [],
@@ -229,7 +243,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -244,24 +258,26 @@
     "expectedOutput": "OK",
     "fixtureFiles": [],
     "hints": [
-      "Protocol inheritance adds requirements on top of another protocol."
+      "Protocol inheritance adds requirements on top of another protocol.",
+      "Define 'InspectableComponent' like this: 'protocol InspectableComponent: Component { ... }'.",
+      "Types that conform to 'InspectableComponent' must implement requirements from both it AND the 'Component' protocol."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "lesson": "Lesson: Protocols\nA protocol defines a blueprint of methods, properties, and other requirements that suit a particular task or piece of functionality.\n\nCore Concepts:\n1. Blueprint: Protocols don't provide implementations themselves, only the requirements.\n2. Type Safety: You can use a protocol as a type, allowing you to work with any object that conforms to it without knowing its concrete class or struct.\n3. Decoupling: Protocols help decouple your code, making it more modular and easier to test.\n\nExample:\n    protocol Inspectable {\n        var status: String { get }\n    }\n    struct Valve: Inspectable {\n        let status: String = \"OK\"\n    }\n\nBest Practices:\n- Name protocols based on what they DO (e.g., 'Runnable', 'Equateable') or what they ARE (e.g., 'Inspectable').\n- Keep protocols small and focused.",
     "manualCheck": false,
     "number": 142,
     "requires": [],
     "solution": "protocol InspectableComponent: Component {\n    var status: String { get }\n}\n\nstruct Sensor: InspectableComponent {\n    let id: String\n    let status: String\n}\n\nlet sensor = Sensor(id: \"S1\", status: \"OK\")\nprint(sensor.status)",
-    "starterCode": "// Challenge 142: Protocol Inheritance\n// Inherit requirements from another protocol.\n\nprotocol Component {\n    var id: String { get }\n}\n\n// TODO: Create protocol 'InspectableComponent' inheriting Component with 'status'\n// TODO: Create a type that conforms and print its status",
+    "starterCode": "// Challenge 142: Protocol Inheritance\n// Inherit requirements from another protocol.\n\nprotocol Component {\n    var id: String { get }\n}\n\n// TODO: Create protocol 'InspectableComponent' inheriting Component with 'status'\n// TODO: Create a type that conforms to InspectableComponent\n// TODO: Create an instance and print its status",
     "tier": "mainline",
     "title": "Protocol Inheritance",
     "topic": "protocols"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "cheatsheet": "Extensions\n- Purpose: Add new functionality to an existing class, structure, enumeration, or protocol type.\n- Capabilities:\n  - Add computed instance/type properties.\n  - Define instance/type methods.\n  - Provide new initializers.\n  - Define subscripts.\n  - Define and use new nested types.\n  - Make an existing type conform to a protocol.\n- Protocol Extensions: Provide default implementations for protocol requirements.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -276,14 +292,16 @@
     "expectedOutput": "Ingot 5",
     "fixtureFiles": [],
     "hints": [
-      "Extensions can add computed properties and methods."
+      "Extensions can add computed properties and methods.",
+      "Use 'extension Ingot { ... }' to add your method.",
+      "The 'label()' method should return a string like \"Ingot \\(weight)\"."
     ],
     "id": "",
     "introduces": [
       "extensions"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Extensions\nExtensions add behavior to existing types without subclassing.\n\nOverview:\n- Add methods, computed properties, and protocol conformance.\n- Keep related helpers grouped by purpose.\n- Protocol extensions can provide default behavior.\n\nExample:\n    extension Int {\n        var isHot: Bool { self >= 1400 }\n    }\n\nGuidelines:\n- Prefer extensions for organization and reuse.\n- Avoid hiding critical behavior across too many files.",
+    "lesson": "Lesson: Extensions\nExtensions add new functionality to an existing type, even if you don't have access to the original source code.\n\nWhat Extensions Can Do:\n1. Add Methods: Group related utility functions outside the main type definition.\n2. Computed Properties: Add derived state without adding stored data.\n3. Protocol Conformance: Keep your code organized by putting protocol requirements in an extension.\n4. Default Implementations: Use protocol extensions to provide 'free' functionality to any type that conforms.\n\nExample:\n    extension Int {\n        var isEven: Bool { return self % 2 == 0 }\n    }\n    print(4.isEven) // true\n\nBest Practices:\n- Use extensions to break up large types into logical blocks.\n- Don't use extensions to hide complexity; use them to organize it.",
     "manualCheck": false,
     "number": 143,
     "requires": [],
@@ -295,7 +313,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "cheatsheet": "Extensions\n- Purpose: Add new functionality to an existing class, structure, enumeration, or protocol type.\n- Capabilities:\n  - Add computed instance/type properties.\n  - Define instance/type methods.\n  - Provide new initializers.\n  - Define subscripts.\n  - Define and use new nested types.\n  - Make an existing type conform to a protocol.\n- Protocol Extensions: Provide default implementations for protocol requirements.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -310,7 +328,9 @@
     "expectedOutput": "Report ready",
     "fixtureFiles": [],
     "hints": [
-      "Use a protocol extension to add a default method."
+      "Use a protocol extension to add a default method.",
+      "The extension should be defined as 'extension Reportable { ... }'.",
+      "Any type that conforms to 'Reportable' will now automatically have the 'printReport()' method."
     ],
     "id": "",
     "introduces": [
@@ -318,7 +338,7 @@
       "defaultImplementations"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Extensions\nExtensions add behavior to existing types without subclassing.\n\nOverview:\n- Add methods, computed properties, and protocol conformance.\n- Keep related helpers grouped by purpose.\n- Protocol extensions can provide default behavior.\n\nExample:\n    extension Int {\n        var isHot: Bool { self >= 1400 }\n    }\n\nGuidelines:\n- Prefer extensions for organization and reuse.\n- Avoid hiding critical behavior across too many files.",
+    "lesson": "Lesson: Extensions\nExtensions add new functionality to an existing type, even if you don't have access to the original source code.\n\nWhat Extensions Can Do:\n1. Add Methods: Group related utility functions outside the main type definition.\n2. Computed Properties: Add derived state without adding stored data.\n3. Protocol Conformance: Keep your code organized by putting protocol requirements in an extension.\n4. Default Implementations: Use protocol extensions to provide 'free' functionality to any type that conforms.\n\nExample:\n    extension Int {\n        var isEven: Bool { return self % 2 == 0 }\n    }\n    print(4.isEven) // true\n\nBest Practices:\n- Use extensions to break up large types into logical blocks.\n- Don't use extensions to hide complexity; use them to organize it.",
     "manualCheck": false,
     "number": 144,
     "requires": [],

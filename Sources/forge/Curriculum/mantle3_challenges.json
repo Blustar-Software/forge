@@ -1,7 +1,7 @@
 [
   {
     "canonicalId": "",
-    "cheatsheet": "Access Control\n- private limits access to the enclosing scope\n- internal is the default (module-wide)\n- public/open expose APIs outside the module",
+    "cheatsheet": "Access Control\n- open / public: Accessible from any source file in any module that imports the module.\n- internal (default): Accessible from any source file within the same module.\n- fileprivate: Accessible only within its own defining source file.\n- private: Accessible only within the enclosing declaration.\n- private(set): Read-only from the outside, but writeable from within the same scope.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -16,7 +16,9 @@
     "expectedOutput": "Vault ready",
     "fixtureFiles": [],
     "hints": [
-      "private limits access to the type; internal is the default."
+      "private limits access to the type; internal is the default.",
+      "The 'init' method should be 'internal' so it can be called from outside the struct but within the same module.",
+      "Use 'self.code = code' to initialize the private property."
     ],
     "id": "",
     "introduces": [
@@ -25,7 +27,7 @@
       "accessControlSetter"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Access Control\nAccess control limits who can use each symbol.\n\nOverview:\n- `private`: current scope.\n- `fileprivate`: current file.\n- `internal`: default, module scope.\n- `public/open`: visible outside module.\n\nExample:\n    public struct Kiln {\n        public private(set) var temperature: Int = 0\n    }\n\nGuidelines:\n- Start restrictive and open only what is needed.\n- Use `private(set)` for read-only public state.",
+    "lesson": "Lesson: Access Control\nAccess control restricts access to parts of your code from code in other source files and modules.\n\nWhy Use Access Control?\n1. Encapsulation: Hide implementation details that shouldn't be exposed.\n2. Safety: Prevent external code from modifying internal state in unexpected ways.\n3. API Design: Clearly define which parts of your code are meant for public use.\n\nAccess Levels:\n- 'private': The most restrictive. Use it for state that should only be touched by the current struct or class.\n- 'internal': The default. Great for modular code within a single project.\n- 'public': Use this when building a library or framework.\n- 'open': Like public, but also allows subclasses and overrides outside the module.\n\nExample:\n    struct Vault {\n        private var secretCode: Int\n        private(set) var isOpen: Bool = false\n        init(code: Int) { self.secretCode = code }\n    }\n\nBest Practices:\n- Start with the most restrictive level ('private') and only open it up as needed.\n- Use 'private(set)' for state that should be visible but not modifiable by others.",
     "manualCheck": false,
     "number": 145,
     "requires": [],
@@ -37,7 +39,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Access Control\n- private limits access to the enclosing scope\n- internal is the default (module-wide)\n- public/open expose APIs outside the module",
+    "cheatsheet": "Access Control\n- open / public: Accessible from any source file in any module that imports the module.\n- internal (default): Accessible from any source file within the same module.\n- fileprivate: Accessible only within its own defining source file.\n- private: Accessible only within the enclosing declaration.\n- private(set): Read-only from the outside, but writeable from within the same scope.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -52,26 +54,28 @@
     "expectedOutput": "Ledger\nController",
     "fixtureFiles": [],
     "hints": [
-      "public exposes types outside the module; open allows subclassing."
+      "public exposes types outside the module; open allows subclassing.",
+      "A class marked 'open' can be inherited from by code outside its module.",
+      "A struct marked 'public' can be used by code outside its module, but structs cannot be inherited."
     ],
     "id": "",
     "introduces": [
       "accessControlOpen"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Access Control\nAccess control limits who can use each symbol.\n\nOverview:\n- `private`: current scope.\n- `fileprivate`: current file.\n- `internal`: default, module scope.\n- `public/open`: visible outside module.\n\nExample:\n    public struct Kiln {\n        public private(set) var temperature: Int = 0\n    }\n\nGuidelines:\n- Start restrictive and open only what is needed.\n- Use `private(set)` for read-only public state.",
+    "lesson": "Lesson: Access Control\nAccess control restricts access to parts of your code from code in other source files and modules.\n\nWhy Use Access Control?\n1. Encapsulation: Hide implementation details that shouldn't be exposed.\n2. Safety: Prevent external code from modifying internal state in unexpected ways.\n3. API Design: Clearly define which parts of your code are meant for public use.\n\nAccess Levels:\n- 'private': The most restrictive. Use it for state that should only be touched by the current struct or class.\n- 'internal': The default. Great for modular code within a single project.\n- 'public': Use this when building a library or framework.\n- 'open': Like public, but also allows subclasses and overrides outside the module.\n\nExample:\n    struct Vault {\n        private var secretCode: Int\n        private(set) var isOpen: Bool = false\n        init(code: Int) { self.secretCode = code }\n    }\n\nBest Practices:\n- Start with the most restrictive level ('private') and only open it up as needed.\n- Use 'private(set)' for state that should be visible but not modifiable by others.",
     "manualCheck": false,
     "number": 146,
     "requires": [],
     "solution": "public struct Ledger {}\n\nopen class Controller {}\n\nlet _ = Ledger()\nlet _ = Controller()\nprint(\"Ledger\")\nprint(\"Controller\")",
-    "starterCode": "// Challenge 146: Access Control 2\n// Mark APIs public/open in a library.\n\n// TODO: Add a public struct 'Ledger'\n// TODO: Add an open class 'Controller'\n// TODO: Create instances and print \"Ledger\" then \"Controller\"",
+    "starterCode": "// Challenge 146: Access Control 2\n// Mark APIs public/open in a library.\n\n// TODO: Add a public struct 'Ledger'\n// TODO: Add an open class 'Controller'\n// TODO: Create instances of both\n// TODO: Print \"Ledger\" then \"Controller\"",
     "tier": "mainline",
     "title": "Access Control 2",
     "topic": "accessControl"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Errors\n- Define: enum MyError: Error { case ... }\n- Throwing functions use throws\n- Call with try\n- Handle with do { try ... } catch { ... }\n- try? returns Optional, nil on error",
+    "cheatsheet": "Error Handling\n- Defining Errors: Use an enum that conforms to 'Error'.\n- Throwing: Use 'throw MyError.something' inside a function marked 'throws'.\n- Handling:\n  - do { try function() } catch { ... }\n  - try?: Returns an optional, nil if an error was thrown.\n  - try!: Disables error propagation; crashes if an error is thrown.\n- Rethrows: Used when a function takes a throwing closure and propagates its errors.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -86,12 +90,14 @@
     "expectedOutput": "Too cold",
     "fixtureFiles": [],
     "hints": [
-      "Throw errors when constraints are not met."
+      "Throw errors when constraints are not met.",
+      "The 'heat' function in the protocol already includes 'throws', so your implementation must also include it.",
+      "Use 'do { try ... } catch { ... }' to handle the error thrown by the 'heat' function."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Errors\nSwift errors model expected failure paths.\n\nOverview:\n- Define error enums conforming to `Error`.\n- Throw from functions marked `throws`.\n- Handle with `do/try/catch`.\n\nExample:\n    enum HeatError: Error { case tooHot }\n    func validate(_ t: Int) throws {\n        if t > 1600 { throw HeatError.tooHot }\n    }\n\nGuidelines:\n- Throw meaningful, typed errors.\n- Use `try?` only when silent fallback is intentional.",
+    "lesson": "Lesson: Error Handling\nError handling is the process of responding to and recovering from error conditions in your program.\n\nThe Four Ways to Handle Errors in Swift:\n1. Propagating: Mark a function with 'throws' to pass the error to the caller.\n2. Handling with do-catch: Use a catch block to respond to specific error cases.\n3. Optionals: Use 'try?' to convert the result to an optional, which is 'nil' if an error occurred.\n4. Asserting: Use 'try!' when you are certain an error won't occur (use sparingly).\n\nExample:\n    enum ForgeError: Error { case outOfFuel }\n    func start() throws { throw ForgeError.outOfFuel }\n    do {\n        try start()\n    } catch ForgeError.outOfFuel {\n        print(\"Need more fuel!\")\n    }\n\nBest Practices:\n- Use meaningful error names.\n- Don't catch errors you don't know how to handle.",
     "manualCheck": false,
     "number": 147,
     "requires": [
@@ -103,14 +109,14 @@
       "doTryCatch"
     ],
     "solution": "struct Furnace: Heatable {\n    func heat(to level: Int) throws {\n        if level < 1000 {\n            throw FurnaceError.tooCold\n        }\n    }\n}\n\ndo {\n    try Furnace().heat(to: 900)\n} catch {\n    print(\"Too cold\")\n}",
-    "starterCode": "// Challenge 147: Error Integration\n// Use errors in an API surface.\n\nenum FurnaceError: Error {\n    case tooCold\n}\n\nprotocol Heatable {\n    func heat(to level: Int) throws\n}\n\n// TODO: Create a type that conforms and throws on low values\n// TODO: Call it with a low value and print \"Too cold\" in catch",
+    "starterCode": "// Challenge 147: Error Integration\n// Use errors in an API surface.\n\nenum FurnaceError: Error {\n    case tooCold\n}\n\nprotocol Heatable {\n    func heat(to level: Int) throws\n}\n\n// TODO: Create a type that conforms to Heatable and throws on low values\n// TODO: Call its 'heat' method with a low value (e.g., 900)\n// TODO: Print \"Too cold\" in the catch block",
     "tier": "mainline",
     "title": "Error Integration",
     "topic": "errors"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -125,26 +131,28 @@
     "expectedOutput": "(3, \"Iron\")",
     "fixtureFiles": [],
     "hints": [
-      "Generics let you reuse logic across types."
+      "Generics let you reuse logic across types.",
+      "The function signature should look like 'func swapPair<A, B>(_ first: A, _ second: B) -> (B, A)'.",
+      "Return a tuple where the second parameter is first and the first parameter is second."
     ],
     "id": "",
     "introduces": [
       "generics"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "lesson": "Lesson: Generics\nGenerics allow you to write code that avoids duplication by working with 'any' type, while still maintaining full type safety.\n\nKey Concepts:\n1. Type Parameters: Placed in angle brackets (e.g., <T>). You can use any name, but 'T', 'U', and 'V' are common.\n2. Generic Types: Classes, structs, and enums can all be generic.\n3. Type Constraints: Specify that a type parameter must inherit from a specific class or conform to a particular protocol.\n4. Reusability: Write one function to sort arrays, regardless of whether they contain Ints, Strings, or custom objects.\n\nExample:\n    struct Box<T> {\n        var content: T\n    }\n    let intBox = Box(content: 5)\n    let stringBox = Box(content: \"Forge\")\n\nBest Practices:\n- Use descriptive names for type parameters if they have a specific meaning (e.g., <Element>, <Key, Value>).\n- Use generics to keep your code DRY (Don't Repeat Yourself).",
     "manualCheck": false,
     "number": 148,
     "requires": [],
     "solution": "func swapPair<A, B>(_ first: A, _ second: B) -> (B, A) {\n    return (second, first)\n}\n\nprint(swapPair(\"Iron\", 3))",
-    "starterCode": "// Challenge 148: Generic Function\n// Create a generic helper.\n\n// TODO: Write a generic function 'swapPair' that returns a tuple (B, A)\n// TODO: Call it with \"Iron\" and 3, then print the tuple",
+    "starterCode": "// Challenge 148: Generic Function\n// Create a generic helper.\n\n// TODO: Write a generic function 'swapPair' that returns a tuple (B, A)\n// TODO: Call 'swapPair' with \"Iron\" and 3\n// TODO: Print the resulting tuple",
     "tier": "mainline",
     "title": "Generic Function",
     "topic": "generics"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -159,24 +167,26 @@
     "expectedOutput": "7",
     "fixtureFiles": [],
     "hints": [
-      "Generic types store values of a type parameter."
+      "Generic types store values of a type parameter.",
+      "Define the struct as 'struct Box<T> { ... }'.",
+      "When you create an instance like 'Box(value: 7)', Swift infers that 'T' is 'Int'."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "lesson": "Lesson: Generics\nGenerics allow you to write code that avoids duplication by working with 'any' type, while still maintaining full type safety.\n\nKey Concepts:\n1. Type Parameters: Placed in angle brackets (e.g., <T>). You can use any name, but 'T', 'U', and 'V' are common.\n2. Generic Types: Classes, structs, and enums can all be generic.\n3. Type Constraints: Specify that a type parameter must inherit from a specific class or conform to a particular protocol.\n4. Reusability: Write one function to sort arrays, regardless of whether they contain Ints, Strings, or custom objects.\n\nExample:\n    struct Box<T> {\n        var content: T\n    }\n    let intBox = Box(content: 5)\n    let stringBox = Box(content: \"Forge\")\n\nBest Practices:\n- Use descriptive names for type parameters if they have a specific meaning (e.g., <Element>, <Key, Value>).\n- Use generics to keep your code DRY (Don't Repeat Yourself).",
     "manualCheck": false,
     "number": 149,
     "requires": [],
     "solution": "struct Box<T> {\n    let value: T\n}\n\nlet box = Box(value: 7)\nprint(box.value)",
-    "starterCode": "// Challenge 149: Generic Type\n// Build a simple generic container.\n\n// TODO: Create a generic struct 'Box<T>' with a value: T\n// TODO: Create a Box of Int with value 7 and print the value",
+    "starterCode": "// Challenge 149: Generic Type\n// Build a simple generic container.\n\n// TODO: Create a generic struct 'Box<T>' with a 'value' property of type 'T'\n// TODO: Create an instance of 'Box' with an Int value of 7\n// TODO: Print the value",
     "tier": "mainline",
     "title": "Generic Type",
     "topic": "generics"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -191,24 +201,26 @@
     "expectedOutput": "5",
     "fixtureFiles": [],
     "hints": [
-      "Constraints allow you to use protocol requirements on T."
+      "Constraints allow you to use protocol requirements on T.",
+      "Constrain 'T' to 'Comparable' so you can use the '>=' operator.",
+      "The signature should be 'func maxValue<T: Comparable>(_ first: T, _ second: T) -> T'."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "lesson": "Lesson: Generics\nGenerics allow you to write code that avoids duplication by working with 'any' type, while still maintaining full type safety.\n\nKey Concepts:\n1. Type Parameters: Placed in angle brackets (e.g., <T>). You can use any name, but 'T', 'U', and 'V' are common.\n2. Generic Types: Classes, structs, and enums can all be generic.\n3. Type Constraints: Specify that a type parameter must inherit from a specific class or conform to a particular protocol.\n4. Reusability: Write one function to sort arrays, regardless of whether they contain Ints, Strings, or custom objects.\n\nExample:\n    struct Box<T> {\n        var content: T\n    }\n    let intBox = Box(content: 5)\n    let stringBox = Box(content: \"Forge\")\n\nBest Practices:\n- Use descriptive names for type parameters if they have a specific meaning (e.g., <Element>, <Key, Value>).\n- Use generics to keep your code DRY (Don't Repeat Yourself).",
     "manualCheck": false,
     "number": 150,
     "requires": [],
     "solution": "func maxValue<T: Comparable>(_ first: T, _ second: T) -> T {\n    return first >= second ? first : second\n}\n\nprint(maxValue(3, 5))",
-    "starterCode": "// Challenge 150: Type Constraints\n// Constrain a generic to Comparable.\n\n// TODO: Write a generic function 'maxValue' that takes two T: Comparable\n// TODO: Call it with 3 and 5, then print the result",
+    "starterCode": "// Challenge 150: Type Constraints\n// Constrain a generic to Comparable.\n\n// TODO: Write a generic function 'maxValue' that takes two T: Comparable\n// TODO: Call it with 3 and 5\n// TODO: Print the result",
     "tier": "mainline",
     "title": "Type Constraints",
     "topic": "generics"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -223,14 +235,16 @@
     "expectedOutput": "2",
     "fixtureFiles": [],
     "hints": [
-      "associatedtype lets protocols describe generic placeholders."
+      "associatedtype lets protocols describe generic placeholders.",
+      "In the protocol, declare 'associatedtype Item'.",
+      "In the conforming struct, you don't need to explicitly name the type if it can be inferred from the 'items' property."
     ],
     "id": "",
     "introduces": [
       "associatedTypes"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "lesson": "Lesson: Generics\nGenerics allow you to write code that avoids duplication by working with 'any' type, while still maintaining full type safety.\n\nKey Concepts:\n1. Type Parameters: Placed in angle brackets (e.g., <T>). You can use any name, but 'T', 'U', and 'V' are common.\n2. Generic Types: Classes, structs, and enums can all be generic.\n3. Type Constraints: Specify that a type parameter must inherit from a specific class or conform to a particular protocol.\n4. Reusability: Write one function to sort arrays, regardless of whether they contain Ints, Strings, or custom objects.\n\nExample:\n    struct Box<T> {\n        var content: T\n    }\n    let intBox = Box(content: 5)\n    let stringBox = Box(content: \"Forge\")\n\nBest Practices:\n- Use descriptive names for type parameters if they have a specific meaning (e.g., <Element>, <Key, Value>).\n- Use generics to keep your code DRY (Don't Repeat Yourself).",
     "manualCheck": false,
     "number": 151,
     "requires": [],
@@ -242,7 +256,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -257,14 +271,16 @@
     "expectedOutput": "true",
     "fixtureFiles": [],
     "hints": [
-      "where adds extra constraints for a generic extension."
+      "where adds extra constraints for a generic extension.",
+      "Extend Array like this: 'extension Array where Element: Equatable { ... }'.",
+      "Inside the extension, use 'allSatisfy { $0 == first }' to check if all elements match the first one."
     ],
     "id": "",
     "introduces": [
       "whereClauses"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "lesson": "Lesson: Generics\nGenerics allow you to write code that avoids duplication by working with 'any' type, while still maintaining full type safety.\n\nKey Concepts:\n1. Type Parameters: Placed in angle brackets (e.g., <T>). You can use any name, but 'T', 'U', and 'V' are common.\n2. Generic Types: Classes, structs, and enums can all be generic.\n3. Type Constraints: Specify that a type parameter must inherit from a specific class or conform to a particular protocol.\n4. Reusability: Write one function to sort arrays, regardless of whether they contain Ints, Strings, or custom objects.\n\nExample:\n    struct Box<T> {\n        var content: T\n    }\n    let intBox = Box(content: 5)\n    let stringBox = Box(content: \"Forge\")\n\nBest Practices:\n- Use descriptive names for type parameters if they have a specific meaning (e.g., <Element>, <Key, Value>).\n- Use generics to keep your code DRY (Don't Repeat Yourself).",
     "manualCheck": false,
     "number": 152,
     "requires": [],
@@ -276,7 +292,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "cheatsheet": "Extensions\n- Purpose: Add new functionality to an existing class, structure, enumeration, or protocol type.\n- Capabilities:\n  - Add computed instance/type properties.\n  - Define instance/type methods.\n  - Provide new initializers.\n  - Define subscripts.\n  - Define and use new nested types.\n  - Make an existing type conform to a protocol.\n- Protocol Extensions: Provide default implementations for protocol requirements.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -291,12 +307,14 @@
     "expectedOutput": "Forge: Anvil",
     "fixtureFiles": [],
     "hints": [
-      "Constrain the shared behavior so it applies only to types that support equality checks."
+      "Constrain the shared behavior so it applies only to types that support equality checks.",
+      "Use 'extension Describable where Self: Equatable { ... }'.",
+      "The 'description()' method can then use the 'name' property from the 'Describable' protocol."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "lesson": "Lesson: Extensions\nExtensions add new functionality to an existing type, even if you don't have access to the original source code.\n\nWhat Extensions Can Do:\n1. Add Methods: Group related utility functions outside the main type definition.\n2. Computed Properties: Add derived state without adding stored data.\n3. Protocol Conformance: Keep your code organized by putting protocol requirements in an extension.\n4. Default Implementations: Use protocol extensions to provide 'free' functionality to any type that conforms.\n\nExample:\n    extension Int {\n        var isEven: Bool { return self % 2 == 0 }\n    }\n    print(4.isEven) // true\n\nBest Practices:\n- Use extensions to break up large types into logical blocks.\n- Don't use extensions to hide complexity; use them to organize it.",
     "manualCheck": false,
     "number": 153,
     "requires": [],
@@ -308,7 +326,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -323,24 +341,26 @@
     "expectedOutput": "true",
     "fixtureFiles": [],
     "hints": [
-      "Conditional conformance lives in an extension with a type constraint."
+      "Conditional conformance lives in an extension with a type constraint.",
+      "Use 'extension Crate: Equatable where T: Equatable { }'.",
+      "Because 'T' is 'Equatable', Swift can automatically synthesize the '==' implementation for 'Crate' if its properties are also 'Equatable'."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "lesson": "Lesson: Generics\nGenerics allow you to write code that avoids duplication by working with 'any' type, while still maintaining full type safety.\n\nKey Concepts:\n1. Type Parameters: Placed in angle brackets (e.g., <T>). You can use any name, but 'T', 'U', and 'V' are common.\n2. Generic Types: Classes, structs, and enums can all be generic.\n3. Type Constraints: Specify that a type parameter must inherit from a specific class or conform to a particular protocol.\n4. Reusability: Write one function to sort arrays, regardless of whether they contain Ints, Strings, or custom objects.\n\nExample:\n    struct Box<T> {\n        var content: T\n    }\n    let intBox = Box(content: 5)\n    let stringBox = Box(content: \"Forge\")\n\nBest Practices:\n- Use descriptive names for type parameters if they have a specific meaning (e.g., <Element>, <Key, Value>).\n- Use generics to keep your code DRY (Don't Repeat Yourself).",
     "manualCheck": false,
     "number": 154,
     "requires": [],
     "solution": "extension Crate: Equatable where T: Equatable {}\n\nlet first = Crate(items: [1, 2])\nlet second = Crate(items: [1, 2])\nprint(first == second)",
-    "starterCode": "// Challenge 154: Conditional Conformance\n// Add conditional conformance to a generic type.\n\nstruct Crate<T> {\n    let items: [T]\n}\n\n// TODO: Make Crate conform to Equatable when T is Equatable\n// TODO: Compare two crates of Ints and print the result",
+    "starterCode": "// Challenge 154: Conditional Conformance\n// Add conditional conformance to a generic type.\n\nstruct Crate<T> {\n    let items: [T]\n}\n\n// TODO: Make Crate conform to Equatable when T is Equatable\n// TODO: Create two Crate(items: [1, 2]) instances\n// TODO: Print the result of comparing them",
     "tier": "mainline",
     "title": "Conditional Conformance",
     "topic": "generics"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -355,24 +375,26 @@
     "expectedOutput": "Alloy ready",
     "fixtureFiles": [],
     "hints": [
-      "Use protocols to define behavior and extensions for defaults."
+      "Use protocols to define behavior and extensions for defaults.",
+      "The protocol 'StatusProviding' should require a 'status' property.",
+      "Add a default 'report()' method in an extension of 'StatusProviding' that prints the 'status'."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "lesson": "Lesson: Protocols\nA protocol defines a blueprint of methods, properties, and other requirements that suit a particular task or piece of functionality.\n\nCore Concepts:\n1. Blueprint: Protocols don't provide implementations themselves, only the requirements.\n2. Type Safety: You can use a protocol as a type, allowing you to work with any object that conforms to it without knowing its concrete class or struct.\n3. Decoupling: Protocols help decouple your code, making it more modular and easier to test.\n\nExample:\n    protocol Inspectable {\n        var status: String { get }\n    }\n    struct Valve: Inspectable {\n        let status: String = \"OK\"\n    }\n\nBest Practices:\n- Name protocols based on what they DO (e.g., 'Runnable', 'Equateable') or what they ARE (e.g., 'Inspectable').\n- Keep protocols small and focused.",
     "manualCheck": false,
     "number": 155,
     "requires": [],
     "solution": "protocol StatusProviding {\n    var status: String { get }\n}\n\nextension StatusProviding {\n    func report() {\n        print(status)\n    }\n}\n\nstruct Alloy: StatusProviding {\n    let status: String\n}\n\nlet alloy = Alloy(status: \"Alloy ready\")\nalloy.report()",
-    "starterCode": "// Challenge 155: Model Layer Exercise\n// Compose a small model layer with protocols and defaults.\n\n// TODO: Define a protocol and a default implementation\n// TODO: Create a conforming struct and use the default method",
+    "starterCode": "// Challenge 155: Model Layer Exercise\n// Compose a small model layer with protocols and defaults.\n\n// TODO: Define a protocol and a default implementation\n// TODO: Create a conforming struct\n// TODO: Use the default method on an instance of that struct",
     "tier": "mainline",
     "title": "Model Layer Exercise",
     "topic": "protocols"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Memory\n- strong references keep instances alive\n- weak breaks reference cycles\n- Use [weak self] in closures to avoid leaks",
+    "cheatsheet": "Memory Management (ARC)\n- ARC: Automatic Reference Counting manages memory for class instances.\n- Strong Reference: The default. Keeps the instance alive as long as the reference exists.\n- Weak Reference: Does not keep the instance alive. Automatically becomes 'nil' when the instance is released. Must be 'var' and optional.\n- Reference Cycle: Occurs when two instances hold strong references to each other, preventing them from ever being released.\n- [weak self]: Used in closure capture lists to avoid reference cycles.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -387,24 +409,26 @@
     "expectedOutput": "Cycle avoided",
     "fixtureFiles": [],
     "hints": [
-      "Weak references prevent strong reference cycles."
+      "Weak references prevent strong reference cycles.",
+      "Declare the reference in 'Operator' as 'weak var forge: Forge?'.",
+      "Because it's weak, it must be an optional and declared with 'var'."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Memory Management\nSwift uses ARC to manage object lifetime for class instances.\n\nOverview:\n- Strong references keep objects alive.\n- Cycles cause leaks when two objects strongly retain each other.\n- Use `weak` (or `unowned` when safe) to break cycles.\n\nExample:\n    class A { weak var b: B? }\n    class B { var a: A? }\n\nGuidelines:\n- Use `[weak self]` in escaping closures where needed.\n- Favor structs for independent value data.",
+    "lesson": "Lesson: Memory Management\nSwift uses Automatic Reference Counting (ARC) to track and manage your app's memory usage.\n\nHow ARC Works:\n1. Every time you create a class instance, ARC allocates a chunk of memory.\n2. ARC tracks how many properties, constants, and variables are currently referring to each class instance.\n3. When the reference count drops to zero, the instance is deallocated.\n\nReference Cycles:\nCycles are \"memory leaks\". They happen most often with:\n- Parent-child relationships (e.g., a Department has many Employees, and each Employee knows their Department).\n- Closures that capture 'self' while 'self' also holds a reference to the closure.\n\nThe Solution:\n- Use 'weak' for one side of a parent-child relationship.\n- Use '[weak self]' in closures.\n\nBest Practices:\n- Most references should be strong. Only use 'weak' when you identify a potential cycle.\n- Structs and enums are value types and don't use ARC.",
     "manualCheck": false,
     "number": 156,
     "requires": [],
     "solution": "class Operator {\n    var name: String\n    weak var forge: Forge?\n\n    init(name: String) {\n        self.name = name\n    }\n}\n\nclass Forge {\n    var operatorRef: Operator?\n}\n\nlet forge = Forge()\nlet operatorRef = Operator(name: \"Ada\")\nforge.operatorRef = operatorRef\noperatorRef.forge = forge\nprint(\"Cycle avoided\")",
-    "starterCode": "// Challenge 156: ARC Safety\n// Use weak references to avoid cycles.\n\nclass Operator {\n    var name: String\n    init(name: String) {\n        self.name = name\n    }\n    // TODO: Add a weak reference back to a Forge\n}\n\nclass Forge {\n    var operatorRef: Operator?\n}\n\n// TODO: Create instances and print \"Cycle avoided\"",
+    "starterCode": "// Challenge 156: ARC Safety\n// Use weak references to avoid cycles.\n\nclass Operator {\n    var name: String\n    init(name: String) {\n        self.name = name\n    }\n    // TODO: Add a weak reference back to a Forge\n}\n\nclass Forge {\n    var operatorRef: Operator?\n}\n\n// TODO: Create instances of Forge and Operator\n// TODO: Link them to each other\n// TODO: Print \"Cycle avoided\"",
     "tier": "mainline",
     "title": "ARC Safety",
     "topic": "memory"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "cheatsheet": "Structs (Value Types)\n- Definition: struct Name { var property: Type }\n- Initialization: let instance = Name(property: value) (memberwise init)\n- Access: Use dot notation: instance.property\n- Mutability: Use 'var' for instances you want to modify\n- Copying: Assigning a struct to a new variable creates a full, independent copy\n- Methods: Methods that modify properties must be marked 'mutating'",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -419,12 +443,14 @@
     "expectedOutput": "2\n5",
     "fixtureFiles": [],
     "hints": [
-      "Structs are copied on assignment."
+      "Structs are copied on assignment.",
+      "Assigning 'original' to 'copy' creates a second, separate instance of the Plate.",
+      "Changing 'copy.thickness' will not affect 'original.thickness'."
     ],
     "id": "mantle-extra-struct-copy-drill",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "lesson": "Lesson: Structs\nStructs are the building blocks of most Swift programs. They are 'value types', meaning they are copied when passed around.\n\nCore Concepts:\n1. Definition: Use the 'struct' keyword. Properties are variables or constants defined inside.\n2. Memberwise Initializer: Swift automatically provides an initializer based on your properties.\n3. Value Semantics: When you assign a struct to a new variable, you get a copy. Changes to the copy don't affect the original.\n4. Mutability: If you want to change a struct's properties, the instance itself must be declared with 'var'.\n\nExample:\n    struct ForgeItem {\n        var name: String\n        var weight: Int\n    }\n    var item = ForgeItem(name: \"Iron\", weight: 5)\n    item.weight = 10 // Only works because 'item' is var\n\nBest Practices:\n- Use structs for simple data models.\n- Favor immutability (let) whenever possible.",
     "manualCheck": false,
     "number": 157,
     "requires": [],
@@ -436,7 +462,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "cheatsheet": "Structs (Value Types)\n- Definition: struct Name { var property: Type }\n- Initialization: let instance = Name(property: value) (memberwise init)\n- Access: Use dot notation: instance.property\n- Mutability: Use 'var' for instances you want to modify\n- Copying: Assigning a struct to a new variable creates a full, independent copy\n- Methods: Methods that modify properties must be marked 'mutating'",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -451,12 +477,14 @@
     "expectedOutput": "3",
     "fixtureFiles": [],
     "hints": [
-      "Mutating methods can change stored properties."
+      "Mutating methods can change stored properties.",
+      "Prefix your function definition with the 'mutating' keyword.",
+      "The 'increment' function should add 1 to the 'value' property."
     ],
     "id": "mantle-extra-mutating-counter",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "lesson": "Lesson: Structs\nStructs are the building blocks of most Swift programs. They are 'value types', meaning they are copied when passed around.\n\nCore Concepts:\n1. Definition: Use the 'struct' keyword. Properties are variables or constants defined inside.\n2. Memberwise Initializer: Swift automatically provides an initializer based on your properties.\n3. Value Semantics: When you assign a struct to a new variable, you get a copy. Changes to the copy don't affect the original.\n4. Mutability: If you want to change a struct's properties, the instance itself must be declared with 'var'.\n\nExample:\n    struct ForgeItem {\n        var name: String\n        var weight: Int\n    }\n    var item = ForgeItem(name: \"Iron\", weight: 5)\n    item.weight = 10 // Only works because 'item' is var\n\nBest Practices:\n- Use structs for simple data models.\n- Favor immutability (let) whenever possible.",
     "manualCheck": false,
     "number": 158,
     "requires": [],
@@ -468,7 +496,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "cheatsheet": "Properties\n- Stored Properties: Hold values directly.\n- Computed Properties: Do not store a value; instead, they provide a getter and an optional setter to calculate other properties indirectly.\n- Property Observers: 'willSet' (runs before) and 'didSet' (runs after) a property changes.\n- Lazy Properties: Initialized only when first accessed; must be 'var'.\n- Static Properties: Shared across all instances of the type.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -483,12 +511,14 @@
     "expectedOutput": "5",
     "fixtureFiles": [],
     "hints": [
-      "Set should convert pounds back to kg."
+      "Set should convert pounds back to kg.",
+      "The 'get' block should return 'kg * 2'.",
+      "The 'set' block should update 'kg' using 'newValue / 2'."
     ],
     "id": "mantle-extra-computed-conversion",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "lesson": "Lesson: Properties\nProperties associate values with a particular class, structure, or enumeration.\n\nTypes of Properties:\n1. Stored Properties: Store constant and variable values as part of an instance.\n2. Computed Properties: Calculate (rather than store) a value. They use 'get' for reading and 'set' for writing.\n3. Observers: React to changes in a property's value. Useful for UI updates or logging.\n4. Lazy: Useful for properties whose initial values are expensive to compute or depend on external factors.\n\nExample of Computed Property:\n    struct Square {\n        var side: Int\n        var area: Int {\n            get { return side * side }\n            set { side = Int(Double(newValue).squareRoot()) }\n        }\n    }\n\nBest Practices:\n- Use computed properties for values that can be derived from other state.\n- Keep property observers lightweight.",
     "manualCheck": false,
     "number": 159,
     "requires": [],
@@ -500,7 +530,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "cheatsheet": "Properties\n- Stored Properties: Hold values directly.\n- Computed Properties: Do not store a value; instead, they provide a getter and an optional setter to calculate other properties indirectly.\n- Property Observers: 'willSet' (runs before) and 'didSet' (runs after) a property changes.\n- Lazy Properties: Initialized only when first accessed; must be 'var'.\n- Static Properties: Shared across all instances of the type.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -515,12 +545,14 @@
     "expectedOutput": "Will set to 3\nDid set from 1",
     "fixtureFiles": [],
     "hints": [
-      "Use newValue and oldValue in observers."
+      "Use newValue and oldValue in observers.",
+      "Inside 'willSet', 'newValue' refers to the incoming value.",
+      "Inside 'didSet', 'oldValue' refers to the value that was just replaced."
     ],
     "id": "mantle-extra-observer-echo",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "lesson": "Lesson: Properties\nProperties associate values with a particular class, structure, or enumeration.\n\nTypes of Properties:\n1. Stored Properties: Store constant and variable values as part of an instance.\n2. Computed Properties: Calculate (rather than store) a value. They use 'get' for reading and 'set' for writing.\n3. Observers: React to changes in a property's value. Useful for UI updates or logging.\n4. Lazy: Useful for properties whose initial values are expensive to compute or depend on external factors.\n\nExample of Computed Property:\n    struct Square {\n        var side: Int\n        var area: Int {\n            get { return side * side }\n            set { side = Int(Double(newValue).squareRoot()) }\n        }\n    }\n\nBest Practices:\n- Use computed properties for values that can be derived from other state.\n- Keep property observers lightweight.",
     "manualCheck": false,
     "number": 160,
     "requires": [],
@@ -532,7 +564,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Classes\n- class Name { var property: Type }\n- Classes are reference types\n- deinit runs when an instance is released",
+    "cheatsheet": "Classes (Reference Types)\n- Definition: class Name { var property: Type; init(...) { ... } }\n- Reference Semantics: Multiple variables can point to the same instance\n- Identity: Use === to check if two variables point to the same instance\n- Initializers: Unlike structs, classes DO NOT get a memberwise initializer automatically\n- Deinit: A deinitializer runs when the last reference to an instance is released\n- Inheritance: Classes can inherit from other classes (subclassing)",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -547,12 +579,14 @@
     "expectedOutput": "Active",
     "fixtureFiles": [],
     "hints": [
-      "Classes share a single instance across references."
+      "Classes share a single instance across references.",
+      "Since 'primary' and 'secondary' point to the same object, 'primary.mode' will reflect the change made via 'secondary'.",
+      "This is 'Reference Semantics' – you are passing a reference to the same object in memory."
     ],
     "id": "mantle-extra-class-shared-state",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Classes\nClasses are reference types, so multiple variables can point to one instance.\n\nOverview:\n- `class` supports inheritance and `deinit`.\n- Assignment copies the reference, not the data.\n- Use classes when shared mutable state is intentional.\n\nExample:\n    class Furnace {\n        var level = 0\n    }\n    let a = Furnace()\n    let b = a\n    b.level = 3   // a.level is also 3\n\nGuidelines:\n- Be explicit about ownership.\n- Watch for unintended shared mutation.",
+    "lesson": "Lesson: Classes\nClasses are 'reference types'. When you assign a class instance to a new variable, both variables point to the same object in memory.\n\nKey Differences from Structs:\n1. Reference Semantics: Changing a property through one reference affects all other references to that same instance.\n2. Mandatory Initializers: You must provide an 'init' method if your properties don't have default values.\n3. Identity vs. Equality: Use '==' for value equality and '===' for reference identity.\n4. Lifetime: Classes use Automatic Reference Counting (ARC) to determine when they should be destroyed.\n\nExample:\n    class Bellows {\n        var power: Int\n        init(power: Int) { self.power = power }\n    }\n    let p1 = Bellows(power: 1)\n    let p2 = p1\n    p2.power = 10 // p1.power is now also 10\n\nWhen to Use:\n- Use classes when you need shared mutable state or identity.\n- Use classes for inheritance or when you need to perform cleanup on deinit.",
     "manualCheck": false,
     "number": 161,
     "requires": [],
@@ -564,7 +598,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "cheatsheet": "Properties\n- Stored Properties: Hold values directly.\n- Computed Properties: Do not store a value; instead, they provide a getter and an optional setter to calculate other properties indirectly.\n- Property Observers: 'willSet' (runs before) and 'didSet' (runs after) a property changes.\n- Lazy Properties: Initialized only when first accessed; must be 'var'.\n- Static Properties: Shared across all instances of the type.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -579,12 +613,14 @@
     "expectedOutput": "Report 2",
     "fixtureFiles": [],
     "hints": [
-      "Lazy properties are initialized on first access."
+      "Lazy properties are initialized on first access.",
+      "The property must be declared with 'lazy var'.",
+      "Use string interpolation to include the 'id' in the 'title'."
     ],
     "id": "mantle-extra-lazy-builder",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "lesson": "Lesson: Properties\nProperties associate values with a particular class, structure, or enumeration.\n\nTypes of Properties:\n1. Stored Properties: Store constant and variable values as part of an instance.\n2. Computed Properties: Calculate (rather than store) a value. They use 'get' for reading and 'set' for writing.\n3. Observers: React to changes in a property's value. Useful for UI updates or logging.\n4. Lazy: Useful for properties whose initial values are expensive to compute or depend on external factors.\n\nExample of Computed Property:\n    struct Square {\n        var side: Int\n        var area: Int {\n            get { return side * side }\n            set { side = Int(Double(newValue).squareRoot()) }\n        }\n    }\n\nBest Practices:\n- Use computed properties for values that can be derived from other state.\n- Keep property observers lightweight.",
     "manualCheck": false,
     "number": 162,
     "requires": [],
@@ -596,7 +632,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -611,12 +647,14 @@
     "expectedOutput": "Tool: Hammer",
     "fixtureFiles": [],
     "hints": [
-      "Protocol extensions can provide default methods."
+      "Protocol extensions can provide default methods.",
+      "The extension should be defined as 'extension Named { ... }'.",
+      "Inside the default implementation, you can access the 'name' property defined by the protocol."
     ],
     "id": "mantle-extra-default-label",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "lesson": "Lesson: Protocols\nA protocol defines a blueprint of methods, properties, and other requirements that suit a particular task or piece of functionality.\n\nCore Concepts:\n1. Blueprint: Protocols don't provide implementations themselves, only the requirements.\n2. Type Safety: You can use a protocol as a type, allowing you to work with any object that conforms to it without knowing its concrete class or struct.\n3. Decoupling: Protocols help decouple your code, making it more modular and easier to test.\n\nExample:\n    protocol Inspectable {\n        var status: String { get }\n    }\n    struct Valve: Inspectable {\n        let status: String = \"OK\"\n    }\n\nBest Practices:\n- Name protocols based on what they DO (e.g., 'Runnable', 'Equateable') or what they ARE (e.g., 'Inspectable').\n- Keep protocols small and focused.",
     "manualCheck": false,
     "number": 163,
     "requires": [],
@@ -628,7 +666,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -643,12 +681,14 @@
     "expectedOutput": "Heat: 1500",
     "fixtureFiles": [],
     "hints": [
-      "Accept any type that conforms to the protocol, not a concrete type."
+      "Accept any type that conforms to the protocol, not a concrete type.",
+      "The parameter 'source' in your function should be of type 'HeatSource'.",
+      "Because the function accepts the protocol, it can access any properties defined in that protocol, such as 'heat'."
     ],
     "id": "mantle-extra-protocol-parameter",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "lesson": "Lesson: Protocols\nA protocol defines a blueprint of methods, properties, and other requirements that suit a particular task or piece of functionality.\n\nCore Concepts:\n1. Blueprint: Protocols don't provide implementations themselves, only the requirements.\n2. Type Safety: You can use a protocol as a type, allowing you to work with any object that conforms to it without knowing its concrete class or struct.\n3. Decoupling: Protocols help decouple your code, making it more modular and easier to test.\n\nExample:\n    protocol Inspectable {\n        var status: String { get }\n    }\n    struct Valve: Inspectable {\n        let status: String = \"OK\"\n    }\n\nBest Practices:\n- Name protocols based on what they DO (e.g., 'Runnable', 'Equateable') or what they ARE (e.g., 'Inspectable').\n- Keep protocols small and focused.",
     "manualCheck": false,
     "number": 164,
     "requires": [],
@@ -660,7 +700,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -675,12 +715,14 @@
     "expectedOutput": "Fuel 2\nAir 3",
     "fixtureFiles": [],
     "hints": [
-      "Require both capabilities in the parameter type."
+      "Require both capabilities in the parameter type.",
+      "The parameter 'vent' in your function should be of type 'Fueling & Venting'.",
+      "This composition ensures that any object passed into the function implements both protocols."
     ],
     "id": "mantle-extra-composition-drill",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "lesson": "Lesson: Protocols\nA protocol defines a blueprint of methods, properties, and other requirements that suit a particular task or piece of functionality.\n\nCore Concepts:\n1. Blueprint: Protocols don't provide implementations themselves, only the requirements.\n2. Type Safety: You can use a protocol as a type, allowing you to work with any object that conforms to it without knowing its concrete class or struct.\n3. Decoupling: Protocols help decouple your code, making it more modular and easier to test.\n\nExample:\n    protocol Inspectable {\n        var status: String { get }\n    }\n    struct Valve: Inspectable {\n        let status: String = \"OK\"\n    }\n\nBest Practices:\n- Name protocols based on what they DO (e.g., 'Runnable', 'Equateable') or what they ARE (e.g., 'Inspectable').\n- Keep protocols small and focused.",
     "manualCheck": false,
     "number": 165,
     "requires": [],
@@ -692,7 +734,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "cheatsheet": "Extensions\n- Purpose: Add new functionality to an existing class, structure, enumeration, or protocol type.\n- Capabilities:\n  - Add computed instance/type properties.\n  - Define instance/type methods.\n  - Provide new initializers.\n  - Define subscripts.\n  - Define and use new nested types.\n  - Make an existing type conform to a protocol.\n- Protocol Extensions: Provide default implementations for protocol requirements.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -707,12 +749,14 @@
     "expectedOutput": "25",
     "fixtureFiles": [],
     "hints": [
-      "Extensions can add methods to existing types."
+      "Extensions can add methods to existing types.",
+      "Extend the 'Int' type directly: 'extension Int { ... }'.",
+      "Inside the extension, 'self' refers to the integer value itself."
     ],
     "id": "mantle-extra-extension-helper",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Extensions\nExtensions add behavior to existing types without subclassing.\n\nOverview:\n- Add methods, computed properties, and protocol conformance.\n- Keep related helpers grouped by purpose.\n- Protocol extensions can provide default behavior.\n\nExample:\n    extension Int {\n        var isHot: Bool { self >= 1400 }\n    }\n\nGuidelines:\n- Prefer extensions for organization and reuse.\n- Avoid hiding critical behavior across too many files.",
+    "lesson": "Lesson: Extensions\nExtensions add new functionality to an existing type, even if you don't have access to the original source code.\n\nWhat Extensions Can Do:\n1. Add Methods: Group related utility functions outside the main type definition.\n2. Computed Properties: Add derived state without adding stored data.\n3. Protocol Conformance: Keep your code organized by putting protocol requirements in an extension.\n4. Default Implementations: Use protocol extensions to provide 'free' functionality to any type that conforms.\n\nExample:\n    extension Int {\n        var isEven: Bool { return self % 2 == 0 }\n    }\n    print(4.isEven) // true\n\nBest Practices:\n- Use extensions to break up large types into logical blocks.\n- Don't use extensions to hide complexity; use them to organize it.",
     "manualCheck": false,
     "number": 166,
     "requires": [],
@@ -724,7 +768,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Access Control\n- private limits access to the enclosing scope\n- internal is the default (module-wide)\n- public/open expose APIs outside the module",
+    "cheatsheet": "Access Control\n- open / public: Accessible from any source file in any module that imports the module.\n- internal (default): Accessible from any source file within the same module.\n- fileprivate: Accessible only within its own defining source file.\n- private: Accessible only within the enclosing declaration.\n- private(set): Read-only from the outside, but writeable from within the same scope.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -739,12 +783,14 @@
     "expectedOutput": "****",
     "fixtureFiles": [],
     "hints": [
-      "Expose a safe value while keeping the code private."
+      "Expose a safe value while keeping the code private.",
+      "The 'code' property should be marked 'private'.",
+      "The 'masked' property should be a computed property that returns the string \"****\"."
     ],
     "id": "mantle-extra-access-wrapper",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Access Control\nAccess control limits who can use each symbol.\n\nOverview:\n- `private`: current scope.\n- `fileprivate`: current file.\n- `internal`: default, module scope.\n- `public/open`: visible outside module.\n\nExample:\n    public struct Kiln {\n        public private(set) var temperature: Int = 0\n    }\n\nGuidelines:\n- Start restrictive and open only what is needed.\n- Use `private(set)` for read-only public state.",
+    "lesson": "Lesson: Access Control\nAccess control restricts access to parts of your code from code in other source files and modules.\n\nWhy Use Access Control?\n1. Encapsulation: Hide implementation details that shouldn't be exposed.\n2. Safety: Prevent external code from modifying internal state in unexpected ways.\n3. API Design: Clearly define which parts of your code are meant for public use.\n\nAccess Levels:\n- 'private': The most restrictive. Use it for state that should only be touched by the current struct or class.\n- 'internal': The default. Great for modular code within a single project.\n- 'public': Use this when building a library or framework.\n- 'open': Like public, but also allows subclasses and overrides outside the module.\n\nExample:\n    struct Vault {\n        private var secretCode: Int\n        private(set) var isOpen: Bool = false\n        init(code: Int) { self.secretCode = code }\n    }\n\nBest Practices:\n- Start with the most restrictive level ('private') and only open it up as needed.\n- Use 'private(set)' for state that should be visible but not modifiable by others.",
     "manualCheck": false,
     "number": 167,
     "requires": [],
@@ -756,7 +802,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Errors\n- Define: enum MyError: Error { case ... }\n- Throwing functions use throws\n- Call with try\n- Handle with do { try ... } catch { ... }\n- try? returns Optional, nil on error",
+    "cheatsheet": "Error Handling\n- Defining Errors: Use an enum that conforms to 'Error'.\n- Throwing: Use 'throw MyError.something' inside a function marked 'throws'.\n- Handling:\n  - do { try function() } catch { ... }\n  - try?: Returns an optional, nil if an error was thrown.\n  - try!: Disables error propagation; crashes if an error is thrown.\n- Rethrows: Used when a function takes a throwing closure and propagates its errors.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -771,12 +817,14 @@
     "expectedOutput": "Jam",
     "fixtureFiles": [],
     "hints": [
-      "Throw the error when the condition is met."
+      "Throw the error when the condition is met.",
+      "The 'start' function should be marked with 'throws'.",
+      "Use 'do { try start(fuel: 0) } catch { ... }' to catch and print the error message."
     ],
     "id": "mantle-extra-error-route",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Errors\nSwift errors model expected failure paths.\n\nOverview:\n- Define error enums conforming to `Error`.\n- Throw from functions marked `throws`.\n- Handle with `do/try/catch`.\n\nExample:\n    enum HeatError: Error { case tooHot }\n    func validate(_ t: Int) throws {\n        if t > 1600 { throw HeatError.tooHot }\n    }\n\nGuidelines:\n- Throw meaningful, typed errors.\n- Use `try?` only when silent fallback is intentional.",
+    "lesson": "Lesson: Error Handling\nError handling is the process of responding to and recovering from error conditions in your program.\n\nThe Four Ways to Handle Errors in Swift:\n1. Propagating: Mark a function with 'throws' to pass the error to the caller.\n2. Handling with do-catch: Use a catch block to respond to specific error cases.\n3. Optionals: Use 'try?' to convert the result to an optional, which is 'nil' if an error occurred.\n4. Asserting: Use 'try!' when you are certain an error won't occur (use sparingly).\n\nExample:\n    enum ForgeError: Error { case outOfFuel }\n    func start() throws { throw ForgeError.outOfFuel }\n    do {\n        try start()\n    } catch ForgeError.outOfFuel {\n        print(\"Need more fuel!\")\n    }\n\nBest Practices:\n- Use meaningful error names.\n- Don't catch errors you don't know how to handle.",
     "manualCheck": false,
     "number": 168,
     "requires": [],
@@ -788,7 +836,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -803,12 +851,14 @@
     "expectedOutput": "Iron",
     "fixtureFiles": [],
     "hints": [
-      "Use a generic type parameter T for the stored value."
+      "Use a generic type parameter T for the stored value.",
+      "The struct should be defined as 'struct Box<T> { let value: T }'.",
+      "When you create 'Box(value: \"Iron\")', Swift makes 'T' a 'String'."
     ],
     "id": "mantle-extra-generic-box",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "lesson": "Lesson: Generics\nGenerics allow you to write code that avoids duplication by working with 'any' type, while still maintaining full type safety.\n\nKey Concepts:\n1. Type Parameters: Placed in angle brackets (e.g., <T>). You can use any name, but 'T', 'U', and 'V' are common.\n2. Generic Types: Classes, structs, and enums can all be generic.\n3. Type Constraints: Specify that a type parameter must inherit from a specific class or conform to a particular protocol.\n4. Reusability: Write one function to sort arrays, regardless of whether they contain Ints, Strings, or custom objects.\n\nExample:\n    struct Box<T> {\n        var content: T\n    }\n    let intBox = Box(content: 5)\n    let stringBox = Box(content: \"Forge\")\n\nBest Practices:\n- Use descriptive names for type parameters if they have a specific meaning (e.g., <Element>, <Key, Value>).\n- Use generics to keep your code DRY (Don't Repeat Yourself).",
     "manualCheck": false,
     "number": 169,
     "requires": [],
@@ -820,7 +870,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -835,16 +885,18 @@
     "expectedOutput": "3",
     "fixtureFiles": [],
     "hints": [
-      "Compare the two values and return the smaller."
+      "Compare the two values and return the smaller.",
+      "Constrain 'T' to 'Comparable' so you can use the '>=' operator.",
+      "The signature should be 'func minValue<T: Comparable>(_ first: T, _ second: T) -> T'."
     ],
     "id": "mantle-extra-comparable-min",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "lesson": "Lesson: Generics\nGenerics allow you to write code that avoids duplication by working with 'any' type, while still maintaining full type safety.\n\nKey Concepts:\n1. Type Parameters: Placed in angle brackets (e.g., <T>). You can use any name, but 'T', 'U', and 'V' are common.\n2. Generic Types: Classes, structs, and enums can all be generic.\n3. Type Constraints: Specify that a type parameter must inherit from a specific class or conform to a particular protocol.\n4. Reusability: Write one function to sort arrays, regardless of whether they contain Ints, Strings, or custom objects.\n\nExample:\n    struct Box<T> {\n        var content: T\n    }\n    let intBox = Box(content: 5)\n    let stringBox = Box(content: \"Forge\")\n\nBest Practices:\n- Use descriptive names for type parameters if they have a specific meaning (e.g., <Element>, <Key, Value>).\n- Use generics to keep your code DRY (Don't Repeat Yourself).",
     "manualCheck": false,
     "number": 170,
     "requires": [],
-    "solution": "func minValue<T: Comparable>(_ first: T, _ second: T) -> T {\n    return first <= second ? first : second\n}\n\nprint(minValue(3, 5))",
+    "solution": "func minValue<T: Comparable>(_ first: T, _ second: T) -> T {\n    return first >= second ? first : second\n}\n\nprint(minValue(3, 5))",
     "starterCode": "// Challenge 170: Comparable Min\n// Use Comparable constraints.\n\n// TODO: Write minValue(_:_:) for T: Comparable\n// TODO: Call it with 3 and 5, then print the result",
     "tier": "extra",
     "title": "Comparable Min",
@@ -852,7 +904,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -867,12 +919,14 @@
     "expectedOutput": "1",
     "fixtureFiles": [],
     "hints": [
-      "Mutating methods can append to the items array."
+      "Mutating methods can append to the items array.",
+      "In the protocol, define 'mutating func push(_ item: Item)'.",
+      "In the struct, 'push' will add the item to the 'items' array using 'append'."
     ],
     "id": "mantle-extra-associated-storage",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "lesson": "Lesson: Generics\nGenerics allow you to write code that avoids duplication by working with 'any' type, while still maintaining full type safety.\n\nKey Concepts:\n1. Type Parameters: Placed in angle brackets (e.g., <T>). You can use any name, but 'T', 'U', and 'V' are common.\n2. Generic Types: Classes, structs, and enums can all be generic.\n3. Type Constraints: Specify that a type parameter must inherit from a specific class or conform to a particular protocol.\n4. Reusability: Write one function to sort arrays, regardless of whether they contain Ints, Strings, or custom objects.\n\nExample:\n    struct Box<T> {\n        var content: T\n    }\n    let intBox = Box(content: 5)\n    let stringBox = Box(content: \"Forge\")\n\nBest Practices:\n- Use descriptive names for type parameters if they have a specific meaning (e.g., <Element>, <Key, Value>).\n- Use generics to keep your code DRY (Don't Repeat Yourself).",
     "manualCheck": false,
     "number": 171,
     "requires": [],
@@ -884,7 +938,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -899,12 +953,14 @@
     "expectedOutput": "false",
     "fixtureFiles": [],
     "hints": [
-      "Compare each element to the first."
+      "Compare each element to the first.",
+      "The extension should be defined as 'extension Array where Element: Equatable { ... }'.",
+      "Use 'allSatisfy { $0 == first }' to check for equality across the whole array."
     ],
     "id": "mantle-extra-where-clause",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "lesson": "Lesson: Generics\nGenerics allow you to write code that avoids duplication by working with 'any' type, while still maintaining full type safety.\n\nKey Concepts:\n1. Type Parameters: Placed in angle brackets (e.g., <T>). You can use any name, but 'T', 'U', and 'V' are common.\n2. Generic Types: Classes, structs, and enums can all be generic.\n3. Type Constraints: Specify that a type parameter must inherit from a specific class or conform to a particular protocol.\n4. Reusability: Write one function to sort arrays, regardless of whether they contain Ints, Strings, or custom objects.\n\nExample:\n    struct Box<T> {\n        var content: T\n    }\n    let intBox = Box(content: 5)\n    let stringBox = Box(content: \"Forge\")\n\nBest Practices:\n- Use descriptive names for type parameters if they have a specific meaning (e.g., <Element>, <Key, Value>).\n- Use generics to keep your code DRY (Don't Repeat Yourself).",
     "manualCheck": false,
     "number": 172,
     "requires": [],
@@ -916,7 +972,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -931,12 +987,14 @@
     "expectedOutput": "true",
     "fixtureFiles": [],
     "hints": [
-      "Add the constraint in an extension so conformance is conditional."
+      "Add the constraint in an extension so conformance is conditional.",
+      "Use 'extension Wrapper: Equatable where T: Equatable { }'.",
+      "Because 'T' is 'Equatable', Swift can automatically synthesize the '==' implementation for 'Wrapper' if its properties are also 'Equatable'."
     ],
     "id": "mantle-extra-conditional-conformance",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "lesson": "Lesson: Generics\nGenerics allow you to write code that avoids duplication by working with 'any' type, while still maintaining full type safety.\n\nKey Concepts:\n1. Type Parameters: Placed in angle brackets (e.g., <T>). You can use any name, but 'T', 'U', and 'V' are common.\n2. Generic Types: Classes, structs, and enums can all be generic.\n3. Type Constraints: Specify that a type parameter must inherit from a specific class or conform to a particular protocol.\n4. Reusability: Write one function to sort arrays, regardless of whether they contain Ints, Strings, or custom objects.\n\nExample:\n    struct Box<T> {\n        var content: T\n    }\n    let intBox = Box(content: 5)\n    let stringBox = Box(content: \"Forge\")\n\nBest Practices:\n- Use descriptive names for type parameters if they have a specific meaning (e.g., <Element>, <Key, Value>).\n- Use generics to keep your code DRY (Don't Repeat Yourself).",
     "manualCheck": false,
     "number": 173,
     "requires": [],
@@ -948,7 +1006,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Memory\n- strong references keep instances alive\n- weak breaks reference cycles\n- Use [weak self] in closures to avoid leaks",
+    "cheatsheet": "Memory Management (ARC)\n- ARC: Automatic Reference Counting manages memory for class instances.\n- Strong Reference: The default. Keeps the instance alive as long as the reference exists.\n- Weak Reference: Does not keep the instance alive. Automatically becomes 'nil' when the instance is released. Must be 'var' and optional.\n- Reference Cycle: Occurs when two instances hold strong references to each other, preventing them from ever being released.\n- [weak self]: Used in closure capture lists to avoid reference cycles.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -963,12 +1021,14 @@
     "expectedOutput": "Log",
     "fixtureFiles": [],
     "hints": [
-      "Use a weak capture to avoid a cycle, then safely access the instance."
+      "Use a weak capture to avoid a cycle, then safely access the instance.",
+      "The closure should start with '[weak self] in'.",
+      "Because 'self' is now weak, it is optional inside the closure. Use 'if let self = self' to safely unwrap it."
     ],
     "id": "mantle-extra-weak-capture",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Memory Management\nSwift uses ARC to manage object lifetime for class instances.\n\nOverview:\n- Strong references keep objects alive.\n- Cycles cause leaks when two objects strongly retain each other.\n- Use `weak` (or `unowned` when safe) to break cycles.\n\nExample:\n    class A { weak var b: B? }\n    class B { var a: A? }\n\nGuidelines:\n- Use `[weak self]` in escaping closures where needed.\n- Favor structs for independent value data.",
+    "lesson": "Lesson: Memory Management\nSwift uses Automatic Reference Counting (ARC) to track and manage your app's memory usage.\n\nHow ARC Works:\n1. Every time you create a class instance, ARC allocates a chunk of memory.\n2. ARC tracks how many properties, constants, and variables are currently referring to each class instance.\n3. When the reference count drops to zero, the instance is deallocated.\n\nReference Cycles:\nCycles are \"memory leaks\". They happen most often with:\n- Parent-child relationships (e.g., a Department has many Employees, and each Employee knows their Department).\n- Closures that capture 'self' while 'self' also holds a reference to the closure.\n\nThe Solution:\n- Use 'weak' for one side of a parent-child relationship.\n- Use '[weak self]' in closures.\n\nBest Practices:\n- Most references should be strong. Only use 'weak' when you identify a potential cycle.\n- Structs and enums are value types and don't use ARC.",
     "manualCheck": false,
     "number": 174,
     "requires": [],
@@ -980,7 +1040,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Access Control\n- private limits access to the enclosing scope\n- internal is the default (module-wide)\n- public/open expose APIs outside the module",
+    "cheatsheet": "Access Control\n- open / public: Accessible from any source file in any module that imports the module.\n- internal (default): Accessible from any source file within the same module.\n- fileprivate: Accessible only within its own defining source file.\n- private: Accessible only within the enclosing declaration.\n- private(set): Read-only from the outside, but writeable from within the same scope.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -996,12 +1056,13 @@
     "fixtureFiles": [],
     "hints": [
       "internal is the default access level.",
-      "private(set) allows reads but prevents external mutation."
+      "private(set) allows reads but prevents external mutation.",
+      "fileprivate properties are accessible anywhere within the same source file where they are defined."
     ],
     "id": "mantle-extra-access-control-nuance",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Access Control\nAccess control limits who can use each symbol.\n\nOverview:\n- `private`: current scope.\n- `fileprivate`: current file.\n- `internal`: default, module scope.\n- `public/open`: visible outside module.\n\nExample:\n    public struct Kiln {\n        public private(set) var temperature: Int = 0\n    }\n\nGuidelines:\n- Start restrictive and open only what is needed.\n- Use `private(set)` for read-only public state.",
+    "lesson": "Lesson: Access Control\nAccess control restricts access to parts of your code from code in other source files and modules.\n\nWhy Use Access Control?\n1. Encapsulation: Hide implementation details that shouldn't be exposed.\n2. Safety: Prevent external code from modifying internal state in unexpected ways.\n3. API Design: Clearly define which parts of your code are meant for public use.\n\nAccess Levels:\n- 'private': The most restrictive. Use it for state that should only be touched by the current struct or class.\n- 'internal': The default. Great for modular code within a single project.\n- 'public': Use this when building a library or framework.\n- 'open': Like public, but also allows subclasses and overrides outside the module.\n\nExample:\n    struct Vault {\n        private var secretCode: Int\n        private(set) var isOpen: Bool = false\n        init(code: Int) { self.secretCode = code }\n    }\n\nBest Practices:\n- Start with the most restrictive level ('private') and only open it up as needed.\n- Use 'private(set)' for state that should be visible but not modifiable by others.",
     "manualCheck": false,
     "number": 250,
     "requires": [],
@@ -1013,7 +1074,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1029,24 +1090,25 @@
     "fixtureFiles": [],
     "hints": [
       "Add a where clause to limit the default method.",
-      "Return a formatted string using tag."
+      "Return a formatted string using tag.",
+      "The extension should be 'extension Taggable where Self: CustomStringConvertible { ... }'."
     ],
     "id": "mantle-extra-protocol-extension-constraint",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "lesson": "Lesson: Protocols\nA protocol defines a blueprint of methods, properties, and other requirements that suit a particular task or piece of functionality.\n\nCore Concepts:\n1. Blueprint: Protocols don't provide implementations themselves, only the requirements.\n2. Type Safety: You can use a protocol as a type, allowing you to work with any object that conforms to it without knowing its concrete class or struct.\n3. Decoupling: Protocols help decouple your code, making it more modular and easier to test.\n\nExample:\n    protocol Inspectable {\n        var status: String { get }\n    }\n    struct Valve: Inspectable {\n        let status: String = \"OK\"\n    }\n\nBest Practices:\n- Name protocols based on what they DO (e.g., 'Runnable', 'Equateable') or what they ARE (e.g., 'Inspectable').\n- Keep protocols small and focused.",
     "manualCheck": false,
     "number": 251,
     "requires": [],
     "solution": "protocol Taggable {\n    var tag: String { get }\n}\n\nextension Taggable where Self: CustomStringConvertible {\n    func describeTag() -> String {\n        return \"Tag: \\(tag)\"\n    }\n}\n\nstruct Tool: Taggable, CustomStringConvertible {\n    let tag: String\n    var description: String { tag }\n}\n\nlet tool = Tool(tag: \"Forge\")\nprint(tool.describeTag())",
-    "starterCode": "// Challenge 251: Protocol Extension Constraint\n// Add a constrained default method.\n\nprotocol Taggable {\n    var tag: String { get }\n}\n\n// TODO: Add a protocol extension where Self: CustomStringConvertible\n// TODO: Add describeTag() -> String returning \"Tag: <tag>\"\n// TODO: Create a conforming type and print describeTag()",
+    "starterCode": "// Challenge 251: Protocol Extension Constraint\n// Add a constrained default method.\n\nprotocol Taggable {\n    var tag: String { get }\n}\n\n// TODO: Add a protocol extension where Self: CustomStringConvertible\n// TODO: Add describeTag() -> String returning \"Tag: <tag>\"\n// TODO: Create a conforming type\n// TODO: Print describeTag() on an instance",
     "tier": "extra",
     "title": "Protocol Extension Constraint",
     "topic": "protocols"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Structs\n- struct Name { var property: Type }\n- Instances: let/var value = Name(...)\n- Properties use dot syntax\n- var instance required to mutate properties",
+    "cheatsheet": "Structs (Value Types)\n- Definition: struct Name { var property: Type }\n- Initialization: let instance = Name(property: value) (memberwise init)\n- Access: Use dot notation: instance.property\n- Mutability: Use 'var' for instances you want to modify\n- Copying: Assigning a struct to a new variable creates a full, independent copy\n- Methods: Methods that modify properties must be marked 'mutating'",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1062,12 +1124,13 @@
     "fixtureFiles": [],
     "hints": [
       "Memberwise init uses property names as labels.",
-      "Print the stored properties in order."
+      "Print the stored properties in order.",
+      "The memberwise initializer is automatically provided by Swift for any struct that doesn't define its own custom initializers."
     ],
     "id": "mantle-extra-memberwise-init",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Structs\nStructs are value types used to model data with clear ownership.\n\nOverview:\n- Define stored properties in `struct Name { ... }`.\n- Add methods to keep behavior close to data.\n- Use `mutating` on methods that change `self`.\n\nExample:\n    struct Reading {\n        var temp: Int\n        mutating func cool(by amount: Int) { temp -= amount }\n    }\n\nGuidelines:\n- Prefer `let` for immutable instances.\n- Use computed properties for derived values.",
+    "lesson": "Lesson: Structs\nStructs are the building blocks of most Swift programs. They are 'value types', meaning they are copied when passed around.\n\nCore Concepts:\n1. Definition: Use the 'struct' keyword. Properties are variables or constants defined inside.\n2. Memberwise Initializer: Swift automatically provides an initializer based on your properties.\n3. Value Semantics: When you assign a struct to a new variable, you get a copy. Changes to the copy don't affect the original.\n4. Mutability: If you want to change a struct's properties, the instance itself must be declared with 'var'.\n\nExample:\n    struct ForgeItem {\n        var name: String\n        var weight: Int\n    }\n    var item = ForgeItem(name: \"Iron\", weight: 5)\n    item.weight = 10 // Only works because 'item' is var\n\nBest Practices:\n- Use structs for simple data models.\n- Favor immutability (let) whenever possible.",
     "manualCheck": false,
     "number": 279,
     "requires": [],
@@ -1079,7 +1142,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Classes\n- class Name { var property: Type }\n- Classes are reference types\n- deinit runs when an instance is released",
+    "cheatsheet": "Classes (Reference Types)\n- Definition: class Name { var property: Type; init(...) { ... } }\n- Reference Semantics: Multiple variables can point to the same instance\n- Identity: Use === to check if two variables point to the same instance\n- Initializers: Unlike structs, classes DO NOT get a memberwise initializer automatically\n- Deinit: A deinitializer runs when the last reference to an instance is released\n- Inheritance: Classes can inherit from other classes (subclassing)",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1094,12 +1157,14 @@
     "expectedOutput": "true",
     "fixtureFiles": [],
     "hints": [
-      "Use the identity operator (===) for classes."
+      "Use the identity operator (===) for classes.",
+      "The '===' operator checks if two references point to the exact same object in memory.",
+      "The '==' operator (if implemented via Equatable) checks if two objects have the same value."
     ],
     "id": "mantle-extra-class-identity",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Classes\nClasses are reference types, so multiple variables can point to one instance.\n\nOverview:\n- `class` supports inheritance and `deinit`.\n- Assignment copies the reference, not the data.\n- Use classes when shared mutable state is intentional.\n\nExample:\n    class Furnace {\n        var level = 0\n    }\n    let a = Furnace()\n    let b = a\n    b.level = 3   // a.level is also 3\n\nGuidelines:\n- Be explicit about ownership.\n- Watch for unintended shared mutation.",
+    "lesson": "Lesson: Classes\nClasses are 'reference types'. When you assign a class instance to a new variable, both variables point to the same object in memory.\n\nKey Differences from Structs:\n1. Reference Semantics: Changing a property through one reference affects all other references to that same instance.\n2. Mandatory Initializers: You must provide an 'init' method if your properties don't have default values.\n3. Identity vs. Equality: Use '==' for value equality and '===' for reference identity.\n4. Lifetime: Classes use Automatic Reference Counting (ARC) to determine when they should be destroyed.\n\nExample:\n    class Bellows {\n        var power: Int\n        init(power: Int) { self.power = power }\n    }\n    let p1 = Bellows(power: 1)\n    let p2 = p1\n    p2.power = 10 // p1.power is now also 10\n\nWhen to Use:\n- Use classes when you need shared mutable state or identity.\n- Use classes for inheritance or when you need to perform cleanup on deinit.",
     "manualCheck": false,
     "number": 280,
     "requires": [],
@@ -1111,7 +1176,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Properties\n- Stored properties hold values\n- Computed properties use get/set\n- willSet/didSet observe changes\n- lazy defers initialization\n- static creates type-level members",
+    "cheatsheet": "Properties\n- Stored Properties: Hold values directly.\n- Computed Properties: Do not store a value; instead, they provide a getter and an optional setter to calculate other properties indirectly.\n- Property Observers: 'willSet' (runs before) and 'didSet' (runs after) a property changes.\n- Lazy Properties: Initialized only when first accessed; must be 'var'.\n- Static Properties: Shared across all instances of the type.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1127,12 +1192,13 @@
     "fixtureFiles": [],
     "hints": [
       "Only provide a get block.",
-      "Use integer division for 28 / 14."
+      "Use integer division for 28 / 14.",
+      "A read-only computed property doesn't need the 'get' keyword if it only has a getter; you can just provide the body inside the braces."
     ],
     "id": "mantle-extra-readonly-property",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Properties\nProperties define how types store and expose state.\n\nOverview:\n- Stored properties keep values.\n- Computed properties derive values with `get` and optional `set`.\n- Property observers (`willSet`/`didSet`) react to changes.\n- `lazy` defers expensive initialization.\n\nExample:\n    struct Batch {\n        var items: Int\n        var doubled: Int { items * 2 }\n    }\n\nGuidelines:\n- Keep computed properties fast and side-effect free.\n- Use observers for lightweight bookkeeping only.",
+    "lesson": "Lesson: Properties\nProperties associate values with a particular class, structure, or enumeration.\n\nTypes of Properties:\n1. Stored Properties: Store constant and variable values as part of an instance.\n2. Computed Properties: Calculate (rather than store) a value. They use 'get' for reading and 'set' for writing.\n3. Observers: React to changes in a property's value. Useful for UI updates or logging.\n4. Lazy: Useful for properties whose initial values are expensive to compute or depend on external factors.\n\nExample of Computed Property:\n    struct Square {\n        var side: Int\n        var area: Int {\n            get { return side * side }\n            set { side = Int(Double(newValue).squareRoot()) }\n        }\n    }\n\nBest Practices:\n- Use computed properties for values that can be derived from other state.\n- Keep property observers lightweight.",
     "manualCheck": false,
     "number": 281,
     "requires": [],
@@ -1144,7 +1210,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1159,24 +1225,26 @@
     "expectedOutput": "Name: Anvil",
     "fixtureFiles": [],
     "hints": [
-      "Default methods live in protocol extensions."
+      "Default methods live in protocol extensions.",
+      "The extension should be 'extension Describable { ... }'.",
+      "Types that conform to 'Describable' will inherit this 'describe()' implementation unless they provide their own."
     ],
     "id": "mantle-extra-protocol-default",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "lesson": "Lesson: Protocols\nA protocol defines a blueprint of methods, properties, and other requirements that suit a particular task or piece of functionality.\n\nCore Concepts:\n1. Blueprint: Protocols don't provide implementations themselves, only the requirements.\n2. Type Safety: You can use a protocol as a type, allowing you to work with any object that conforms to it without knowing its concrete class or struct.\n3. Decoupling: Protocols help decouple your code, making it more modular and easier to test.\n\nExample:\n    protocol Inspectable {\n        var status: String { get }\n    }\n    struct Valve: Inspectable {\n        let status: String = \"OK\"\n    }\n\nBest Practices:\n- Name protocols based on what they DO (e.g., 'Runnable', 'Equateable') or what they ARE (e.g., 'Inspectable').\n- Keep protocols small and focused.",
     "manualCheck": false,
     "number": 282,
     "requires": [],
     "solution": "extension Describable {\n    func describe() -> String {\n        return \"Name: \\(name)\"\n    }\n}\n\nstruct Tool: Describable {\n    let name: String\n}\n\nprint(Tool(name: \"Anvil\").describe())",
-    "starterCode": "// Challenge 282: Protocol Default\n// Provide a default method in an extension.\n\nprotocol Describable {\n    var name: String { get }\n}\n\n// TODO: Add describe() -> String that returns \"Name: <name>\"\n// TODO: Create a struct conforming to Describable and print describe()",
+    "starterCode": "// Challenge 282: Protocol Default\n// Provide a default method in an extension.\n\nprotocol Describable {\n    var name: String { get }\n}\n\n// TODO: Add describe() -> String that returns \"Name: <name>\" in an extension\n// TODO: Create a struct conforming to Describable\n// TODO: Print describe()",
     "tier": "extra",
     "title": "Protocol Default",
     "topic": "protocols"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "cheatsheet": "Extensions\n- Purpose: Add new functionality to an existing class, structure, enumeration, or protocol type.\n- Capabilities:\n  - Add computed instance/type properties.\n  - Define instance/type methods.\n  - Provide new initializers.\n  - Define subscripts.\n  - Define and use new nested types.\n  - Make an existing type conform to a protocol.\n- Protocol Extensions: Provide default implementations for protocol requirements.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1191,12 +1259,14 @@
     "expectedOutput": "Steel",
     "fixtureFiles": [],
     "hints": [
-      "Static methods are called on the type."
+      "Static methods are called on the type.",
+      "The 'standard()' function should be defined as 'static func standard() -> Alloy'.",
+      "Because it's a factory method, it returns a new instance of the type it's extending."
     ],
     "id": "mantle-extra-extension-static",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Extensions\nExtensions add behavior to existing types without subclassing.\n\nOverview:\n- Add methods, computed properties, and protocol conformance.\n- Keep related helpers grouped by purpose.\n- Protocol extensions can provide default behavior.\n\nExample:\n    extension Int {\n        var isHot: Bool { self >= 1400 }\n    }\n\nGuidelines:\n- Prefer extensions for organization and reuse.\n- Avoid hiding critical behavior across too many files.",
+    "lesson": "Lesson: Extensions\nExtensions add new functionality to an existing type, even if you don't have access to the original source code.\n\nWhat Extensions Can Do:\n1. Add Methods: Group related utility functions outside the main type definition.\n2. Computed Properties: Add derived state without adding stored data.\n3. Protocol Conformance: Keep your code organized by putting protocol requirements in an extension.\n4. Default Implementations: Use protocol extensions to provide 'free' functionality to any type that conforms.\n\nExample:\n    extension Int {\n        var isEven: Bool { return self % 2 == 0 }\n    }\n    print(4.isEven) // true\n\nBest Practices:\n- Use extensions to break up large types into logical blocks.\n- Don't use extensions to hide complexity; use them to organize it.",
     "manualCheck": false,
     "number": 283,
     "requires": [],
@@ -1208,7 +1278,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Access Control\n- private limits access to the enclosing scope\n- internal is the default (module-wide)\n- public/open expose APIs outside the module",
+    "cheatsheet": "Access Control\n- open / public: Accessible from any source file in any module that imports the module.\n- internal (default): Accessible from any source file within the same module.\n- fileprivate: Accessible only within its own defining source file.\n- private: Accessible only within the enclosing declaration.\n- private(set): Read-only from the outside, but writeable from within the same scope.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1223,12 +1293,14 @@
     "expectedOutput": "2",
     "fixtureFiles": [],
     "hints": [
-      "private(set) allows reads but restricts writes."
+      "private(set) allows reads but restricts writes.",
+      "The 'value' property can be read from outside the 'Counter' struct, but only the 'Counter' struct (via the 'increment' method) can modify it.",
+      "This is a common pattern for ensuring internal consistency while allowing external monitoring."
     ],
     "id": "mantle-extra-private-set",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Access Control\nAccess control limits who can use each symbol.\n\nOverview:\n- `private`: current scope.\n- `fileprivate`: current file.\n- `internal`: default, module scope.\n- `public/open`: visible outside module.\n\nExample:\n    public struct Kiln {\n        public private(set) var temperature: Int = 0\n    }\n\nGuidelines:\n- Start restrictive and open only what is needed.\n- Use `private(set)` for read-only public state.",
+    "lesson": "Lesson: Access Control\nAccess control restricts access to parts of your code from code in other source files and modules.\n\nWhy Use Access Control?\n1. Encapsulation: Hide implementation details that shouldn't be exposed.\n2. Safety: Prevent external code from modifying internal state in unexpected ways.\n3. API Design: Clearly define which parts of your code are meant for public use.\n\nAccess Levels:\n- 'private': The most restrictive. Use it for state that should only be touched by the current struct or class.\n- 'internal': The default. Great for modular code within a single project.\n- 'public': Use this when building a library or framework.\n- 'open': Like public, but also allows subclasses and overrides outside the module.\n\nExample:\n    struct Vault {\n        private var secretCode: Int\n        private(set) var isOpen: Bool = false\n        init(code: Int) { self.secretCode = code }\n    }\n\nBest Practices:\n- Start with the most restrictive level ('private') and only open it up as needed.\n- Use 'private(set)' for state that should be visible but not modifiable by others.",
     "manualCheck": false,
     "number": 284,
     "requires": [],
@@ -1240,7 +1312,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Errors\n- Define: enum MyError: Error { case ... }\n- Throwing functions use throws\n- Call with try\n- Handle with do { try ... } catch { ... }\n- try? returns Optional, nil on error",
+    "cheatsheet": "Error Handling\n- Defining Errors: Use an enum that conforms to 'Error'.\n- Throwing: Use 'throw MyError.something' inside a function marked 'throws'.\n- Handling:\n  - do { try function() } catch { ... }\n  - try?: Returns an optional, nil if an error was thrown.\n  - try!: Disables error propagation; crashes if an error is thrown.\n- Rethrows: Used when a function takes a throwing closure and propagates its errors.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1255,24 +1327,26 @@
     "expectedOutput": "Blown",
     "fixtureFiles": [],
     "hints": [
-      "Use a specific catch clause for the enum case."
+      "Use a specific catch clause for the enum case.",
+      "The catch clause should look like 'catch FuseError.blown { ... }'.",
+      "You can have multiple catch clauses to handle different error cases specifically."
     ],
     "id": "mantle-extra-error-specific",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Errors\nSwift errors model expected failure paths.\n\nOverview:\n- Define error enums conforming to `Error`.\n- Throw from functions marked `throws`.\n- Handle with `do/try/catch`.\n\nExample:\n    enum HeatError: Error { case tooHot }\n    func validate(_ t: Int) throws {\n        if t > 1600 { throw HeatError.tooHot }\n    }\n\nGuidelines:\n- Throw meaningful, typed errors.\n- Use `try?` only when silent fallback is intentional.",
+    "lesson": "Lesson: Error Handling\nError handling is the process of responding to and recovering from error conditions in your program.\n\nThe Four Ways to Handle Errors in Swift: \n1. Propagating: Mark a function with 'throws' to pass the error to the caller.\n2. Handling with do-catch: Use a catch block to respond to specific error cases.\n3. Optionals: Use 'try?' to convert the result to an optional, which is 'nil' if an error occurred.\n4. Asserting: Use 'try!' when you are certain an error won't occur (use sparingly).\n\nExample:\n    enum ForgeError: Error { case outOfFuel }\n    func start() throws { throw ForgeError.outOfFuel }\n    do {\n        try start()\n    } catch ForgeError.outOfFuel {\n        print(\"Need more fuel!\")\n    }\n\nBest Practices:\n- Use meaningful error names.\n- Don't catch errors you don't know how to handle.",
     "manualCheck": false,
     "number": 285,
     "requires": [],
     "solution": "do {\n    try checkFuse(false)\n} catch FuseError.blown {\n    print(\"Blown\")\n}",
-    "starterCode": "// Challenge 285: Error Specific\n// Catch a specific error case.\n\nenum FuseError: Error {\n    case blown\n    case missing\n}\n\nfunc checkFuse(_ ok: Bool) throws {\n    if !ok {\n        throw FuseError.blown\n    }\n}\n\n// TODO: Call checkFuse(false) and catch FuseError.blown to print \"Blown\"",
+    "starterCode": "// Challenge 285: Error Specific\n// Catch a specific error case.\n\nenum FuseError: Error {\n    case blown\n    case missing\n}\n\nfunc checkFuse(_ ok: Bool) throws {\n    if !ok {\n        throw FuseError.blown\n    }\n}\n\n// TODO: Call checkFuse(false)\n// TODO: Catch FuseError.blown specifically and print \"Blown\"",
     "tier": "extra",
     "title": "Error Specific",
     "topic": "errors"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1287,24 +1361,26 @@
     "expectedOutput": "Iron 3",
     "fixtureFiles": [],
     "hints": [
-      "Use two generic type parameters."
+      "Use two generic type parameters.",
+      "The struct should be defined as 'struct Pair<A, B> { ... }'.",
+      "Assign the parameters to the properties in the order they are passed."
     ],
     "id": "mantle-extra-generic-pair",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "lesson": "Lesson: Generics\nGenerics allow you to write code that avoids duplication by working with 'any' type, while still maintaining full type safety.\n\nKey Concepts:\n1. Type Parameters: Placed in angle brackets (e.g., <T>). You can use any name, but 'T', 'U', and 'V' are common.\n2. Generic Types: Classes, structs, and enums can all be generic.\n3. Type Constraints: Specify that a type parameter must inherit from a specific class or conform to a particular protocol.\n4. Reusability: Write one function to sort arrays, regardless of whether they contain Ints, Strings, or custom objects.\n\nExample:\n    struct Box<T> {\n        var content: T\n    }\n    let intBox = Box(content: 5)\n    let stringBox = Box(content: \"Forge\")\n\nBest Practices:\n- Use descriptive names for type parameters if they have a specific meaning (e.g., <Element>, <Key, Value>).\n- Use generics to keep your code DRY (Don't Repeat Yourself).",
     "manualCheck": false,
     "number": 286,
     "requires": [],
     "solution": "struct Pair<A, B> {\n    let first: A\n    let second: B\n}\n\nlet pair = Pair(first: \"Iron\", second: 3)\nprint(\"\\(pair.first) \\(pair.second)\")",
-    "starterCode": "// Challenge 286: Generic Pair\n// Store two values in a generic type.\n\n// TODO: Define struct Pair<A, B> with first and second\n// TODO: Create Pair(first: \"Iron\", second: 3) and print first and second",
+    "starterCode": "// Challenge 286: Generic Pair\n// Store two values in a generic type.\n\n// TODO: Define struct Pair<A, B> with first and second\n// TODO: Create an instance: Pair(first: \"Iron\", second: 3)\n// TODO: Print the 'first' property\n// TODO: Print the 'second' property",
     "tier": "extra",
     "title": "Generic Pair",
     "topic": "generics"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1319,12 +1395,14 @@
     "expectedOutput": "Iron",
     "fixtureFiles": [],
     "hints": [
-      "Associated types let the conformer choose the concrete type."
+      "Associated types let the conformer choose the concrete type.",
+      "In the protocol, define 'associatedtype Item'.",
+      "In the 'Bin' struct, providing a property 'let item: String' automatically satisfies the 'Storable' protocol requirements by inferring 'Item' as 'String'."
     ],
     "id": "mantle-extra-protocol-associated",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "lesson": "Lesson: Generics\nGenerics allow you to write code that avoids duplication by working with 'any' type, while still maintaining full type safety.\n\nKey Concepts:\n1. Type Parameters: Placed in angle brackets (e.g., <T>). You can use any name, but 'T', 'U', and 'V' are common.\n2. Generic Types: Classes, structs, and enums can all be generic.\n3. Type Constraints: Specify that a type parameter must inherit from a specific class or conform to a particular protocol.\n4. Reusability: Write one function to sort arrays, regardless of whether they contain Ints, Strings, or custom objects.\n\nExample:\n    struct Box<T> {\n        var content: T\n    }\n    let intBox = Box(content: 5)\n    let stringBox = Box(content: \"Forge\")\n\nBest Practices:\n- Use descriptive names for type parameters if they have a specific meaning (e.g., <Element>, <Key, Value>).\n- Use generics to keep your code DRY (Don't Repeat Yourself).",
     "manualCheck": false,
     "number": 287,
     "requires": [],
@@ -1336,7 +1414,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1352,12 +1430,13 @@
     "fixtureFiles": [],
     "hints": [
       "Use 'any' to spell an existential.",
-      "Access heat through the protocol-typed value."
+      "Access heat through the protocol-typed value.",
+      "The 'any' keyword is required in modern Swift when using a protocol as a type."
     ],
     "id": "mantle-extra-protocol-erasure",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "lesson": "Lesson: Protocols\nA protocol defines a blueprint of methods, properties, and other requirements that suit a particular task or piece of functionality.\n\nCore Concepts:\n1. Blueprint: Protocols don't provide implementations themselves, only the requirements.\n2. Type Safety: You can use a protocol as a type, allowing you to work with any object that conforms to it without knowing its concrete class or struct.\n3. Decoupling: Protocols help decouple your code, making it more modular and easier to test.\n\nExample:\n    protocol Inspectable {\n        var status: String { get }\n    }\n    struct Valve: Inspectable {\n        let status: String = \"OK\"\n    }\n\nBest Practices:\n- Name protocols based on what they DO (e.g., 'Runnable', 'Equateable') or what they ARE (e.g., 'Inspectable').\n- Keep protocols small and focused.",
     "manualCheck": false,
     "number": 288,
     "requires": [],
@@ -1369,7 +1448,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Protocols\n- Define required properties and methods\n- Types conform by implementing requirements\n- Protocols can be used as types",
+    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1384,24 +1463,26 @@
     "expectedOutput": "Fuel 2\nAir 3",
     "fixtureFiles": [],
     "hints": [
-      "Combine protocols with '&' and prefix with 'any'."
+      "Combine protocols with '&' and prefix with 'any'.",
+      "The type should be 'any Fueling & Venting'.",
+      "This creates an existential type that satisfies both protocol requirements."
     ],
     "id": "mantle-extra-protocol-composition-any",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Protocols\nProtocols define capabilities without choosing a concrete type.\n\nOverview:\n- Declare requirements for properties and methods.\n- Conforming types provide implementations.\n- Use protocol values to decouple call sites from concrete types.\n\nExample:\n    protocol HeatSource {\n        func output() -> Int\n    }\n\nGuidelines:\n- Keep protocols focused.\n- Model behavior, not storage details.",
+    "lesson": "Lesson: Protocols\nA protocol defines a blueprint of methods, properties, and other requirements that suit a particular task or piece of functionality.\n\nCore Concepts:\n1. Blueprint: Protocols don't provide implementations themselves, only the requirements.\n2. Type Safety: You can use a protocol as a type, allowing you to work with any object that conforms to it without knowing its concrete class or struct.\n3. Decoupling: Protocols help decouple your code, making it more modular and easier to test.\n\nExample:\n    protocol Inspectable {\n        var status: String { get }\n    }\n    struct Valve: Inspectable {\n        let status: String = \"OK\"\n    }\n\nBest Practices:\n- Name protocols based on what they DO (e.g., 'Runnable', 'Equateable') or what they ARE (e.g., 'Inspectable').\n- Keep protocols small and focused.",
     "manualCheck": false,
     "number": 289,
     "requires": [],
     "solution": "let vent: any Fueling & Venting = Vent(fuel: 2, airflow: 3)\nprint(\"Fuel \\(vent.fuel)\")\nprint(\"Air \\(vent.airflow)\")",
-    "starterCode": "// Challenge 289: Protocol Composition Any\n// Use any with protocol composition.\n\nprotocol Fueling { var fuel: Int { get } }\nprotocol Venting { var airflow: Int { get } }\n\nstruct Vent: Fueling, Venting {\n    let fuel: Int\n    let airflow: Int\n}\n\n// TODO: Create a value of type 'any Fueling & Venting'\n// TODO: Print fuel and airflow",
+    "starterCode": "// Challenge 289: Protocol Composition Any\n// Use any with protocol composition.\n\nprotocol Fueling { var fuel: Int { get } }\nprotocol Venting { var airflow: Int { get } }\n\nstruct Vent: Fueling, Venting {\n    let fuel: Int\n    let airflow: Int\n}\n\n// TODO: Create a value of type 'any Fueling & Venting'\n// TODO: Print fuel\n// TODO: Print airflow",
     "tier": "extra",
     "title": "Protocol Composition Any",
     "topic": "protocols"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1416,12 +1497,14 @@
     "expectedOutput": "true",
     "fixtureFiles": [],
     "hints": [
-      "Use a where clause on the method, not the type."
+      "Use a where clause on the method, not the type.",
+      "The method signature should be 'func allEqual() -> Bool where T: Equatable'.",
+      "This allows the method to exist on all 'Store' instances, but it can only be CALLED if 'T' is 'Equatable'."
     ],
     "id": "mantle-extra-where-method",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "lesson": "Lesson: Generics\nGenerics allow you to write code that avoids duplication by working with 'any' type, while still maintaining full type safety.\n\nKey Concepts:\n1. Type Parameters: Placed in angle brackets (e.g., <T>). You can use any name, but 'T', 'U', and 'V' are common.\n2. Generic Types: Classes, structs, and enums can all be generic.\n3. Type Constraints: Specify that a type parameter must inherit from a specific class or conform to a particular protocol.\n4. Reusability: Write one function to sort arrays, regardless of whether they contain Ints, Strings, or custom objects.\n\nExample:\n    struct Box<T> {\n        var content: T\n    }\n    let intBox = Box(content: 5)\n    let stringBox = Box(content: \"Forge\")\n\nBest Practices:\n- Use descriptive names for type parameters if they have a specific meaning (e.g., <Element>, <Key, Value>). \n- Use generics to keep your code DRY (Don't Repeat Yourself).",
     "manualCheck": false,
     "number": 290,
     "requires": [],
@@ -1433,7 +1516,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Generics\n- Use <T> to make functions and types reusable\n- Constraints limit T to specific protocols\n- where adds extra requirements",
+    "cheatsheet": "Generics\n- Purpose: Write flexible, reusable functions and types that work with any type.\n- Syntax: <T> represents a placeholder for a type.\n- Constraints: <T: Equatable> requires the type to implement certain protocols.\n- Associated Types: Placeholders used in protocols (associatedtype Item).\n- Where Clauses: Add complex requirements to generic parameters (where T: Sequence, T.Element: Equatable).",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1448,24 +1531,26 @@
     "expectedOutput": "A",
     "fixtureFiles": [],
     "hints": [
-      "Constrain the extension to T == String."
+      "Constrain the extension to T == String.",
+      "The extension should be 'extension Crate where T == String { ... }'.",
+      "Because the extension is specific to 'String', you know that 'items.first' will be a 'String' (or nil)."
     ],
     "id": "mantle-extra-generic-extension",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Generics\nGenerics let one implementation work across many types safely.\n\nOverview:\n- Use type parameters like `<T>`.\n- Add constraints (`T: Protocol`) to require behavior.\n- Use `where` clauses for multi-type relationships.\n\nExample:\n    func firstMatch<T: Equatable>(_ items: [T], _ value: T) -> Int? {\n        items.firstIndex(of: value)\n    }\n\nGuidelines:\n- Introduce generics when duplication appears.\n- Keep generic APIs readable with clear names.",
+    "lesson": "Lesson: Generics\nGenerics allow you to write code that avoids duplication by working with 'any' type, while still maintaining full type safety.\n\nKey Concepts:\n1. Type Parameters: Placed in angle brackets (e.g., <T>). You can use any name, but 'T', 'U', and 'V' are common.\n2. Generic Types: Classes, structs, and enums can all be generic.\n3. Type Constraints: Specify that a type parameter must inherit from a specific class or conform to a particular protocol.\n4. Reusability: Write one function to sort arrays, regardless of whether they contain Ints, Strings, or custom objects.\n\nExample:\n    struct Box<T> {\n        var content: T\n    }\n    let intBox = Box(content: 5)\n    let stringBox = Box(content: \"Forge\")\n\nBest Practices:\n- Use descriptive names for type parameters if they have a specific meaning (e.g., <Element>, <Key, Value>).\n- Use generics to keep your code DRY (Don't Repeat Yourself).",
     "manualCheck": false,
     "number": 291,
     "requires": [],
     "solution": "extension Crate where T == String {\n    func firstItem() -> String {\n        return items.first ?? \"\"\n    }\n}\n\nlet crate = Crate(items: [\"A\", \"B\"])\nprint(crate.firstItem())",
-    "starterCode": "// Challenge 291: Generic Extension\n// Add behavior with a constrained extension.\n\nstruct Crate<T> {\n    let items: [T]\n}\n\n// TODO: Add an extension where T == String with firstItem() -> String\n// TODO: Create Crate(items: [\"A\", \"B\"]) and print firstItem()",
+    "starterCode": "// Challenge 291: Generic Extension\n// Add behavior with a constrained extension.\n\nstruct Crate<T> {\n    let items: [T]\n}\n\n// TODO: Add an extension where T == String with firstItem() -> String\n// TODO: Create Crate(items: [\"A\", \"B\"])\n// TODO: Print the result of calling firstItem()",
     "tier": "extra",
     "title": "Generic Extension",
     "topic": "generics"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Memory\n- strong references keep instances alive\n- weak breaks reference cycles\n- Use [weak self] in closures to avoid leaks",
+    "cheatsheet": "Memory Management (ARC)\n- ARC: Automatic Reference Counting manages memory for class instances.\n- Strong Reference: The default. Keeps the instance alive as long as the reference exists.\n- Weak Reference: Does not keep the instance alive. Automatically becomes 'nil' when the instance is released. Must be 'var' and optional.\n- Reference Cycle: Occurs when two instances hold strong references to each other, preventing them from ever being released.\n- [weak self]: Used in closure capture lists to avoid reference cycles.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1481,24 +1566,26 @@
     "fixtureFiles": [],
     "hints": [
       "Capture weakly to avoid a strong cycle.",
-      "Use nil coalescing to print \"nil\" when missing."
+      "Use nil coalescing to print \"nil\" when missing.",
+      "The closure already has '[weak forge]', so 'forge' is an optional inside the closure.",
+      "When the original 'forge' is set to 'nil', the weak reference inside the closure also becomes 'nil'."
     ],
     "id": "mantle-extra-weak-release",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Memory Management\nSwift uses ARC to manage object lifetime for class instances.\n\nOverview:\n- Strong references keep objects alive.\n- Cycles cause leaks when two objects strongly retain each other.\n- Use `weak` (or `unowned` when safe) to break cycles.\n\nExample:\n    class A { weak var b: B? }\n    class B { var a: A? }\n\nGuidelines:\n- Use `[weak self]` in escaping closures where needed.\n- Favor structs for independent value data.",
+    "lesson": "Lesson: Memory Management\nSwift uses Automatic Reference Counting (ARC) to track and manage your app's memory usage.\n\nHow ARC Works:\n1. Every time you create a class instance, ARC allocates a chunk of memory.\n2. ARC tracks how many properties, constants, and variables are currently referring to each class instance.\n3. When the reference count drops to zero, the instance is deallocated.\n\nReference Cycles:\nCycles are \"memory leaks\". They happen most often with:\n- Parent-child relationships (e.g., a Department has many Employees, and each Employee knows their Department).\n- Closures that capture 'self' while 'self' also holds a reference to the closure.\n\nThe Solution:\n- Use 'weak' for one side of a parent-child relationship.\n- Use '[weak self]' in closures.\n\nBest Practices:\n- Most references should be strong. Only use 'weak' when you identify a potential cycle.\n- Structs and enums are value types and don't use ARC.",
     "manualCheck": false,
     "number": 309,
     "requires": [],
     "solution": "class Forge {\n    let id: Int\n    init(id: Int) { self.id = id }\n}\n\nvar forge: Forge? = Forge(id: 1)\nlet report = { [weak forge] in\n    print(forge?.id ?? \"nil\")\n}\n\nforge = nil\nreport()",
-    "starterCode": "// Challenge 309: Weak Release\n// Avoid retain cycles in closures.\n\nclass Forge {\n    let id: Int\n    init(id: Int) { self.id = id }\n}\n\nvar forge: Forge? = Forge(id: 1)\nlet report = { [weak forge] in\n    // TODO: Print forge?.id or \"nil\" if it\u2019s gone\n}\n\n// TODO: Set forge = nil\n// TODO: Call report()",
+    "starterCode": "// Challenge 309: Weak Release\n// Avoid retain cycles in closures.\n\nclass Forge {\n    let id: Int\n    init(id: Int) { self.id = id }\n}\n\nvar forge: Forge? = Forge(id: 1)\nlet report = { [weak forge] in\n    // TODO: Print forge?.id or \"nil\" if it’s gone\n}\n\n// TODO: Set forge = nil\n// TODO: Call report()",
     "tier": "extra",
     "title": "Weak Release",
     "topic": "memory"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Extensions\n- Add methods or computed properties to existing types\n- Protocol extensions can provide defaults",
+    "cheatsheet": "Extensions\n- Purpose: Add new functionality to an existing class, structure, enumeration, or protocol type.\n- Capabilities:\n  - Add computed instance/type properties.\n  - Define instance/type methods.\n  - Provide new initializers.\n  - Define subscripts.\n  - Define and use new nested types.\n  - Make an existing type conform to a protocol.\n- Protocol Extensions: Provide default implementations for protocol requirements.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1514,24 +1601,25 @@
     "fixtureFiles": [],
     "hints": [
       "Extensions can add computed properties.",
-      "Return a Bool based on weight."
+      "Return a Bool based on weight.",
+      "The property should look like 'var isHeavy: Bool { return weight >= 10 }'."
     ],
     "id": "mantle-extra-extension-computed",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Extensions\nExtensions add behavior to existing types without subclassing.\n\nOverview:\n- Add methods, computed properties, and protocol conformance.\n- Keep related helpers grouped by purpose.\n- Protocol extensions can provide default behavior.\n\nExample:\n    extension Int {\n        var isHot: Bool { self >= 1400 }\n    }\n\nGuidelines:\n- Prefer extensions for organization and reuse.\n- Avoid hiding critical behavior across too many files.",
+    "lesson": "Lesson: Extensions\nExtensions add new functionality to an existing type, even if you don't have access to the original source code.\n\nWhat Extensions Can Do:\n1. Add Methods: Group related utility functions outside the main type definition.\n2. Computed Properties: Add derived state without adding stored data.\n3. Protocol Conformance: Keep your code organized by putting protocol requirements in an extension.\n4. Default Implementations: Use protocol extensions to provide 'free' functionality to any type that conforms.\n\nExample:\n    extension Int {\n        var isEven: Bool { return self % 2 == 0 }\n    }\n    print(4.isEven) // true\n\nBest Practices:\n- Use extensions to break up large types into logical blocks.\n- Don't use extensions to hide complexity; use them to organize it.",
     "manualCheck": false,
     "number": 310,
     "requires": [],
     "solution": "struct Ingot {\n    let weight: Int\n}\n\nextension Ingot {\n    var isHeavy: Bool {\n        return weight >= 10\n    }\n}\n\nlet ingot = Ingot(weight: 12)\nprint(ingot.isHeavy)",
-    "starterCode": "// Challenge 310: Extension Computed\n// Add a computed property via extension.\n\nstruct Ingot {\n    let weight: Int\n}\n\n// TODO: Add an extension with a computed property isHeavy (>= 10)\n// TODO: Create an Ingot(weight: 12) and print isHeavy",
+    "starterCode": "// Challenge 310: Extension Computed\n// Add a computed property via extension.\n\nstruct Ingot {\n    let weight: Int\n}\n\n// TODO: Add an extension with a computed property isHeavy (>= 10)\n// TODO: Create an Ingot(weight: 12)\n// TODO: Print isHeavy",
     "tier": "extra",
     "title": "Extension Computed",
     "topic": "extensions"
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Errors\n- Define: enum MyError: Error { case ... }\n- Throwing functions use throws\n- Call with try\n- Handle with do { try ... } catch { ... }\n- try? returns Optional, nil on error",
+    "cheatsheet": "Error Handling\n- Defining Errors: Use an enum that conforms to 'Error'.\n- Throwing: Use 'throw MyError.something' inside a function marked 'throws'.\n- Handling:\n  - do { try function() } catch { ... }\n  - try?: Returns an optional, nil if an error was thrown.\n  - try!: Disables error propagation; crashes if an error is thrown.\n- Rethrows: Used when a function takes a throwing closure and propagates its errors.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -1547,17 +1635,19 @@
     "fixtureFiles": [],
     "hints": [
       "rethrows forwards errors from the closure.",
-      "Handle the error in the catch block."
+      "Handle the error in the catch block.",
+      "The 'run' function should use the 'rethrows' keyword because it takes a closure that 'throws'.",
+      "Inside 'run', call the closure with 'try' and return its result."
     ],
     "id": "mantle-extra-error-rethrow",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Errors\nSwift errors model expected failure paths.\n\nOverview:\n- Define error enums conforming to `Error`.\n- Throw from functions marked `throws`.\n- Handle with `do/try/catch`.\n\nExample:\n    enum HeatError: Error { case tooHot }\n    func validate(_ t: Int) throws {\n        if t > 1600 { throw HeatError.tooHot }\n    }\n\nGuidelines:\n- Throw meaningful, typed errors.\n- Use `try?` only when silent fallback is intentional.",
+    "lesson": "Lesson: Error Handling\nError handling is the process of responding to and recovering from error conditions in your program.\n\nThe Four Ways to Handle Errors in Swift:\n1. Propagating: Mark a function with 'throws' to pass the error to the caller.\n2. Handling with do-catch: Use a catch block to respond to specific error cases.\n3. Optionals: Use 'try?' to convert the result to an optional, which is 'nil' if an error occurred.\n4. Asserting: Use 'try!' when you are certain an error won't occur (use sparingly).\n\nExample:\n    enum ForgeError: Error { case outOfFuel }\n    func start() throws { throw ForgeError.outOfFuel }\n    do {\n        try start()\n    } catch ForgeError.outOfFuel {\n        print(\"Need more fuel!\")\n    }\n\nBest Practices:\n- Use meaningful error names.\n- Don't catch errors you don't know how to handle.",
     "manualCheck": false,
     "number": 311,
     "requires": [],
     "solution": "enum HeatError: Error {\n    case tooHot\n}\n\nfunc run(_ operation: () throws -> String) rethrows -> String {\n    return try operation()\n}\n\ndo {\n    let value = try run {\n        throw HeatError.tooHot\n    }\n    print(value)\n} catch {\n    print(\"Caught\")\n}",
-    "starterCode": "// Challenge 311: Rethrow\n// Pass through a throwing closure.\n\nenum HeatError: Error {\n    case tooHot\n}\n\nfunc run(_ operation: () throws -> String) rethrows -> String {\n    // TODO: Call the operation and return the result\n}\n\ndo {\n    let value = try run {\n        throw HeatError.tooHot\n    }\n    print(value)\n} catch {\n    // TODO: Print \"Caught\"\n}",
+    "starterCode": "// Challenge 311: Rethrow\n// Pass through a throwing closure.\n\nenum HeatError: Error {\n    case tooHot\n}\n\nfunc run(_ operation: () throws -> String) rethrows -> String {\n    // TODO: Call the operation with 'try' and return the result\n}\n\ndo {\n    let value = try run {\n        throw HeatError.tooHot\n    }\n    print(value)\n} catch {\n    // TODO: Print \"Caught\"\n}",
     "tier": "extra",
     "title": "Rethrow",
     "topic": "errors"
