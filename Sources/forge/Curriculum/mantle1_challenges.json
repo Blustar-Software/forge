@@ -263,7 +263,7 @@
       ],
       "requiredTokens": []
     },
-    "description": "Show shared state in classes",
+    "description": "Demonstrate reference semantics: modify a class instance through one variable and observe that the change is reflected in all variables pointing to that same instance, unlike the independent copies created by structs.",
     "expectedOutput": "3",
     "fixtureFiles": [],
     "hints": [
@@ -321,7 +321,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Classes (Reference Types)\n- Definition: class Name { var property: Type; init(...) { ... } }\n- Reference Semantics: Multiple variables can point to the same instance\n- Identity: Use === to check if two variables point to the same instance\n- Initializers: Unlike structs, classes DO NOT get a memberwise initializer automatically\n- Deinit: A deinitializer runs when the last reference to an instance is released\n- Inheritance: Classes can inherit from other classes (subclassing)",
+    "cheatsheet": "Classes vs. Structs\n- Value Types (Structs): Copied on assignment. Changing one doesn't affect others.\n- Reference Types (Classes): Shared on assignment. Changing one affects all references.\n- Use Structs for: Simple data, independent records, immutable history.\n- Use Classes for: Shared state, physical resources, identity-based systems.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -332,25 +332,28 @@
       ],
       "requiredTokens": []
     },
-    "description": "Choose the right type",
-    "expectedOutput": "Batch-A\nOnline",
+    "description": "Evaluate technical requirements to choose between Value Semantics (struct) and Reference Semantics (class). Ensure historical records remain immutable while shared resources remain synchronized.",
+    "expectedOutput": "Log 1: 1000\nSwitch A: true",
     "fixtureFiles": [],
     "hints": [
-      "Use a struct for independent values and a class for shared state.",
-      "The 'Tag' should be a struct because it represents a simple value.",
-      "The 'ForgeController' should be a class because it might be shared across the system."
+      "If you modify a copy and want the original to stay the same, you need a value type (struct).",
+      "If you want multiple variables to stay in sync when one changes, you need a reference type (class).",
+      "Structs get a free 'memberwise initializer', but classes do not. You must write 'init(isOn: Bool) { self.isOn = isOn }' inside your PowerSwitch class."
     ],
     "id": "",
-    "introduces": [],
+    "introduces": [
+      "structs",
+      "classes"
+    ],
     "layer": "mantle",
-    "lesson": "Lesson: Classes\nClasses are 'reference types'. When you assign a class instance to a new variable, both variables point to the same object in memory.\n\nKey Differences from Structs:\n1. Reference Semantics: Changing a property through one reference affects all other references to that same instance.\n2. Mandatory Initializers: You must provide an 'init' method if your properties don't have default values.\n3. Identity vs. Equality: Use '==' for value equality and '===' for reference identity.\n4. Lifetime: Classes use Automatic Reference Counting (ARC) to determine when they should be destroyed.\n\nExample:\n    class Bellows {\n        var power: Int\n        init(power: Int) { self.power = power }\n    }\n    let p1 = Bellows(power: 1)\n    let p2 = p1\n    p2.power = 10 // p1.power is now also 10\n\nWhen to Use:\n- Use classes when you need shared mutable state or identity.\n- Use classes for inheritance or when you need to perform cleanup on deinit.",
+    "lesson": "Lesson: Choosing Your Type\nThe choice between a 'struct' and a 'class' is a choice between 'copying' and 'sharing'.\n\n1. Value Semantics (Structs):\n   When you assign a struct to a new variable, Swift makes a full copy. This is ideal for things like historical logs, where the state at a specific point in time should never be accidentally changed by later logic.\n\n2. Reference Semantics (Classes):\n   When you assign a class instance, both variables point to the exact same memory address. This is ideal for shared resources like a power switch or a database connection, where every part of the system must see the same 'truth'.\n\nExample:\n    // Shared State (Class)\n    let a = Resource()\n    let b = a\n    b.active = true // 'a' is also true\n\n    // Independent State (Struct)\n    var x = Record()\n    var y = x\n    y.data = \"New\" // 'x' is still \"Old\"",
     "manualCheck": false,
     "number": 133,
     "requires": [],
-    "solution": "struct Tag {\n    var label: String\n}\n\nclass ForgeController {\n    var status: String\n    init(status: String) {\n        self.status = status\n    }\n}\n\nlet tag = Tag(label: \"Batch-A\")\nlet controller = ForgeController(status: \"Online\")\nprint(tag.label)\nprint(controller.status)",
-    "starterCode": "// Challenge 133: Struct vs Class\n// Decide which type fits the scenario.\n\n// TODO: Create a struct for a simple 'Tag' (value type)\n// TODO: Create a class for a shared 'ForgeController' (reference type)\n// TODO: Print one property from each",
+    "solution": "struct TemperatureLog {\n    var temp: Int\n}\n\nclass PowerSwitch {\n    var isOn: Bool\n    init(isOn: Bool) {\n        self.isOn = isOn\n    }\n}\n\nvar log1 = TemperatureLog(temp: 1000)\nvar log2 = log1\nlog2.temp = 2000 \n\nlet switchA = PowerSwitch(isOn: false)\nlet switchB = switchA\nswitchB.isOn = true\n\nprint(\"Log 1: \\(log1.temp)\")\nprint(\"Switch A: \\(switchA.isOn)\")",
+    "starterCode": "// Challenge 133: Struct vs. Class\n// Apply your understanding of Value Semantics and Reference Semantics.\n\n// TODO: Define 'TemperatureLog'. \n// REQUIREMENT: It represents a historical record. If you copy a log entry \n// and modify the copy, the original record MUST remain unchanged.\n// (Property: 'temp: Int')\n\n\n// TODO: Define 'PowerSwitch'. \n// REQUIREMENT: It represents a physical shared resource. If multiple \n// variables point to the switch, flipping one must flip them all.\n// (Property: 'isOn: Bool')\n\n\n// --- TEST LOGIC ---\n// (Do not change the logic below, but ensure your types make it pass)\n\nvar log1 = TemperatureLog(temp: 1000)\nvar log2 = log1\nlog2.temp = 2000 \n\nlet switchA = PowerSwitch(isOn: false)\nlet switchB = switchA\nswitchB.isOn = true\n\nprint(\"Log 1: \\(log1.temp)\")\nprint(\"Switch A: \\(switchA.isOn)\")",
     "tier": "mainline",
-    "title": "Struct vs Class",
+    "title": "Struct vs. Class",
     "topic": "classes"
   },
   {
