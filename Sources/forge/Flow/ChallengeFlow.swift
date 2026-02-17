@@ -18,6 +18,7 @@ func challengePromptText(for challenge: Challenge, filePath: String) -> String {
         \(prereqBlock)
         \(checkMessage)
         Type 'h' for a hint, 'c' for a cheatsheet, 'l' for a lesson, or 's' for the solution.
+        For quick code testing, use `forge_playground.playground` in `workspace/`.
         Viewing the solution may queue practice when adaptive is enabled.
         """
 }

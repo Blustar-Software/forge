@@ -101,7 +101,20 @@ Forge generates files in these folders:
 - `workspace_random/` → random mode
 - `workspace_projects/` → projects
 
-You only edit the file Forge tells you to edit.
+### 5.1) Using the Playground (`forge_playground.playground`)
+You can use `forge_playground.playground` located in your `workspace/` directory to quickly test Swift code snippets outside the current challenge. This is useful for:
+- Experimenting with new syntax.
+- Testing assumptions without affecting your challenge file.
+- Trying out different approaches before committing to your solution.
+
+To use it:
+1.  Open `workspace/forge_playground.playground` in Xcode.
+2.  Type your Swift code in the playground.
+3.  View instant results in the Xcode results area.
+
+Note: Changes to this playground do not affect your challenge progress and it won't be overwritten by Forge.
+
+---
 
 ---
 

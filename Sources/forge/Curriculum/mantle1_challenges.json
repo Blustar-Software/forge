@@ -358,7 +358,7 @@
   },
   {
     "canonicalId": "",
-    "cheatsheet": "Properties\n- Stored Properties: Hold values directly.\n- Computed Properties: Do not store a value; instead, they provide a getter and an optional setter to calculate other properties indirectly.\n- Property Observers: 'willSet' (runs before) and 'didSet' (runs after) a property changes.\n- Lazy Properties: Initialized only when first accessed; must be 'var'.\n- Static Properties: Shared across all instances of the type.",
+    "cheatsheet": "Properties\n- Stored Properties: Hold values directly.\n- Computed Properties: Provide a getter (get) to derive a value and a setter (set) to update other state. They act as a 'view' of your data.\n- newValue: The implicit parameter name for the value being passed into a setter.\n- read-only: A computed property with only a 'get' block.",
     "constraintProfile": {
       "allowConcurrency": false,
       "allowFileIO": false,
@@ -369,23 +369,24 @@
       ],
       "requiredTokens": []
     },
-    "description": "Add a computed property",
-    "expectedOutput": "5",
+    "description": "Create a two-way interface using a computed property. You will bridge raw 'pressure' units to a user-friendly 'bars' unit, ensuring that changing the bars correctly calculates and updates the internal raw pressure.",
+    "expectedOutput": "Initial Bars: 5\nFinal Internal Pressure: 120",
     "fixtureFiles": [],
     "hints": [
-      "Computed properties can translate values in get/set.",
-      "The 'get' block should return 'force * 2'.",
-      "The 'set' block should update 'force' using 'newValue / 2'."
+      "The 'get' block handles reading: divide raw pressure by 10 to show bars.",
+      "The 'set' block handles writing: multiply the incoming 'newValue' (bars) by 10 to update raw pressure.",
+      "We initialize with 50 units so you can verify that 'bars' starts at 5 before you change it.",
+      "Computed properties must use 'var' because their value is calculated dynamically."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Properties\nProperties associate values with a particular class, structure, or enumeration.\n\nTypes of Properties:\n1. Stored Properties: Store constant and variable values as part of an instance.\n2. Computed Properties: Calculate (rather than store) a value. They use 'get' for reading and 'set' for writing.\n3. Observers: React to changes in a property's value. Useful for UI updates or logging.\n4. Lazy: Useful for properties whose initial values are expensive to compute or depend on external factors.\n\nExample of Computed Property:\n    struct Square {\n        var side: Int\n        var area: Int {\n            get { return side * side }\n            set { side = Int(Double(newValue).squareRoot()) }\n        }\n    }\n\nBest Practices:\n- Use computed properties for values that can be derived from other state.\n- Keep property observers lightweight.",
+    "lesson": "Lesson: The Two-Way Interface\nComputed properties are more than just 'functions that look like variables'. They allow you to create a 'two-way bridge' between your raw data and the way users interact with it.\n\nKey Concepts:\n1. The Getter (get):\n   Calculates a value on the fly. It doesn't store anything, it just returns a result based on existing state.\n\n2. The Setter (set):\n   Allows you to write to the property. When you do, Swift provides 'newValue'. You use this value to calculate and update your stored properties.\n\nWhy the Initial Value?\nIn this challenge, we set 'pressure' to 50 first. This allows us to verify that our 'get' logic works (showing 5 bars) before we test the 'set' logic by changing the value.\n\nExample:\n    struct Temperature {\n        var celsius: Double\n        var fahrenheit: Double {\n            get { (celsius * 9/5) + 32 }\n            set { celsius = (newValue - 32) * 5/9 }\n        }\n    }\n\nBy using get/set, you ensure that 'celsius' and 'fahrenheit' are always in sync, no matter which one you update.",
     "manualCheck": false,
     "number": 134,
     "requires": [],
-    "solution": "struct Press {\n    var force: Int\n\n    var doubleForce: Int {\n        get { force * 2 }\n        set { force = newValue / 2 }\n    }\n}\n\nvar press = Press(force: 2)\npress.doubleForce = 10\nprint(press.force)",
-    "starterCode": "// Challenge 134: Computed Property\n// Use get/set on a computed property.\n\nstruct Press {\n    var force: Int\n    // TODO: Add computed property 'doubleForce' with get/set\n}\n\nvar press = Press(force: 2)\n// TODO: Set 'press.doubleForce' to 10\n// TODO: Print 'press.force'",
+    "solution": "struct ForgePress {\n    var pressure: Int\n\n    var bars: Int {\n        get {\n            return pressure / 10\n        }\n        set {\n            pressure = newValue * 10\n        }\n    }\n}\n\nvar press = ForgePress(pressure: 50)\nprint(\"Initial Bars: \\(press.bars)\")\npress.bars = 12\nprint(\"Final Internal Pressure: \\(press.pressure)\")",
+    "starterCode": "// Challenge 134: Computed Property\n// Create a two-way unit converter.\n\nstruct ForgePress {\n    var pressure: Int // Internal raw units\n\n    // TODO: Add a computed property 'bars' (Int)\n    // GETTER: Return pressure / 10 (10 units = 1 bar)\n    // SETTER: Set pressure to newValue * 10\n}\n\n// We start with 50 raw units to verify the getter works.\nvar press = ForgePress(pressure: 50)\n\n// TODO: Print \"Initial Bars: <value>\"\n\n// Now we use the 'bars' interface to update the system.\n// TODO: Set 'press.bars' to 12\n\n// TODO: Print \"Final Internal Pressure: <value>\"",
     "tier": "mainline",
     "title": "Computed Property",
     "topic": "properties"
