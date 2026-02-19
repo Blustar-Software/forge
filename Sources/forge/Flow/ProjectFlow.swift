@@ -15,7 +15,7 @@ func loadProject(_ project: Project, workspacePath: String = "workspace") -> Str
 
         This project is checked against expected outputs. Build something that works!
         Press Enter to check your work.
-        Type 'h' for a hint, 'c' for a cheatsheet, 'l' for a lesson, or 's' for the solution.
+        Type 'h' for a hint, 'c' for a cheatsheet, 'l' for a lesson, 't' for AI tutor, or 's' for the solution.
         Viewing the solution is allowed.
         """)
     return filePath
@@ -24,19 +24,25 @@ func loadProject(_ project: Project, workspacePath: String = "workspace") -> Str
 func validateProject(
     _ project: Project,
     workspacePath: String = "workspace",
-    assistedPass: Bool = false
+    assistedPass: Bool = false,
+    diagnosticOutput: inout String?
 ) -> Bool {
     let filePath = "\(workspacePath)/\(project.filename)"
 
     let start = Date()
     let runResult = runSwiftProcess(file: filePath)
     if runResult.exitCode != 0 {
+        var fullMsg = ""
         let errorOutput = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
         if !errorOutput.isEmpty {
             print(errorOutput)
             print("")
+            fullMsg += errorOutput + "\n\n"
         }
-        print("✗ Compile/runtime error. Check your code.")
+        let endMsg = "✗ Compile/runtime error. Check your code."
+        print(endMsg)
+        fullMsg += endMsg
+        diagnosticOutput = fullMsg
         logEvent(
             "project_attempt",
             fields: ["id": project.id, "result": "compile_fail"],
@@ -52,7 +58,9 @@ func validateProject(
     
     // Check if all test cases pass
     guard outputLines.count == project.testCases.count else {
-        print("✗ Expected \(project.testCases.count) outputs, got \(outputLines.count)")
+        let msg = "✗ Expected \(project.testCases.count) outputs, got \(outputLines.count)"
+        print(msg)
+        diagnosticOutput = msg
         logEvent(
             "project_attempt",
             fields: ["id": project.id, "result": "line_count_mismatch"],
@@ -68,14 +76,15 @@ func validateProject(
     
     var allPassed = true
     var failedCount = 0
+    var fullMsg = ""
     for (index, testCase) in project.testCases.enumerated() {
         let expected = testCase.expectedOutput.trimmingCharacters(in: .whitespacesAndNewlines)
         let actual = outputLines[index].trimmingCharacters(in: .whitespacesAndNewlines)
         
         if actual != expected {
-            print("✗ Test \(index + 1) failed")
-            print("  expected: \(expected)")
-            print("       got: \(actual)")
+            let msg = "✗ Test \(index + 1) failed\n  expected: \(expected)\n       got: \(actual)"
+            print(msg)
+            fullMsg += msg + "\n"
             allPassed = false
             failedCount += 1
         }
@@ -95,6 +104,7 @@ func validateProject(
         return true
     } else {
         print("✗ Some tests failed. Keep working!")
+        diagnosticOutput = fullMsg
         logEvent(
             "project_attempt",
             fields: ["id": project.id, "result": "fail"],
@@ -154,6 +164,9 @@ func runProject(
 
     var hintIndex = 0
     var solutionViewedBeforePass = false
+    var lastDiagnostics: String? = nil
+    var tutorSession: TutorSession? = nil
+
     while true {
         print("> ", terminator: "")
         let input = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
@@ -183,6 +196,18 @@ func runProject(
 
         if input == "l" {
             showLesson(for: project)
+            continue
+        }
+
+        if input == "t" {
+            if tutorSession == nil {
+                tutorSession = TutorSession(subject: project, workspacePath: workspacePath, lastDiagnostics: lastDiagnostics)
+            } else {
+                let prevModel = tutorSession?.selectedModel
+                tutorSession = TutorSession(subject: project, workspacePath: workspacePath, lastDiagnostics: lastDiagnostics)
+                tutorSession?.selectedModel = prevModel
+            }
+            tutorSession?.start()
             continue
         }
 
@@ -218,7 +243,7 @@ func runProject(
         }
 
         if !input.isEmpty {
-            print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 'l' for lesson, 's' for solution.\n")
+            print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 'l' for lesson, 't' for AI tutor, 's' for solution.\n")
             continue
         }
 
@@ -228,7 +253,7 @@ func runProject(
 
         print("\n--- Testing your project... ---\n")
 
-        if validateProject(project, workspacePath: workspacePath, assistedPass: solutionViewedBeforePass) {
+        if validateProject(project, workspacePath: workspacePath, assistedPass: solutionViewedBeforePass, diagnosticOutput: &lastDiagnostics) {
             sleep(2)
             return true
         }

@@ -1,5 +1,15 @@
 import Foundation
 
+protocol Tutorable {
+    var title: String { get }
+    var description: String { get }
+    var filename: String { get }
+    var hints: [String] { get }
+    var cheatsheet: String { get }
+    var lesson: String { get }
+    var solution: String { get }
+}
+
 enum ChallengeTopic: String, Codable {
     case general
     case conditionals
@@ -168,7 +178,7 @@ struct ConstraintProfile: Codable {
 }
 
 // Centralized challenge definitions for the CLI flow.
-struct Challenge: Codable {
+struct Challenge: Codable, Tutorable {
     let number: Int
     let id: String
     let title: String
@@ -339,7 +349,7 @@ struct ProjectTestCase: Codable {
     let expectedOutput: String
 }
 
-struct Project: Codable {
+struct Project: Codable, Tutorable {
     let id: String
     let pass: Int
     let title: String

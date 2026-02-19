@@ -495,6 +495,7 @@ func runPracticeChallenges(
     finishPrompt: String = "Press Enter to finish.\n"
 ) {
     var completedFiles: [String] = []
+    var tutorSession: TutorSession? = nil
 
     for (index, challenge) in challenges.enumerated() {
         clearScreen()
@@ -502,7 +503,7 @@ func runPracticeChallenges(
         var hintIndex = 0
         var challengeComplete = false
         var solutionViewedBeforePass = false
-        var sourceForDiagnostics: String? = nil
+        var lastDiagnostics: String? = nil
         let missingPrereqs = missingPrerequisites(for: challenge, index: constraintIndex)
         let missingPrereqNames = missingPrereqs.map(constraintConceptName).joined(separator: ", ")
 
@@ -538,6 +539,18 @@ func runPracticeChallenges(
                 continue
             }
 
+            if input == "t" {
+                if tutorSession == nil {
+                    tutorSession = TutorSession(subject: challenge, workspacePath: workspacePath, lastDiagnostics: lastDiagnostics)
+                } else {
+                    let prevModel = tutorSession?.selectedModel
+                    tutorSession = TutorSession(subject: challenge, workspacePath: workspacePath, lastDiagnostics: lastDiagnostics)
+                    tutorSession?.selectedModel = prevModel
+                }
+                tutorSession?.start()
+                continue
+            }
+
             if input == "s" {
                 let solution = challenge.solution.trimmingCharacters(in: .whitespacesAndNewlines)
                 if solution.isEmpty {
@@ -570,7 +583,7 @@ func runPracticeChallenges(
             }
 
             if !input.isEmpty {
-                print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 'l' for lesson, 's' for solution.\n")
+                print("Unknown command. Press Enter to check, 'h' for hint, 'c' for cheatsheet, 'l' for lesson, 't' for AI tutor, 's' for solution.\n")
                 continue
             }
 
@@ -585,120 +598,26 @@ func runPracticeChallenges(
 
             if challenge.manualCheck {
                 print("\n--- Manual check ---\n")
-                print("Manual check: forge does not auto-validate this challenge.")
-                print("✓ Challenge marked complete.\n")
-                recordConstraintMastery(topic: challenge.topic, hadWarnings: false, passed: true, workspacePath: statsWorkspacePath)
-                let result = solutionViewedBeforePass ? "pass_assisted" : "manual_pass"
-                recordAdaptiveStat(topic: challenge.topic, result: result, workspacePath: statsWorkspacePath)
-                recordAdaptiveChallengeStat(challenge: challenge, result: result, workspacePath: statsWorkspacePath)
-                logEvent(
-                    "challenge_manual_complete",
-                    fields: ["id": challenge.displayId, "mode": "random", "result": result],
-                    intFields: ["number": layerIndex(for: challenge)],
-                    workspacePath: statsWorkspacePath
-                )
-                completedFiles.append("\(workspacePath)/\(challenge.filename)")
-                challengeComplete = true
             } else {
                 print("\n--- Testing your code... ---\n")
-                let filePath = "\(workspacePath)/\(challenge.filename)"
-                var hadWarnings = false
-                if let source = try? String(contentsOfFile: filePath, encoding: .utf8) {
-                    sourceForDiagnostics = source
-                    let violations = constraintViolations(
-                        for: source,
-                        challenge: challenge,
-                        enabled: enableConstraintProfiles,
-                        index: constraintIndex
-                    )
-                    if !violations.isEmpty {
-                        for violation in violations {
-                            print(violation)
-                        }
-                        print("\n✗ Constraint violation. Fix and retry.")
-                        logConstraintViolation(challenge, mode: "random", workspacePath: statsWorkspacePath)
-                        continue
-                    }
-                    let warnings = constraintWarnings(
-                        for: source,
-                        challenge: challenge,
-                        index: constraintIndex,
-                        enableDiMockHeuristics: enableDiMockHeuristics
-                    )
-                    if !warnings.isEmpty {
-                        hadWarnings = true
-                        for warning in warnings {
-                            print(warning)
-                        }
-                        print("")
-                        if effectiveConstraintEnforcement(for: challenge.topic, enforceConstraints: enforceConstraints, workspacePath: statsWorkspacePath) {
-                            print("✗ Constraint violation. Remove early concepts and retry.")
-                            continue
-                        }
-                    }
-                }
-                let start = Date()
-                let (stdin, args, copiedFixturePaths) = prepareChallengeEnvironment(challenge, workspacePath: workspacePath)
-                let runResult = runSwiftProcess(file: filePath, arguments: args, stdin: stdin)
-                if runResult.exitCode != 0 {
-                    let errorOutput = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if !errorOutput.isEmpty {
-                        print(errorOutput)
-                        print("")
-                    }
-                    print("✗ Compile/runtime error. Check your code.")
-                    recordAdaptiveStat(topic: challenge.topic, result: "compile_fail", workspacePath: statsWorkspacePath)
-                    recordAdaptiveChallengeStat(challenge: challenge, result: "compile_fail", workspacePath: statsWorkspacePath)
-                    logEvent(
-                        "challenge_attempt",
-                        fields: ["id": challenge.displayId, "result": "compile_fail", "mode": "random"],
-                        intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
-                        workspacePath: statsWorkspacePath
-                    )
-                    continue
-                }
-                let output = runResult.output.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
 
-                if validateOutputLines(output: output, expected: challenge.expectedOutput) {
-                    print("Output:\n\(output)\n")
-                    let completionLabel = solutionViewedBeforePass
-                        ? "✓ Challenge Complete! (assisted)\n"
-                        : "✓ Challenge Complete! Well done.\n"
-                    print(completionLabel)
-                    recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: true, workspacePath: statsWorkspacePath)
-                    let result = solutionViewedBeforePass ? "pass_assisted" : "pass"
-                    recordAdaptiveStat(topic: challenge.topic, result: result, workspacePath: statsWorkspacePath)
-                    recordAdaptiveChallengeStat(challenge: challenge, result: result, workspacePath: statsWorkspacePath)
-                    logEvent(
-                        "challenge_attempt",
-                        fields: ["id": challenge.displayId, "result": result, "mode": "random"],
-                        intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
-                        workspacePath: statsWorkspacePath
-                    )
-                    removePreparedFixtureFiles(copiedFixturePaths)
-                    completedFiles.append("\(workspacePath)/\(challenge.filename)")
-                    challengeComplete = true
-                } else {
-                    print("✗ Output doesn't match.")
-                    let diagnostics = diagnosticsForMismatch(
-                        DiagnosticContext(
-                            challenge: challenge,
-                            output: output,
-                            expected: challenge.expectedOutput,
-                            source: sourceForDiagnostics
-                        )
-                    )
-                    printDiagnostics(diagnostics)
-                    recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: false, workspacePath: statsWorkspacePath)
-                    recordAdaptiveStat(topic: challenge.topic, result: "fail", workspacePath: statsWorkspacePath)
-                    recordAdaptiveChallengeStat(challenge: challenge, result: "fail", workspacePath: statsWorkspacePath)
-                    logEvent(
-                        "challenge_attempt",
-                        fields: ["id": challenge.displayId, "result": "fail", "mode": "random"],
-                        intFields: ["number": layerIndex(for: challenge), "seconds": Int(Date().timeIntervalSince(start))],
-                        workspacePath: statsWorkspacePath
-                    )
-                }
+            let didPass = validateChallenge(
+                challenge,
+                nextStepIndex: 0,
+                workspacePath: workspacePath,
+                statsWorkspacePath: statsWorkspacePath,
+                constraintIndex: constraintIndex,
+                enableConstraintProfiles: enableConstraintProfiles,
+                enforceConstraints: enforceConstraints,
+                enableDiMockHeuristics: enableDiMockHeuristics,
+                assistedPass: solutionViewedBeforePass,
+                saveProgressOnPass: false,
+                diagnosticOutput: &lastDiagnostics
+            )
+            if didPass {
+                completedFiles.append("\(workspacePath)/\(challenge.filename)")
+                challengeComplete = true
             }
         }
 

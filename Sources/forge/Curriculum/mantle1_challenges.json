@@ -170,7 +170,7 @@
       "mutatingMethods"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Structs\nStructs are the building blocks of most Swift programs. They are 'value types', meaning they are copied when passed around.\n\nCore Concepts:\n1. Definition: Use the 'struct' keyword. Properties are variables or constants defined inside.\n2. Memberwise Initializer: Swift automatically provides an initializer based on your properties.\n3. Value Semantics: When you assign a struct to a new variable, you get a copy. Changes to the copy don't affect the original.\n4. Mutability: If you want to change a struct's properties, the instance itself must be declared with 'var'.\n\nExample:\n    struct ForgeItem {\n        var name: String\n        var weight: Int\n    }\n    var item = ForgeItem(name: \"Iron\", weight: 5)\n    item.weight = 10 // Only works because 'item' is var\n\nBest Practices:\n- Use structs for simple data models.\n- Favor immutability (let) whenever possible.",
+    "lesson": "Lesson: Mutating Methods\nBy default, the properties of a value type (like a struct) cannot be modified from within its instance methods.\n\nTo modify the properties of your struct within a method, you must opt in to 'mutating' behavior for that method. The method can then change its properties from within the method, and any changes it makes are written back to the original structure when the method ends.\n\nKey rules:\n1. Add the 'mutating' keyword before 'func'.\n2. You can only call mutating methods on instances declared with 'var'.\n\nExample:\n    struct Point {\n        var x = 0.0, y = 0.0\n        mutating func moveBy(x deltaX: Double, y deltaY: Double) {\n            x += deltaX\n            y += deltaY\n        }\n    }",
     "manualCheck": false,
     "number": 128,
     "requires": [],
@@ -204,7 +204,7 @@
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Structs\nStructs are the building blocks of most Swift programs. They are 'value types', meaning they are copied when passed around.\n\nCore Concepts:\n1. Definition: Use the 'struct' keyword. Properties are variables or constants defined inside.\n2. Memberwise Initializer: Swift automatically provides an initializer based on your properties.\n3. Value Semantics: When you assign a struct to a new variable, you get a copy. Changes to the copy don't affect the original.\n4. Mutability: If you want to change a struct's properties, the instance itself must be declared with 'var'.\n\nExample:\n    struct ForgeItem {\n        var name: String\n        var weight: Int\n    }\n    var item = ForgeItem(name: \"Iron\", weight: 5)\n    item.weight = 10 // Only works because 'item' is var\n\nBest Practices:\n- Use structs for simple data models.\n- Favor immutability (let) whenever possible.",
+    "lesson": "Lesson: Value Semantics (Structs)\nStructs are 'value types'. A value type is a type whose value is copied when it’s assigned to a variable or constant, or when it’s passed to a function.\n\nIn Swift, all of the basic types—integers, floating-point numbers, Booleans, strings, arrays and dictionaries—are value types, and are implemented as structures behind the scenes.\n\nKey Concepts:\n1. Copying: When you assign one struct to another, a completely new and independent copy is made.\n2. Independence: Changing a property on the copy does NOT affect the original instance.\n\nExample:\n    var a = 5\n    var b = a\n    b = 10\n    print(a) // Still 5\n    print(b) // Now 10",
     "manualCheck": false,
     "number": 129,
     "requires": [],

@@ -15,6 +15,7 @@ struct RuntimeContext {
 }
 
 func bootstrapRuntime(gatePasses: Int, gateCount: Int) -> RuntimeContext {
+    clearPlayground()
     let sets = buildChallengeSets()
     let projects = makeProjects()
     let allChallenges = sets.allChallenges
