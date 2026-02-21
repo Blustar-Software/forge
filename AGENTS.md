@@ -23,6 +23,7 @@
 - `swift run forge catalog`: prints a challenge catalog map and writes `challenge_catalog.txt`.
 - `swift run forge catalog-projects`: prints a project catalog map and writes `project_catalog.txt`.
 - `scripts/check.sh`: runs the automated checks (`swift test`).
+- Run scripts in `scripts/` as shell scripts: `./scripts/<name>.sh` (preferred) or `sh scripts/<name>.sh` (do not use `swift scripts/<name>.sh`).
 
 ## Coding Style & Naming Conventions
 - Use Swift’s standard formatting with 4-space indentation and a line length that keeps code readable.

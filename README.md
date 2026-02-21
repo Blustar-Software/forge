@@ -205,8 +205,15 @@ To clear stats and the performance log, use `swift run forge stats --reset-all`.
 ## Constraint smoke checks
 Use `scripts/constraints_check.sh` to run a constraint-only sweep for core, mantle, and crust.
 
+## Running scripts
+Run shell scripts in `scripts/` from the repo root with either:
+- `./scripts/<name>.sh` (preferred)
+- `sh scripts/<name>.sh`
+
+Do not run shell scripts with `swift` (for example, `swift scripts/check.sh`), because Swift will try to parse shell syntax as Swift code.
+
 ## Testing commands
-- `scripts/check.sh` runs `swift test` and does not touch `workspace/` (no stats/progress reset).
+- `scripts/check.sh` runs `swift test`; if it detects a stale Swift module cache path mismatch, it clears `.build/` and retries once automatically. It does not touch `workspace/` (no stats/progress reset).
 
 ## Progress shortcuts
 You can set `workspace/.progress` manually to jump ahead.
