@@ -12,7 +12,7 @@
       ],
       "requiredTokens": []
     },
-    "description": "Use willSet and didSet",
+    "description": "Use willSet and didSet to print `Will set to <newValue>` before a change and `Did set from <oldValue>` after a change.",
     "expectedOutput": "Will set to 2\nDid set from 1",
     "fixtureFiles": [],
     "hints": [
@@ -23,7 +23,7 @@
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Property Observers\nProperty observers observe and respond to changes in a property's value. They are called every time a property's value is set, even if the new value is the same as the property's current value.\n\nTwo types of observers:\n1. 'willSet' is called just before the value is stored. Swift provides the new value as a constant parameter named 'newValue'.\n2. 'didSet' is called immediately after the new value is stored. Swift provides the old value as a constant parameter named 'oldValue'.\n\nExample:\n    var status: String = \"Idle\" {\n        willSet { print(\"About to change to \\(newValue)\") }\n        didSet { print(\"Changed from \\(oldValue)\") }\n    }\n\nNote: Observers are not called when a property is first initialized.",
+    "lesson": "Lesson: Property Observers\nProperty observers observe and respond to changes in a property's value. They are called every time a property's value is set, even if the new value is the same as the property's current value.\n\nTwo types of observers:\n1. 'willSet' is called just before the value is stored. Swift provides the new value as a constant parameter named 'newValue'.\n2. 'didSet' is called immediately after the new value is stored. Swift provides the old value as a constant parameter named 'oldValue'.\n\nExample:\n    var status: String = \"Idle\" {\n        willSet { print(\"Will set to \\(newValue)\") }\n        didSet { print(\"Did set from \\(oldValue)\") }\n    }\n\nNote: Observers are not called when a property is first initialized.",
     "manualCheck": false,
     "number": 135,
     "requires": [],
