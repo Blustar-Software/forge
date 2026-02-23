@@ -1,6 +1,11 @@
 // forge.swift
 
 import Foundation
+#if canImport(Darwin)
+import Darwin
+#elseif canImport(Glibc)
+import Glibc
+#endif
 
 enum Step {
     case challenge(Challenge)
@@ -1004,15 +1009,41 @@ func lessonText(for challenge: Challenge) -> String? {
     return explicit.isEmpty ? nil : explicit
 }
 
+func lessonRenderWidth(defaultWidth: Int = 78) -> Int {
+    let minWidth = 40
+
+    if let envColumns = ProcessInfo.processInfo.environment["COLUMNS"],
+       let value = Int(envColumns),
+       value > 0
+    {
+        return max(minWidth, min(defaultWidth, value - 1))
+    }
+
+    if isatty(STDOUT_FILENO) != 0 {
+        var size = winsize()
+        if ioctl(STDOUT_FILENO, UInt(TIOCGWINSZ), &size) == 0, size.ws_col > 0 {
+            let columns = Int(size.ws_col)
+            return max(minWidth, min(defaultWidth, columns - 1))
+        }
+    }
+
+    return defaultWidth
+}
+
 func renderLessonManPage(title: String, synopsis: String, lesson: String, width: Int = 78) -> [String] {
     func normalizeLessonText(_ lesson: String, title: String) -> String {
         var text = lesson.trimmingCharacters(in: .whitespacesAndNewlines)
+        var removedLessonPrefix = false
         let lowercased = text.lowercased()
         if lowercased.hasPrefix("lesson:") {
             let startIndex = text.index(text.startIndex, offsetBy: "lesson:".count)
             text = String(text[startIndex...]).trimmingCharacters(in: .whitespacesAndNewlines)
+            removedLessonPrefix = true
         }
         let lines = text.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        if removedLessonPrefix, lines.count >= 2 {
+            text = lines.dropFirst().joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+        } else
         if let firstLine = lines.first,
             firstLine.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == title.lowercased()
         {
@@ -1199,7 +1230,8 @@ func showLesson(for challenge: Challenge) {
         print("Lesson not available yet.\n")
         return
     }
-    let lines = renderLessonManPage(title: challenge.title, synopsis: challenge.topic.rawValue, lesson: lesson)
+    let width = lessonRenderWidth()
+    let lines = renderLessonManPage(title: challenge.title, synopsis: challenge.topic.rawValue, lesson: lesson, width: width)
     pageLines(lines)
     print("")
 }
@@ -1210,7 +1242,8 @@ func showLesson(for project: Project) {
         print("Lesson not available yet.\n")
         return
     }
-    let lines = renderLessonManPage(title: project.title, synopsis: "project", lesson: lesson)
+    let width = lessonRenderWidth()
+    let lines = renderLessonManPage(title: project.title, synopsis: "project", lesson: lesson, width: width)
     pageLines(lines)
     print("")
 }
