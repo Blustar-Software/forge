@@ -588,6 +588,13 @@ final class ForgeTests: XCTestCase {
             XCTFail("Expected project command")
         }
 
+        switch parseTopLevelCommand(["tutor"]) {
+        case .tutor(let args):
+            XCTAssertTrue(args.isEmpty)
+        default:
+            XCTFail("Expected tutor command")
+        }
+
         switch parseTopLevelCommand(["state-export", "forge_state.json"]) {
         case .stateExport(let args):
             XCTAssertEqual(args, ["forge_state.json"])

@@ -1488,6 +1488,9 @@ struct Forge {
         case .help:
             printMainUsage()
             return
+        case .tutor(let commandArgs):
+            handleTutorCommand(commandArgs)
+            return
         case .reset(let resetArgs):
             let startAfterReset = handleResetCommand(resetArgs)
             if !startAfterReset {
@@ -1507,6 +1510,8 @@ struct Forge {
 
         switch command {
         case .help:
+            return
+        case .tutor:
             return
         case .reset:
             handleRunCommand(overrideToken: nil, runtime: runtime, paths: paths, flags: flags)

@@ -65,10 +65,12 @@ func resetProgress(workspacePath: String = "workspace", removeAll: Bool = false,
     let progressFile = progressFilePath(workspacePath: workspacePath)
     let fileManager = FileManager.default
     let stageGateFile = stageGateFilePath(workspacePath: workspacePath)
+    let tutorSessionFile = tutorBridgeSessionPath(workspacePath: workspacePath)
     
     // Delete progress file
     try? fileManager.removeItem(atPath: progressFile)
     try? fileManager.removeItem(atPath: stageGateFile)
+    try? fileManager.removeItem(atPath: tutorSessionFile)
     
     resetWorkspaceContents(at: workspacePath, removeAll: removeAll)
     setupWorkspace(at: "workspace_random")

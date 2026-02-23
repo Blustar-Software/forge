@@ -72,8 +72,31 @@ forge
 ```sh
 swift run forge
 ```
-When prompted, press Enter to check your work. Type `h` for a hint, `c` for a cheatsheet, `l` for a lesson, or `s` for a solution (challenges and projects).
+When prompted, press Enter to check your work. Type `h` for a hint, `c` for a cheatsheet, `l` for a lesson, `t` for AI tutor, or `s` for a solution (challenges and projects).
 Use `swift run forge --help` for usage and `swift run forge <command> --help` for subcommands.
+
+## Tutor mode
+In an active challenge/project prompt, press `t` to open the built-in AI tutor.
+
+You can also attach Tutor from another terminal while your main Forge session is running:
+
+```sh
+swift run forge tutor
+```
+
+Behavior:
+- Tutor uses the current challenge/project context and follows changes automatically.
+- When you move to a different challenge/project, go back, or redo/repeat, Tutor clears and resets context to match.
+- Tutor exits automatically when the main Forge session stops.
+
+Prerequisites:
+- Ollama must be running at `http://localhost:11434`.
+- At least one local Ollama model must be available (for example: `ollama pull llama3`).
+
+Inside Tutor:
+- `model` sets/switches the AI model and saves it as your default for next sessions.
+- `reset` clears Tutor chat history for the current context.
+- `exit` leaves Tutor mode.
 
 Progress helpers:
 - `swift run forge progress <target>` sets `.progress` using a challenge/project/step target.
@@ -103,6 +126,7 @@ State synced by these commands:
 - `workspace/.pending_practice`
 - `workspace/.performance_log`
 - `workspace/.constraint_mastery`
+- `workspace/.tutor_model`
 
 Notes:
 - `state-export` and `state-import` default to `forge_state.json` if no path is provided.

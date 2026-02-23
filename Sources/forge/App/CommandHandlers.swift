@@ -165,6 +165,9 @@ func handlePracticeCommand(
     paths: CLIPaths,
     flags: GlobalFlags
 ) {
+    startTutorBridgeSession(workspacePath: "workspace")
+    defer { stopTutorBridgeSession(workspacePath: "workspace") }
+
     if args.first?.lowercased() == "help" || args.first == "--help" {
         printPracticeUsage()
         return
@@ -287,6 +290,9 @@ func handleRandomCommand(
     paths: CLIPaths,
     flags: GlobalFlags
 ) {
+    startTutorBridgeSession(workspacePath: "workspace")
+    defer { stopTutorBridgeSession(workspacePath: "workspace") }
+
     setupWorkspace(at: paths.practiceWorkspace)
     setupWorkspace(at: paths.projectWorkspace)
     clearWorkspaceContents(at: paths.practiceWorkspace)
@@ -344,6 +350,9 @@ func handleRandomCommand(
 }
 
 func handleProjectCommand(_ args: [String], projects: [Project], paths: CLIPaths, flags: GlobalFlags) {
+    startTutorBridgeSession(workspacePath: "workspace")
+    defer { stopTutorBridgeSession(workspacePath: "workspace") }
+
     setupWorkspace(at: paths.projectWorkspace)
     setupWorkspace(at: paths.practiceWorkspace)
     clearWorkspaceContents(at: paths.projectWorkspace)
@@ -583,6 +592,9 @@ func handleRunCommand(
     paths: CLIPaths,
     flags: GlobalFlags
 ) {
+    startTutorBridgeSession(workspacePath: "workspace")
+    defer { stopTutorBridgeSession(workspacePath: "workspace") }
+
     setupWorkspace()
     setupWorkspace(at: paths.practiceWorkspace)
     setupWorkspace(at: paths.projectWorkspace)

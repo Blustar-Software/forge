@@ -83,6 +83,7 @@ While you’re in a challenge:
 - `h` = hint
 - `c` = cheatsheet
 - `l` = lesson
+- `t` = AI tutor
 - `s` = solution (requires confirmation)
 
 After you pass:
@@ -136,10 +137,23 @@ To reset everything:
 swift run forge reset
 ```
 
-To reset **progress + stats**:
+To reset and also remove all generated files in workspace folders (including dotfiles):
 
 ```bash
 swift run forge reset --all
+```
+
+To reset and immediately start the flow again:
+
+```bash
+swift run forge reset --start
+```
+
+To clear stats:
+
+```bash
+swift run forge stats --reset
+swift run forge stats --reset-all
 ```
 
 ---
@@ -241,6 +255,35 @@ swift run forge project --random
 
 ---
 
+## 11.1) Tutor (Optional)
+The main way to open the tutor is from a challenge/project prompt by typing:
+
+```bash
+t
+```
+
+You can also run Tutor in another terminal while Forge is open:
+
+```bash
+swift run forge tutor
+```
+
+How it behaves:
+- Tutor follows your current challenge/project automatically.
+- If you move to another challenge, go back, or choose to redo/repeat, Tutor clears and resets to the new context.
+- If Forge stops, Tutor stops too.
+
+Requirements:
+- Ollama must be running (`http://localhost:11434`).
+- You need at least one local model (example: `ollama pull llama3`).
+
+Tutor commands:
+- `model` picks the AI model and remembers it for future sessions.
+- `reset` clears the current tutor chat.
+- `exit` closes Tutor mode.
+
+---
+
 ## 12) Common Problems (Quick Fixes)
 
 **“No such module ‘XCTest’”**
@@ -295,6 +338,24 @@ If you feel stuck:
 1. Run practice mode on the topic you’re failing.
 2. Use the lesson and cheatsheet.
 3. Repeat the challenge once you pass.
+
+---
+
+## 17) Advanced Command Index
+If you want deeper tooling beyond day-to-day challenge work:
+
+- `swift run forge stats` -> performance/adaptive summaries (`--reset`, `--reset-all`, `--stats-limit`).
+- `swift run forge report` -> stage review + mastery + adaptive summary.
+- `swift run forge report-overrides` -> suggested extra-parent remaps.
+- `swift run forge verify-solutions [filters] [--constraints-only]` -> check solution files at scale.
+- `swift run forge review-progression [filters]` -> sequencing/early-concept review.
+- `swift run forge audit [filters]` -> review + constraints + fixture presence.
+- `swift run forge state-export [file]` -> export progress/state snapshot.
+- `swift run forge state-import [file]` -> import progress/state snapshot.
+- `swift run forge remap-progress [target]` -> convert legacy numeric challenge targets.
+
+Use `swift run forge --help` for the full command surface and examples.
+Use `README.md` for the detailed reference.
 
 ---
 

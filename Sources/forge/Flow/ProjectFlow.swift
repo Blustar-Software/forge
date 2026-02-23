@@ -1,6 +1,12 @@
 import Foundation
 
 func loadProject(_ project: Project, workspacePath: String = "workspace") -> String {
+    publishTutorBridgeProjectContext(
+        project,
+        projectWorkspacePath: workspacePath,
+        sessionWorkspacePath: "workspace"
+    )
+
     let filePath = "\(workspacePath)/\(project.filename)"
 
     try? project.starterCode.write(toFile: filePath, atomically: true, encoding: .utf8)
@@ -43,6 +49,7 @@ func validateProject(
         print(endMsg)
         fullMsg += endMsg
         diagnosticOutput = fullMsg
+        publishTutorBridgeDiagnostics(fullMsg, workspacePath: "workspace")
         logEvent(
             "project_attempt",
             fields: ["id": project.id, "result": "compile_fail"],
@@ -61,6 +68,7 @@ func validateProject(
         let msg = "✗ Expected \(project.testCases.count) outputs, got \(outputLines.count)"
         print(msg)
         diagnosticOutput = msg
+        publishTutorBridgeDiagnostics(msg, workspacePath: "workspace")
         logEvent(
             "project_attempt",
             fields: ["id": project.id, "result": "line_count_mismatch"],
@@ -101,10 +109,12 @@ func validateProject(
             intFields: ["seconds": Int(Date().timeIntervalSince(start))],
             workspacePath: workspacePath
         )
+        publishTutorBridgeDiagnostics(nil, workspacePath: "workspace")
         return true
     } else {
         print("✗ Some tests failed. Keep working!")
         diagnosticOutput = fullMsg
+        publishTutorBridgeDiagnostics(fullMsg, workspacePath: "workspace")
         logEvent(
             "project_attempt",
             fields: ["id": project.id, "result": "fail"],

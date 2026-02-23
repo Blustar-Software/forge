@@ -29,6 +29,12 @@ func challengePromptText(for challenge: Challenge, filePath: String) -> String {
 }
 
 func loadChallenge(_ challenge: Challenge, workspacePath: String = "workspace") {
+    publishTutorBridgeChallengeContext(
+        challenge,
+        challengeWorkspacePath: workspacePath,
+        sessionWorkspacePath: "workspace"
+    )
+
     let filePath = "\(workspacePath)/\(challenge.filename)"
 
     // Clear playground for fresh experimentation
@@ -203,6 +209,7 @@ func validateChallenge(
         let msg = "✗ Prerequisites not introduced yet: \(names)."
         print(msg)
         diagnosticOutput = msg
+        publishTutorBridgeDiagnostics(msg, workspacePath: statsWorkspacePath)
         return false
     }
 
@@ -221,6 +228,7 @@ func validateChallenge(
             saveProgress(nextStepIndex)
         }
         print("✓ Challenge marked complete.\n")
+        publishTutorBridgeDiagnostics(nil, workspacePath: statsWorkspacePath)
         return true
     }
 
@@ -243,6 +251,7 @@ func validateChallenge(
             print("\n\(endMsg)")
             fullMsg += "\n" + endMsg
             diagnosticOutput = fullMsg
+            publishTutorBridgeDiagnostics(fullMsg, workspacePath: statsWorkspacePath)
             logConstraintViolation(challenge, mode: "main", workspacePath: statsWorkspacePath)
             return false
         }
@@ -265,6 +274,7 @@ func validateChallenge(
                 print(endMsg)
                 fullMsg += endMsg
                 diagnosticOutput = fullMsg
+                publishTutorBridgeDiagnostics(fullMsg, workspacePath: statsWorkspacePath)
                 return false
             }
         }
@@ -285,6 +295,7 @@ func validateChallenge(
         print(endMsg)
         fullMsg += endMsg
         diagnosticOutput = fullMsg
+        publishTutorBridgeDiagnostics(fullMsg, workspacePath: statsWorkspacePath)
         recordAdaptiveStat(topic: challenge.topic, result: "compile_fail", workspacePath: statsWorkspacePath)
         recordAdaptiveChallengeStat(challenge: challenge, result: "compile_fail", workspacePath: statsWorkspacePath)
         logEvent(
@@ -317,6 +328,7 @@ func validateChallenge(
         }
 
         removePreparedFixtureFiles(copiedFixturePaths)
+        publishTutorBridgeDiagnostics(nil, workspacePath: statsWorkspacePath)
 
         return true
     } else {
@@ -335,6 +347,7 @@ func validateChallenge(
             fullMsg += diag + "\n"
         }
         diagnosticOutput = fullMsg
+        publishTutorBridgeDiagnostics(fullMsg, workspacePath: statsWorkspacePath)
         recordConstraintMastery(topic: challenge.topic, hadWarnings: hadWarnings, passed: false, workspacePath: statsWorkspacePath)
         recordAdaptiveStat(topic: challenge.topic, result: "fail", workspacePath: statsWorkspacePath)
         recordAdaptiveChallengeStat(challenge: challenge, result: "fail", workspacePath: statsWorkspacePath)

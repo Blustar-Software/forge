@@ -5,6 +5,7 @@ import Foundation
 enum TopLevelCommand {
     case run(overrideToken: String?)
     case help
+    case tutor(args: [String])
     case reset(args: [String])
     case stats(args: [String])
     case reportOverrides(args: [String])
@@ -48,6 +49,7 @@ struct CLIPaths {
 let helpTokens: Set<String> = ["help", "-h", "--help"]
 
 let topLevelCommands: Set<String> = [
+    "tutor",
     "reset",
     "practice",
     "random",
@@ -119,6 +121,9 @@ func parseTopLevelCommand(_ args: [String]) -> TopLevelCommand {
     let remaining = Array(args.dropFirst())
     if firstRaw == "reset" {
         return .reset(args: remaining)
+    }
+    if firstRaw == "tutor" {
+        return .tutor(args: remaining)
     }
     if firstRaw == "stats" {
         return .stats(args: remaining)
@@ -653,6 +658,7 @@ func printMainUsage() {
 
     Core commands:
       swift run forge reset [--all] [--start]
+      swift run forge tutor
       swift run forge stats [--reset]
       swift run forge remap-progress [target]
       swift run forge state-export [snapshot-path]
@@ -693,6 +699,7 @@ func printMainUsage() {
 
     Help:
       swift run forge --help
+      swift run forge tutor --help
       swift run forge remap-progress --help
       swift run forge state-export --help
       swift run forge state-import --help
