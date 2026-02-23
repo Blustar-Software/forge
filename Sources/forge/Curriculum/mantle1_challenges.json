@@ -146,6 +146,43 @@
   },
   {
     "canonicalId": "",
+    "cheatsheet": "Failable Initializers\n- Define: init?(parameters) { ... }\n- Fail: return nil\n- Result: Creates an Optional type (Type?)",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Create an initializer that can return nil",
+    "expectedOutput": "true",
+    "fixtureFiles": [],
+    "hints": [
+      "Use 'init?' to define the failable initializer.",
+      "Check if 'level' is negative. If so, return nil.",
+      "Assign 'level' to 'self.level' if it is valid."
+    ],
+    "id": "",
+    "introduces": [
+      "initializers",
+      "optionals"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Failable Initializers\nSometimes initialization can fail (e.g., invalid input). Swift allows 'failable initializers' using 'init?'.\n\nKey Concepts:\n1. Definition: Use 'init?' instead of 'init'.\n2. Failure: Return 'nil' to indicate failure. This creates an Optional instance.\n3. Usage: You must unwrap the result (e.g., 'if let').\n\nExample:\n    struct Tank {\n        var fuel: Int\n        init?(fuel: Int) {\n            if fuel < 0 { return nil }\n            self.fuel = fuel\n        }\n    }\n    let tank = Tank(fuel: -5) // nil",
+    "manualCheck": false,
+    "number": 128,
+    "requires": [],
+    "solution": "struct Tank {\n    var level: Int\n    init?(level: Int) {\n        if level < 0 { return nil }\n        self.level = level\n    }\n}\n\nlet invalidTank = Tank(level: -1)\nprint(invalidTank == nil)",
+    "starterCode": "// Challenge 128: Failable Init\n// Handle invalid initialization.\n\nstruct Tank {\n    var level: Int\n    // TODO: Add init?(level:) that returns nil if level < 0\n}\n\n// TODO: Create a Tank with level -1 and assign to 'invalidTank'\n// TODO: Print invalidTank == nil",
+    "tier": "mainline",
+    "title": "Failable Initialization",
+    "topic": "structs"
+  },
+  {
+    "canonicalId": "",
     "cheatsheet": "Structs (Value Types)\n- Definition: struct Name { var property: Type }\n- Initialization: let instance = Name(property: value) (memberwise init)\n- Access: Use dot notation: instance.property\n- Mutability: Use 'var' for instances you want to modify\n- Copying: Assigning a struct to a new variable creates a full, independent copy\n- Methods: Methods that modify properties must be marked 'mutating'",
     "constraintProfile": {
       "allowConcurrency": false,
@@ -172,10 +209,10 @@
     "layer": "mantle",
     "lesson": "Lesson: Mutating Methods\nBy default, the properties of a value type (like a struct) cannot be modified from within its instance methods.\n\nTo modify the properties of your struct within a method, you must opt in to 'mutating' behavior for that method. The method can then change its properties from within the method, and any changes it makes are written back to the original structure when the method ends.\n\nKey rules:\n1. Add the 'mutating' keyword before 'func'.\n2. You can only call mutating methods on instances declared with 'var'.\n\nExample:\n    struct Point {\n        var x = 0.0, y = 0.0\n        mutating func moveBy(x deltaX: Double, y deltaY: Double) {\n            x += deltaX\n            y += deltaY\n        }\n    }",
     "manualCheck": false,
-    "number": 128,
+    "number": 129,
     "requires": [],
     "solution": "struct Crucible {\n    var level: Int\n\n    mutating func raise() {\n        level += 1\n    }\n}\n\nvar crucible = Crucible(level: 1)\ncrucible.raise()\ncrucible.raise()\nprint(crucible.level)",
-    "starterCode": "// Challenge 128: Mutating Method\n// Use mutating for state changes.\n\nstruct Crucible {\n    var level: Int\n    // TODO: Add mutating func 'raise' that increments 'level'\n}\n\nvar crucible = Crucible(level: 1)\n// TODO: Call 'raise()' twice\n// TODO: Print 'crucible.level'",
+    "starterCode": "// Challenge 129: Mutating Method\n// Use mutating for state changes.\n\nstruct Crucible {\n    var level: Int\n    // TODO: Add mutating func 'raise' that increments 'level'\n}\n\nvar crucible = Crucible(level: 1)\n// TODO: Call 'raise()' twice\n// TODO: Print 'crucible.level'",
     "tier": "mainline",
     "title": "Mutating Method",
     "topic": "structs"
@@ -199,17 +236,17 @@
     "hints": [
       "Changing a copy does not affect the original.",
       "Assigning 'original' to 'copy' creates a second, separate instance of the Mold.",
-      "This is what we mean by 'Value Semantics' – the value itself is passed, not a reference to it."
+      "This is what we mean by 'Value Semantics' \u2013 the value itself is passed, not a reference to it."
     ],
     "id": "",
     "introduces": [],
     "layer": "mantle",
-    "lesson": "Lesson: Value Semantics (Structs)\nStructs are 'value types'. A value type is a type whose value is copied when it’s assigned to a variable or constant, or when it’s passed to a function.\n\nIn Swift, all of the basic types—integers, floating-point numbers, Booleans, strings, arrays and dictionaries—are value types, and are implemented as structures behind the scenes.\n\nKey Concepts:\n1. Copying: When you assign one struct to another, a completely new and independent copy is made.\n2. Independence: Changing a property on the copy does NOT affect the original instance.\n\nExample:\n    var a = 5\n    var b = a\n    b = 10\n    print(a) // Still 5\n    print(b) // Now 10",
+    "lesson": "Lesson: Value Semantics (Structs)\nStructs are 'value types'. A value type is a type whose value is copied when it\u2019s assigned to a variable or constant, or when it\u2019s passed to a function.\n\nIn Swift, all of the basic types\u2014integers, floating-point numbers, Booleans, strings, arrays and dictionaries\u2014are value types, and are implemented as structures behind the scenes.\n\nKey Concepts:\n1. Copying: When you assign one struct to another, a completely new and independent copy is made.\n2. Independence: Changing a property on the copy does NOT affect the original instance.\n\nExample:\n    var a = 5\n    var b = a\n    b = 10\n    print(a) // Still 5\n    print(b) // Now 10",
     "manualCheck": false,
-    "number": 129,
+    "number": 130,
     "requires": [],
     "solution": "struct Mold {\n    var size: Int\n}\n\nlet original = Mold(size: 1)\nvar copy = original\ncopy.size = 2\n\nprint(original.size)\nprint(copy.size)",
-    "starterCode": "// Challenge 129: Value Semantics\n// Show that structs are copied on assignment.\n\nstruct Mold {\n    var size: Int\n}\n\nlet original = Mold(size: 1)\nvar copy = original\n\n// TODO: Change 'copy.size' to 2\n// TODO: Print 'original.size'\n// TODO: Print 'copy.size'",
+    "starterCode": "// Challenge 130: Value Semantics\n// Show that structs are copied on assignment.\n\nstruct Mold {\n    var size: Int\n}\n\nlet original = Mold(size: 1)\nvar copy = original\n\n// TODO: Change 'copy.size' to 2\n// TODO: Print 'original.size'\n// TODO: Print 'copy.size'",
     "tier": "mainline",
     "title": "Value Semantics",
     "topic": "structs"
@@ -242,12 +279,49 @@
     "layer": "mantle",
     "lesson": "Lesson: Classes\nClasses are 'reference types'. When you assign a class instance to a new variable, both variables point to the same object in memory.\n\nKey Differences from Structs:\n1. Reference Semantics: Changing a property through one reference affects all other references to that same instance.\n2. Mandatory Initializers: You must provide an 'init' method if your properties don't have default values.\n3. Identity vs. Equality: Use '==' for value equality and '===' for reference identity.\n4. Lifetime: Classes use Automatic Reference Counting (ARC) to determine when they should be destroyed.\n\nExample:\n    class Bellows {\n        var power: Int\n        init(power: Int) { self.power = power }\n    }\n    let p1 = Bellows(power: 1)\n    let p2 = p1\n    p2.power = 10 // p1.power is now also 10\n\nWhen to Use:\n- Use classes when you need shared mutable state or identity.\n- Use classes for inheritance or when you need to perform cleanup on deinit.",
     "manualCheck": false,
-    "number": 130,
+    "number": 131,
     "requires": [],
     "solution": "let anvil = Anvil(weight: 10)\nprint(anvil.weight)",
-    "starterCode": "// Challenge 130: Class Basics\n// Define and instantiate a class.\n\nclass Anvil {\n    var weight: Int\n    init(weight: Int) {\n        self.weight = weight\n    }\n}\n\n// TODO: Create an Anvil with weight 10\n// TODO: Print the weight",
+    "starterCode": "// Challenge 131: Class Basics\n// Define and instantiate a class.\n\nclass Anvil {\n    var weight: Int\n    init(weight: Int) {\n        self.weight = weight\n    }\n}\n\n// TODO: Create an Anvil with weight 10\n// TODO: Print the weight",
     "tier": "mainline",
     "title": "Class Basics",
+    "topic": "classes"
+  },
+  {
+    "canonicalId": "",
+    "cheatsheet": "Class Initialization\n- Designated: init(...) { ... }\n- Convenience: convenience init(...) { self.init(...) }\n- Rule: Convenience inits must call a designated init (or another convenience init) on the same class.",
+    "constraintProfile": {
+      "allowConcurrency": false,
+      "allowFileIO": false,
+      "allowNetwork": false,
+      "allowedImports": [],
+      "disallowedTokens": [
+        "import"
+      ],
+      "requiredTokens": []
+    },
+    "description": "Create a convenience initializer for a class",
+    "expectedOutput": "Hello.txt",
+    "fixtureFiles": [],
+    "hints": [
+      "Mark the second initializer with 'convenience'.",
+      "Inside the convenience init, call 'self.init(title: title, format: \"txt\")'.",
+      "Designated initializers are the only ones that can set properties directly."
+    ],
+    "id": "",
+    "introduces": [
+      "classes",
+      "initializers"
+    ],
+    "layer": "mantle",
+    "lesson": "Lesson: Convenience Initializers\nClasses support 'convenience' initializers to simplify object creation.\n\nRules:\n1. Designated Init: The primary 'init' that fully initializes all properties.\n2. Convenience Init: Helper initializers marked with 'convenience'. They MUST call another initializer on 'self' (delegation).\n3. Usage: Use them to provide default values or simpler APIs.\n\nExample:\n    class Note {\n        var text: String\n        init(text: String) { self.text = text }\n        convenience init() { self.init(text: \"Empty\") }\n    }",
+    "manualCheck": false,
+    "number": 132,
+    "requires": [],
+    "solution": "class Document {\n    var title: String\n    var format: String\n    init(title: String, format: String) {\n        self.title = title\n        self.format = format\n    }\n    convenience init(title: String) {\n        self.init(title: title, format: \"txt\")\n    }\n}\n\nlet doc = Document(title: \"Hello\")\nprint(\"\\(doc.title).\\(doc.format)\")",
+    "starterCode": "// Challenge 132: Convenience Init\n// Simplify class creation.\n\nclass Document {\n    var title: String\n    var format: String\n    \n    init(title: String, format: String) {\n        self.title = title\n        self.format = format\n    }\n    \n    // TODO: Add convenience init(title:) that defaults format to \"txt\"\n}\n\n// TODO: Create a Document with title \"Hello\" using the convenience init\n// TODO: Print \"\\(doc.title).\\(doc.format)\"",
+    "tier": "mainline",
+    "title": "Convenience Init",
     "topic": "classes"
   },
   {
@@ -276,10 +350,10 @@
     "layer": "mantle",
     "lesson": "Lesson: Classes\nClasses are 'reference types'. When you assign a class instance to a new variable, both variables point to the same object in memory.\n\nKey Differences from Structs:\n1. Reference Semantics: Changing a property through one reference affects all other references to that same instance.\n2. Mandatory Initializers: You must provide an 'init' method if your properties don't have default values.\n3. Identity vs. Equality: Use '==' for value equality and '===' for reference identity.\n4. Lifetime: Classes use Automatic Reference Counting (ARC) to determine when they should be destroyed.\n\nExample:\n    class Bellows {\n        var power: Int\n        init(power: Int) { self.power = power }\n    }\n    let p1 = Bellows(power: 1)\n    let p2 = p1\n    p2.power = 10 // p1.power is now also 10\n\nWhen to Use:\n- Use classes when you need shared mutable state or identity.\n- Use classes for inheritance or when you need to perform cleanup on deinit.",
     "manualCheck": false,
-    "number": 131,
+    "number": 133,
     "requires": [],
     "solution": "secondary.power = 3\nprint(primary.power)",
-    "starterCode": "// Challenge 131: Reference Semantics\n// Show that classes share references.\n\nclass Bellows {\n    var power: Int\n    init(power: Int) {\n        self.power = power\n    }\n}\n\nlet primary = Bellows(power: 1)\nlet secondary = primary\n\n// TODO: Set 'secondary.power' to 3\n// TODO: Print 'primary.power'",
+    "starterCode": "// Challenge 133: Reference Semantics\n// Show that classes share references.\n\nclass Bellows {\n    var power: Int\n    init(power: Int) {\n        self.power = power\n    }\n}\n\nlet primary = Bellows(power: 1)\nlet secondary = primary\n\n// TODO: Set 'secondary.power' to 3\n// TODO: Print 'primary.power'",
     "tier": "mainline",
     "title": "Reference Semantics",
     "topic": "classes"
@@ -311,10 +385,10 @@
     "layer": "mantle",
     "lesson": "Lesson: Classes\nClasses are 'reference types'. When you assign a class instance to a new variable, both variables point to the same object in memory.\n\nKey Differences from Structs:\n1. Reference Semantics: Changing a property through one reference affects all other references to that same instance.\n2. Mandatory Initializers: You must provide an 'init' method if your properties don't have default values.\n3. Identity vs. Equality: Use '==' for value equality and '===' for reference identity.\n4. Lifetime: Classes use Automatic Reference Counting (ARC) to determine when they should be destroyed.\n\nExample:\n    class Bellows {\n        var power: Int\n        init(power: Int) { self.power = power }\n    }\n    let p1 = Bellows(power: 1)\n    let p2 = p1\n    p2.power = 10 // p1.power is now also 10\n\nWhen to Use:\n- Use classes when you need shared mutable state or identity.\n- Use classes for inheritance or when you need to perform cleanup on deinit.",
     "manualCheck": false,
-    "number": 132,
+    "number": 134,
     "requires": [],
     "solution": "class Torch {\n    let id: Int\n    init(id: Int) {\n        self.id = id\n    }\n\n    deinit {\n        print(\"Torch \\(id) released\")\n    }\n}\n\nvar torch: Torch? = Torch(id: 1)\ntorch = nil",
-    "starterCode": "// Challenge 132: Deinit\n// Add a deinit message.\n\nclass Torch {\n    let id: Int\n    init(id: Int) {\n        self.id = id\n    }\n    // TODO: Add deinit that prints \"Torch <id> released\"\n}\n\n// TODO: Create an optional variable of type 'Torch?' and initialize it with an instance\n// TODO: Set that variable to 'nil' to release the instance and trigger 'deinit'",
+    "starterCode": "// Challenge 134: Deinit\n// Add a deinit message.\n\nclass Torch {\n    let id: Int\n    init(id: Int) {\n        self.id = id\n    }\n    // TODO: Add deinit that prints \"Torch <id> released\"\n}\n\n// TODO: Create an optional variable of type 'Torch?' and initialize it with an instance\n// TODO: Set that variable to 'nil' to release the instance and trigger 'deinit'",
     "tier": "mainline",
     "title": "Deinit",
     "topic": "classes"
@@ -348,10 +422,10 @@
     "layer": "mantle",
     "lesson": "Lesson: Choosing Your Type\nThe choice between a 'struct' and a 'class' is a choice between 'copying' and 'sharing'.\n\n1. Value Semantics (Structs):\n   When you assign a struct to a new variable, Swift makes a full copy. This is ideal for things like historical logs, where the state at a specific point in time should never be accidentally changed by later logic.\n\n2. Reference Semantics (Classes):\n   When you assign a class instance, both variables point to the exact same memory address. This is ideal for shared resources like a power switch or a database connection, where every part of the system must see the same 'truth'.\n\nExample:\n    // Shared State (Class)\n    let a = Resource()\n    let b = a\n    b.active = true // 'a' is also true\n\n    // Independent State (Struct)\n    var x = Record()\n    var y = x\n    y.data = \"New\" // 'x' is still \"Old\"",
     "manualCheck": false,
-    "number": 133,
+    "number": 135,
     "requires": [],
     "solution": "struct TemperatureLog {\n    var temp: Int\n}\n\nclass PowerSwitch {\n    var isOn: Bool\n    init(isOn: Bool) {\n        self.isOn = isOn\n    }\n}\n\nvar log1 = TemperatureLog(temp: 1000)\nvar log2 = log1\nlog2.temp = 2000 \n\nlet switchA = PowerSwitch(isOn: false)\nlet switchB = switchA\nswitchB.isOn = true\n\nprint(\"Log 1: \\(log1.temp)\")\nprint(\"Switch A: \\(switchA.isOn)\")",
-    "starterCode": "// Challenge 133: Struct vs. Class\n// Apply your understanding of Value Semantics and Reference Semantics.\n\n// TODO: Define 'TemperatureLog'. \n// REQUIREMENT: It represents a historical record. If you copy a log entry \n// and modify the copy, the original record MUST remain unchanged.\n// (Property: 'temp: Int')\n\n\n// TODO: Define 'PowerSwitch'. \n// REQUIREMENT: It represents a physical shared resource. If multiple \n// variables point to the switch, flipping one must flip them all.\n// (Property: 'isOn: Bool')\n\n\n// --- TEST LOGIC ---\n// (Do not change the logic below, but ensure your types make it pass)\n\nvar log1 = TemperatureLog(temp: 1000)\nvar log2 = log1\nlog2.temp = 2000 \n\nlet switchA = PowerSwitch(isOn: false)\nlet switchB = switchA\nswitchB.isOn = true\n\nprint(\"Log 1: \\(log1.temp)\")\nprint(\"Switch A: \\(switchA.isOn)\")",
+    "starterCode": "// Challenge 135: Struct vs. Class\n// Apply your understanding of Value Semantics and Reference Semantics.\n\n// TODO: Define 'TemperatureLog'. \n// REQUIREMENT: It represents a historical record. If you copy a log entry \n// and modify the copy, the original record MUST remain unchanged.\n// (Property: 'temp: Int')\n\n\n// TODO: Define 'PowerSwitch'. \n// REQUIREMENT: It represents a physical shared resource. If multiple \n// variables point to the switch, flipping one must flip them all.\n// (Property: 'isOn: Bool')\n\n\n// --- TEST LOGIC ---\n// (Do not change the logic below, but ensure your types make it pass)\n\nvar log1 = TemperatureLog(temp: 1000)\nvar log2 = log1\nlog2.temp = 2000 \n\nlet switchA = PowerSwitch(isOn: false)\nlet switchB = switchA\nswitchB.isOn = true\n\nprint(\"Log 1: \\(log1.temp)\")\nprint(\"Switch A: \\(switchA.isOn)\")",
     "tier": "mainline",
     "title": "Struct vs. Class",
     "topic": "classes"
@@ -383,10 +457,10 @@
     "layer": "mantle",
     "lesson": "Lesson: The Two-Way Interface\nComputed properties are more than just 'functions that look like variables'. They allow you to create a 'two-way bridge' between your raw data and the way users interact with it.\n\nKey Concepts:\n1. The Getter (get):\n   Calculates a value on the fly. It doesn't store anything, it just returns a result based on existing state.\n\n2. The Setter (set):\n   Allows you to write to the property. When you do, Swift provides 'newValue'. You use this value to calculate and update your stored properties.\n\nWhy the Initial Value?\nIn this challenge, we set 'pressure' to 50 first. This allows us to verify that our 'get' logic works (showing 5 bars) before we test the 'set' logic by changing the value.\n\nExample:\n    struct Temperature {\n        var celsius: Double\n        var fahrenheit: Double {\n            get { (celsius * 9/5) + 32 }\n            set { celsius = (newValue - 32) * 5/9 }\n        }\n    }\n\nBy using get/set, you ensure that 'celsius' and 'fahrenheit' are always in sync, no matter which one you update.",
     "manualCheck": false,
-    "number": 134,
+    "number": 136,
     "requires": [],
     "solution": "struct ForgePress {\n    var pressure: Int\n\n    var bars: Int {\n        get {\n            return pressure / 10\n        }\n        set {\n            pressure = newValue * 10\n        }\n    }\n}\n\nvar press = ForgePress(pressure: 50)\nprint(\"Initial Bars: \\(press.bars)\")\npress.bars = 12\nprint(\"Final Internal Pressure: \\(press.pressure)\")",
-    "starterCode": "// Challenge 134: Computed Property\n// Create a two-way unit converter.\n\nstruct ForgePress {\n    var pressure: Int // Internal raw units\n\n    // TODO: Add a computed property 'bars' (Int)\n    // GETTER: Return pressure / 10 (10 units = 1 bar)\n    // SETTER: Set pressure to newValue * 10\n}\n\n// We start with 50 raw units to verify the getter works.\nvar press = ForgePress(pressure: 50)\n\n// TODO: Print \"Initial Bars: <value>\"\n\n// Now we use the 'bars' interface to update the system.\n// TODO: Set 'press.bars' to 12\n\n// TODO: Print \"Final Internal Pressure: <value>\"",
+    "starterCode": "// Challenge 136: Computed Property\n// Create a two-way unit converter.\n\nstruct ForgePress {\n    var pressure: Int // Internal raw units\n\n    // TODO: Add a computed property 'bars' (Int)\n    // GETTER: Return pressure / 10 (10 units = 1 bar)\n    // SETTER: Set pressure to newValue * 10\n}\n\n// We start with 50 raw units to verify the getter works.\nvar press = ForgePress(pressure: 50)\n\n// TODO: Print \"Initial Bars: <value>\"\n\n// Now we use the 'bars' interface to update the system.\n// TODO: Set 'press.bars' to 12\n\n// TODO: Print \"Final Internal Pressure: <value>\"",
     "tier": "mainline",
     "title": "Computed Property",
     "topic": "properties"

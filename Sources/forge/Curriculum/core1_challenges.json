@@ -663,7 +663,7 @@
       "Separate setup, rule selection, and reporting into distinct steps.",
       "Signature: isReady(metal: String, temperature: Int) -> Bool.",
       "Combine comparisons with && and || to express the rule.",
-      "The final output should summarize the chosen rule’s result."
+      "The final output should summarize the chosen rule\u2019s result."
     ],
     "id": "",
     "introduces": [],
