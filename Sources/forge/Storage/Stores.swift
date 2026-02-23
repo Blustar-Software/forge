@@ -33,6 +33,34 @@ func saveProgress(_ challengeNumber: Int, workspacePath: String = "workspace") {
     try? String(challengeNumber).write(toFile: progressFile, atomically: true, encoding: .utf8)
 }
 
+// MARK: - TutorModelStore
+
+func tutorModelFilePath(workspacePath: String = "workspace") -> String {
+    return "\(workspacePath)/.tutor_model"
+}
+
+func loadTutorModelPreference(workspacePath: String = "workspace") -> String? {
+    let path = tutorModelFilePath(workspacePath: workspacePath)
+    guard let content = try? String(contentsOfFile: path, encoding: .utf8) else {
+        return nil
+    }
+    let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+    return trimmed.isEmpty ? nil : trimmed
+}
+
+func saveTutorModelPreference(_ model: String, workspacePath: String = "workspace") {
+    let trimmed = model.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return }
+    setupWorkspace(at: workspacePath)
+    let path = tutorModelFilePath(workspacePath: workspacePath)
+    try? trimmed.write(toFile: path, atomically: true, encoding: .utf8)
+}
+
+func clearTutorModelPreference(workspacePath: String = "workspace") {
+    let path = tutorModelFilePath(workspacePath: workspacePath)
+    try? FileManager.default.removeItem(atPath: path)
+}
+
 func resetProgress(workspacePath: String = "workspace", removeAll: Bool = false, quiet: Bool = false) {
     let progressFile = progressFilePath(workspacePath: workspacePath)
     let fileManager = FileManager.default
@@ -657,4 +685,3 @@ func migrateProgressTokenIfNeeded(
     guard let resolved = startIndex else { return }
     saveProgress(resolved)
 }
-

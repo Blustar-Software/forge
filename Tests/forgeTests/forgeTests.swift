@@ -34,6 +34,39 @@ final class ForgeTests: XCTestCase {
         }
     }
 
+    func testSaveAndLoadTutorModelPreference() {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let workspacePath = tempDir.path
+
+        do {
+            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: tempDir) }
+
+            saveTutorModelPreference("llama3.2:latest", workspacePath: workspacePath)
+            let model = loadTutorModelPreference(workspacePath: workspacePath)
+            XCTAssertEqual(model, "llama3.2:latest")
+        } catch {
+            XCTFail("Failed to set up temp workspace: \(error)")
+        }
+    }
+
+    func testClearTutorModelPreferenceRemovesFile() {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let workspacePath = tempDir.path
+
+        do {
+            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: tempDir) }
+
+            saveTutorModelPreference("llama3", workspacePath: workspacePath)
+            XCTAssertNotNil(loadTutorModelPreference(workspacePath: workspacePath))
+            clearTutorModelPreference(workspacePath: workspacePath)
+            XCTAssertNil(loadTutorModelPreference(workspacePath: workspacePath))
+        } catch {
+            XCTFail("Failed to set up temp workspace: \(error)")
+        }
+    }
+
     func testIsExpectedOutput() {
         XCTAssertTrue(isExpectedOutput("Hello, Forge", expected: "Hello, Forge"))
         XCTAssertFalse(isExpectedOutput("Hello", expected: "Hello, Forge"))
@@ -600,6 +633,11 @@ final class ForgeTests: XCTestCase {
                 atomically: true,
                 encoding: .utf8
             )
+            try "llama3".write(
+                toFile: "\(workspacePath)/.tutor_model",
+                atomically: true,
+                encoding: .utf8
+            )
             try "conditionals|pass=2,fail=1".write(
                 toFile: "\(workspacePath)/.adaptive_stats",
                 atomically: true,
@@ -615,6 +653,7 @@ final class ForgeTests: XCTestCase {
             let exported = try exportForgeState(to: snapshotPath, workspacePath: workspacePath)
             XCTAssertEqual(exported.schemaVersion, 1)
             XCTAssertTrue(exported.files.contains { $0.name == ".progress" })
+            XCTAssertTrue(exported.files.contains { $0.name == ".tutor_model" })
             XCTAssertTrue(exported.files.contains { $0.name == ".adaptive_stats" })
             XCTAssertTrue(exported.files.contains { $0.name == ".performance_log" })
 
@@ -634,6 +673,9 @@ final class ForgeTests: XCTestCase {
 
             let progress = try String(contentsOfFile: "\(workspacePath)/.progress", encoding: .utf8)
             XCTAssertEqual(progress, "challenge:core:36")
+
+            let model = try String(contentsOfFile: "\(workspacePath)/.tutor_model", encoding: .utf8)
+            XCTAssertEqual(model, "llama3")
 
             let adaptive = try String(contentsOfFile: "\(workspacePath)/.adaptive_stats", encoding: .utf8)
             XCTAssertEqual(adaptive, "conditionals|pass=2,fail=1")

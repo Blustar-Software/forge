@@ -2,6 +2,7 @@ import Foundation
 
 private let forgeStateManagedFiles: [String] = [
     ".progress",
+    ".tutor_model",
     ".stage_gate",
     ".stage_gate_summary",
     ".adaptive_stats",

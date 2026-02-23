@@ -814,6 +814,7 @@ func printStateExportUsage() {
 
     Exports progress-critical workspace state:
       - .progress
+      - .tutor_model
       - .stage_gate
       - .stage_gate_summary
       - .adaptive_stats

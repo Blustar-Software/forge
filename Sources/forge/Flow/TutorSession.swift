@@ -28,6 +28,7 @@ class TutorSession: @unchecked Sendable {
     
     let subject: Tutorable
     let workspacePath: String
+    let preferenceWorkspacePath: String
     
     private var _lastDiagnostics: String?
     var lastDiagnostics: String? {
@@ -37,9 +38,16 @@ class TutorSession: @unchecked Sendable {
 
     private var _activeTask = ThreadSafeBox<URLSessionDataTask?>(nil)
 
-    init(subject: Tutorable, workspacePath: String, lastDiagnostics: String?) {
+    init(
+        subject: Tutorable,
+        workspacePath: String,
+        preferenceWorkspacePath: String = "workspace",
+        lastDiagnostics: String?
+    ) {
         self.subject = subject
         self.workspacePath = workspacePath
+        self.preferenceWorkspacePath = preferenceWorkspacePath
+        self._selectedModel = loadTutorModelPreference(workspacePath: preferenceWorkspacePath)
         self._lastDiagnostics = lastDiagnostics
     }
 
@@ -79,6 +87,9 @@ class TutorSession: @unchecked Sendable {
             }
             
             selectedModel = selectModel(from: models)
+            if let selectedModel {
+                saveTutorModelPreference(selectedModel, workspacePath: preferenceWorkspacePath)
+            }
             if selectedModel == nil {
                 return
             }
@@ -138,6 +149,7 @@ class TutorSession: @unchecked Sendable {
                     if case .success(let models) = result {
                         if let newModel = self.selectModel(from: models) {
                             self.selectedModel = newModel
+                            saveTutorModelPreference(newModel, workspacePath: self.preferenceWorkspacePath)
                             print("Switched to \(newModel)")
                         }
                     }
