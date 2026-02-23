@@ -80,23 +80,25 @@
       ],
       "requiredTokens": []
     },
-    "description": "Use static properties",
+    "description": "Use static properties to share values across instances",
     "expectedOutput": "8\n6",
     "fixtureFiles": [],
     "hints": [
-      "Static properties live on the type, not the instance.",
+      "Static properties live on the type itself, not on any one instance.",
       "Access a static property by prefixing it with the type name: 'Shift.maxHours'.",
       "Instance properties are accessed via an instance of the type: 'shift.hours'."
     ],
     "id": "",
-    "introduces": [],
+    "introduces": [
+      "properties"
+    ],
     "layer": "mantle",
-    "lesson": "Lesson: Type Properties (static)\nInstance properties belong to a specific instance of a type. Every time you create a new instance, it has its own set of property values, separate from any other instance.\n\nYou can also define properties that belong to the type itself, not to any one instance of that type. There will only ever be one copy of these properties, no matter how many instances of that type you create. These are known as 'type properties'.\n\nKey Concepts:\n1. Use the 'static' keyword to define a type property.\n2. Access type properties using the type name (e.g., 'SomeType.storedTypeProperty').\n3. Type properties are useful for values that are universal to all instances (like a maximum count or a shared configuration).\n\nExample:\n    struct Settings {\n        static let apiVersion = \"1.0\"\n        var username: String\n    }",
+    "lesson": "Lesson: Type Properties (static)\nProperties usually belong to instances of a type. However, you can also define 'type properties' that belong to the type itself.\n\nCore Concepts:\n1. static keyword: Marks a property as belonging to the type. There is only ever one copy, regardless of how many instances you create.\n2. Access: Use the type name (e.g., 'Shift.maxHours') to read or write type properties.\n3. Universal Values: Use static properties for constants or variables that should be shared by every instance (like a max limit, a shared cache, or a default configuration).\n\nExample:\n    struct Settings {\n        static let apiVersion = \"1.0\"\n        var username: String\n    }\n    print(Settings.apiVersion) // Access via Type",
     "manualCheck": false,
     "number": 137,
     "requires": [],
     "solution": "print(Shift.maxHours)\nprint(shift.hours)",
-    "starterCode": "// Challenge 137: Static vs Instance\n// Use a static property.\n\nstruct Shift {\n    static let maxHours = 8\n    var hours: Int\n}\n\nlet shift = Shift(hours: 6)\n// TODO: Print 'Shift.maxHours'\n// TODO: Print 'shift.hours'",
+    "starterCode": "// Challenge 137: Static vs Instance\n// Distinguish between type-level and instance-level data.\n\nstruct Shift {\n    static let maxHours = 8\n    var hours: Int\n}\n\nlet shift = Shift(hours: 6)\n\n// TODO: Print the universal 'maxHours' from the Shift type\n// TODO: Print the 'hours' from the 'shift' instance",
     "tier": "mainline",
     "title": "Static vs Instance",
     "topic": "properties"
