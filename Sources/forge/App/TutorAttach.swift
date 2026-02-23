@@ -258,6 +258,17 @@ private func runAttachedTutor(sessionWorkspacePath: String) {
     DispatchQueue.global(qos: .utility).async {
         var lastDisplaySignature = ""
         var lastResetSignature = ""
+        if let initialSession = loadTutorBridgeSession(workspacePath: sessionWorkspacePath) {
+            let subjectSignature: String
+            if let subject = initialSession.subject {
+                subjectSignature = "\(subject.kind.rawValue):\(subject.id):\(subject.workspacePath)"
+            } else {
+                subjectSignature = "none"
+            }
+            let resetSignature = "\(subjectSignature)|rev:\(initialSession.contextRevision)"
+            lastResetSignature = resetSignature
+            lastDisplaySignature = "\(resetSignature)|diag:\(initialSession.lastDiagnostics ?? "")"
+        }
         while monitorRunning.get() {
             guard let session = loadTutorBridgeSession(workspacePath: sessionWorkspacePath) else {
                 if lastDisplaySignature != "__ended__" {
@@ -313,6 +324,23 @@ private func runAttachedTutor(sessionWorkspacePath: String) {
 
     var seenContextVersion = -1
     var seenDisplayVersion = -1
+
+    if let initialSession = loadTutorBridgeSession(workspacePath: sessionWorkspacePath) {
+        if let subject = initialSession.subject {
+            clearScreen()
+            let kindLabel = subject.kind == .challenge ? "Challenge" : "Project"
+            print("\(kindLabel): \(subject.id) - \(subject.title)")
+            print(subject.description)
+            if let diagnostics = initialSession.lastDiagnostics, !diagnostics.isEmpty {
+                print("\nLast diagnostics:\n\(diagnostics)")
+            }
+            print("\nTutor commands: [text], model, reset, exit")
+        } else {
+            clearScreen()
+            print("Waiting for an active challenge or project in Forge...")
+            print("Tutor commands: model, reset, exit")
+        }
+    }
 
     while true {
         guard loadTutorBridgeSession(workspacePath: sessionWorkspacePath) != nil else {

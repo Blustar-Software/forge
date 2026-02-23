@@ -199,6 +199,7 @@ func validateChallenge(
     enableDiMockHeuristics: Bool = true,
     assistedPass: Bool = false,
     saveProgressOnPass: Bool = true,
+    clearTutorDiagnosticsOnPass: Bool = true,
     diagnosticOutput: inout String?
 ) -> Bool {
     let filePath = "\(workspacePath)/\(challenge.filename)"
@@ -328,7 +329,9 @@ func validateChallenge(
         }
 
         removePreparedFixtureFiles(copiedFixturePaths)
-        publishTutorBridgeDiagnostics(nil, workspacePath: statsWorkspacePath)
+        if clearTutorDiagnosticsOnPass {
+            publishTutorBridgeDiagnostics(nil, workspacePath: statsWorkspacePath)
+        }
 
         return true
     } else {
@@ -804,6 +807,7 @@ func runSteps(
                     enableDiMockHeuristics: enableDiMockHeuristics,
                     assistedPass: solutionViewedBeforePass,
                     saveProgressOnPass: false,
+                    clearTutorDiagnosticsOnPass: false,
                     diagnosticOutput: &lastDiagnostics
                 )
                 if didPass {
@@ -814,6 +818,7 @@ func runSteps(
                         loadChallenge(challenge)
                         continue
                     }
+                    publishTutorBridgeDiagnostics(nil, workspacePath: "workspace")
                     saveProgress(nextStepIndex)
                     if solutionViewedBeforePass, adaptiveEnabled {
                         if pendingAdaptiveTopic == challenge.topic {
