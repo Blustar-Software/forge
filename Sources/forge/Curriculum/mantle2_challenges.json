@@ -152,13 +152,13 @@
       ],
       "requiredTokens": []
     },
-    "description": "Adopt a protocol in a struct",
+    "description": "Adopt the `Inspectable` protocol in a `Furnace` struct and print its status as \"Ready\".",
     "expectedOutput": "Ready",
     "fixtureFiles": [],
     "hints": [
-      "Provide the required property to conform.",
       "The struct 'Furnace' should be declared as 'struct Furnace: Inspectable'.",
-      "Since the protocol requires 'status', your struct must have a property or computed property named 'status'."
+      "To satisfy '{ get }', you can use either 'let' or 'var' in your struct.",
+      "Ensure you create an instance with the status \"Ready\" to match the expected output."
     ],
     "id": "",
     "introduces": [
@@ -170,7 +170,7 @@
     "number": 141,
     "requires": [],
     "solution": "struct Furnace: Inspectable {\n    let status: String\n}\n\nlet furnace = Furnace(status: \"Ready\")\nprint(furnace.status)",
-    "starterCode": "// Challenge 141: Conformance\n// Make a struct conform to a protocol.\n\nprotocol Inspectable {\n    var status: String { get }\n}\n\n// TODO: Create a struct 'Furnace' that conforms to Inspectable\n// TODO: Print its status",
+    "starterCode": "// Challenge 141: Conformance\n// Make a struct conform to a protocol.\n\nprotocol Inspectable {\n    var status: String { get }\n}\n\n// TODO: Create a struct 'Furnace' that conforms to Inspectable\n// TODO: Create an instance with the status \"Ready\"\n// TODO: Print its status",
     "tier": "mainline",
     "title": "Conformance",
     "topic": "protocols"
