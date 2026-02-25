@@ -6,3 +6,4 @@
 6. Example (good vs bad):
    - Good: "Use if let to unwrap the optional before printing."
    - Bad: "if let value = input { print(value) }"
+7. Hints should be reviewed periodically to ensure they maintain an optimal balance between guidance and directness, prompting learner thought rather than providing copyable code.

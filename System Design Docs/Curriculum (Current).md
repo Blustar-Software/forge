@@ -1,11 +1,7 @@
 # Current Curriculum
 
 This document summarizes the curriculum as implemented in `Sources/forge/Challenges.swift`
-(Challenges 1–311). For the authoritative per‑challenge list, use:
-
-- `swift run forge catalog` (prints the table)
-- `challenge_catalog.txt` (generated at repo root; keep in sync)
-- `swift run forge catalog-projects` / `project_catalog.txt` for projects
+(Challenges 1–311). For the authoritative per‑challenge list, use `swift run forge catalog` (prints the table) or `challenge_catalog.txt` (generated at repo root; keep in sync). For projects, use `swift run forge catalog-projects` / `project_catalog.txt`.
 
 ## Structure Overview
 - **Core mainline**: 81 challenges split into Core 1 (1–20), Core 2 (21–42), Core 3 (43–81)  
