@@ -761,17 +761,19 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Update actor state safely",
+    "description": "Manage shared mutable state safely by implementing an `actor` to handle transaction logic and prevent data races.",
     "expectedOutput": "Balance: 7",
     "fixtureFiles": [],
     "hints": [
-      "Actor methods are called with await.",
-      "Print the balance after both updates."
+      "Actors serialize all access to their internal state, ensuring that only one update happens at a time.",
+      "Any method that modifies actor state must be awaited from outside the actor.",
+      "Implement 'add(_ value: Int)' to update the balance and 'current() -> Int' to read it.",
+      "Add 3 and 4 to the ledger, then print the current balance."
     ],
     "id": "crust-extra-actor-balance",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Actors\nActors protect mutable state from data races.\n\nOverview:\n- Actor methods are isolated by default.\n- Access actor state with `await` from outside.\n- Use actors for shared mutable state across tasks.\n\nExample:\n    actor Counter {\n        private var value = 0\n        func inc() { value += 1 }\n        func read() -> Int { value }\n    }\n\nGuidelines:\n- Keep actor APIs small.\n- Avoid unnecessary cross-actor hops in tight loops.",
+    "lesson": "Lesson: Actor State Management\nActors are the recommended way to manage shared mutable state in Swift. By wrapping data in an actor, you guarantee that no two tasks can modify that data at the exact same time, which is the primary cause of data races.\n\nCore Concepts:\n1. Synchronization: The actor automatically handles the complexity of locking and unlocking data access for you.\n2. Serial Execution: Methods inside an actor are executed one after another, even if they are called from multiple concurrent tasks.\n3. Safe Reads: Even reading a property from an actor requires 'await', as the actor must ensure no other task is currently writing to it.\n\nExample:\n    actor Ledger {\n        private var balance = 0\n        func deposit(_ amount: Int) { balance += amount }\n    }\n\nNote: Actors help you move away from manual locks and semaphores, making your code cleaner and less prone to deadlocks.",
     "manualCheck": false,
     "number": 232,
     "requires": [],
@@ -792,17 +794,19 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Move values across tasks safely",
+    "description": "Capture a consistent state from a system using a `Sendable` struct to ensure it can be safely transferred between concurrent tasks.",
     "expectedOutput": "Count: 3",
     "fixtureFiles": [],
     "hints": [
-      "Sendable marks the struct as safe for concurrency.",
-      "Use values.count in the output."
+      "'Sendable' is a marker protocol that tells the compiler a type is safe to share across tasks.",
+      "Structs are automatically 'Sendable' if all their properties (like 'Int') are also 'Sendable'.",
+      "Using 'Sendable' data models prevents accidental shared mutable state between threads.",
+      "Print the count of values in the snapshot to match the expected output '3'."
     ],
     "id": "crust-extra-sendable-snapshot",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "lesson": "Lesson: Sendable Data Models\nWhen passing data between tasks or actors, Swift must ensure the data can't be modified in one place while being read in another. The 'Sendable' protocol identifies types that are safe to 'send' across these concurrent boundaries.\n\nCore Concepts:\n1. Value Semantics: Structs are ideal for 'Sendable' because they are copied. Each task gets its own independent copy, making data races impossible.\n2. Marker Protocols: 'Sendable' is a marker; it has no methods to implement. It purely serves as a guarantee to the compiler's safety checks.\n3. Implicit Conformance: Most simple structs and enums you write are already 'Sendable' by default.\n\nExample:\n    struct Snapshot: Sendable {\n        let timestamp: Date\n        let readings: [Double]\n    }\n\nNote: Relying on 'Sendable' value types is the simplest and safest way to architect concurrent Swift systems.",
     "manualCheck": false,
     "number": 233,
     "requires": [],
@@ -825,17 +829,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Compute an average using key paths",
+    "description": "Calculate the average purity of multiple ore samples by using a key path to extract numerical values from a collection of structs.",
     "expectedOutput": "Average: 80",
     "fixtureFiles": [],
     "hints": [
-      "Use ores.map(\\.purity) to extract values.",
-      "Average is sum / count with Int math."
+      "Use 'ores.map(\\.purity)' to quickly extract all purity values into a new array of integers.",
+      "The shorthand '\\.purity' is a key path that the compiler infers from the context of the map function.",
+      "Sum the purity values and divide by the count of ores.",
+      "Print the result as \"Average: 80\" using integer division."
     ],
     "id": "crust-extra-keypath-average",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Key Paths\nKey paths reference properties as values.\n\nOverview:\n- `\\Type.property` captures a readable path.\n- Use key paths with APIs like `map` and sorting helpers.\n- Writable key paths enable generic mutation utilities.\n\nExample:\n    struct Reading { let temp: Int }\n    let temps = readings.map(\\.temp)\n\nGuidelines:\n- Prefer key paths when extracting one property repeatedly.\n- Keep transformations readable and explicit.",
+    "lesson": "Lesson: Key Paths in Calculations\nKey paths are not just for reading single values; they are powerful tools for data transformation and analysis. In functional Swift, key paths can be passed directly to 'map' to extract specific fields from a collection of objects.\n\nCore Concepts:\n1. Shorthand Mapping: 'items.map(\\.property)' is a concise way to create an array of just that property's values.\n2. Inferred Root: When mapping over a collection of a known type (like 'Ore'), you can omit the type name and start the key path with a dot ('\\.').\n3. Composability: This pattern makes it easy to pipeline data for mathematical operations like averages, sums, or minimums.\n\nExample:\n    struct Item { let price: Int }\n    let prices = items.map(\\.price)\n    let total = prices.reduce(0, +)\n\nNote: This approach keeps your code readable and focuses on *what* you want to extract rather than *how* to extract it.",
     "manualCheck": false,
     "number": 234,
     "requires": [],
@@ -858,17 +864,20 @@
       ],
       "requiredTokens": []
     },
-    "description": "Filter and sum with lazy",
+    "description": "Chain multiple lazy transformations—filter and map—to efficiently process a collection and compute a final sum without creating intermediate arrays.",
     "expectedOutput": "Total: 120",
     "fixtureFiles": [],
     "hints": [
-      "Use lazy.filter then lazy.map before reducing.",
-      "Sum the transformed values to match the total."
+      "Access the '.lazy' property on the array to start a deferred pipeline.",
+      "Chain '.filter { ... }' to keep only the even numbers.",
+      "Chain '.map { ... }' to multiply the remaining numbers by 10.",
+      "The '.reduce(0, +)' call will materialize the pipeline and compute the final sum.",
+      "Print the result as \"Total: 120\"."
     ],
     "id": "crust-extra-lazy-even-sum",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "lesson": "Lesson: Chaining Lazy Operations\nOne of the biggest advantages of '.lazy' is the ability to chain multiple transformations (like filter, map, and compactMap) together. Without lazy evaluation, each step in the chain would create a brand-new array in memory. With lazy evaluation, elements are processed one by one through the entire chain only when the final result is requested.\n\nCore Concepts:\n1. Pipeline efficiency: Lazy chaining avoids the overhead of multiple array allocations and deallocations.\n2. Pipeline materialization: The actual work only happens when you call a terminal method like 'reduce', 'first', or 'forEach', or when you convert the result to an 'Array'.\n3. Predicate ordering: Filtering early in a lazy chain can further improve performance by reducing the number of elements that need to pass through subsequent map steps.\n\nExample:\n    let result = [1, 2, 3, 4].lazy\n        .filter { $0 > 2 }  // Only 3 and 4 pass\n        .map { $0 * 2 }     // 6 and 8 are calculated\n        .reduce(0, +)      // 14 is the final result\n\nNote: Lazy pipelines are particularly useful for processing large data streams or when the individual transformations are expensive.",
     "manualCheck": false,
     "number": 235,
     "requires": [],
@@ -891,17 +900,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Compare values with generics",
+    "description": "Implement a generic function that returns the maximum of two values by constraining the type parameter to the `Comparable` protocol.",
     "expectedOutput": "9",
     "fixtureFiles": [],
     "hints": [
-      "Return a if a > b, otherwise b.",
-      "Use a generic constraint on Comparable."
+      "To use comparison operators like '>' or '<' with generics, you must constrain the type parameter to 'Comparable'.",
+      "The function signature should be 'func maxValue<T: Comparable>(_ a: T, _ b: T) -> T'.",
+      "Return 'a' if it is greater than 'b', otherwise return 'b'.",
+      "Call the function with 4 and 9 to match the expected output."
     ],
     "id": "crust-extra-generic-max",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Advanced Generics\nAdvanced generics express relationships between types.\n\nOverview:\n- Associated types describe placeholder types in protocols.\n- `where` clauses constrain combinations of generic types.\n- Protocol extensions can add constrained default behavior.\n\nExample:\n    protocol Store {\n        associatedtype Item\n        mutating func add(_ item: Item)\n    }\n\nGuidelines:\n- Encode real constraints in the type system.\n- Prefer simpler signatures unless constraints add clear value.",
+    "lesson": "Lesson: Generic Protocol Constraints\nType constraints specify that a generic type parameter must conform to a particular protocol. This gives your code access to the methods and properties defined by that protocol while keeping the function flexible enough to work with any conforming type.\n\nCore Concepts:\n1. Comparable Protocol: Enables types to be compared using relational operators like '<', '>', '<=', and '>='.\n2. functional Requirements: Without the constraint, the compiler wouldn't know if the generic type 'T' supports comparison logic.\n3. Safety: Swift's type system ensures that you can only pass arguments that actually implement the required comparison logic.\n\nExample:\n    func findMin<T: Comparable>(_ a: T, _ b: T) -> T {\n        return a < b ? a : b\n    }\n\nNote: Most primitive types like Int, Double, and String conform to Comparable by default.",
     "manualCheck": false,
     "number": 236,
     "requires": [],
@@ -924,17 +935,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Erase sequence types",
+    "description": "Utilize `AnySequence` to erase the specific concrete type of a sequence, providing a unified interface while hiding implementation details.",
     "expectedOutput": "Count: 3",
     "fixtureFiles": [],
     "hints": [
-      "Wrap the array with AnySequence(...).",
-      "Materialize the sequence to count it."
+      "AnySequence is a type-erased wrapper that can hide complex underlying sequence types (like lazy mappings).",
+      "Initialize it by passing any conforming sequence: 'AnySequence([1, 2, 3])'.",
+      "This is useful for public APIs where you want to expose a sequence without revealing its specific storage or transformation logic.",
+      "Materialize the resulting sequence into an array to verify the count is 3."
     ],
     "id": "crust-extra-anysequence",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "lesson": "Lesson: Type Erasure with AnySequence\nSometimes, especially when chaining multiple lazy transformations, the resulting type can become extremely complex (e.g., 'LazyMapSequence<LazyFilterSequence<[Int]>, Int>'). Swift provides 'AnySequence' to 'erase' these specific types, providing a clean and simple interface to the caller.\n\nCore Concepts:\n1. Type Erasure: Hides the specific concrete type of a sequence, replacing it with a generic 'AnySequence<Element>'.\n2. Implementation Hiding: Prevents callers from relying on (or even seeing) the internal storage or transformation details of your sequence.\n3. API Stability: Allows you to change how a sequence is produced internally without changing the return type of your function.\n\nExample:\n    func getNumbers() -> AnySequence<Int> {\n        let range = 1...100\n        return AnySequence(range.lazy.filter { $0 % 2 == 0 })\n    }\n\nNote: While type erasure has a small performance cost, it is invaluable for building clean and maintainable module boundaries.",
     "manualCheck": false,
     "number": 237,
     "requires": [],
@@ -957,17 +970,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Provide default values",
+    "description": "Implement `@dynamicMemberLookup` to provide default-backed access to an internal configuration dictionary, allowing dot-syntax access to unknown keys.",
     "expectedOutput": "Limit: 5\nMissing: 0",
     "fixtureFiles": [],
     "hints": [
-      "Return values[member, default: 0].",
-      "The missing key should return 0."
+      "The '@dynamicMemberLookup' attribute allows you to access properties that aren't explicitly defined at compile-time.",
+      "You must implement 'subscript(dynamicMember member: String) -> Int'.",
+      "Inside the subscript, use the 'member' string as a key to look up values in the 'values' dictionary.",
+      "Use the dictionary's default value feature to return 0 if a key is missing."
     ],
     "id": "crust-extra-dynamicmemberlookup-extra",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "lesson": "Lesson: Dynamic Member Lookup\nSwift is primarily a statically-typed language, but '@dynamicMemberLookup' provides a way to interact with data more dynamically, similar to scripting languages. This is particularly useful for building 'proxy' types or bridging to data formats where keys aren't known until runtime.\n\nCore Concepts:\n1. The Attribute: Apply '@dynamicMemberLookup' to your class, struct, or enum.\n2. The Subscript: You must implement a subscript that takes a 'dynamicMember' parameter. This parameter represents the name of the property being accessed.\n3. Dot Syntax: Once implemented, you can use standard dot syntax (e.g., 'config.timeout') even if 'timeout' isn't a real property.\n\nExample:\n    @dynamicMemberLookup\n    struct Proxy {\n        subscript(dynamicMember member: String) -> String {\n            return \"Value for \\(member)\"\n        }\n    }\n\nNote: This feature provides 'syntactic sugar' for dictionary lookups while still maintaining type safety for the return value.",
     "manualCheck": false,
     "number": 238,
     "requires": [],
@@ -990,17 +1005,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Sum keyword arguments",
+    "description": "Implement `@dynamicCallable` to create a type that can be called like a function using keyword arguments.",
     "expectedOutput": "6",
     "fixtureFiles": [],
     "hints": [
-      "Keyword arguments arrive as KeyValuePairs.",
-      "Sum the values and return the total."
+      "The '@dynamicCallable' attribute allows an instance of a type to be 'called' like a function.",
+      "You must implement 'dynamicallyCall(withKeywordArguments:)' which receives a 'KeyValuePairs' collection.",
+      "The keys are the labels used at the call site (e.g., 'a', 'b', 'c') and the values are the passed integers.",
+      "Sum the '.value' property of each pair in the collection to compute the total."
     ],
     "id": "crust-extra-dynamiccallable-keywords",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Advanced Features\nAdvanced Swift features improve expressiveness when used deliberately.\n\nOverview:\n- Compose protocols, generics, and builders for clear APIs.\n- Keep abstractions small and testable.\n- Favor explicit data flow over clever indirection.\n\nExample:\n- Build a mini DSL with result builders.\n- Layer protocol-driven components with dependency injection.\n\nGuidelines:\n- Introduce abstraction only when it reduces duplication.\n- Prefer clarity over novelty.",
+    "lesson": "Lesson: Dynamic Callable\nThe '@dynamicCallable' attribute allows you to treat an object as if it were a function. This is often used to build bridge layers to dynamic languages or to create expressive, DSL-like interfaces where the number and labels of arguments can vary.\n\nCore Concepts:\n1. withArguments: Used for positional calls (e.g., 'object(1, 2)').\n2. withKeywordArguments: Used for calls with labels (e.g., 'object(x: 1, y: 2)'). This receives a 'KeyValuePairs' object.\n3. Return Value: You can return any type from the 'dynamicallyCall' methods, including other dynamic callables.\n\nExample:\n    @dynamicCallable\n    struct Logger {\n        func dynamicallyCall(withKeywordArguments args: KeyValuePairs<String, String>) {\n            for (key, value) in args { print(\"\\(key): \\(value)\") }\n        }\n    }\n\nNote: Like dynamic member lookup, this feature provides a more 'script-like' flexibility while remaining within Swift's type system.",
     "manualCheck": false,
     "number": 239,
     "requires": [],
@@ -1023,17 +1040,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Inspect stride and alignment",
+    "description": "Examine the memory layout of a type to understand its `stride` and `alignment` requirements for hardware efficiency.",
     "expectedOutput": "Stride: 2\nAlignment: 2",
     "fixtureFiles": [],
     "hints": [
-      "Use MemoryLayout<UInt16>.stride and .alignment.",
-      "Format the output to include both labels."
+      "MemoryLayout provides information about the size and positioning of a type in memory.",
+      "Use 'MemoryLayout<UInt16>.stride' to find the number of bytes between elements in an array.",
+      "Use 'MemoryLayout<UInt16>.alignment' to find the byte-boundary requirements for the type.",
+      "Print both values with the correct labels to match the output."
     ],
     "id": "crust-extra-memorylayout-stride",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Advanced Memory\nMemory behavior affects performance and correctness in larger systems.\n\nOverview:\n- Understand value vs reference semantics.\n- Watch ARC churn in high-frequency paths.\n- Avoid retain cycles in closure-heavy code.\n\nExample:\n- Capture `[weak self]` in escaping closures tied to object lifetime.\n- Prefer value types for independent snapshots.\n\nGuidelines:\n- Measure before micro-optimizing.\n- Choose ownership rules that are explicit and simple.",
+    "lesson": "Lesson: Memory Layout\nTo write performant code, it's sometimes necessary to understand how Swift types are laid out in memory. The 'MemoryLayout' enum provides metadata about the memory footprint of any type.\n\nCore Concepts:\n1. Size: The number of bytes required to store a single value of the type.\n2. Alignment: The required byte-boundary for the type. For example, a 4-byte integer usually needs to start at an address divisible by 4.\n3. Stride: The distance between consecutive elements of the type in an array. This includes the size plus any 'padding' needed to satisfy alignment requirements.\n\nExample:\n    print(MemoryLayout<Int>.size)      // 8 on 64-bit systems\n    print(MemoryLayout<Int>.alignment) // 8\n    print(MemoryLayout<Int>.stride)    // 8\n\nNote: For many types, size and stride are identical, but they can differ for structs with specific property arrangements.",
     "manualCheck": false,
     "number": 240,
     "requires": [],
@@ -1056,17 +1075,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Update through a pointer",
+    "description": "Directly modify a variable's memory using an unsafe mutable pointer, bypassing Swift's standard safety checks.",
     "expectedOutput": "10",
     "fixtureFiles": [],
     "hints": [
-      "Use pointer.pointee to update the value.",
-      "Print after the pointer scope."
+      "The 'withUnsafeMutablePointer' function provides temporary access to a variable's memory address.",
+      "Inside the closure, use 'pointer.pointee' to read or write the actual value stored at that address.",
+      "Direct memory manipulation is 'unsafe' because the compiler cannot guarantee the memory remains valid outside the closure.",
+      "Add 5 to the pointee and print the final value of the original variable."
     ],
     "id": "crust-extra-unsafe-mutation",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Advanced Memory\nMemory behavior affects performance and correctness in larger systems.\n\nOverview:\n- Understand value vs reference semantics.\n- Watch ARC churn in high-frequency paths.\n- Avoid retain cycles in closure-heavy code.\n\nExample:\n- Capture `[weak self]` in escaping closures tied to object lifetime.\n- Prefer value types for independent snapshots.\n\nGuidelines:\n- Measure before micro-optimizing.\n- Choose ownership rules that are explicit and simple.",
+    "lesson": "Lesson: Unsafe Memory Access\nSwift is designed to be a memory-safe language, preventing direct pointer manipulation in most cases. However, for low-level performance or interop with C APIs, Swift provides 'Unsafe' pointer types that allow you to work directly with memory addresses.\n\nCore Concepts:\n1. withUnsafe...: These functions provide a scoped, temporary pointer to a variable. This is the safest way to use pointers because it ensures the pointer doesn't outlive the data it points to.\n2. pointee: The property used to access the data located at the pointer's address.\n3. Responsibility: When you use unsafe pointers, you take on the responsibility of ensuring the memory is correctly typed, initialized, and not accessed after it's been deallocated.\n\nExample:\n    var x = 10\n    withUnsafeMutablePointer(to: &x) { ptr in\n        ptr.pointee = 20\n    }\n\nNote: Use unsafe APIs sparingly and only when the safe alternatives are insufficient for your needs.",
     "manualCheck": false,
     "number": 241,
     "requires": [],
@@ -1089,17 +1110,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Use a constrained extension",
+    "description": "Extend a generic type with specialized methods that are only available for specific concrete types using a `where` clause (e.g., `where T == Int`).",
     "expectedOutput": "true",
     "fixtureFiles": [],
     "hints": [
-      "Add a constrained extension for Int.",
-      "Use value % 2 == 0."
+      "Use 'extension Box where T == Int { ... }' to add logic specifically for integers.",
+      "Inside the extension, you can use integer-specific operators like '%' because the compiler knows 'value' is an Int.",
+      "The 'isEven()' method should return 'true' if the value is divisible by 2.",
+      "Verify the behavior with an instance containing the value 6."
     ],
     "id": "crust-extra-where-filter",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Advanced Generics\nAdvanced generics express relationships between types.\n\nOverview:\n- Associated types describe placeholder types in protocols.\n- `where` clauses constrain combinations of generic types.\n- Protocol extensions can add constrained default behavior.\n\nExample:\n    protocol Store {\n        associatedtype Item\n        mutating func add(_ item: Item)\n    }\n\nGuidelines:\n- Encode real constraints in the type system.\n- Prefer simpler signatures unless constraints add clear value.",
+    "lesson": "Lesson: Concrete Type Constraints\nYou can use 'where' clauses in extensions to constrain generic types to specific concrete types (using ==) rather than just protocols. This allows you to add helper methods that rely on unique features of that specific type.\n\nCore Concepts:\n1. Targeted Extensions: 'extension Box where T == Int' only adds methods to boxes holding integers.\n2. Specialized APIs: You can provide mathematical helpers for 'Int' boxes, and string helpers for 'String' boxes, all within the same generic structure.\n3. Type Safety: The compiler prevents you from calling these specialized methods on instances with the wrong generic type.\n\nExample:\n    extension Box where T == String {\n        func uppercase() -> String { return value.uppercased() }\n    }\n\nNote: This pattern is excellent for providing 'convenience' features that don't apply to every possible generic parameter.",
     "manualCheck": false,
     "number": 242,
     "requires": [],
@@ -1122,17 +1145,19 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Run async calls in parallel",
+    "description": "Execute multiple asynchronous functions in parallel using `async let` and await their combined result to improve efficiency.",
     "expectedOutput": "Sum: 5",
     "fixtureFiles": [],
     "hints": [
-      "Use async let to start both calls.",
-      "Await both values before summing."
+      "Use 'async let' to start multiple asynchronous operations simultaneously without waiting for each one to finish before starting the next.",
+      "Declare the results like this: 'async let a = fetchValueA()'.",
+      "You only need to use the 'await' keyword when you actually use the values (e.g., 'await a + b').",
+      "The final sum of 2 and 3 should be 5."
     ],
     "id": "crust-extra-async-let",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "lesson": "Lesson: Parallel Binding with async let\nWhen you have multiple asynchronous tasks that don't depend on each other, you can use 'async let' to run them in parallel. This is more efficient than using 'await' on each call sequentially, as it allows your program to perform multiple operations at the same time.\n\nCore Concepts:\n1. Non-Blocking Start: 'async let' starts an asynchronous task immediately and moves to the next line of code without waiting for a result.\n2. Parallel Execution: Multiple 'async let' calls create child tasks that run concurrently.\n3. Deferred Await: You only 'await' the result at the point where you need the value (e.g., when adding two numbers or passing them to a function).\n\nExample:\n    async let first = fetchData(id: 1)\n    async let second = fetchData(id: 2)\n    let combined = await (first + second)\n\nNote: This is a simpler alternative to Task Groups when you have a fixed number of tasks to perform.",
     "manualCheck": false,
     "number": 254,
     "requires": [],
@@ -1155,17 +1180,20 @@
       ],
       "requiredTokens": []
     },
-    "description": "Write a minimal XCTest case (simulated)",
+    "description": "Structure a unit test using the `Arrange-Act-Assert` (AAA) pattern to validate function logic with a mock testing environment.",
     "expectedOutput": "XCTest ready",
     "fixtureFiles": [],
     "hints": [
-      "Subclass XCTestCase for tests.",
-      "Use XCTAssertEqual inside testSum()."
+      "The 'Arrange-Act-Assert' pattern is the standard way to structure tests.",
+      "Arrange: Set up your inputs (e.g., 2 + 2).",
+      "Act: Perform the operation or call the function being tested.",
+      "Assert: Use 'XCTAssertEqual' to check if the result matches your expectations.",
+      "In this script environment, we use a simple mock to simulate the XCTest framework."
     ],
     "id": "crust-extra-xctest-micro",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Testing\nTests protect behavior and support refactoring.\n\nOverview:\n- Unit tests validate isolated functions and types.\n- Integration tests verify command flows and file interactions.\n- Use deterministic inputs and explicit assertions.\n\nExample:\n- Arrange input, act by calling the function, assert exact output.\n- Prefer clear failure messages over broad checks.\n\nGuidelines:\n- Test critical paths and edge cases.\n- Keep tests fast and independent.",
+    "lesson": "Lesson: Unit Testing with AAA\nUnit tests are used to verify that small, isolated pieces of code work correctly. A common and effective way to structure these tests is the 'Arrange-Act-Assert' (AAA) pattern.\n\nCore Concepts:\n1. Arrange: Set up the conditions for your test (create objects, initialize variables).\n2. Act: Call the specific method or perform the action you want to test.\n3. Assert: Verify that the outcome matches the expected result using assertion functions like 'XCTAssertEqual'.\n\nExample:\n    func testSum() {\n        // Arrange\n        let a = 1, b = 2\n        // Act\n        let result = a + b\n        // Assert\n        XCTAssertEqual(result, 3)\n    }\n\nNote: Structure your tests clearly so that a failure immediately points to what part of the logic is broken.",
     "manualCheck": false,
     "number": 255,
     "requires": [],
@@ -1188,16 +1216,19 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Await a simple async value",
+    "description": "Retrieve a value from an asynchronous function and await its result within an asynchronous context.",
     "expectedOutput": "Heat: 1500",
     "fixtureFiles": [],
     "hints": [
-      "Use await to get the async value."
+      "The 'heat()' function is marked as 'async', so it must be called using the 'await' keyword.",
+      "Awaiting a function creates a suspension point where the task pauses until the value is ready.",
+      "The returned value should be stored in a variable before being printed.",
+      "The output should exactly match \"Heat: 1500\"."
     ],
     "id": "crust-extra-async-warmup",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "lesson": "Lesson: Asynchronous Value Retrieval\nAsync functions allow you to perform work that might take time (like a network request or a complex calculation) without blocking the entire program. When you call an async function, you use 'await' to signal that your code is willing to wait for the result.\n\nCore Concepts:\n1. Async Returns: Functions that return values asynchronously are declared as 'func name() async -> Type'.\n2. Suspension: Your task will 'suspend' at the await call, freeing up resources for other tasks to run until the requested value is available.\n3. Context: Remember that you can only call async functions from within another async context or a 'Task'.\n\nExample:\n    func getID() async -> Int { return 123 }\n    let id = await getID()\n\nNote: Even for simple values, using 'async' establishes a pattern for handling more complex asynchronous logic later on.",
     "manualCheck": false,
     "number": 294,
     "requires": [],
@@ -1220,16 +1251,19 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Use an actor for state",
+    "description": "Isolate a counter within an `actor` to demonstrate how actors serialize state updates and prevent concurrent access bugs.",
     "expectedOutput": "1 2",
     "fixtureFiles": [],
     "hints": [
-      "Call actor methods with await."
+      "Actors are ideal for simple counters that must be shared across multiple threads.",
+      "The 'increment' method can safely update 'value' because it runs in the actor's isolated context.",
+      "Call 'increment' twice from your async block and capture the results.",
+      "Print the results separated by a space to match the output '1 2'."
     ],
     "id": "crust-extra-actor-counter",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Actors\nActors protect mutable state from data races.\n\nOverview:\n- Actor methods are isolated by default.\n- Access actor state with `await` from outside.\n- Use actors for shared mutable state across tasks.\n\nExample:\n    actor Counter {\n        private var value = 0\n        func inc() { value += 1 }\n        func read() -> Int { value }\n    }\n\nGuidelines:\n- Keep actor APIs small.\n- Avoid unnecessary cross-actor hops in tight loops.",
+    "lesson": "Lesson: Actor Isolation\nOne of the most common uses for actors is protecting simple state like counters or flags. Because actors only allow one task to execute a method at a time, you don't need to use locks or atomics to ensure the counter is updated correctly.\n\nCore Concepts:\n1. Mutual Exclusion: Actors provide an implicit lock around their state. While one task is running 'increment()', all other tasks must wait.\n2. Isolated Properties: Properties inside an actor are private to that actor by default. They can only be modified by the actor's own methods.\n3. Safe Increments: In a normal class, 'value += 1' is not thread-safe. In an actor, it is guaranteed to be safe.\n\nExample:\n    actor Counter {\n        var count = 0\n        func next() -> Int {\n            count += 1\n            return count\n        }\n    }\n\nNote: This makes actors the perfect tool for building thread-safe shared resources in a concurrent system.",
     "manualCheck": false,
     "number": 295,
     "requires": [],
@@ -1252,16 +1286,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Clamp a value with a wrapper",
+    "description": "Create a `@Clamped` property wrapper to automatically validate and restrict integer values within a specific range.",
     "expectedOutput": "100",
     "fixtureFiles": [],
     "hints": [
-      "The wrapper clamps values between 0 and 100."
+      "Property wrappers allow you to define data validation logic once and apply it to many properties.",
+      "The 'wrappedValue' should use 'min' and 'max' to keep the value between 0 and 100.",
+      "The initializer 'init(wrappedValue:)' is called when the property is given its first value.",
+      "Print the pressure of a Gauge that was initialized with 120 to see the clamping in action."
     ],
     "id": "crust-extra-property-wrapper",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Property Wrappers\nProperty wrappers package repeated property behavior.\n\nOverview:\n- Define wrapper with `@propertyWrapper`.\n- Expose wrapped value via `wrappedValue`.\n- Optionally expose extra API via `projectedValue`.\n\nExample:\n    @propertyWrapper\n    struct Clamped {\n        private var value: Int\n        var wrappedValue: Int {\n            get { value }\n            set { value = max(0, min(100, newValue)) }\n        }\n        init(wrappedValue: Int) { value = wrappedValue }\n    }\n\nGuidelines:\n- Use wrappers for cross-cutting rules.\n- Keep wrapper behavior unsurprising.",
+    "lesson": "Lesson: Logic Reuse with Wrappers\nOne of the most powerful use cases for property wrappers is enforcing rules on your data, such as clamping a number to a range, trimming a string, or validating an email address. By moving this logic into a wrapper, you make your main data structures more readable and less prone to errors.\n\nCore Concepts:\n1. Encapsulated Logic: The 'how' of the validation is hidden inside the wrapper struct.\n2. Declarative Usage: You simply mark a property with '@Clamped' to opt into the behavior.\n3. Automatic Initialization: Swift calls the wrapper's initializer when the struct containing the property is created.\n\nExample:\n    @propertyWrapper\n    struct Normalized {\n        private var value: Double = 0\n        var wrappedValue: Double {\n            get { value }\n            set { value = max(0, min(1, newValue)) }\n        }\n    }\n\nNote: This pattern reduces boilerplate and ensures consistent data validation across your entire app.",
     "manualCheck": false,
     "number": 296,
     "requires": [],
@@ -1284,17 +1321,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Sort using a key path",
+    "description": "Sort a collection of structs by a specific property using a key path to define the sorting criteria.",
     "expectedOutput": "Gold, Iron, Copper",
     "fixtureFiles": [],
     "hints": [
-      "Use sorted with a closure reading \\Alloy.purity.",
-      "Map to names and join with a separator."
+      "While Swift's default 'sorted()' uses the 'Comparable' protocol, you can use key paths to sort by specific fields.",
+      "Use 'items.sorted { $0[keyPath: \\Alloy.purity] > $1[keyPath: \\Alloy.purity] }' to sort by purity descending.",
+      "The shorthand '\\.name' extracts just the name strings for printing.",
+      "The output should show \"Gold\" (95), then \"Iron\" (80), then \"Copper\" (60)."
     ],
     "id": "crust-extra-keypath-sort",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Key Paths\nKey paths reference properties as values.\n\nOverview:\n- `\\Type.property` captures a readable path.\n- Use key paths with APIs like `map` and sorting helpers.\n- Writable key paths enable generic mutation utilities.\n\nExample:\n    struct Reading { let temp: Int }\n    let temps = readings.map(\\.temp)\n\nGuidelines:\n- Prefer key paths when extracting one property repeatedly.\n- Keep transformations readable and explicit.",
+    "lesson": "Lesson: Sorting with Key Paths\nKey paths are incredibly useful for sorting collections of custom objects. Instead of writing a complex closure every time, you can use key paths to specify exactly which property should be used for comparison.\n\nCore Concepts:\n1. Dynamic Comparison: You can sort the same collection in multiple ways (e.g., by name, by date, or by price) just by changing the key path.\n2. Comparator closures: Key paths can be used inside the 'sorted(by:)' closure to access the properties of the two elements being compared.\n3. Type Safety: The compiler ensures that the property you're sorting by actually exists and supports the comparison operator you're using.\n\nExample:\n    let sortedItems = items.sorted { $0[keyPath: \\.price] < $1[keyPath: \\.price] }\n\nNote: In your own projects, you can even write a generic 'sorted(by:)' helper that takes a key path directly to make this syntax even cleaner.",
     "manualCheck": false,
     "number": 297,
     "requires": [],
@@ -1317,16 +1356,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Return an opaque protocol type",
+    "description": "Return an opaque type using the `some` keyword to hide the concrete implementation while preserving the underlying type's identity.",
     "expectedOutput": "1500",
     "fixtureFiles": [],
     "hints": [
-      "Use 'some' for an opaque return type."
+      "Use 'some HeatSource' as the return type to hide the concrete 'Burner' struct from the caller.",
+      "The 'some' keyword tells the compiler that the function returns a specific, fixed type that conforms to the protocol.",
+      "Inside the function, return a 'Burner' instance with heat set to 1500.",
+      "Awaiting the result of 'makeSource()' gives you access to the 'heat' property defined in the protocol."
     ],
     "id": "crust-extra-opaque-return",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Protocol Design\nProtocol design defines stable contracts between components.\n\nOverview:\n- Keep each protocol focused on one responsibility.\n- Use associated types when relationships are important.\n- Add default behavior in constrained extensions when it helps.\n\nExample:\n- Define small service protocols for dependency injection.\n- Provide test doubles that conform to the same protocol.\n\nGuidelines:\n- Avoid giant umbrella protocols.\n- Model behavior, not concrete storage.",
+    "lesson": "Lesson: Opaque Types (some)\nOpaque types allow a function to return a value of a specific, concrete type without revealing what that type is to the caller. This is done using the 'some' keyword followed by a protocol name. It's a key tool for creating stable API boundaries while maintaining full type safety.\n\nCore Concepts:\n1. Implementation Hiding: The caller only knows the return value conforms to a protocol, but the compiler knows the exact underlying type.\n2. Type Identity: Unlike 'any' (existentials), 'some' types preserve their identity. If a function returns 'some Equatable', two results from that same function can be compared.\n3. Return Requirements: A function returning an opaque type must return the same concrete type from every branch of its logic.\n\nExample:\n    func makeShape() -> some Shape {\n        return Circle() // Implementation is hidden\n    }\n\nNote: Opaque types are heavily used in frameworks to provide complex types (like nested views) through a simple, protocol-based interface.",
     "manualCheck": false,
     "number": 298,
     "requires": [],
@@ -1349,16 +1391,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Use lazy chains",
+    "description": "Evaluate the performance trade-offs of using lazy sequences by chaining transformations on a dataset and materializing the final result.",
     "expectedOutput": "[15, 16]",
     "fixtureFiles": [],
     "hints": [
-      "Use lazy.filter and lazy.map, then Array(...) to materialize."
+      "Use 'temps.lazy' to ensure subsequent operations like 'filter' and 'map' don't create intermediate arrays.",
+      "Filter for values 1500 and above, then map by dividing by 100.",
+      "Remember that the transformations aren't executed until you materialize the sequence, such as by calling 'Array(...)'.",
+      "The final array should be '[15, 16]' based on the input values 1500 and 1600."
     ],
     "id": "crust-extra-lazy-sequence",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "lesson": "Lesson: Performance and Lazy Evaluation\nWhile '.lazy' is powerful, it's important to understand the trade-offs. Lazy evaluation saves memory and avoids unnecessary work, but it can be slightly slower for very small datasets due to the overhead of managing the deferred state.\n\nCore Concepts:\n1. CPU vs Memory: Lazy evaluation trades a small amount of CPU overhead for significant memory savings by avoiding intermediate storage.\n2. Re-evaluation: Because lazy sequences don't store their results, the transformations are re-run every time you iterate over the sequence. If you need to access the results multiple times, it's better to materialize them into an array first.\n3. Complexity: Use lazy pipelines for complex multi-step transformations where only a subset of the data is needed at the end.\n\nExample:\n    let results = data.lazy.filter(isMatch).map(transform).prefix(5)\n    let materialized = Array(results) // Work is done only for the first 5 matches.\n\nNote: Always profile your code to ensure lazy evaluation provides a real performance benefit for your specific use case.",
     "manualCheck": false,
     "number": 299,
     "requires": [],
@@ -1381,16 +1426,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Reason about macro expansion (simulated)",
+    "description": "Analyze the output of a macro expansion to understand how Swift generates code at compile-time to reduce boilerplate.",
     "expectedOutput": "2 + 2 = 4",
     "fixtureFiles": [],
     "hints": [
-      "Just print the expected expansion result."
+      "Macros in Swift allow you to transform and generate code during the compilation process.",
+      "A common use case is stringifying an expression while also calculating its value.",
+      "The expansion of '#stringify(2 + 2)' would result in a tuple containing both the original code string and the result.",
+      "Print the formatted string \"2 + 2 = 4\" to simulate the macro's output."
     ],
     "id": "crust-extra-macro-sample",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Macros\nMacros generate Swift code at compile time.\n\nOverview:\n- Use macros to remove repetitive boilerplate.\n- Prefer small, predictable expansions.\n- Keep generated behavior obvious to readers.\n\nExample:\n- Attached macros can add members or conformances.\n- Freestanding macros can transform expressions/declarations.\n\nGuidelines:\n- Validate generated output during development.\n- Avoid macros when a simple function solves the problem.",
+    "lesson": "Lesson: Swift Macros\nMacros are a powerful feature that allow Swift to generate additional source code at compile-time. This helps you avoid writing repetitive boilerplate and enables you to build more expressive APIs that are fully checked by the compiler.\n\nCore Concepts:\n1. Compile-Time Transformation: Macros don't run at runtime; they transform your code before it's even compiled into an executable.\n2. Boileplate Reduction: Use macros for things like implementing 'Equatable', generating JSON coding keys, or creating memberwise initializers for classes.\n3. Types of Macros: Swift supports various types, including 'freestanding' macros (starting with #) and 'attached' macros (starting with @).\n\nExample:\n    // #stringify(x + y) expands to (\"x + y\", value)\n\nNote: Because macros are built into the language, they are much safer and more robust than traditional string-based code generation.",
     "manualCheck": false,
     "number": 300,
     "requires": [],
@@ -1413,16 +1461,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Identify targets in a package (simulated)",
+    "description": "Examine a package's structure to identify its build targets, including executable and testing modules.",
     "expectedOutput": "Targets: forge, forgeTests",
     "fixtureFiles": [],
     "hints": [
-      "This is a simulated check of package structure."
+      "A Swift package is organized into multiple targets, each with its own purpose.",
+      "Executable targets (like 'forge') contain the main application logic.",
+      "Test targets (like 'forgeTests') contain unit and integration tests.",
+      "Print the list of targets to simulate a structural analysis."
     ],
     "id": "crust-extra-swiftpm-targets",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: SwiftPM\nSwift Package Manager defines how modules build and depend on each other.\n\nOverview:\n- `Package.swift` declares products, targets, and dependencies.\n- Targets control source layout and resource inclusion.\n- Build configs and flags tune behavior by environment.\n\nExample:\n- Add a library dependency and link it in a target.\n- Keep package boundaries small and purposeful.\n\nGuidelines:\n- Favor simple package graphs.\n- Keep public APIs stable across package boundaries.",
+    "lesson": "Lesson: SwiftPM Targets\nA target is a basic building block of a Swift package. It defines a set of source files that are compiled together into a single module or executable. Organizing code into targets helps with maintainability and allows for clean separation between your app logic and its tests.\n\nCore Concepts:\n1. Target Types: The two most common types are library targets (for reusable code) and executable targets (for apps or CLI tools).\n2. Test Targets: Used specifically for holding test code. These targets depend on the library targets they are testing.\n3. Module Isolation: Each target is its own module. This means you must use 'import' to access code from a different target in the same package.\n\nExample:\n    .target(name: \"AppLogic\"),\n    .testTarget(name: \"AppTests\", dependencies: [\"AppLogic\"])\n\nNote: Keeping your app logic in a library target makes it easier to test than if everything were in a single executable target.",
     "manualCheck": false,
     "number": 301,
     "requires": [],
@@ -1445,16 +1496,19 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Measure elapsed time (simulated)",
+    "description": "Measure the execution time of an operation using the `Date` API to understand basic performance benchmarking.",
     "expectedOutput": "Elapsed: 0.25",
     "fixtureFiles": [],
     "hints": [
-      "Use end.timeIntervalSince(start) for the elapsed seconds."
+      "Benchmarking starts by capturing the current time before an operation begins.",
+      "Capture the end time after the operation finishes.",
+      "The 'timeIntervalSince' method calculates the difference between two dates in seconds.",
+      "Print the elapsed time exactly as \"Elapsed: 0.25\" to pass the simulation."
     ],
     "id": "crust-extra-performance-timing",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Performance\nOptimize with measurement first, then targeted changes.\n\nOverview:\n- Reduce repeated allocations and unnecessary copies.\n- Avoid repeated work inside loops.\n- Prefer linear passes over nested scans when possible.\n\nExample:\n- Cache derived values when reused.\n- Use `Set` for frequent membership checks.\n\nGuidelines:\n- Keep code correct first.\n- Verify gains with realistic inputs.",
+    "lesson": "Lesson: Performance Measurement\nBefore optimizing code, you must be able to measure it. Basic benchmarking involves capturing the start and end times of an operation and calculating the duration. This helps you identify 'bottlenecks'—parts of your code that are taking the most time.\n\nCore Concepts:\n1. Granularity: While 'Date' is simple, it's suitable for operations taking milliseconds or seconds. For nanosecond precision, Swift provides high-resolution clocks.\n2. Overhead: Be aware that the act of measuring itself takes a tiny amount of time.\n3. Averages: Real-world performance can vary. It's often better to run an operation many times and calculate the average duration.\n\nExample:\n    let start = ContinuousClock.now\n    performWork()\n    let elapsed = start.duration(to: .now)\n\nNote: For simple scripts, 'timeIntervalSince' from Foundation is a quick and effective way to get started with benchmarking.",
     "manualCheck": false,
     "number": 302,
     "requires": [],
@@ -1477,16 +1531,19 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Use Foundation bridging types",
+    "description": "Demonstrate interoperability between Swift and Foundation types by bridging a native `String` to an `NSString` to access legacy character length properties.",
     "expectedOutput": "5",
     "fixtureFiles": [],
     "hints": [
-      "NSString length counts characters."
+      "Swift strings and Objective-C 'NSString' objects are bridged, meaning you can cast between them easily using 'as'.",
+      "While Swift uses character counts, 'NSString' uses a 'length' property that counts UTF-16 code units.",
+      "Cast 'name' to 'NSString' using 'as NSString' to access Objective-C specific methods and properties.",
+      "The word \"Forge\" has 5 characters, so 'nsName.length' should return 5."
     ],
     "id": "crust-extra-interop-bridge",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Interop\nInterop bridges Swift code with external systems and formats.\n\nOverview:\n- Convert between representations carefully.\n- Validate boundaries and error paths.\n- Keep adapters thin and well-tested.\n\nExample:\n- Map raw input into typed Swift models.\n- Surface conversion failures with structured errors.\n\nGuidelines:\n- Isolate boundary code from core logic.\n- Preserve invariants when crossing module/language edges.",
+    "lesson": "Lesson: Foundation Bridging\nSwift provides automatic bridging between many of its native types and their Objective-C counterparts in the Foundation framework. This allows you to use powerful legacy APIs and frameworks while still writing modern Swift code.\n\nCore Concepts:\n1. Automatic Casting: Types like 'String', 'Array', and 'Dictionary' can be cast to 'NSString', 'NSArray', and 'NSDictionary' using the 'as' keyword.\n2. API Access: Bridging is often necessary when working with older Apple frameworks that expect Objective-C types.\n3. Subtle Differences: Be aware that bridged types may have slightly different behavior or properties (e.g., 'NSString.length' vs 'String.count').\n\nExample:\n    let swiftString = \"Hello\"\n    let nsString = swiftString as NSString\n    print(nsString.contains(\"H\")) // Using an NSString method\n\nNote: In most modern Swift code, you should prefer the native Swift types and only bridge when necessary for interoperability.",
     "manualCheck": false,
     "number": 303,
     "requires": [],
@@ -1509,16 +1566,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Simulate a tiny test assertion",
+    "description": "Implement a simple equality assertion to verify that a computed result matches the expected outcome in a test suite.",
     "expectedOutput": "Pass",
     "fixtureFiles": [],
     "hints": [
-      "Call the helper with the computed value."
+      "An assertion is a statement that a condition must be true for the test to pass.",
+      "The 'assertEqual' helper compares two values and prints a status message.",
+      "Call the helper with your test expression: '3 + 2' and the expected result '5'.",
+      "This mimics how real testing frameworks like XCTest report successes and failures."
     ],
     "id": "crust-extra-test-assert",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Testing\nTests protect behavior and support refactoring.\n\nOverview:\n- Unit tests validate isolated functions and types.\n- Integration tests verify command flows and file interactions.\n- Use deterministic inputs and explicit assertions.\n\nExample:\n- Arrange input, act by calling the function, assert exact output.\n- Prefer clear failure messages over broad checks.\n\nGuidelines:\n- Test critical paths and edge cases.\n- Keep tests fast and independent.",
+    "lesson": "Lesson: Assertion Types\nTesting frameworks provide a variety of assertion functions to check for different conditions. Choosing the right assertion makes your tests more readable and ensures that failures provide clear, helpful information.\n\nCore Concepts:\n1. Equality: 'XCTAssertEqual' checks if two values are the same. This is the most common assertion.\n2. Boolean: 'XCTAssertTrue' and 'XCTAssertFalse' check for logical conditions.\n3. Nil: 'XCTAssertNil' and 'XCTAssertNotNil' verify the presence or absence of a value in optionals.\n4. Identity: 'XCTAssertIdentical' (in modern Swift) checks if two class references point to the same object.\n\nExample:\n    XCTAssertEqual(user.id, 1)\n    XCTAssertTrue(user.isActive)\n    XCTAssertNil(user.middleName)\n\nNote: Good tests use precise assertions to clearly communicate the developer's intent.",
     "manualCheck": false,
     "number": 304,
     "requires": [],
@@ -1541,17 +1601,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Attach context to a thrown error",
+    "description": "Attach contextual information to a thrown error using enum associated values to provide more detailed failure feedback.",
     "expectedOutput": "Too low: 900",
     "fixtureFiles": [],
     "hints": [
-      "Throw the error with the value as context.",
-      "Use a specific catch to extract the value."
+      "Enum error cases can carry 'associated values' to provide additional context (like the invalid temperature value).",
+      "Throw 'HeatError.tooLow(value)' when the input is less than 1000.",
+      "In the 'catch' block, use pattern matching to extract the value: 'catch HeatError.tooLow(let val)'.",
+      "Print the caught value formatted as \"Too low: 900\"."
     ],
     "id": "crust-extra-error-context",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Error Handling Patterns\nAdvanced error handling balances clarity with recovery.\n\nOverview:\n- Prefer typed errors with actionable cases.\n- Convert low-level failures into domain errors near boundaries.\n- Preserve context when rethrowing or wrapping.\n\nExample:\n- Catch parsing failures, then throw a domain-specific error case.\n- Use `Result` when explicit success/failure values simplify flow.\n\nGuidelines:\n- Do not silence important errors.\n- Keep failure messages specific and testable.",
+    "lesson": "Lesson: Error Associated Values\nSimply knowing that an error occurred is often not enough. Swift allows you to attach relevant data to your custom error cases using associated values. This data can then be extracted and used by the caller to recover from the error or provide more helpful diagnostics.\n\nCore Concepts:\n1. Contextual Errors: Define an error case with a payload, like 'case validationFailed(reason: String)'.\n2. Throwing with Data: When you throw the error, you pass in the specific data: 'throw MyError.tooLow(900)'.\n3. Pattern Matching: Use 'catch' with pattern matching to extract the associated value for use in your error handling logic.\n\nExample:\n    enum FileError: Error { case notFound(String) }\n    do {\n        try openFile(\"config.txt\")\n    } catch FileError.notFound(let name) {\n        print(\"The file \\(name) was missing\")\n    }\n\nNote: This makes your error handling system much more robust and informative than using simple, data-less error cases.",
     "manualCheck": false,
     "number": 308,
     "requires": [],
@@ -1574,17 +1636,19 @@
       ],
       "requiredTokens": []
     },
-    "description": "Compare loop costs deterministically",
+    "description": "Analyze the efficiency of a loop by tracking the number of steps and the accumulated total to understand basic computational cost.",
     "expectedOutput": "Total: 15\nSteps: 5",
     "fixtureFiles": [],
     "hints": [
-      "Track both the total and number of iterations.",
-      "Print the totals on separate lines."
+      "The 'steps' variable tracks how many times the loop body executes, which is a measure of the loop's 'time complexity'.",
+      "Loop from 1 to 5 inclusive using a range.",
+      "Add the loop value to 'total' and increment 'steps' by 1 in each iteration.",
+      "Print both values on separate lines to match the expected output."
     ],
     "id": "crust-extra-performance-loop",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Performance\nOptimize with measurement first, then targeted changes.\n\nOverview:\n- Reduce repeated allocations and unnecessary copies.\n- Avoid repeated work inside loops.\n- Prefer linear passes over nested scans when possible.\n\nExample:\n- Cache derived values when reused.\n- Use `Set` for frequent membership checks.\n\nGuidelines:\n- Keep code correct first.\n- Verify gains with realistic inputs.",
+    "lesson": "Lesson: Loop Efficiency\nUnderstanding how many times a loop runs is the first step toward analyzing the performance of an algorithm. A loop that runs 5 times has a very different cost than one that runs 5,000 times or one that is nested inside another loop.\n\nCore Concepts:\n1. Iteration Count: The number of 'steps' an algorithm takes often scales with the size of the input data (Big O notation).\n2. Linear Complexity: A single loop from 1 to N takes N steps. This is efficient for most common tasks.\n3. Optimization: If you can achieve the same result with fewer steps (e.g., using a formula instead of a loop), your code will run faster.\n\nExample:\n    var steps = 0\n    for i in 1...n {\n        steps += 1 // This runs N times\n    }\n\nNote: Always keep an eye on how your loops grow as your data gets larger.",
     "manualCheck": false,
     "number": 309,
     "requires": [],
@@ -1607,17 +1671,19 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Bridge Swift to NSString",
+    "description": "Understand the bridging relationship between Swift types and Objective-C classes by interacting with `NSString` properties.",
     "expectedOutput": "5",
     "fixtureFiles": [],
     "hints": [
-      "Use NSString(name) or name as NSString.",
-      "Print the length property."
+      "Interoperability with Objective-C is a key feature of Swift, especially when using Apple's frameworks.",
+      "Swift's 'String' type bridges to the 'NSString' class from Foundation.",
+      "Cast 'name' to 'NSString' using 'as' to access its 'length' property.",
+      "The result should be 5, representing the number of UTF-16 code units in \"Forge\"."
     ],
     "id": "crust-extra-objc-bridge",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Interop\nInterop bridges Swift code with external systems and formats.\n\nOverview:\n- Convert between representations carefully.\n- Validate boundaries and error paths.\n- Keep adapters thin and well-tested.\n\nExample:\n- Map raw input into typed Swift models.\n- Surface conversion failures with structured errors.\n\nGuidelines:\n- Isolate boundary code from core logic.\n- Preserve invariants when crossing module/language edges.",
+    "lesson": "Lesson: Objective-C Interoperability\nSwift was designed to coexist with Objective-C, allowing developers to use legacy codebases and Apple's extensive framework library. One of the ways this is achieved is through 'bridging'—automatic conversion between certain Swift types and their Objective-C equivalents.\n\nCore Concepts:\n1. @objc: Use this attribute to expose Swift classes, methods, and properties to the Objective-C runtime.\n2. Toll-Free Bridging: Some types can be used interchangeably between the two languages without any performance cost (e.g., 'String' and 'NSString').\n3. Dynamic Dispatch: Objective-C relies on dynamic dispatch (finding methods at runtime), which is different from Swift's default static or vtable dispatch.\n\nExample:\n    @objc class MyController: NSObject {\n        @objc func handleAction() { ... }\n    }\n\nNote: Understanding bridging is essential for integrating Swift into established iOS and macOS projects.",
     "manualCheck": false,
     "number": 310,
     "requires": [],

@@ -12,13 +12,14 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Write and await a simple async function",
+    "description": "Write and await a simple async function using the `async` and `await` keywords.",
     "expectedOutput": "Heat: 1500",
     "fixtureFiles": [],
     "hints": [
-      "Async functions are declared with async and called with await.",
-      "Await the result inside the runAsync block, then report it.",
-      "runAsync uses a Task to bridge async work in a script."
+      "Async functions are declared with the 'async' keyword before the return arrow.",
+      "You must use 'await' when calling an async function, even inside another async context.",
+      "The 'await' keyword represents a 'suspension point' where the function might pause its execution.",
+      "Call 'fetchHeat()' and print the result as \"Heat: 1500\"."
     ],
     "id": "",
     "introduces": [
@@ -26,7 +27,7 @@
       "task"
     ],
     "layer": "crust",
-    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "lesson": "Lesson: Async/Await Basics\nSwift's concurrency model allows you to write asynchronous code that reads like synchronous code. Functions that perform long-running work are marked as 'async', and calling them requires the 'await' keyword.\n\nCore Concepts:\n1. Suspension Points: When you 'await' a function, your code may pause (suspend) to let other work happen, then resume once the result is ready.\n2. async Keyword: Placed after the parameters but before the return type: 'func load() async -> Int'.\n3. await Keyword: Required at every call site of an async function.\n\nExample:\n    func fetch() async -> String { \"Data\" }\n    let result = await fetch()\n\nNote: Because async functions can suspend, they can only be called from other async contexts or from a 'Task'.",
     "manualCheck": false,
     "number": 177,
     "requires": [],
@@ -49,17 +50,19 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Run async work in a Task",
+    "description": "Create a `Task` to execute asynchronous work and retrieve its result using the `value` property.",
     "expectedOutput": "Forged",
     "fixtureFiles": [],
     "hints": [
-      "Use a Task to run the async function and capture its result.",
-      "task.value returns the Task result."
+      "A 'Task' creates a unit of asynchronous work that can run concurrently with other tasks.",
+      "You can initialize a task by passing a closure: 'Task { await someFunction() }'.",
+      "To get the result back from a task, use 'await task.value'.",
+      "Print the result returned from the task to match the output 'Forged'."
     ],
     "id": "",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "lesson": "Lesson: Tasks\nA 'Task' is a unit of asynchronous work. Tasks allow you to run code concurrently and are the primary way to call async code from a synchronous context (like a UI action or a top-level script).\n\nCore Concepts:\n1. Unstructured Concurrency: Tasks created this way ('Task { ... }') are independent and don't have a parent-child relationship with the scope that created them.\n2. task.value: If a task returns a value, you can access it by awaiting the 'value' property of the task handle.\n3. Context: Tasks inherit the priority and actor context of their creator by default.\n\nExample:\n    let task = Task { return await fetchData() }\n    let data = await task.value\n\nNote: Tasks start running immediately upon creation.",
     "manualCheck": false,
     "number": 178,
     "requires": [],
@@ -82,19 +85,21 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Sum values using a task group",
+    "description": "Coordinate multiple concurrent child tasks using a `Task Group` to aggregate results and compute a final sum.",
     "expectedOutput": "Sum: 6",
     "fixtureFiles": [],
     "hints": [
-      "Add a task for each value and sum the results as they arrive.",
-      "Return the sum from the task group scope."
+      "Task groups provide a way to create a dynamic number of child tasks that run concurrently.",
+      "Use 'group.addTask { ... }' inside the withTaskGroup closure to add work.",
+      "Iterate over the group results using 'for await value in group' to sum the values.",
+      "The task group automatically waits for all child tasks to complete before returning."
     ],
     "id": "",
     "introduces": [
       "taskGroup"
     ],
     "layer": "crust",
-    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "lesson": "Lesson: Task Groups\nTask groups allow you to create and manage a dynamic set of child tasks. This is known as 'structured concurrency' because the parent task automatically waits for all child tasks to finish before completing its own execution.\n\nCore Concepts:\n1. Dynamic Concurrency: Use task groups when the number of concurrent tasks isn't known until runtime (e.g., processing an array of items).\n2. Result Aggregation: You can return a value from the entire group scope after collecting results from individual child tasks.\n3. Automatic Cleanup: If a task group scope is exited (either normally or by an error), Swift ensures all child tasks are cancelled or awaited.\n\nExample:\n    await withTaskGroup(of: Int.self) { group in\n        group.addTask { 1 }\n        group.addTask { 2 }\n        var total = 0\n        for await value in group { total += value }\n        return total\n    }\n\nNote: Child tasks in a group inherit the priority of the parent group.",
     "manualCheck": false,
     "number": 179,
     "requires": [],
@@ -117,17 +122,19 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Iterate an AsyncStream",
+    "description": "Construct an `AsyncStream` to produce a sequence of values over time and iterate them using `for await`.",
     "expectedOutput": "Total: 6",
     "fixtureFiles": [],
     "hints": [
-      "Yield values into the stream, then finish it when done.",
-      "for await iterates async sequences."
+      "An 'AsyncStream' allows you to bridge callback-based or manual data production into the async/await world.",
+      "Use 'continuation.yield(value)' to push new values into the stream.",
+      "Always call 'continuation.finish()' when there are no more values to send.",
+      "Use 'for await value in stream' to process values as they are produced."
     ],
     "id": "",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "lesson": "Lesson: Async Streams\nAsyncStream provides a convenient way to create an asynchronous sequence that can be iterated using 'for await'. It's particularly useful for bridging existing callback-based APIs into Swift's structured concurrency model.\n\nCore Concepts:\n1. Continuation: The closure provided to AsyncStream gives you a 'continuation' object used to yield values or finish the stream.\n2. Yielding: Call 'yield(_:)' to send a new element to any active 'for await' loops.\n3. Finishing: Call 'finish()' to signal that the sequence has ended. Iteration will stop once all yielded values are processed.\n\nExample:\n    let stream = AsyncStream<Int> { continuation in\n        continuation.yield(1)\n        continuation.finish()\n    }\n\nNote: AsyncStream handles buffering and backpressure automatically for you.",
     "manualCheck": false,
     "number": 180,
     "requires": [],
@@ -150,17 +157,19 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Respect Task cancellation",
+    "description": "Implement cooperative cancellation in a `Task` by checking for the cancellation state and stopping work early.",
     "expectedOutput": "Cancelled: 0",
     "fixtureFiles": [],
     "hints": [
-      "Task.isCancelled lets you exit early.",
-      "Cancel the task before awaiting task.value."
+      "Cancellation in Swift is cooperative, meaning a task must check its own cancellation status.",
+      "Check 'Task.isCancelled' to determine if the task should stop its work.",
+      "Use 'task.cancel()' to request that a task stop running.",
+      "Return 0 if the task is cancelled, or 3 if it completes successfully."
     ],
     "id": "",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "lesson": "Lesson: Cooperative Cancellation\nIn Swift, cancelling a task does not stop it immediately. Instead, cancellation is 'cooperative', meaning the task must periodically check whether it has been cancelled and stop its work gracefully.\n\nCore Concepts:\n1. task.cancel(): Request that a task stop its execution. This sets the 'isCancelled' flag on the task and all of its child tasks.\n2. Task.isCancelled: A static property that returns true if the current task has been cancelled.\n3. checkCancellation(): A helper that throws a 'CancellationError' if the task is cancelled, which is useful for stopping work in throwing functions.\n\nExample:\n    let task = Task {\n        for i in 1...100 {\n            if Task.isCancelled { return }\n            process(i)\n        }\n    }\n    task.cancel()\n\nNote: Always check for cancellation in long-running or resource-intensive tasks.",
     "manualCheck": false,
     "number": 181,
     "requires": [],
@@ -183,19 +192,21 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Isolate state with an actor",
+    "description": "Isolate mutable state within an `actor` to prevent data races and ensure thread-safe access to properties.",
     "expectedOutput": "Count: 2",
     "fixtureFiles": [],
     "hints": [
-      "Actor methods are accessed with await.",
-      "Store the result from current() before printing."
+      "Actors are reference types that protect their state by only allowing one task to access them at a time.",
+      "To access an actor's methods or properties from the outside, you must use the 'await' keyword.",
+      "The 'increment' method will be executed serially, ensuring the 'value' property is updated safely.",
+      "Call 'increment' twice and then 'current' to verify the result."
     ],
     "id": "",
     "introduces": [
       "actors"
     ],
     "layer": "crust",
-    "lesson": "Lesson: Actors\nActors protect mutable state from data races.\n\nOverview:\n- Actor methods are isolated by default.\n- Access actor state with `await` from outside.\n- Use actors for shared mutable state across tasks.\n\nExample:\n    actor Counter {\n        private var value = 0\n        func inc() { value += 1 }\n        func read() -> Int { value }\n    }\n\nGuidelines:\n- Keep actor APIs small.\n- Avoid unnecessary cross-actor hops in tight loops.",
+    "lesson": "Lesson: Actors\nActors are a fundamental part of Swift's concurrency model. Unlike classes, actors ensure that only one task can access their mutable state at any given time, which automatically prevents data races.\n\nCore Concepts:\n1. Serialization: Actors 'serialize' access to their data. If multiple tasks try to call an actor's method at once, the actor will process them one after another.\n2. Isolation: An actor's properties are isolated. They can only be modified by the actor itself.\n3. External Access: When calling an actor's method from outside, you must use 'await' because your task might need to pause while the actor finishes other work.\n\nExample:\n    actor SafeCounter {\n        var count = 0\n        func add() { count += 1 }\n    }\n    let c = SafeCounter()\n    await c.add() // Must use await\n\nNote: Actors are reference types, but unlike classes, they do not support inheritance.",
     "manualCheck": false,
     "number": 182,
     "requires": [],
@@ -218,20 +229,21 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Run work on the main actor",
+    "description": "Ensure work is executed on the main thread by using the `@MainActor` attribute for functions and task scopes.",
     "expectedOutput": "Status: 3",
     "fixtureFiles": [],
     "hints": [
-      "@MainActor functions run on the main actor.",
-      "Run the work on the main actor inside a Task.",
-      "Run the main run loop briefly so the task can execute."
+      "@MainActor is a special actor that represents the main thread, where all UI updates must happen.",
+      "You can mark functions with '@MainActor' to ensure they always run on the main thread.",
+      "Tasks can also be restricted to the main actor: 'Task { @MainActor in ... }'.",
+      "Because this is a script, you must keep the main run loop alive for a moment to let the asynchronous main actor work complete."
     ],
     "id": "",
     "introduces": [
       "mainActor"
     ],
     "layer": "crust",
-    "lesson": "Lesson: Actors\nActors protect mutable state from data races.\n\nOverview:\n- Actor methods are isolated by default.\n- Access actor state with `await` from outside.\n- Use actors for shared mutable state across tasks.\n\nExample:\n    actor Counter {\n        private var value = 0\n        func inc() { value += 1 }\n        func read() -> Int { value }\n    }\n\nGuidelines:\n- Keep actor APIs small.\n- Avoid unnecessary cross-actor hops in tight loops.",
+    "lesson": "Lesson: The Main Actor\nIn Swift, UI updates and other sensitive operations must occur on the main thread. Swift provides the '@MainActor' attribute to guarantee that specific code always runs on that thread, preventing crashes and visual glitches.\n\nCore Concepts:\n1. Global Actor: '@MainActor' is a globally available actor. Any function or type marked with it is restricted to the main thread.\n2. Context Inheritance: Tasks created from a @MainActor context will also run on the main actor by default.\n3. Calling MainActor Code: Calling a @MainActor function from a background context requires an 'await', as the task must wait for the main thread to become available.\n\nExample:\n    @MainActor\n    func updateUI() { label.text = \"Updated\" }\n    \n    Task { await updateUI() }\n\nNote: In apps, views and view controllers are typically marked @MainActor by default.",
     "manualCheck": false,
     "number": 183,
     "requires": [
@@ -256,19 +268,21 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Mark values as safe to send across tasks",
+    "description": "Apply the `Sendable` protocol to a type to mark it as safe for transfer across concurrent task boundaries.",
     "expectedOutput": "Heat: 1200",
     "fixtureFiles": [],
     "hints": [
-      "Sendable is a marker for concurrency safety.",
-      "Use the stored value in the output."
+      "'Sendable' is a marker protocol that tells the compiler a type is safe to use in a concurrent environment.",
+      "Value types like structs are automatically 'Sendable' if all of their stored properties are also 'Sendable'.",
+      "Marker protocols like 'Sendable' do not have any method or property requirements to implement.",
+      "Print the value from the 'HeatReport' to match the output."
     ],
     "id": "",
     "introduces": [
       "sendable"
     ],
     "layer": "crust",
-    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "lesson": "Lesson: Sendable\nThe 'Sendable' protocol is a marker protocol that indicates a type is safe to share across concurrent boundaries, such as between different tasks or actors. This is a key tool for Swift's compile-time data race safety.\n\nCore Concepts:\n1. Value Types: Most value types (structs, enums) are safe to send because they are copied when passed around. They are implicitly 'Sendable' if all their properties are 'Sendable'.\n2. Reference Types: Classes are generally not 'Sendable' because they can be modified from multiple places at once. To make a class 'Sendable', it must be an actor or be carefully designed with internal synchronization.\n3. Marker Protocols: 'Sendable' doesn't add any code to your type; it simply signals your intent to the compiler.\n\nExample:\n    struct Score: Sendable { let value: Int }\n    \n    Task {\n        let myScore = Score(value: 10)\n        process(myScore) // Safe to send to another task\n    }\n\nNote: Swift uses 'Sendable' checks to catch potential data races at compile time rather than crashing at runtime.",
     "manualCheck": false,
     "number": 184,
     "requires": [],
@@ -291,19 +305,21 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Use a provided property wrapper",
+    "description": "Apply a property wrapper to a property to automatically enforce behavioral rules like value clamping.",
     "expectedOutput": "100",
     "fixtureFiles": [],
     "hints": [
-      "The wrapper clamps values into the provided range.",
-      "Declare the wrapped property on a type, then print it."
+      "A property wrapper provides a layer of separation between code that manages how a property is stored and code that defines a property.",
+      "Apply the wrapper by placing '@Clamped(0...100)' before the property declaration.",
+      "The wrapper will intercept the initial value of 120 and clamp it to the upper bound of 100.",
+      "Print 'furnace.heat' to verify the behavior."
     ],
     "id": "",
     "introduces": [
       "propertyWrappers"
     ],
     "layer": "crust",
-    "lesson": "Lesson: Property Wrappers\nProperty wrappers package repeated property behavior.\n\nOverview:\n- Define wrapper with `@propertyWrapper`.\n- Expose wrapped value via `wrappedValue`.\n- Optionally expose extra API via `projectedValue`.\n\nExample:\n    @propertyWrapper\n    struct Clamped {\n        private var value: Int\n        var wrappedValue: Int {\n            get { value }\n            set { value = max(0, min(100, newValue)) }\n        }\n        init(wrappedValue: Int) { value = wrappedValue }\n    }\n\nGuidelines:\n- Use wrappers for cross-cutting rules.\n- Keep wrapper behavior unsurprising.",
+    "lesson": "Lesson: Using Property Wrappers\nProperty wrappers allow you to extract common behavioral logic (like clamping, validation, or logging) into a reusable wrapper that can be applied to any property using an '@' attribute.\n\nCore Concepts:\n1. Syntactic Sugar: When you mark a property with '@Wrapper', Swift automatically creates an instance of the wrapper type to manage that property's storage.\n2. Interface: You interact with the property normally (e.g., 'furnace.heat'), but every read and write goes through the wrapper's internal logic.\n3. Reusability: Instead of writing clamping logic in every struct, you write it once in a '@propertyWrapper' and reuse it everywhere.\n\nExample:\n    struct Furnace {\n        @Clamped(0...100) var heat = 120\n    }\n    // heat is automatically 100\n\nNote: Property wrappers are a powerful way to keep your data models clean and declarative.",
     "manualCheck": false,
     "number": 185,
     "requires": [],
@@ -326,17 +342,19 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Build a wrapper that normalizes input",
+    "description": "Create a custom property wrapper `@Lowercased` that automatically normalizes string input by converting it to lowercase.",
     "expectedOutput": "iron",
     "fixtureFiles": [],
     "hints": [
-      "wrappedValue should return the stored value and lowercased on set.",
-      "Lowercase the initial wrappedValue in the initializer."
+      "To build a property wrapper, mark a struct or class with '@propertyWrapper'.",
+      "You must implement a 'wrappedValue' property. Use its setter to lowercase any incoming string.",
+      "The initializer 'init(wrappedValue:)' is used when you provide an initial value at the call site (e.g., 'var name = \"IRON\"').",
+      "Lowercase the string in both the initializer and the setter to ensure consistency."
     ],
     "id": "",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Property Wrappers\nProperty wrappers package repeated property behavior.\n\nOverview:\n- Define wrapper with `@propertyWrapper`.\n- Expose wrapped value via `wrappedValue`.\n- Optionally expose extra API via `projectedValue`.\n\nExample:\n    @propertyWrapper\n    struct Clamped {\n        private var value: Int\n        var wrappedValue: Int {\n            get { value }\n            set { value = max(0, min(100, newValue)) }\n        }\n        init(wrappedValue: Int) { value = wrappedValue }\n    }\n\nGuidelines:\n- Use wrappers for cross-cutting rules.\n- Keep wrapper behavior unsurprising.",
+    "lesson": "Lesson: Building Custom Wrappers\nTo create your own property wrapper, you define a structure or class marked with the '@propertyWrapper' attribute. This type must have a property named 'wrappedValue', which is what the outside world interacts with.\n\nCore Concepts:\n1. wrappedValue: This is the only required property. It defines the logic for reading and writing the value.\n2. Initializers: You can provide custom initializers to set up the wrapper (e.g., setting a range for clamping or an initial value).\n3. Encapsulation: Use private storage (e.g., 'private var value') inside the wrapper to hold the actual data, while exposing it safely through 'wrappedValue'.\n\nExample:\n    @propertyWrapper\n    struct Lowercased {\n        private var value: String = \"\"\n        var wrappedValue: String {\n            get { value }\n            set { value = newValue.lowercased() }\n        }\n        init(wrappedValue: String) { self.wrappedValue = wrappedValue }\n    }\n\nNote: Custom wrappers allow you to define highly specialized data handling rules that are easy to apply across your project.",
     "manualCheck": false,
     "number": 186,
     "requires": [],
@@ -359,19 +377,21 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Use projected values from a wrapper",
+    "description": "Expose auxiliary information from a property wrapper using a `projectedValue` and access it using the `$` prefix syntax.",
     "expectedOutput": "Updates: 2",
     "fixtureFiles": [],
     "hints": [
-      "Projected values are accessed with a $ prefix.",
-      "Use the projected value on the instance after two assignments."
+      "A 'projectedValue' allows a property wrapper to expose additional information or API beyond the wrapped value itself.",
+      "Access the projected value by placing a '$' before the property name (e.g., 'furnace.$heat').",
+      "In this challenge, the projected value tracks how many times the property has been updated.",
+      "Assign new values to 'heat' twice, then print the count from the projected value."
     ],
     "id": "",
     "introduces": [
       "projectedValues"
     ],
     "layer": "crust",
-    "lesson": "Lesson: Property Wrappers\nProperty wrappers package repeated property behavior.\n\nOverview:\n- Define wrapper with `@propertyWrapper`.\n- Expose wrapped value via `wrappedValue`.\n- Optionally expose extra API via `projectedValue`.\n\nExample:\n    @propertyWrapper\n    struct Clamped {\n        private var value: Int\n        var wrappedValue: Int {\n            get { value }\n            set { value = max(0, min(100, newValue)) }\n        }\n        init(wrappedValue: Int) { value = wrappedValue }\n    }\n\nGuidelines:\n- Use wrappers for cross-cutting rules.\n- Keep wrapper behavior unsurprising.",
+    "lesson": "Lesson: Projected Values\nIn addition to the 'wrappedValue', a property wrapper can expose a 'projectedValue'. This is an auxiliary value that provides extra functionality or information about the property, such as a publisher, a validation state, or an update counter.\n\nCore Concepts:\n1. The $ Prefix: You access the projected value of a property by prefixing its name with a dollar sign (e.g., '$name').\n2. Implementation: Inside your wrapper, you define a property named 'projectedValue'. It can be of any type.\n3. Usage: While 'wrappedValue' provides the main data, 'projectedValue' provides metadata or extra controls.\n\nExample:\n    @propertyWrapper\n    struct Tracked {\n        var wrappedValue: Int\n        var projectedValue: Int = 0 // Tracks changes\n    }\n    \n    @Tracked var count = 0\n    print($count) // Accesses projectedValue\n\nNote: Projected values are commonly used in frameworks to provide bindings or state management handles.",
     "manualCheck": false,
     "number": 187,
     "requires": [],
@@ -394,17 +414,19 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Read a value using a key path",
+    "description": "Create a key path reference to a property and use it to read a value from a struct instance.",
     "expectedOutput": "Iron",
     "fixtureFiles": [],
     "hints": [
-      "Key paths use the \\Type.property syntax.",
-      "Access with value[keyPath: path]."
+      "A key path is a strongly-typed reference to a property, not the property value itself.",
+      "The syntax for a key path is '\\Type.property' (e.g., '\\Ore.name').",
+      "You can use a key path to access a value using the subscript syntax: 'instance[keyPath: path]'.",
+      "Print the name of the 'ore' instance using your key path."
     ],
     "id": "",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Key Paths\nKey paths reference properties as values.\n\nOverview:\n- `\\Type.property` captures a readable path.\n- Use key paths with APIs like `map` and sorting helpers.\n- Writable key paths enable generic mutation utilities.\n\nExample:\n    struct Reading { let temp: Int }\n    let temps = readings.map(\\.temp)\n\nGuidelines:\n- Prefer key paths when extracting one property repeatedly.\n- Keep transformations readable and explicit.",
+    "lesson": "Lesson: Key Path Syntax\nKey paths allow you to reference a property of a type as a value itself. This is useful for writing generic code that can interact with different properties dynamically while maintaining full type safety.\n\nCore Concepts:\n1. syntax: Use a backslash followed by the type name and property: '\\Type.property'.\n2. Subscript Access: You use the 'keyPath' subscript on an instance to read or write the property value: 'object[keyPath: path]'.\n3. Type Safety: Key paths are generic types ('KeyPath<Root, Value>') that ensure you can only use them with the correct types.\n\nExample:\n    struct Item { let id: Int }\n    let path = \\Item.id\n    let myItem = Item(id: 42)\n    print(myItem[keyPath: path]) // 42\n\nNote: Key paths are essentially 'pointers' to properties that can be stored, passed to functions, and used later.",
     "manualCheck": false,
     "number": 188,
     "requires": [],
@@ -427,17 +449,19 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Map values using key paths",
+    "description": "Utilize shorthand key path syntax (`\\.property`) to extract specific properties from a collection using the `map` function.",
     "expectedOutput": "Iron,Gold",
     "fixtureFiles": [],
     "hints": [
-      "map can take a key path like \\.name.",
-      "Use joined(separator:) to format the array."
+      "In functional APIs like 'map', you can use a shorthand key path starting with a dot if the root type is inferred.",
+      "The syntax '\\.name' is shorthand for '\\Ore.name' when mapping over an array of Ore instances.",
+      "Use 'ores.map(\\.name)' to get an array of strings.",
+      "Join the resulting names with a comma to match the expected output."
     ],
     "id": "",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Key Paths\nKey paths reference properties as values.\n\nOverview:\n- `\\Type.property` captures a readable path.\n- Use key paths with APIs like `map` and sorting helpers.\n- Writable key paths enable generic mutation utilities.\n\nExample:\n    struct Reading { let temp: Int }\n    let temps = readings.map(\\.temp)\n\nGuidelines:\n- Prefer key paths when extracting one property repeatedly.\n- Keep transformations readable and explicit.",
+    "lesson": "Lesson: Key Paths in Functional APIs\nOne of the most common uses for key paths is in functional programming APIs like 'map', 'filter', and 'sorted'. Swift allows you to pass a key path directly to these functions as a clean alternative to a closure.\n\nCore Concepts:\n1. Shorthand Syntax: When the compiler can infer the type (e.g., inside an array map), you can omit the type name and just use '\\.property'.\n2. Readability: 'items.map(\\.name)' is often more readable and concise than 'items.map { $0.name }'.\n3. Composability: Key paths can be chained together (e.g., '\\.user.email') to reach deep into a data structure.\n\nExample:\n    struct User { let name: String }\n    let users = [User(name: \"Ada\"), User(name: \"Ben\")]\n    let names = users.map(\\.name)\n\nNote: This shorthand is available wherever a closure of type '(Root) -> Value' is expected.",
     "manualCheck": false,
     "number": 189,
     "requires": [],
@@ -461,17 +485,19 @@
       "requireCollectionUsage": false,
       "requiredTokens": []
     },
-    "description": "Defer work with lazy",
+    "description": "Utilize the `.lazy` property to create a deferred collection that only performs transformations when elements are accessed.",
     "expectedOutput": "[2, 4, 6]",
     "fixtureFiles": [],
     "hints": [
-      "lazy creates a deferred sequence.",
-      "Wrap the lazy result in Array(...) to print it."
+      "The '.lazy' property wraps a collection in a way that transformations like 'map' or 'filter' are deferred.",
+      "Work is only performed when you actually access the elements (e.g., in a loop or by converting back to an Array).",
+      "Use 'numbers.lazy.map { ... }' to double the values without creating an intermediate array.",
+      "Wrap the result in 'Array()' to materialize the values for printing."
     ],
     "id": "",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "lesson": "Lesson: Lazy Collections\nBy default, methods like 'map' and 'filter' create a new array containing all the transformed elements immediately. For large datasets or complex chains of transformations, this can be memory-intensive. Swift provides the '.lazy' property to delay this work until it's actually needed.\n\nCore Concepts:\n1. Deferred Evaluation: Logic inside 'map' or 'filter' isn't run until you access a specific element.\n2. Memory Efficiency: Avoids allocating memory for intermediate arrays in a chain of transformations (e.g., 'filter().map().prefix()').\n3. Materialization: Since a lazy collection isn't a real array, you must eventually 'materialize' it (often by passing it to 'Array()') if you need to store or print the final result.\n\nExample:\n    let bigData = (1...1_000_000).lazy.filter { $0 % 2 == 0 }.map { $0 * $0 }\n    // No work has been done yet!\n    print(bigData.first!) // Only now is the first square calculated.\n\nNote: Lazy evaluation is ideal for pipelines where you might only need a portion of the results.",
     "manualCheck": false,
     "number": 190,
     "requires": [],
@@ -495,17 +521,19 @@
       "requireCollectionUsage": false,
       "requiredTokens": []
     },
-    "description": "Create a sequence that counts down",
+    "description": "Create a custom sequence by conforming to `Sequence` and providing a factory method for its iterator.",
     "expectedOutput": "3\n2\n1",
     "fixtureFiles": [],
     "hints": [
-      "Return nil when the sequence is done.",
-      "Use defer or manual decrement to update current."
+      "A 'Sequence' is a type that can be iterated over using 'for-in'.",
+      "To conform to 'Sequence', you must implement the 'makeIterator()' method, which returns an object conforming to 'IteratorProtocol'.",
+      "The 'CountdownIterator' needs to implement 'next()' to return the current value and then decrement it.",
+      "The loop will automatically stop when 'next()' returns 'nil'."
     ],
     "id": "",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "lesson": "Lesson: Custom Sequences\nWhile 'IteratorProtocol' defines how to produce values, the 'Sequence' protocol defines how to create those iterators. Any type that conforms to 'Sequence' can be used in a 'for-in' loop.\n\nCore Concepts:\n1. makeIterator(): The only requirement for 'Sequence'. It acts as a factory that creates a fresh iterator whenever a loop starts.\n2. Reusability: Unlike iterators, which are usually consumed, sequences can often be iterated multiple times (though this depends on the specific implementation).\n3. for-in: When you write 'for x in sequence', Swift calls 'makeIterator()' behind the scenes and then repeatedly calls 'next()' on that iterator.\n\nExample:\n    struct MySequence: Sequence {\n        func makeIterator() -> MyIterator { return MyIterator() }\n    }\n\nNote: Many powerful functions like 'map' and 'filter' are available automatically once a type conforms to 'Sequence'.",
     "manualCheck": false,
     "number": 191,
     "requires": [],

@@ -13,17 +13,19 @@
       "requireCollectionUsage": false,
       "requiredTokens": []
     },
-    "description": "Implement next() manually",
+    "description": "Implement a custom iterator by conforming to `IteratorProtocol` and manually managing its state through the `next()` method.",
     "expectedOutput": "1200\n1300",
     "fixtureFiles": [],
     "hints": [
-      "Return nil after current exceeds max.",
-      "Update current after returning the old value."
+      "The 'IteratorProtocol' requires a single method: 'mutating func next() -> T?'.",
+      "The 'next()' method returns the next element in the sequence, or 'nil' when the sequence ends.",
+      "The iterator needs to track its internal state (like a 'current' value) to know what to return next.",
+      "Update your 'current' value before returning it, or use 'defer' to increment it after the return."
     ],
     "id": "",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "lesson": "Lesson: Custom Iterators\nAt the heart of every Swift loop is an 'iterator'. Conform to the 'IteratorProtocol' to create an object that can provide elements of a sequence one by one. This allows you to define custom logic for how data is produced or traversed.\n\nCore Concepts:\n1. next(): The primary requirement. It returns an optional value. Returning a value continues the iteration; returning 'nil' signals the end.\n2. state Management: Iterators are usually structs that store a 'cursor' or 'index' to track their progress.\n3. Protocol Requirements: A type conforming to 'IteratorProtocol' only needs to implement 'next()'.\n\nExample:\n    struct StepIterator: IteratorProtocol {\n        var count: Int\n        mutating func next() -> Int? {\n            if count <= 0 { return nil }\n            defer { count -= 1 }\n            return count\n        }\n    }\n\nNote: Iterators are typically consumed as they are used; once 'next()' returns 'nil', the iterator is exhausted.",
     "manualCheck": false,
     "number": 192,
     "requires": [],
@@ -47,17 +49,19 @@
       "requireCollectionUsage": false,
       "requiredTokens": []
     },
-    "description": "Materialize a sequence to access count",
+    "description": "Convert a custom sequence into a concrete array to access collection-specific properties like `count` and `last`.",
     "expectedOutput": "Count: 3\nLast: 1",
     "fixtureFiles": [],
     "hints": [
-      "Array(sequence) materializes the values.",
-      "Use items.count and items.last to format output."
+      "A 'Sequence' only guarantees that it can be iterated; it doesn't necessarily know its count or support random access.",
+      "To access these features, you can 'materialize' the sequence by passing it to an Array initializer: 'Array(sequence)'.",
+      "The 'items' array will contain all elements produced by the sequence's iterator.",
+      "Print the count and the last element of the resulting array."
     ],
     "id": "",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Sequences\nSequences model one-pass element production.\n\nOverview:\n- Many standard transforms (`map`, `filter`, `reduce`) are sequence-based.\n- `lazy` delays work until values are consumed.\n- Choose Array when you need storage; Sequence when you need iteration.\n\nExample:\n    let total = values.lazy\n        .filter { $0 > 0 }\n        .map { $0 * 2 }\n        .reduce(0, +)\n\nGuidelines:\n- Use lazy pipelines for large data chains.\n- Materialize to Array only when needed.",
+    "lesson": "Lesson: Materializing Sequences\nA 'Sequence' is an abstract representation of data that can be traversed. Some sequences might even be infinite! Because of this, sequences don't always support properties like 'count' or subscripts like '[0]'.\n\nCore Concepts:\n1. Sequence vs Collection: A 'Sequence' is the most basic protocol for iteration. A 'Collection' (like Array or Dictionary) builds on top of it, adding indices, counts, and stable multi-pass iteration.\n2. Conversion: You can convert any finite sequence into an array using 'Array(sequence)'. This is called 'materializing' the sequence because it stores all the values in memory.\n3. Access: Once materialized, you can use all the familiar array methods and properties.\n\nExample:\n    let range = 1...5\n    let array = Array(range) // Materializes the range into [1, 2, 3, 4, 5]\n    print(array.count)\n\nNote: Be careful when materializing very large or infinite sequences, as this can consume all available memory.",
     "manualCheck": false,
     "number": 193,
     "requires": [],
@@ -80,17 +84,19 @@
       "disallowedTokens": [],
       "requiredTokens": []
     },
-    "description": "Combine async, actors, and wrappers",
+    "description": "Compose multiple advanced Swift features—async/await, actors, and property wrappers—to build a thread-safe system with validated data.",
     "expectedOutput": "Heat: 2000",
     "fixtureFiles": [],
     "hints": [
-      "The wrapper clamps heat to 2000.",
-      "Use await to call actor methods."
+      "The '@Clamped' property wrapper ensures that the 'heat' property stays within the 0 to 2000 range.",
+      "Accessing or modifying 'furnace.heat' from outside the actor must be done asynchronously using 'await'.",
+      "Call 'addHeat(2200)' inside the 'runAsync' block; the wrapper will automatically clamp it to 2000.",
+      "Print the resulting heat value to verify the integration of all components."
     ],
     "id": "",
     "introduces": [],
     "layer": "crust",
-    "lesson": "Lesson: Concurrency\nStructured concurrency runs async work clearly and safely.\n\nOverview:\n- Mark async functions with `async` and call with `await`.\n- Use `Task` for concurrent units of work.\n- Use `withTaskGroup` for dynamic fan-out.\n\nExample:\n    func load() async -> Int { 5 }\n    let value = await load()\n\nGuidelines:\n- Keep async boundaries explicit.\n- Preserve deterministic output order when required.",
+    "lesson": "Lesson: Feature Integration\nAdvanced Swift programming often involves combining multiple features like Concurrency (Async/Await), State Isolation (Actors), and logic encapsulation (Property Wrappers) into a single, cohesive system.\n\nCore Concepts:\n1. Composition: You can apply property wrappers to properties inside an actor to combine data validation with thread safety.\n2. Async Interop: Interacting with an actor's wrapped properties requires 'await' just like calling an actor's methods.\n3. Layered Safety: The property wrapper provides local logic safety (clamping), while the actor provides system-level concurrency safety.\n\nExample:\n    actor Controller {\n        @Validated var setting: Int = 0\n    }\n    let c = Controller()\n    await c.setting = 100 // Safe and Validated\n\nNote: This layered approach allows you to build complex behavior from simple, specialized parts.",
     "manualCheck": false,
     "number": 194,
     "requires": [
