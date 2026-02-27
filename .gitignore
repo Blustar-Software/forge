@@ -15,3 +15,5 @@ workspace_verify/
 challenge_catalog.txt
 project_catalog.txt
 forge_state.json
+.gemini/
+
