@@ -258,12 +258,12 @@
       ],
       "requiredTokens": []
     },
-    "description": "Create a new protocol that inherits from `Component` and add a `status` requirement.",
+    "description": "Create a new protocol `InspectableComponent` that inherits from `Component`, then conform a `Sensor` struct to it and print its status.",
     "expectedOutput": "OK",
     "fixtureFiles": [],
     "hints": [
       "Protocol inheritance uses the same colon syntax as class inheritance: 'protocol Child: Parent'.",
-      "Define 'InspectableComponent' like this: 'protocol InspectableComponent: Component { var status: String { get } }'.",
+      "To inherit from another protocol, use a colon after your new protocol name followed by the parent protocol name.",
       "Types that conform to 'InspectableComponent' must implement requirements from both it AND the 'Component' protocol.",
       "Create an instance with a status of \"OK\" to pass the output check."
     ],
@@ -275,7 +275,7 @@
     "number": 144,
     "requires": [],
     "solution": "protocol InspectableComponent: Component {\n    var status: String { get }\n}\n\nstruct Sensor: InspectableComponent {\n    let id: String\n    let status: String\n}\n\nlet sensor = Sensor(id: \"S1\", status: \"OK\")\nprint(sensor.status)",
-    "starterCode": "// Challenge 144: Protocol Inheritance\n// Inherit requirements from another protocol.\n\nprotocol Component {\n    var id: String { get }\n}\n\n// TODO: Create protocol 'InspectableComponent' inheriting Component with 'status' String { get }\n// TODO: Create a type that conforms to InspectableComponent\n// TODO: Create an instance with status \"OK\" and print its status",
+    "starterCode": "// Challenge 144: Protocol Inheritance\n// Inherit requirements from another protocol.\n\nprotocol Component {\n    var id: String { get }\n}\n\n// TODO: Create protocol 'InspectableComponent' inheriting Component with 'status' String { get }\n// TODO: Create a struct 'Sensor' that conforms to InspectableComponent\n// TODO: Create an instance with an 'id' (e.g., \"S1\") and status \"OK\", then print its status",
     "tier": "mainline",
     "title": "Protocol Inheritance",
     "topic": "protocols"
