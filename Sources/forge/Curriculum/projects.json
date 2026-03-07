@@ -291,22 +291,22 @@
     "title": "Event Router"
   },
   {
-    "cheatsheet": "Structs (Value Types)\n- Definition: struct Name { var property: Type }\n- Initialization: let instance = Name(property: value) (memberwise init)\n- Access: Use dot notation: instance.property\n- Mutability: Use 'var' for instances you want to modify\n- Copying: Assigning a struct to a new variable creates a full, independent copy\n- Methods: Methods that modify properties must be marked 'mutating'",
+    "cheatsheet": "Project Cheatsheet: Forge Inventory\n- Structs are value types (copied on assignment)\n- Stored properties hold data directly\n- Methods perform actions using the struct's data",
     "completionMessage": "You can now model real data with custom types.",
     "completionTitle": "🏗️ Mantle 1 Complete!",
     "description": "Model inventory with structs and computed properties",
     "hints": [
-      "Use a computed property to multiply count and unitWeight.",
+      "Use a method to multiply count and unitWeight.",
       "Build label() with string interpolation.",
       "The 'InventoryItem' struct should have 'name', 'count', and 'unitWeight' as stored properties.",
-      "Total weight is a derived value, so it makes sense as a computed property: 'var totalWeight: Int { ... }'."
+      "Total weight is a calculation based on state, so it makes sense as a method: 'func calculateTotalWeight() -> Int { ... }'."
     ],
     "id": "mantle1a",
     "layer": "mantle",
-    "lesson": "Lesson: Forge Inventory Model\nIn this project, you will apply your knowledge of structs to build a small inventory management system.\n\nKey Learning Objectives:\n1. Struct Definition: Define a model that represents a single item in the forge's inventory.\n2. Stored vs. Computed Properties: Use stored properties for fixed data (name, count) and computed properties for derived data (total weight).\n3. Encapsulation: Group data and the behavior that acts on that data (like generating a label) into a single unit.\n\nProject Steps:\n- Define the 'InventoryItem' struct with the required properties.\n- Implement the 'totalWeight' computed property.\n- Implement the 'label()' method using string interpolation.\n- Use the provided test code to verify your implementation.\n\nBest Practices:\n- Use 'let' for properties that don't need to change once an item is created.\n- Keep your methods short and focused on a single responsibility.",
+    "lesson": "Lesson: Forge Inventory Model\nIn this project, you will apply your knowledge of structs and methods to build a small inventory management system.\n\nKey Learning Objectives:\n1. Struct Definition: Define a model that represents a single item in the forge's inventory.\n2. Stored Properties: Use stored properties to hold fixed data like name, count, and unit weight.\n3. Instance Methods: Use methods to perform calculations based on the struct's internal state (like calculating total weight).\n\nProject Steps:\n- Define the 'InventoryItem' struct with the required stored properties.\n- Implement the 'calculateTotalWeight()' method to multiply count by unit weight.\n- Implement the 'label()' method using string interpolation.\n- Use the provided test code to verify your implementation.\n\nBest Practices:\n- Use 'let' for properties that don't need to change once an item is created.\n- Methods are great for performing actions or calculations that depend on the struct's data.",
     "pass": 4,
-    "solution": "struct InventoryItem {\n    let name: String\n    let count: Int\n    let unitWeight: Int\n\n    var totalWeight: Int {\n        return count * unitWeight\n    }\n\n    func label() -> String {\n        return \"\\(name): \\(count)\"\n    }\n}",
-    "starterCode": "// Mantle 1 Project A: Forge Inventory Model\n// Model inventory items and compute totals.\n//\n// Requirements:\n// - Define a struct 'InventoryItem' with:\n//   - name: String\n//   - count: Int\n//   - unitWeight: Int\n// - Add a computed property totalWeight (count * unitWeight)\n// - Add a method label() -> String that returns \"<name>: <count>\"\n// - Create an array of two items:\n//   - (\"Iron\", 3, 2)\n//   - (\"Copper\", 2, 3)\n// - Print:\n//   \"Iron: 3\"\n//   \"Copper: 2\"\n//   \"Total weight: 12\"\n//\n// TODO: Implement the 'InventoryItem' struct here.\n\n// Test code (don't modify):\nlet items = [\n    InventoryItem(name: \"Iron\", count: 3, unitWeight: 2),\n    InventoryItem(name: \"Copper\", count: 2, unitWeight: 3),\n]\nfor item in items {\n    print(item.label())\n}\nlet total = items.reduce(0) { $0 + $1.totalWeight }\nprint(\"Total weight: \\(total)\")",
+    "solution": "struct InventoryItem {\n    let name: String\n    let count: Int\n    let unitWeight: Int\n\n    func calculateTotalWeight() -> Int {\n        return count * unitWeight\n    }\n\n    func label() -> String {\n        return \"\\(name): \\(count)\"\n    }\n}",
+    "starterCode": "// Mantle 1 Project A: Forge Inventory Model\n// Model inventory items and compute totals using methods.\n//\n// Requirements:\n// - Define a struct 'InventoryItem' with:\n//   - name: String\n//   - count: Int\n//   - unitWeight: Int\n// - Add a method 'calculateTotalWeight() -> Int' (count * unitWeight)\n// - Add a method 'label() -> String' that returns \"<name>: <count>\"\n// - Create an array of two items:\n//   - (\"Iron\", 3, 2)\n//   - (\"Copper\", 2, 3)\n// - Print:\n//   \"Iron: 3\"\n//   \"Copper: 2\"\n//   \"Total weight: 12\"\n//\n// TODO 1: Implement the 'InventoryItem' struct with stored properties\n// TODO 2: Add method 'calculateTotalWeight()'\n// TODO 3: Add method 'label()'\n\n// Test code (don't modify):\nlet items = [\n    InventoryItem(name: \"Iron\", count: 3, unitWeight: 2),\n    InventoryItem(name: \"Copper\", count: 2, unitWeight: 3),\n]\nfor item in items {\n    print(item.label())\n}\nlet total = items.reduce(0) { $0 + $1.calculateTotalWeight() }\nprint(\"Total weight: \\(total)\")",
     "testCases": [
       {
         "expectedOutput": "Iron: 3",
@@ -325,22 +325,22 @@
     "title": "Forge Inventory Model"
   },
   {
-    "cheatsheet": "Structs (Value Types)\n- Definition: struct Name { var property: Type }\n- Initialization: let instance = Name(property: value) (memberwise init)\n- Access: Use dot notation: instance.property\n- Mutability: Use 'var' for instances you want to modify\n- Copying: Assigning a struct to a new variable creates a full, independent copy\n- Methods: Methods that modify properties must be marked 'mutating'",
-    "completionMessage": "Great work applying mutating methods and computed properties.",
+    "cheatsheet": "Project Cheatsheet: Shift Tracker\n- Mutating Methods: Mark methods with 'mutating' to change stored properties\n- var vs let: Mutating methods can only be called on 'var' instances\n- Calculations: Methods can perform math using the struct's current properties",
+    "completionMessage": "Great work applying mutating methods and state changes.",
     "completionTitle": "✨ Mantle 1 Extra Project Complete!",
     "description": "Track shifts with mutating methods and computed totals",
     "hints": [
       "addShift should increase shifts by 1.",
-      "totalHours multiplies shifts by hoursPerShift.",
+      "calculateTotalHours multiplies shifts by hoursPerShift.",
       "The 'addShift' method must be marked 'mutating' because it modifies the 'shifts' stored property.",
       "The 'Worker' instance 'ada' must be declared with 'var' to allow calling mutating methods."
     ],
     "id": "mantle1b",
     "layer": "mantle",
-    "lesson": "Lesson: Shift Tracker\nThis project focuses on managing state within a struct using mutating methods and providing convenient access to calculated data via computed properties.\n\nKey Learning Objectives:\n1. Mutability in Structs: Understand why and when to use the 'mutating' keyword for methods.\n2. Instance Mutability: Learn that even if a method is marked 'mutating', you cannot call it on a struct instance declared with 'let'.\n3. Derived State: Practice using computed properties to keep your data model clean and consistent.\n\nProject Steps:\n- Create the 'Worker' struct.\n- Implement 'addShift()' as a mutating method.\n- Implement 'totalHours' as a computed property.\n- In the test code, use 'var' for workers who will have shifts added.\n\nBest Practices:\n- Only mark a method 'mutating' if it actually changes the struct's state.\n- Prefer computed properties over manually updating 'total' fields to avoid state synchronization bugs.",
+    "lesson": "Lesson: Shift Tracker\nThis project focuses on managing state within a struct using mutating methods and performing calculations based on that state using instance methods.\n\nKey Learning Objectives:\n1. Mutability in Structs: Understand why and when to use the 'mutating' keyword for methods that change stored properties.\n2. Instance Mutability: Learn that even if a method is marked 'mutating', you cannot call it on a struct instance declared with 'let'.\n3. Method-Based Logic: Use methods to perform calculations (like total hours) based on the current values of stored properties.\n\nProject Steps:\n- Create the 'Worker' struct with the required stored properties.\n- Implement 'addShift()' as a mutating method to increment the shift count.\n- Implement 'calculateTotalHours()' as a method to multiply shifts by hours per shift.\n- In the test code, use 'var' for workers who will have shifts added.\n\nBest Practices:\n- Only mark a method 'mutating' if it actually changes the struct's state.\n- Use methods for derived data calculations when staying within basic struct features.",
     "pass": 4,
-    "solution": "struct Worker {\n    let name: String\n    var shifts: Int\n    let hoursPerShift: Int\n\n    mutating func addShift() {\n        shifts += 1\n    }\n\n    var totalHours: Int {\n        shifts * hoursPerShift\n    }\n}",
-    "starterCode": "// Mantle 1 Project B: Shift Tracker\n// Track worker shifts and total hours.\n//\n// Requirements:\n// - Define a struct Worker with:\n//   - name: String\n//   - shifts: Int\n//   - hoursPerShift: Int\n// - Add a mutating method addShift()\n// - Add computed property totalHours (shifts * hoursPerShift)\n// - Create:\n//   - Worker \"Ada\" with shifts 2, hoursPerShift 4\n//   - Worker \"Ben\" with shifts 1, hoursPerShift 5\n// - Call addShift() once on Ada\n// - Print:\n//   \"Ada: 12\"\n//   \"Ben: 5\"\n//   \"Total: 17\"\n//\n// TODO: Implement Worker and the reporting logic.\n\n// Test code (don't modify):\nvar ada = Worker(name: \"Ada\", shifts: 2, hoursPerShift: 4)\nlet ben = Worker(name: \"Ben\", shifts: 1, hoursPerShift: 5)\nada.addShift()\nprint(\"\\(ada.name): \\(ada.totalHours)\")\nprint(\"\\(ben.name): \\(ben.totalHours)\")\nprint(\"Total: \\(ada.totalHours + ben.totalHours)\")",
+    "solution": "struct Worker {\n    let name: String\n    var shifts: Int\n    let hoursPerShift: Int\n\n    mutating func addShift() {\n        shifts += 1\n    }\n\n    func calculateTotalHours() -> Int {\n        return shifts * hoursPerShift\n    }\n}",
+    "starterCode": "// Mantle 1 Project B: Shift Tracker\n// Track worker shifts and total hours using mutating methods.\n//\n// Requirements:\n// - Define a struct Worker with:\n//   - name: String\n//   - shifts: Int\n//   - hoursPerShift: Int\n// - Add a mutating method 'addShift()' that adds 1 to 'shifts'\n// - Add a method 'calculateTotalHours() -> Int' (shifts * hoursPerShift)\n// - Create:\n//   - Worker \"Ada\" with shifts 2, hoursPerShift 4\n//   - Worker \"Ben\" with shifts 1, hoursPerShift 5\n// - Call 'addShift()' once on Ada\n// - Print:\n//   \"Ada: 12\"\n//   \"Ben: 5\"\n//   \"Total: 17\"\n//\n// TODO 1: Implement the 'Worker' struct with a mutating method\n// TODO 2: Add method 'calculateTotalHours()'\n\n// Test code (don't modify):\nvar ada = Worker(name: \"Ada\", shifts: 2, hoursPerShift: 4)\nlet ben = Worker(name: \"Ben\", shifts: 1, hoursPerShift: 5)\nada.addShift()\nprint(\"\\(ada.name): \\(ada.calculateTotalHours())\")\nprint(\"\\(ben.name): \\(ben.calculateTotalHours())\")\nprint(\"Total: \\(ada.calculateTotalHours() + ben.calculateTotalHours())\")",
     "testCases": [
       {
         "expectedOutput": "Ada: 12",
@@ -388,93 +388,94 @@
     "title": "Shared Controller"
   },
   {
-    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
-    "completionMessage": "Protocols and extensions are now part of your toolkit.",
+    "cheatsheet": "Project Cheatsheet: Power Model\n- Protocols: Always use 'var' for requirements: 'var id: String { get }'\n- Conformance: 'let' can satisfy a protocol's '{ get }' requirement\n- Protocol as Type: Functions can accept any type that conforms to a protocol",
+    "completionMessage": "Protocols and protocol types are now part of your toolkit.",
     "completionTitle": "🏗️ Mantle 2 Complete!",
     "description": "Use protocols, extensions, and access control",
     "hints": [
-      "Use a protocol extension to format the report string.",
-      "Conform both structs to Inspectable.",
-      "The 'Inspectable' protocol should require 'id' and 'status' properties.",
-      "The protocol extension should provide a default implementation for 'report() -> String'."
+      "The 'Powerable' protocol should require 'id: String' and 'level: Int' properties using the '{ get }' syntax.",
+      "The 'checkPower(unit:)' function must use 'Powerable' as the type for its parameter to demonstrate polymorphism.",
+      "In your structs, you can satisfy the '{ get }' requirement using either 'let' or 'var'.",
+      "Ensure you create both a 'Valve' and a 'Heater' instance and pass them to the same function."
     ],
     "id": "mantle2a",
     "layer": "mantle",
-    "lesson": "Lesson: Component Inspector\nIn this project, you will use protocols and extensions to build a unified reporting system for different types of forge components.\n\nKey Learning Objectives:\n1. Protocol Definition: Create a common interface ('Inspectable') that different types can share.\n2. Default Implementations: Use a protocol extension to provide a standard 'report()' format, reducing code duplication.\n3. Polymorphism: Use the protocol as a type in an array ('[Inspectable]') to treat different structs as if they were the same type.\n\nProject Steps:\n- Define the 'Inspectable' protocol.\n- Extend 'Inspectable' to add the default 'report()' method.\n- Define 'Valve' and 'Sensor' structs that conform to the protocol.\n- Verify that both types correctly use the default reporting behavior.\n\nBest Practices:\n- Protocols should describe 'capabilities' or 'traits'.\n- Use default implementations for logic that is identical across most conforming types.",
+    "lesson": "Lesson: Component Power Model\nIn this project, you will use protocols as types to build a flexible system for managing power across different forge components.\n\nKey Learning Objectives:\n1. Protocol Definition: Create a common interface ('Powerable') that different types can share. Use 'var' with '{ get }' for read-only requirements.\n2. Protocol as Type: Write functions that accept any type conforming to a protocol, rather than a specific class or struct.\n3. Conformance: Ensure your data models correctly implement the required protocol properties.\n\nProject Steps:\n- Define the 'Powerable' protocol with 'id' and 'level' requirements.\n- Write a 'checkPower(unit:)' function that uses the protocol as a parameter type.\n- Define 'Valve' and 'Heater' structs that conform to the protocol.\n- Verify that your function can process both types interchangeably.\n\nBest Practices:\n- Protocols should describe 'capabilities' or 'traits'.\n- Use protocols as types to write more generic, reusable code.",
     "pass": 5,
-    "solution": "protocol Inspectable {\n    var id: String { get }\n    var status: String { get }\n}\n\nextension Inspectable {\n    func report() -> String {\n        return \"\\(id): \\(status)\"\n    }\n}\n\nstruct Valve: Inspectable {\n    let id: String\n    let status: String\n}\n\nstruct Sensor: Inspectable {\n    let id: String\n    let status: String\n}",
-    "starterCode": "// Mantle 2 Project A: Component Inspector\n// Define components and print inspection reports.\n//\n// Requirements:\n// - Define a protocol Inspectable with:\n//   - id: String\n//   - status: String\n// - Add a default method report() -> String in a protocol extension\n// - Create a struct 'Valve' that conforms (id: \"V1\", status: \"OK\")\n// - Create a struct 'Sensor' that conforms (id: \"S2\", status: \"WARN\")\n// - Print:\n//   \"V1: OK\"\n//   \"S2: WARN\"\n//\n// TODO: Implement Inspectable, the extension, and the structs.\n\n// Test code (don't modify):\nlet items: [Inspectable] = [\n    Valve(id: \"V1\", status: \"OK\"),\n    Sensor(id: \"S2\", status: \"WARN\"),\n]\nfor item in items {\n    print(item.report())\n}",
+    "solution": "protocol Powerable {\n    var id: String { get }\n    var level: Int { get }\n}\n\nfunc checkPower(unit: Powerable) {\n    print(\"\\(unit.id): \\(unit.level)\")\n}\n\nstruct Valve: Powerable {\n    let id: String\n    let level: Int\n}\n\nstruct Heater: Powerable {\n    let id: String\n    let level: Int\n}",
+    "starterCode": "// Mantle 2 Project A: Component Power Model\n// Model power levels and process components via protocols.\n//\n// Requirements:\n// - Define a protocol Powerable with:\n//   - id: String\n//   - level: Int\n// - Write a function 'checkPower(unit:)' that prints \"<id>: <level>\"\n//   - The parameter 'unit' MUST use the protocol as its type.\n// - Define a struct 'Valve' that conforms to Powerable\n// - Define a struct 'Heater' that conforms to Powerable\n// - Note: The test code below will create instances with \"V1\"/80 and \"H2\"/120.\n//\n// TODO 1: Define protocol 'Powerable' with 'id' and 'level' (read-only)\n// TODO 2: Write function 'checkPower(unit:)' using 'Powerable' as the parameter type\n// TODO 3: Create struct 'Valve' conforming to 'Powerable'\n// TODO 4: Create struct 'Heater' conforming to 'Powerable'\n\n// Test code (don't modify):\nlet valve = Valve(id: \"V1\", level: 80)\nlet heater = Heater(id: \"H2\", level: 120)\ncheckPower(unit: valve)\ncheckPower(unit: heater)",
     "testCases": [
       {
-        "expectedOutput": "V1: OK",
+        "expectedOutput": "V1: 80",
         "input": "v1"
       },
       {
-        "expectedOutput": "S2: WARN",
-        "input": "s2"
+        "expectedOutput": "H2: 120",
+        "input": "h2"
       }
     ],
     "tier": "mainline",
-    "title": "Component Inspector"
+    "title": "Component Power Model"
   },
   {
-    "cheatsheet": "Protocols (Interfaces)\n- Definition: protocol Name { var property: Type { get set }; func method() }\n- Conformance: struct MyType: Name { ... }\n- Requirements: Conforming types must implement all non-optional requirements.\n- Protocol as Type: You can use a protocol as a variable type or parameter type.\n- Composition: Use & to require multiple protocols (e.g., protocol A & B).",
-    "completionMessage": "Nice use of protocol composition.",
+    "cheatsheet": "Project Cheatsheet: System Inspector\n- Protocol Inheritance: protocol Child: Parent { ... }\n- Protocol Composition: typealias Both = A & B or func(item: A & B)\n- Shared Requirements: Conforming to a child protocol satisfies all parents",
+    "completionMessage": "You've mastered complex protocol relationships.",
     "completionTitle": "✨ Mantle 2 Extra Project Complete!",
     "description": "Use protocol composition with shared formatting",
     "hints": [
-      "Inherit both protocols in Inspectable, then add report() in an extension.",
-      "The 'Inspectable' protocol can be empty if it just inherits from 'Identifiable' and 'Statused'.",
-      "By extending 'Inspectable', you get access to properties from both parent protocols."
+      "Define 'Inspectable' to inherit from both 'Identifiable' and 'Statused' using a comma: 'protocol Inspectable: Identifiable, Statused { }'.",
+      "The 'inspect(_:)' function should take a parameter of type 'Identifiable & Statused' to demonstrate composition.",
+      "Inside the function, you can access properties from both protocols because of the composition requirement.",
+      "Since 'Valve' conforms to 'Inspectable', it implicitly satisfies both requirements for the function call."
     ],
     "id": "mantle2b",
     "layer": "mantle",
-    "lesson": "Lesson: Inspection Line\nThis project explores protocol inheritance and composition, allowing you to build complex requirements from simple, reusable blocks.\n\nKey Learning Objectives:\n1. Protocol Inheritance: Create a 'master' protocol that combines requirements from multiple parent protocols.\n2. Layered Design: Build a hierarchy of protocols to represent different levels of abstraction.\n3. Protocol-Oriented Formatting: Centralize output logic in a single extension that works for any type meeting multiple criteria.\n\nProject Steps:\n- Define 'Identifiable' and 'Statused' protocols.\n- Define 'Inspectable' which inherits from both.\n- Add the 'report()' method to an extension of 'Inspectable'.\n- Conform structs to the 'Inspectable' protocol.\n\nBest Practices:\n- Decomposition: Start with the smallest possible protocols and compose them into larger ones as needed.",
+    "lesson": "Lesson: System Inspector\nIn this project, you will use protocol inheritance and composition to build a complex requirement system for advanced forge components.\n\nKey Learning Objectives:\n1. Protocol Inheritance: Create 'master' protocols that combine requirements from parent protocols.\n2. Protocol Composition: Use the '&' operator to require multiple independent behaviors in a single function parameter.\n3. Layered Design: Build a hierarchy of protocols to represent different levels of abstraction.\n\nProject Steps:\n- Define 'Identifiable' and 'Statused' protocols.\n- Define an 'Inspectable' protocol that inherits from both.\n- Write a function 'inspect(_:)' that uses protocol composition ('Identifiable & Statused') to accept conforming types.\n- Define a 'Valve' struct that conforms to the 'Inspectable' protocol.\n- Verify that your function can process the Valve instance.\n\nBest Practices:\n- Decomposition: Start with the smallest possible protocols and compose them into larger ones as needed.",
     "pass": 5,
-    "solution": "protocol Identifiable {\n    var id: String { get }\n}\n\nprotocol Statused {\n    var status: String { get }\n}\n\nprotocol Inspectable: Identifiable, Statused {}\n\nextension Inspectable {\n    func report() -> String {\n        return \"\\(id): \\(status)\"\n    }\n}\n\nstruct Valve: Inspectable {\n    let id: String\n    let status: String\n}\n\nstruct Sensor: Inspectable {\n    let id: String\n    let status: String\n}",
-    "starterCode": "// Mantle 2 Project B: Inspection Line\n// Compose protocols and build a report.\n//\n// Requirements:\n// - Define protocol Identifiable (id: String)\n// - Define protocol Statused (status: String)\n// - Define protocol Inspectable that inherits Identifiable and Statused\n// - Add an extension on Inspectable with report() -> String\n// - Create a struct Valve and Sensor that conform to Inspectable\n// - Print:\n//   \"V1: OK\"\n//   \"S2: WARN\"\n//\n// TODO: Implement the protocols, extension, and structs.\n\n// Test code (don't modify):\nlet valve = Valve(id: \"V1\", status: \"OK\")\nlet sensor = Sensor(id: \"S2\", status: \"WARN\")\nprint(valve.report())\nprint(sensor.report())",
+    "solution": "protocol Identifiable {\n    var id: String { get }\n}\n\nprotocol Statused {\n    var status: String { get }\n}\n\nprotocol Inspectable: Identifiable, Statused {}\n\nfunc inspect(_ unit: Identifiable & Statused) {\n    print(\"Unit \\(unit.id): \\(unit.status)\")\n}\n\nstruct Valve: Inspectable {\n    let id: String\n    let status: String\n}",
+    "starterCode": "// Mantle 2 Project B: System Inspector\n// Compose and inherit protocols to build advanced requirements.\n//\n// Requirements:\n// - Define protocol Identifiable (id: String { get })\n// - Define protocol Statused (status: String { get })\n// - Define protocol Inspectable inheriting from both\n// - Write a function 'inspect(_:)' that prints \"Unit <id>: <status>\"\n//   - The parameter MUST use protocol composition: (Identifiable & Statused)\n// - Create a struct Valve conforming to Inspectable\n// - Print:\n//   \"Unit V1: OK\"\n//\n// TODO 1: Define protocols 'Identifiable', 'Statused', and 'Inspectable'\n// TODO 2: Write function 'inspect(_:)' using protocol composition\n// TODO 3: Create struct 'Valve' conforming to 'Inspectable'\n// TODO 4: Call 'inspect' with a Valve(id: \"V1\", status: \"OK\")\n\n// Test code (don't modify):\nlet valve = Valve(id: \"V1\", status: \"OK\")\ninspect(valve)",
     "testCases": [
       {
-        "expectedOutput": "V1: OK",
+        "expectedOutput": "Unit V1: OK",
         "input": "v1"
-      },
-      {
-        "expectedOutput": "S2: WARN",
-        "input": "s2"
       }
     ],
     "tier": "extra",
-    "title": "Inspection Line"
+    "title": "System Inspector"
   },
   {
-    "cheatsheet": "Error Handling\n- Defining Errors: Use an enum that conforms to 'Error'.\n- Throwing: Use 'throw MyError.something' inside a function marked 'throws'.\n- Handling:\n  - do { try function() } catch { ... }\n  - try?: Returns an optional, nil if an error was thrown.\n  - try!: Disables error propagation; crashes if an error is thrown.\n- Rethrows: Used when a function takes a throwing closure and propagates its errors.",
-    "completionMessage": "Solid error handling practice.",
+    "cheatsheet": "Project Cheatsheet: Thermal Monitor\n- didSet: Observer that runs after a value changes\n- lazy: Property that initializes only on first access\n- static: Property shared across all instances of the type",
+    "completionMessage": "You've mastered advanced property management.",
     "completionTitle": "✨ Mantle 2 Extra Project Complete!",
-    "description": "Throw and handle errors safely",
+    "description": "Build a thermal monitor that uses property observers, lazy initialization, and shared type state to manage forge metrics.",
     "hints": [
-      "Throw when the temperature is below the threshold.",
-      "The 'Heater' struct should have a function 'heat(to level: Int) throws'.",
-      "Use 'throw HeatError.tooCold' inside an 'if' statement.",
-      "In the test code, use 'do { try ... } catch { ... }' to handle the potential failure."
+      "The static property 'totalReadings' should be accessed using the type name: 'Monitor.totalReadings'.",
+      "Use 'didSet' on the 'reading' property to increment the global count and print the update.",
+      "The 'lazy' property 'logHistory' should be assigned a closure that prints a message and returns a string.",
+      "Make sure to call the lazy property in your test code to see its initialization message."
     ],
     "id": "mantle2c",
     "layer": "mantle",
-    "lesson": "Lesson: Safe Heater\nIn this project, you will implement a robust error handling system to prevent the forge from operating under unsafe conditions.\n\nKey Learning Objectives:\n1. Error Modeling: Use an enum to represent specific, meaningful error cases.\n2. Propagation: Practice marking functions with 'throws' to indicate they can fail.\n3. Handling: Use do-try-catch blocks to gracefully handle errors and provide feedback to the user.\n\nProject Steps:\n- Define the 'HeatError' enum.\n- Implement the 'heat(to:)' throwing function in the 'Heater' struct.\n- Add logic to throw the error when the temperature is too low.\n- Use the provided test code to verify that both success and failure paths work as expected.\n\nBest Practices:\n- Specificity: Throw specific errors instead of generic ones to help with debugging.\n- Documentation: In real projects, document why a function throws and what cases it covers.",
+    "lesson": "Lesson: Thermal Monitor\nIn this project, you will use advanced property features to manage performance and state changes in a forge monitoring system.\n\nKey Learning Objectives:\n1. Property Observers: Use 'didSet' to automatically respond to changes in a reading.\n2. Lazy Properties: Use 'lazy' to defer expensive setup (like loading a large history) until it is actually needed.\n3. Type Properties: Use 'static' to track data that belongs to the type itself, such as a global reading count.\n\nProject Steps:\n- Create a 'Monitor' struct.\n- Implement a static property 'totalReadings' to track global usage.\n- Implement a 'reading' property with a 'didSet' observer that increments the static count and prints the new value.\n- Implement a 'lazy' property 'logHistory' that provides a default startup message.\n- Verify that the static count increments and the lazy property only initializes when accessed.\n\nBest Practices:\n- Use 'lazy' for properties that might not be used in every session to save resources.\n- Use property observers to keep related state (like global counters) in sync automatically.",
     "pass": 5,
-    "solution": "enum HeatError: Error {\n    case tooCold\n}\n\nstruct Heater {\n    func heat(to level: Int) throws {\n        if level < 1000 {\n            throw HeatError.tooCold\n        }\n    }\n}",
-    "starterCode": "// Mantle 2 Project C: Safe Heater\n// Throw errors and handle them with do/try/catch.\n//\n// Requirements:\n// - Define enum HeatError: Error with case tooCold\n// - Define struct Heater with func heat(to:) throws\n// - Throw tooCold if level < 1000\n// - In test code, call with 900 and 1200\n// - Print:\n//   \"Too cold\"\n//   \"Heated\"\n//\n// TODO: Implement HeatError and Heater.\n\n// Test code (don't modify):\nlet heater = Heater()\ndo {\n    try heater.heat(to: 900)\n} catch {\n    print(\"Too cold\")\n}\ndo {\n    try heater.heat(to: 1200)\n    print(\"Heated\")\n} catch {\n    print(\"Too cold\")\n}",
+    "solution": "struct Monitor {\n    static var totalReadings = 0\n\n    var reading: Int = 0 {\n        didSet {\n            Monitor.totalReadings += 1\n            print(\"New reading: \\(reading)\")\n        }\n    }\n\n    lazy var logHistory: String = {\n        print(\"History initialized\")\n        return \"System Log\"\n    }()\n}",
+    "starterCode": "// Mantle 2 Project C: Thermal Monitor\n// Use property observers, lazy, and static properties.\n//\n// Requirements:\n// - Define a struct 'Monitor' with:\n//   - A static property 'totalReadings' (Int, start at 0)\n//   - A property 'reading' (Int) with a 'didSet' observer that:\n//     - Increments 'totalReadings'\n//     - Prints \"New reading: <value>\"\n//   - A 'lazy' property 'logHistory' (String) initialized to \"System Log\"\n//     - (Note: the lazy init should print \"History initialized\")\n// - Print:\n//   \"New reading: 1500\"\n//   \"History initialized\"\n//   \"Total: 1\"\n//\n// TODO 1: Implement the Monitor struct with static, lazy, and observed properties.\n// TODO 2: Update 'monitor.reading' to 1500\n// TODO 3: Print 'monitor.logHistory'\n// TODO 4: Print the static 'Monitor.totalReadings'\n\n// Test code (don't modify):\nvar monitor = Monitor()\nmonitor.reading = 1500\nprint(monitor.logHistory)\nprint(\"Total: \\(Monitor.totalReadings)\")",
     "testCases": [
       {
-        "expectedOutput": "Too cold",
-        "input": "cold"
+        "expectedOutput": "New reading: 1500",
+        "input": "reading"
       },
       {
-        "expectedOutput": "Heated",
-        "input": "heated"
+        "expectedOutput": "History initialized",
+        "input": "history"
+      },
+      {
+        "expectedOutput": "Total: 1",
+        "input": "total"
       }
     ],
     "tier": "extra",
-    "title": "Safe Heater"
+    "title": "Thermal Monitor"
   },
   {
     "cheatsheet": "Memory Management (ARC)\n- ARC: Automatic Reference Counting manages memory for class instances.\n- Strong Reference: The default. Keeps the instance alive as long as the reference exists.\n- Weak Reference: Does not keep the instance alive. Automatically becomes 'nil' when the instance is released. Must be 'var' and optional.\n- Reference Cycle: Occurs when two instances hold strong references to each other, preventing them from ever being released.\n- [weak self]: Used in closure capture lists to avoid reference cycles.",
@@ -599,30 +600,6 @@
     "title": "Async Client"
   },
   {
-    "cheatsheet": "Project Cheatsheet: KeyPath Transformer\n- Key paths access stored properties\n- map can use \\Type.property\n- Reduce combines values into one",
-    "completionMessage": "Great work using key paths for aggregation.",
-    "completionTitle": "✨ Crust 1 Extra Project Complete!",
-    "description": "Aggregate values with key paths",
-    "hints": [
-      "Use map(\\.value) to extract values.",
-      "Reduce the values to a total before printing."
-    ],
-    "id": "crust1b",
-    "layer": "crust",
-    "lesson": "Lesson: KeyPath Transformer\nGoal:\nAggregate values with key paths\n\nKey Concepts:\n- Key paths access stored properties\n- map can use \\Type.property\n- Reduce combines values into one\n\nImplementation Plan:\n- Isolate advanced pieces (async flow, builders, key paths, or modular boundaries) in small functions.\n- Keep results deterministic by controlling ordering before printing.\n- Validate both correctness and structure so behavior remains stable as complexity grows.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Creating hidden async/order coupling that passes once but fails on reruns.",
-    "pass": 7,
-    "solution": "struct Reading {\n    let label: String\n    let value: Int\n}\n\nlet readings = [\n    Reading(label: \"Iron\", value: 2),\n    Reading(label: \"Gold\", value: 4),\n]\n\nlet values = readings.map(\\.value)\nlet total = values.reduce(0, +)\nprint(\"Total: \\(total)\")",
-    "starterCode": "// Crust 1 Project B: KeyPath Transformer\n// Aggregate values with key paths.\n//\n// Requirements:\n// - Create an array of readings:\n//   - (\"Iron\", 2)\n//   - (\"Gold\", 4)\n// - Use a key path to map values\n// - Sum them and print \"Total: 6\"\n//\n// TODO: Implement the transformer.\n\nstruct Reading {\n    let label: String\n    let value: Int\n}\n\nlet readings = [\n    Reading(label: \"Iron\", value: 2),\n    Reading(label: \"Gold\", value: 4),\n]\n\n// TODO: Map values with a key path and print the total",
-    "testCases": [
-      {
-        "expectedOutput": "Total: 6",
-        "input": "total"
-      }
-    ],
-    "tier": "extra",
-    "title": "KeyPath Transformer"
-  },
-  {
     "cheatsheet": "Project Cheatsheet: Task Orchestrator\n- withTaskGroup manages child tasks\n- Sum results as they arrive\n- Keep output deterministic",
     "completionMessage": "Nice job coordinating async tasks.",
     "completionTitle": "✨ Crust 1 Extra Project Complete!",
@@ -631,12 +608,12 @@
       "Add a task for each value and sum with for await.",
       "Print the final total after the group finishes."
     ],
-    "id": "crust1c",
+    "id": "crust1b",
     "layer": "crust",
     "lesson": "Lesson: Task Orchestrator\nGoal:\nCoordinate task-group work\n\nKey Concepts:\n- withTaskGroup manages child tasks\n- Sum results as they arrive\n- Keep output deterministic\n\nImplementation Plan:\n- Isolate advanced pieces (async flow, builders, key paths, or modular boundaries) in small functions.\n- Keep results deterministic by controlling ordering before printing.\n- Validate both correctness and structure so behavior remains stable as complexity grows.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Assuming collection iteration order is stable when output requires a fixed order.\n- Creating hidden async/order coupling that passes once but fails on reruns.",
     "pass": 7,
     "solution": "import Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nrunAsync {\n    let total = await withTaskGroup(of: Int.self) { group -> Int in\n        for value in [2, 4, 6] {\n            group.addTask { value }\n        }\n\n        var sum = 0\n        for await value in group {\n            sum += value\n        }\n        return sum\n    }\n\n    print(\"Sum: \\(total)\")\n}",
-    "starterCode": "// Crust 1 Project C: Task Orchestrator\n// Coordinate task-group work.\n//\n// Requirements:\n// - Use withTaskGroup to sum [2, 4, 6]\n// - Print \"Sum: 12\"\n//\n// TODO: Implement the task group.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nrunAsync {\n    // TODO: Sum the values with a task group\n    // TODO: Print the result\n}",
+    "starterCode": "// Crust 1 Project B: Task Orchestrator\n// Coordinate task-group work.\n//\n// Requirements:\n// - Use withTaskGroup to sum [2, 4, 6]\n// - Print \"Sum: 12\"\n//\n// TODO: Implement the task group.\n\nimport Foundation\n\nfunc runAsync(_ operation: @escaping () async -> Void) {\n    let group = DispatchGroup()\n    group.enter()\n    Task {\n        await operation()\n        group.leave()\n    }\n    group.wait()\n}\n\nrunAsync {\n    // TODO: Sum the values with a task group\n    // TODO: Print the result\n}",
     "testCases": [
       {
         "expectedOutput": "Sum: 12",
@@ -645,6 +622,30 @@
     ],
     "tier": "extra",
     "title": "Task Orchestrator"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: KeyPath Transformer\n- Key paths access stored properties\n- map can use \\Type.property\n- Reduce combines values into one",
+    "completionMessage": "Great work using key paths for aggregation.",
+    "completionTitle": "✨ Crust 1 Extra Project Complete!",
+    "description": "Aggregate values with key paths",
+    "hints": [
+      "Use map(\\.value) to extract values.",
+      "Reduce the values to a total before printing."
+    ],
+    "id": "crust1c",
+    "layer": "crust",
+    "lesson": "Lesson: KeyPath Transformer\nGoal:\nAggregate values with key paths\n\nKey Concepts:\n- Key paths access stored properties\n- map can use \\Type.property\n- Reduce combines values into one\n\nImplementation Plan:\n- Isolate advanced pieces (async flow, builders, key paths, or modular boundaries) in small functions.\n- Keep results deterministic by controlling ordering before printing.\n- Validate both correctness and structure so behavior remains stable as complexity grows.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Mixing data transformation and output formatting in one large block.\n- Creating hidden async/order coupling that passes once but fails on reruns.",
+    "pass": 7,
+    "solution": "struct Reading {\n    let label: String\n    let value: Int\n}\n\nlet readings = [\n    Reading(label: \"Iron\", value: 2),\n    Reading(label: \"Gold\", value: 4),\n]\n\nlet values = readings.map(\\.value)\nlet total = values.reduce(0, +)\nprint(\"Total: \\(total)\")",
+    "starterCode": "// Crust 1 Project C: KeyPath Transformer\n// Aggregate values with key paths.\n//\n// Requirements:\n// - Create an array of readings:\n//   - (\"Iron\", 2)\n//   - (\"Gold\", 4)\n// - Use a key path to map values\n// - Sum them and print \"Total: 6\"\n//\n// TODO: Implement the transformer.\n\nstruct Reading {\n    let label: String\n    let value: Int\n}\n\nlet readings = [\n    Reading(label: \"Iron\", value: 2),\n    Reading(label: \"Gold\", value: 4),\n]\n\n// TODO: Map values with a key path and print the total",
+    "testCases": [
+      {
+        "expectedOutput": "Total: 6",
+        "input": "total"
+      }
+    ],
+    "tier": "extra",
+    "title": "KeyPath Transformer"
   },
   {
     "cheatsheet": "Project Cheatsheet: Config DSL\n- Result builders collect values\n- Custom types keep settings structured\n- Print in a stable order",
@@ -675,30 +676,6 @@
     "title": "Config DSL"
   },
   {
-    "cheatsheet": "Project Cheatsheet: Lazy Metrics\n- lazy defers work until needed\n- map transforms, reduce aggregates\n- Arrays preserve order",
-    "completionMessage": "Nice work combining lazy and reduce.",
-    "completionTitle": "✨ Crust 2 Extra Project Complete!",
-    "description": "Aggregate values with lazy transforms",
-    "hints": [
-      "Use numbers.lazy.map { $0 * 2 }.",
-      "Reduce the mapped values to a sum."
-    ],
-    "id": "crust2b",
-    "layer": "crust",
-    "lesson": "Lesson: Lazy Metrics\nGoal:\nAggregate values with lazy transforms\n\nKey Concepts:\n- lazy defers work until needed\n- map transforms, reduce aggregates\n- Arrays preserve order\n\nImplementation Plan:\n- Isolate advanced pieces (async flow, builders, key paths, or modular boundaries) in small functions.\n- Keep results deterministic by controlling ordering before printing.\n- Validate both correctness and structure so behavior remains stable as complexity grows.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Assuming collection iteration order is stable when output requires a fixed order.\n- Creating hidden async/order coupling that passes once but fails on reruns.",
-    "pass": 8,
-    "solution": "let numbers = [1, 2, 3, 4, 5]\n\nlet doubled = numbers.lazy.map { $0 * 2 }\nlet total = doubled.reduce(0, +)\nprint(\"Total: \\(total)\")",
-    "starterCode": "// Crust 2 Project B: Lazy Metrics\n// Aggregate values with lazy transforms.\n//\n// Requirements:\n// - Double the numbers [1, 2, 3, 4, 5] using lazy map\n// - Sum the results and print \"Total: 30\"\n//\n// TODO: Implement the aggregation.\n\nlet numbers = [1, 2, 3, 4, 5]\n\n// TODO: Use lazy map + reduce",
-    "testCases": [
-      {
-        "expectedOutput": "Total: 30",
-        "input": "total"
-      }
-    ],
-    "tier": "extra",
-    "title": "Lazy Metrics"
-  },
-  {
     "cheatsheet": "Project Cheatsheet: Feature Flags\n- Enums model known flags\n- Sets provide fast membership checks\n- Print booleans for enabled state",
     "completionMessage": "Feature flags are now in your toolkit.",
     "completionTitle": "✨ Crust 2 Extra Project Complete!",
@@ -707,12 +684,12 @@
       "Use flags.contains(flag) inside isEnabled.",
       "Print the two booleans in the requested format."
     ],
-    "id": "crust2c",
+    "id": "crust2b",
     "layer": "crust",
     "lesson": "Lesson: Feature Flags\nGoal:\nCheck enabled flags\n\nKey Concepts:\n- Enums model known flags\n- Sets provide fast membership checks\n- Print booleans for enabled state\n\nImplementation Plan:\n- Isolate advanced pieces (async flow, builders, key paths, or modular boundaries) in small functions.\n- Keep results deterministic by controlling ordering before printing.\n- Validate both correctness and structure so behavior remains stable as complexity grows.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Assuming collection iteration order is stable when output requires a fixed order.\n- Creating hidden async/order coupling that passes once but fails on reruns.",
     "pass": 8,
     "solution": "enum FeatureFlag: String {\n    case darkMode = \"dark\"\n    case newUI = \"new-ui\"\n}\n\nlet enabled: Set<FeatureFlag> = [.darkMode]\n\nfunc isEnabled(flags: Set<FeatureFlag>, flag: FeatureFlag) -> Bool {\n    return flags.contains(flag)\n}\n\nprint(\"Dark: \\(isEnabled(flags: enabled, flag: .darkMode))\")\nprint(\"NewUI: \\(isEnabled(flags: enabled, flag: .newUI))\")",
-    "starterCode": "// Crust 2 Project C: Feature Flags\n// Check enabled flags.\n//\n// Requirements:\n// - Define enum FeatureFlag with cases darkMode and newUI\n// - Implement isEnabled(flags:flag:) -> Bool\n// - Print:\n//   \"Dark: true\"\n//   \"NewUI: false\"\n//\n// TODO: Implement the flag checks.\n\nenum FeatureFlag: String {\n    case darkMode = \"dark\"\n    case newUI = \"new-ui\"\n}\n\nlet enabled: Set<FeatureFlag> = [.darkMode]\n\n// TODO: Write isEnabled and print the results",
+    "starterCode": "// Crust 2 Project B: Feature Flags\n// Check enabled flags.\n//\n// Requirements:\n// - Define enum FeatureFlag with cases darkMode and newUI\n// - Implement isEnabled(flags:flag:) -> Bool\n// - Print:\n//   \"Dark: true\"\n//   \"NewUI: false\"\n//\n// TODO: Implement the flag checks.\n\nenum FeatureFlag: String {\n    case darkMode = \"dark\"\n    case newUI = \"new-ui\"\n}\n\nlet enabled: Set<FeatureFlag> = [.darkMode]\n\n// TODO: Write isEnabled and print the results",
     "testCases": [
       {
         "expectedOutput": "Dark: true",
@@ -725,6 +702,30 @@
     ],
     "tier": "extra",
     "title": "Feature Flags"
+  },
+  {
+    "cheatsheet": "Project Cheatsheet: Lazy Metrics\n- lazy defers work until needed\n- map transforms, reduce aggregates\n- Arrays preserve order",
+    "completionMessage": "Nice work combining lazy and reduce.",
+    "completionTitle": "✨ Crust 2 Extra Project Complete!",
+    "description": "Aggregate values with lazy transforms",
+    "hints": [
+      "Use numbers.lazy.map { $0 * 2 }.",
+      "Reduce the mapped values to a sum."
+    ],
+    "id": "crust2c",
+    "layer": "crust",
+    "lesson": "Lesson: Lazy Metrics\nGoal:\nAggregate values with lazy transforms\n\nKey Concepts:\n- lazy defers work until needed\n- map transforms, reduce aggregates\n- Arrays preserve order\n\nImplementation Plan:\n- Isolate advanced pieces (async flow, builders, key paths, or modular boundaries) in small functions.\n- Keep results deterministic by controlling ordering before printing.\n- Validate both correctness and structure so behavior remains stable as complexity grows.\n\nCommon Mistakes:\n- Printing almost-correct output that differs by whitespace or label text.\n- Assuming collection iteration order is stable when output requires a fixed order.\n- Creating hidden async/order coupling that passes once but fails on reruns.",
+    "pass": 8,
+    "solution": "let numbers = [1, 2, 3, 4, 5]\n\nlet doubled = numbers.lazy.map { $0 * 2 }\nlet total = doubled.reduce(0, +)\nprint(\"Total: \\(total)\")",
+    "starterCode": "// Crust 2 Project C: Lazy Metrics\n// Aggregate values with lazy transforms.\n//\n// Requirements:\n// - Double the numbers [1, 2, 3, 4, 5] using lazy map\n// - Sum the results and print \"Total: 30\"\n//\n// TODO: Implement the aggregation.\n\nlet numbers = [1, 2, 3, 4, 5]\n\n// TODO: Use lazy map + reduce",
+    "testCases": [
+      {
+        "expectedOutput": "Total: 30",
+        "input": "total"
+      }
+    ],
+    "tier": "extra",
+    "title": "Lazy Metrics"
   },
   {
     "cheatsheet": "Project Cheatsheet: Mini Framework\n- Protocols define boundaries\n- Inject dependencies for testability\n- Store events in a simple sink",

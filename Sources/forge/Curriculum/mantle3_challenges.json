@@ -12,14 +12,15 @@
       ],
       "requiredTokens": []
     },
-    "description": "Encapsulate a `Vault` using `private` and `private(set)`, and provide an explicit `internal` initializer.",
-    "expectedOutput": "Vault ready",
+    "description": "Encapsulate a `Vault` struct. Protect the `code` with `private` and allow read-only access to `state` with `private(set)`. Initialize with code 1234 and print the state.",
+    "expectedOutput": "Locked",
     "fixtureFiles": [],
     "hints": [
       "'private' limits access to the current type, while 'private(set)' allows others to read but not write.",
       "An 'internal' initializer is accessible throughout your module (the default level).",
       "Explicitly write 'internal init(code: Int) { ... }' to practice the syntax.",
-      "Use 'self.code = code' to initialize the private property."
+      "Use 'self.code = code' to initialize the private property.",
+      "Finally, print the 'state' property to confirm it is readable from outside the struct."
     ],
     "id": "",
     "introduces": [
@@ -32,8 +33,8 @@
     "manualCheck": false,
     "number": 147,
     "requires": [],
-    "solution": "struct Vault {\n    private var code: Int\n    private(set) var state: String = \"Locked\"\n\n    internal init(code: Int) {\n        self.code = code\n    }\n}\n\nlet _ = Vault(code: 1234)\nprint(\"Vault ready\")",
-    "starterCode": "// Challenge 147: Access Control 1\n// Add private and internal members.\n\nstruct Vault {\n    private var code: Int\n    private(set) var state: String = \"Locked\"\n    // TODO: Add an internal init(code:)\n}\n\n// TODO: Create a Vault and print \"Vault ready\"",
+    "solution": "struct Vault {\n    private var code: Int\n    private(set) var state: String = \"Locked\"\n\n    internal init(code: Int) {\n        self.code = code\n    }\n}\n\nlet vault = Vault(code: 1234)\nprint(vault.state)",
+    "starterCode": "// Challenge 147: Access Control 1\n// Use private and private(set) for encapsulation.\n\nstruct Vault {\n    private var code: Int\n    private(set) var state: String = \"Locked\"\n    // TODO: Add an internal init(code: Int) that sets self.code\n}\n\n// TODO: Create a Vault with code 1234\n// TODO: Print the vault's 'state' property",
     "tier": "mainline",
     "title": "Access Control 1",
     "topic": "accessControl"

@@ -293,25 +293,27 @@
       ],
       "requiredTokens": []
     },
-    "description": "Add a `label()` method to the `Ingot` struct using an extension and print a label for an ingot with weight 5.",
-    "expectedOutput": "Ingot 5",
+    "description": "Extend the `Ingot` struct with a read-only computed property `label` that returns the string \"Ingot weight: \" followed by the weight, then print the label for an ingot with weight 5.",
+    "expectedOutput": "Ingot weight: 5",
     "fixtureFiles": [],
     "hints": [
-      "Use 'extension Ingot { ... }' to add functionality outside the original definition.",
-      "The 'label()' method should return a string: \"Ingot \\(weight)\".",
-      "Create an instance with weight 5 to match the expected output."
+      "Use 'extension Ingot { ... }' to add the new property.",
+      "A read-only computed property can be declared using shorthand: 'var label: String { ... }'.",
+      "The property should return \"Ingot weight: \\(weight)\".",
+      "Ensure you use exactly \"Ingot weight: \" (with a space after the colon) to match the output check.",
+      "Create an Ingot instance with weight 5 and print its label."
     ],
     "id": "",
     "introduces": [
       "extensions"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Extensions\nExtensions add new functionality to an existing class, structure, enumeration, or protocol type. This includes adding methods, computed properties, and protocol conformance even to types you don't have the source code for.\n\nCore Concepts:\n1. Retroactive Modeling: Adding behavior to types after they are defined.\n2. Organization: Using extensions to group related methods and keep the main type definition clean.\n\nExample:\n    struct Item { let id: Int }\n    extension Item {\n        func describe() { print(\"Item ID: \\(id)\") }\n    }\n\nNote: Extensions can add new behavior, but they cannot override existing behavior or add new stored properties.",
+    "lesson": "Lesson: Domain Formatting with Extensions\nExtensions are frequently used to add 'domain-specific' formatting or convenience helpers to data models. This keeps your primary struct definition focused on raw data while moving user-facing representation (like labels or formatted strings) into organized blocks.\n\nCore Concepts:\n1. Retroactive Extension: You can add these helpers even to types you didn't create yourself.\n2. Computed Properties: Extensions are a perfect place for read-only computed properties that derive a user-friendly view of internal state.\n3. Formatting Logic: By centralizing string formatting in an extension, you ensure consistency whenever that label is displayed in your system.\n\nExample:\n    struct Item { let id: Int }\n    extension Item {\n        var displayID: String { return \"ID: \\(id)\" }\n    }\n\nNote: This is an idiomatic Swift pattern for separating 'data storage' from 'data presentation'.",
     "manualCheck": false,
     "number": 145,
     "requires": [],
-    "solution": "extension Ingot {\n    func label() -> String {\n        return \"Ingot \\(weight)\"\n    }\n}\n\nlet ingot = Ingot(weight: 5)\nprint(ingot.label())",
-    "starterCode": "// Challenge 145: Extensions\n// Add behavior using an extension.\n\nstruct Ingot {\n    let weight: Int\n}\n\n// TODO: Add an extension that adds a method 'label()' -> String\n// TODO: Create an Ingot with weight 5\n// TODO: Print its label",
+    "solution": "struct Ingot {\n    let weight: Int\n}\n\nextension Ingot {\n    var label: String {\n        return \"Ingot weight: \\(weight)\"\n    }\n}\n\nlet ingot = Ingot(weight: 5)\nprint(ingot.label)",
+    "starterCode": "// Challenge 145: Extensions\n// Add domain formatting using an extension.\n\nstruct Ingot {\n    let weight: Int\n}\n\n// TODO: Create an extension block named 'extension Ingot'\n// TODO: Inside, add a read-only computed property 'label: String' returning \"Ingot weight: <weight>\"\n// TODO: Create an Ingot with weight 5 and print its label",
     "tier": "mainline",
     "title": "Extensions",
     "topic": "extensions"
@@ -329,14 +331,15 @@
       ],
       "requiredTokens": []
     },
-    "description": "Provide a default implementation for a protocol method using an extension, then call it on a struct with the message \"Report ready\".",
-    "expectedOutput": "Report ready",
+    "description": "Provide a default implementation for a protocol method that uses an internal property to format a message, then call it on a struct with the status \"Ready\".",
+    "expectedOutput": "Report status: Ready",
     "fixtureFiles": [],
     "hints": [
       "Use 'extension Reportable { ... }' to provide a default implementation for 'printReport()'.",
+      "Important: In Swift, you cannot write a method body inside the protocol definition itself; it must go in an extension.",
       "Because of the default implementation, any struct that conforms to 'Reportable' will have 'printReport()' automatically.",
-      "The method should print the value of the 'message' property.",
-      "Ensure your struct instance has the message \"Report ready\" to match the output."
+      "The method should print the prefix \"Report status: \" followed by the value of the 'message' property.",
+      "Ensure you create your struct instance with the message \"Ready\" to match the output check."
     ],
     "id": "",
     "introduces": [
@@ -344,12 +347,12 @@
       "defaultImplementations"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Protocol Extensions & Default Implementations\nProtocol extensions allow you to provide default implementations for any method or computed property requirements of that protocol. Conforming types can then use these implementations without having to provide their own.\n\nCore Concepts:\n1. \"Free\" Functionality: Types that conform to the protocol automatically gain the default behavior.\n2. Overriding: If a conforming type provides its own implementation of a default method, its implementation will be used instead.\n\nExample:\n    protocol Greeter { var name: String { get } }\n    extension Greeter {\n        func greet() { print(\"Hello, \\(name)!\") }\n    }\n    struct Person: Greeter { let name: String }\n    let p = Person(name: \"Swift\")\n    p.greet() // \"Hello, Swift!\"\n\nNote: This is the foundation of \"Protocol-Oriented Programming\" in Swift.",
+    "lesson": "Lesson: Protocol Extensions & Default Implementations\nProtocol extensions allow you to provide default implementations for any method or computed property requirements of that protocol. Conforming types can then use these implementations without having to provide their own.\n\nCore Concepts:\n1. \"Free\" Functionality: Types that conform to the protocol automatically gain the default behavior.\n2. Overriding: If a conforming type provides its own implementation of a default method, its implementation will be used instead.\n3. The Separation Rule: Unlike some other languages, Swift protocol definitions cannot contain any code. You MUST use a protocol extension to provide default logic.\n\nExample:\n    protocol Greeter { var name: String { get } }\n    extension Greeter {\n        func greet() { print(\"Hello, \\(name)!\") }\n    }\n    struct Person: Greeter { let name: String }\n    let p = Person(name: \"Swift\")\n    p.greet() // \"Hello, Swift!\"\n\nNote: This is the foundation of \"Protocol-Oriented Programming\" in Swift.",
     "manualCheck": false,
     "number": 146,
     "requires": [],
-    "solution": "extension Reportable {\n    func printReport() {\n        print(message)\n    }\n}\n\nstruct Report: Reportable {\n    let message: String\n}\n\nlet report = Report(message: \"Report ready\")\nreport.printReport()",
-    "starterCode": "// Challenge 146: Default Implementations\n// Provide default behavior with a protocol extension.\n\nprotocol Reportable {\n    var message: String { get }\n}\n\n// TODO: Add a default method 'printReport()' in a protocol extension\n// TODO: Create a struct 'Report' that conforms to Reportable\n// TODO: Call 'printReport()' on an instance with message \"Report ready\"",
+    "solution": "extension Reportable {\n    func printReport() {\n        print(\"Report status: \\(message)\")\n    }\n}\n\nstruct Report: Reportable {\n    let message: String\n}\n\nlet report = Report(message: \"Ready\")\nreport.printReport()",
+    "starterCode": "// Challenge 146: Default Implementations\n// Provide default behavior with a protocol extension.\n\nprotocol Reportable {\n    var message: String { get }\n}\n\n// TODO: Add a default 'printReport()' method in a protocol extension that prints \"Report status: <message>\"\n// TODO: Create a struct 'Report' that conforms to Reportable\n// TODO: Call 'printReport()' on an instance with message \"Ready\"",
     "tier": "mainline",
     "title": "Default Implementations",
     "topic": "extensions"
