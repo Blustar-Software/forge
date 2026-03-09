@@ -52,26 +52,26 @@
       ],
       "requiredTokens": []
     },
-    "description": "Expose library components using `public` and `open` to control subclassing and access from other modules.",
-    "expectedOutput": "Ledger\nController",
+    "description": "Define a library interface. Use `public` for a `Ledger` struct and `open` for a `Controller` class. Subclass the controller and override its status method to demonstrate how `open` allows behavioral customization.",
+    "expectedOutput": "Ledger active\nSpecialized active",
     "fixtureFiles": [],
     "hints": [
       "'public' means the type can be used, but not inherited from, outside the module.",
       "'open' is only for classes; it allows both usage AND subclassing from other modules.",
-      "Mark your struct as 'public' and your class as 'open'.",
-      "Instantiate both and print their names as requested."
+      "To change the behavior of an inherited method, you must prefix the function with the 'override' keyword.",
+      "In 'SpecializedController', override the 'status()' method to return \"Specialized active\"."
     ],
     "id": "",
     "introduces": [
       "accessControlOpen"
     ],
     "layer": "mantle",
-    "lesson": "Lesson: Public vs Open\nWhen building frameworks or libraries, you use 'public' and 'open' to define how other modules interact with your code.\n\nKey Differences:\n1. 'public': Accessible from any module. You can use the type, call its methods, and access its properties. However, you cannot subclass a public class or override its methods outside the module where it's defined.\n2. 'open': The most permissive level. Like public, but it *also* allows other modules to subclass the class and override its methods.\n\nNote: 'open' only applies to classes and class members. Structs cannot be open because they don't support inheritance.\n\nExample:\n    public struct SharedData { ... }\n    open class BaseService { ... }\n\nBest Practices:\n- Use 'public' by default for APIs you want to expose.\n- Use 'open' only when you specifically intend for users to customize your class through inheritance.",
+    "lesson": "Lesson: Public vs Open & Overriding\nWhen building frameworks or libraries, you use 'public' and 'open' to define how other modules interact with your code. \n\nKey Differences:\n1. 'public': Accessible from any module. You can use the type and call its methods, but you cannot subclass a public class or override its methods outside its own module.\n2. 'open': The most permissive level. It allows other modules to subclass the class AND override its 'open' methods.\n\nOverriding:\nWhen a subclass wants to provide its own implementation of a method from its parent, it uses the 'override' keyword. This tells the compiler that the change is intentional.\n\nExample:\n    open class Base { open func run() { print(\"Base\") } }\n    class Child: Base { \n        override func run() { print(\"Child\") } \n    }\n\nNote: 'open' only applies to classes. Structs cannot be open because they do not support inheritance.",
     "manualCheck": false,
     "number": 148,
     "requires": [],
-    "solution": "public struct Ledger {}\n\nopen class Controller {}\n\nlet _ = Ledger()\nlet _ = Controller()\nprint(\"Ledger\")\nprint(\"Controller\")",
-    "starterCode": "// Challenge 148: Access Control 2\n// Mark APIs public/open in a library.\n\n// TODO: Add a public struct 'Ledger'\n// TODO: Add an open class 'Controller'\n// TODO: Create instances of both\n// TODO: Print \"Ledger\" then \"Controller\"",
+    "solution": "public struct Ledger {\n    let status = \"Ledger active\"\n}\n\nopen class Controller {\n    open func status() -> String {\n        return \"Controller active\"\n    }\n}\n\nclass SpecializedController: Controller {\n    override func status() -> String {\n        return \"Specialized active\"\n    }\n}\n\nlet ledger = Ledger()\nlet controller = SpecializedController()\nprint(ledger.status)\nprint(controller.status())",
+    "starterCode": "// Challenge 148: Access Control 2\n// Mark APIs public/open and override behavior.\n\n// TODO: Add a public struct 'Ledger' with property status = \"Ledger active\"\n\nopen class Controller {\n    // TODO: Add an open func status() -> String returning \"Controller active\"\n}\n\n// TODO: Create class 'SpecializedController' inheriting from 'Controller'\n// TODO: Override the status() method to return \"Specialized active\"\n\n// TODO: Create instances of Ledger and SpecializedController, then print their status results",
     "tier": "mainline",
     "title": "Access Control 2",
     "topic": "accessControl"
