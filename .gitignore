@@ -12,8 +12,6 @@ workspace_projects/
 workspace_random/
 workspace_review/
 workspace_verify/
-forge_playground/
-forge_playground.playground/
 challenge_catalog.txt
 project_catalog.txt
 forge_state.json
