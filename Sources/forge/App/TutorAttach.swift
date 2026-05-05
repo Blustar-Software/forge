@@ -159,6 +159,7 @@ private func runAttachedTutor(sessionWorkspacePath: String) {
         subject: TutorBridgeSubjectSnapshot,
         diagnostics: String?
     ) {
+        // Robustly reload the code from the filesystem to ensure we see current work
         let codePath = "\(subject.workspacePath)/\(subject.filename)"
         let userCode = (try? String(contentsOfFile: codePath, encoding: .utf8)) ?? ""
         let hintsInfo = subject.hints.isEmpty ? "No hints provided yet." : "- " + subject.hints.joined(separator: "\n- ")
@@ -180,7 +181,7 @@ private func runAttachedTutor(sessionWorkspacePath: String) {
         Current Subject: \(subject.title)
         Description: \(subject.description)\(extraContext)
 
-        Student's Current Code:
+        Student's Current Code (FILE: \(subject.filename)):
         ```swift
         \(userCode)
         ```
@@ -200,18 +201,22 @@ private func runAttachedTutor(sessionWorkspacePath: String) {
         GUIDELINES:
         1. Be Socratic: Ask questions that lead the student to find the bug or understand the concept.
         2. Never give the full solution or large code blocks that can be copy-pasted.
-        3. Keep responses relatively concise and focused on one or two small steps at a time.
+        3. Do not repeat your previous advice unless the student asks for clarification.
+        4. Focus on the *specific* code the student has written above.
+        5. Keep responses concise (under 3 paragraphs).
         """
 
         if history.isEmpty {
             history.append(OllamaChatMessage(role: "system", content: systemPrompt))
         } else {
+            // Update the system prompt with the latest code/diagnostics every turn
             history[0] = OllamaChatMessage(role: "system", content: systemPrompt)
         }
         history.append(OllamaChatMessage(role: "user", content: question))
 
         let semaphore = DispatchSemaphore(value: 0)
         let fullResponse = TutorAttachBox("")
+        let reasoningResponse = TutorAttachBox("")
         let completionError = TutorAttachBox<String?>(nil)
 
         print("\nTutor is thinking...\r", terminator: "")
@@ -225,6 +230,14 @@ private func runAttachedTutor(sessionWorkspacePath: String) {
                 print(content, terminator: "")
                 fflush(stdout)
                 fullResponse.set(fullResponse.get() + content)
+            },
+            onReceiveReasoning: { reasoning in
+                if reasoningResponse.get().isEmpty {
+                    print("\n[Thinking] ", terminator: "")
+                }
+                print(".", terminator: "") // Show progress for reasoning
+                fflush(stdout)
+                reasoningResponse.set(reasoningResponse.get() + reasoning)
             },
             onComplete: { result in
                 print("")
@@ -249,6 +262,7 @@ private func runAttachedTutor(sessionWorkspacePath: String) {
             print("Tutor returned an empty response. Try again or switch models.")
             return
         }
+        // ONLY append the actual content to history, NOT the reasoning
         history.append(OllamaChatMessage(role: "assistant", content: response))
     }
 

@@ -60,7 +60,6 @@ class OllamaClient {
                 let tags = try JSONDecoder().decode(OllamaTagsResponse.self, from: data)
                 completion(.success(tags.models.map { $0.name }))
             } catch {
-                // Check if the response is actually an error JSON
                 if let ollamaError = try? JSONDecoder().decode(OllamaChatResponse.self, from: data), let msg = ollamaError.error {
                     completion(.failure(NSError(domain: "OllamaClient", code: 0, userInfo: [NSLocalizedDescriptionKey: msg])))
                 } else {
@@ -72,7 +71,13 @@ class OllamaClient {
     }
 
     @discardableResult
-    func chat(model: String, messages: [OllamaChatMessage], onReceive: @escaping @Sendable (String) -> Void, onComplete: @escaping @Sendable (Result<Void, Error>) -> Void) -> URLSessionDataTask {
+    func chat(
+        model: String,
+        messages: [OllamaChatMessage],
+        onReceive: @escaping @Sendable (String) -> Void,
+        onReceiveReasoning: (@Sendable (String) -> Void)? = nil,
+        onComplete: @escaping @Sendable (Result<Void, Error>) -> Void
+    ) -> URLSessionDataTask {
         let url = baseURL.appendingPathComponent("api/chat")
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -85,10 +90,10 @@ class OllamaClient {
             request.httpBody = body
         } catch {
             onComplete(.failure(error))
-            return URLSession().dataTask(with: request) // Return a dummy task
+            return URLSession().dataTask(with: request)
         }
 
-        let delegate = StreamDelegate(onReceive: onReceive, onComplete: onComplete)
+        let delegate = StreamDelegate(onReceive: onReceive, onReceiveReasoning: onReceiveReasoning, onComplete: onComplete)
         let session = URLSession(configuration: .default, delegate: delegate, delegateQueue: nil)
         let task = session.dataTask(with: request)
         task.resume()
@@ -98,12 +103,18 @@ class OllamaClient {
 
 private class StreamDelegate: NSObject, URLSessionDataDelegate, @unchecked Sendable {
     let onReceive: @Sendable (String) -> Void
+    let onReceiveReasoning: (@Sendable (String) -> Void)?
     let onComplete: @Sendable (Result<Void, Error>) -> Void
     var buffer = Data()
     private var encounteredError: Error?
 
-    init(onReceive: @escaping @Sendable (String) -> Void, onComplete: @escaping @Sendable (Result<Void, Error>) -> Void) {
+    init(
+        onReceive: @escaping @Sendable (String) -> Void,
+        onReceiveReasoning: (@Sendable (String) -> Void)?,
+        onComplete: @escaping @Sendable (Result<Void, Error>) -> Void
+    ) {
         self.onReceive = onReceive
+        self.onReceiveReasoning = onReceiveReasoning
         self.onComplete = onComplete
     }
 
@@ -116,7 +127,6 @@ private class StreamDelegate: NSObject, URLSessionDataDelegate, @unchecked Senda
         while let lineRange = buffer.range(of: Data("\n".utf8)) {
             let lineData = buffer.subdata(in: 0..<lineRange.lowerBound)
             buffer.removeSubrange(0..<lineRange.upperBound)
-            
             decodeAndNotify(lineData)
         }
     }
@@ -128,13 +138,10 @@ private class StreamDelegate: NSObject, URLSessionDataDelegate, @unchecked Senda
             
             if let errorMsg = response.error {
                 var fullError = "[Ollama Error] \(errorMsg)"
-                
-                // Special handling for auth errors with signin URLs
                 if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                    let signinUrl = json["signin_url"] as? String {
                     fullError += "\nPlease sign in at: \(signinUrl)"
                 }
-                
                 encounteredError = NSError(domain: "OllamaClient", code: 0, userInfo: [NSLocalizedDescriptionKey: fullError])
                 return
             }
@@ -143,13 +150,16 @@ private class StreamDelegate: NSObject, URLSessionDataDelegate, @unchecked Senda
             let reasoning = response.message?.reasoningContent ?? ""
             
             if !reasoning.isEmpty {
-                onReceive(reasoning)
+                if let onReceiveReasoning = onReceiveReasoning {
+                    onReceiveReasoning(reasoning)
+                } else {
+                    onReceive(reasoning)
+                }
             }
             if !content.isEmpty {
                 onReceive(content)
             }
         } catch {
-            // Check for raw error response that doesn't follow chat schema
             if let raw = String(data: data, encoding: .utf8), raw.contains("\"error\":") {
                 if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                    let errorMsg = json["error"] as? String {
@@ -161,19 +171,10 @@ private class StreamDelegate: NSObject, URLSessionDataDelegate, @unchecked Senda
                     return
                 }
             }
-
-            if let raw = String(data: data, encoding: .utf8) {
-                if !raw.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    // We don't mark technical decode failures as fatal to the stream yet, 
-                    // as sometimes Ollama sends non-JSON noise or partials.
-                    // print("\n[AI Debug] Failed to decode JSON chunk: \(raw)")
-                }
-            }
         }
     }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        // Process any remaining data in the buffer that didn't end with a newline
         if !buffer.isEmpty {
             decodeAndNotify(buffer)
             buffer = Data()

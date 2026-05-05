@@ -172,6 +172,7 @@ class TutorSession: @unchecked Sendable {
     private func askTutor(question: String) {
         guard let model = selectedModel else { return }
         
+        // Robustly reload the code from the filesystem to ensure we see current work
         let userCode = (try? String(contentsOfFile: "\(workspacePath)/\(subject.filename)", encoding: .utf8)) ?? ""
         
         var extraContext = ""
@@ -193,7 +194,7 @@ class TutorSession: @unchecked Sendable {
         Current Subject: \(subject.title)
         Description: \(subject.description)\(extraContext)
         
-        Student's Current Code:
+        Student's Current Code (FILE: \(subject.filename)):
         ```swift
         \(userCode)
         ```
@@ -213,16 +214,16 @@ class TutorSession: @unchecked Sendable {
         GUIDELINES:
         1. Be Socratic: Ask questions that lead the student to find the bug or understand the concept.
         2. Never give the full solution or large code blocks that can be copy-pasted.
-        3. Use Forge's philosophy: focus on the concepts introduced so far.
-        4. If they are completely stuck, give a tiny hint or a pseudo-code example of a similar (but different) problem.
-        5. Acknowledge their specific code and point out where it might be deviating from the requirements.
-        6. Keep responses relatively concise and focused on one or two small steps at a time.
+        3. Do not repeat your previous advice unless the student asks for clarification.
+        4. Focus on the *specific* code the student has written above.
+        5. Keep responses concise (under 3 paragraphs).
         """
 
         var currentHistory = history
         if currentHistory.isEmpty {
             currentHistory.append(OllamaChatMessage(role: "system", content: systemPrompt))
         } else {
+            // Update the system prompt with the latest code/diagnostics every turn
             currentHistory[0] = OllamaChatMessage(role: "system", content: systemPrompt)
         }
         
@@ -230,6 +231,7 @@ class TutorSession: @unchecked Sendable {
         
         let semaphore = DispatchSemaphore(value: 0)
         let fullResponseBox = ThreadSafeBox<String>("")
+        let reasoningResponseBox = ThreadSafeBox<String>("")
         let historyBox = ThreadSafeBox<[OllamaChatMessage]>(currentHistory)
         let wasInterrupted = ThreadSafeBox<Bool>(false)
 
@@ -252,6 +254,13 @@ class TutorSession: @unchecked Sendable {
             print(content, terminator: "")
             fflush(stdout)
             fullResponseBox.value += content
+        }, onReceiveReasoning: { reasoning in
+            if reasoningResponseBox.value.isEmpty {
+                print("\n[Thinking] ", terminator: "")
+            }
+            print(".", terminator: "") // Show progress for reasoning
+            fflush(stdout)
+            reasoningResponseBox.value += reasoning
         }, onComplete: { [weak self] result in
             if !wasInterrupted.value {
                 print("") // New line after stream
