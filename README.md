@@ -48,6 +48,7 @@ forge
 - Curriculum content lives in `Sources/forge/Curriculum/*.json` (challenges and projects by layer/tier).
 - `Sources/forge/CurriculumLoader.swift` loads JSON into model types in `Sources/forge/Challenges.swift`.
 - For quick experimentation, a `forge_playground.playground` is available in `workspace/`.
+- The playground is tracked; contributors who keep scratch code in it can run `git update-index --skip-worktree workspace/forge_playground.playground/Contents.swift` to keep local edits out of `git status`.
 - Each stage ends with a brief stage review (three challenges repeated twice) before its project unlocks.
   - You can tune the review with `--gate-passes <n>` and `--gate-count <n>`.
 - Stage review selection is deterministic by default; enable adaptive weighting with `--adaptive-on`.

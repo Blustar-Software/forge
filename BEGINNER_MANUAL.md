@@ -115,6 +115,12 @@ To use it:
 
 Note: Changes to this playground do not affect your challenge progress and it won't be overwritten by Forge.
 
+Contributor note: The playground is tracked so everyone gets a starter playground. If you want to keep local scratch code in `Contents.swift` without it appearing in `git status`, run:
+
+```sh
+git update-index --skip-worktree workspace/forge_playground.playground/Contents.swift
+```
+
 ---
 
 ---
